@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>日本語 — Learn Japanese Fast</title>
+<style>
+  :root{
+    --bg:#f7f8fa;            /* page */
+    --surface:#ffffff;       /* cards */
+    --surface-2:#f1f3f7;     /* subtle fills */
+    --ink:#1a1c23;           /* primary text */
+    --muted:#6b7280;         /* secondary text */
+    --accent:#4f46e5;        /* indigo primary */
+    --accent-soft:#eef0fe;   /* indigo tint */
+    --jp:#e4572e;            /* vermillion for Japanese glyphs */
+    --good:#16a34a;
+    --good-soft:#e7f6ec;
+    --warn:#d97706;
+    --warn-soft:#fdf1df;
+    --bad:#dc2626;
+    --bad-soft:#fdeaea;
+    --line:#e6e8ee;          /* hairline borders */
+    --radius:16px;
+    --shadow:0 1px 2px rgba(16,24,40,.04), 0 8px 24px rgba(16,24,40,.06);
+    --shadow-lg:0 4px 12px rgba(16,24,40,.08), 0 18px 40px rgba(16,24,40,.10);
+  }
+  body.dark{
+    --bg:#0e1016;
+    --surface:#181b23;
+    --surface-2:#21252f;
+    --ink:#e8eaf0;
+    --muted:#9aa1b2;
+    --accent:#8b85ff;       /* lighter indigo for contrast */
+    --accent-soft:#23233f;
+    --jp:#ff7a52;           /* warmer vermillion on dark */
+    --good:#4ade80;
+    --good-soft:#16301f;
+    --warn:#fbbf24;
+    --warn-soft:#332708;
+    --bad:#f87171;
+    --bad-soft:#3a1717;
+    --line:#2a2f3a;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+    --shadow-lg:0 4px 12px rgba(0,0,0,.4), 0 18px 40px rgba(0,0,0,.5);
+  }
+  body.dark .note{border-color:#34345a;color:#c7c6f0}
+  body.dark nav{background:rgba(14,16,22,.82)}
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,"Helvetica Neue",
+                "Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;
+    background:var(--bg); color:var(--ink); min-height:100vh;
+    -webkit-font-smoothing:antialiased; line-height:1.55;
+  }
+  .jp-font{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic","Noto Sans JP",sans-serif}
+
+  header{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;
+    padding:16px 18px 12px;max-width:920px;margin:0 auto}
+  .brand{text-align:center;min-width:0}
+  .brand h1{margin:0;font-size:26px;font-weight:700;letter-spacing:-.5px}
+  .brand .en{font-size:12px;color:var(--muted);display:block;font-weight:500;margin-top:3px;letter-spacing:0}
+  .header-right{display:flex;align-items:center;gap:8px;justify-content:flex-end}
+  .streak{background:var(--surface);padding:8px 12px;border-radius:999px;
+    font-size:13px;border:1px solid var(--line);box-shadow:var(--shadow);font-weight:600;white-space:nowrap}
+  .streak b{color:var(--jp)}
+  .theme-toggle{background:var(--surface);border:1px solid var(--line);
+    border-radius:999px;width:38px;height:38px;font-size:17px;cursor:pointer;box-shadow:var(--shadow);
+    transition:.15s;line-height:1;flex:0 0 auto}
+  .theme-toggle:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
+
+  nav{
+    display:flex;flex-wrap:wrap;gap:6px;justify-content:center;padding:10px 12px;
+    position:sticky;top:0;background:rgba(247,248,250,.82);backdrop-filter:saturate(180%) blur(12px);
+    z-index:50;border-bottom:1px solid var(--line);
+  }
+  nav button{
+    background:transparent;color:var(--muted);border:1px solid transparent;
+    padding:8px 14px;border-radius:999px;cursor:pointer;font-size:14px;font-weight:500;transition:.15s;
+    display:inline-flex;align-items:center;gap:6px;
+  }
+  nav button .nav-lb{display:inline}
+  nav button:hover{background:var(--surface-2);color:var(--ink)}
+  nav button.active{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600;box-shadow:0 4px 12px rgba(79,70,229,.25)}
+
+  main{max-width:920px;margin:0 auto;padding:24px 18px 12px}
+
+  /* ---- mobile: clean fixed bottom nav, content-first ---- */
+  @media(max-width:680px){
+    header{padding:12px 14px 8px}
+    .brand h1{font-size:22px}
+    .brand .en{display:none}
+    .streak{padding:7px 11px;font-size:12px}
+    main{padding:16px 14px 92px}     /* room for bottom bar */
+    nav{
+      position:fixed;top:auto;bottom:0;left:0;right:0;
+      flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start;
+      gap:2px;padding:6px 8px calc(6px + env(safe-area-inset-bottom));
+      border-top:1px solid var(--line);border-bottom:none;
+      box-shadow:0 -6px 20px rgba(16,24,40,.08);scrollbar-width:none;
+    }
+    nav::-webkit-scrollbar{display:none}
+    nav button{
+      flex:0 0 auto;flex-direction:column;gap:3px;min-width:58px;
+      padding:6px 8px;border-radius:14px;font-size:10px;line-height:1.1;
+    }
+    nav button .nav-ic{font-size:19px;line-height:1}
+    nav button.active{box-shadow:none}
+  }
+  section{display:none;animation:fade .3s ease}
+  section.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1}}
+  h2{font-size:24px;font-weight:700;margin:4px 0 4px;letter-spacing:-.3px}
+  h3{font-weight:650}
+  .sub{color:var(--muted);font-size:15px;margin:0 0 20px}
+
+  .grid{display:grid;gap:12px}
+  .kana-grid{grid-template-columns:repeat(5,1fr)}
+  @media(max-width:640px){.kana-grid{grid-template-columns:repeat(5,1fr);gap:7px}}
+  .kana{
+    background:var(--surface);border:1px solid var(--line);border-radius:14px;
+    padding:12px 4px;text-align:center;cursor:pointer;transition:.15s;position:relative;box-shadow:var(--shadow);
+  }
+  .kana:hover{transform:translateY(-3px);border-color:var(--accent);box-shadow:var(--shadow-lg)}
+  .kana .big{font-size:28px;color:var(--jp);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif}
+  .kana .romaji{font-size:12px;color:var(--muted);margin-top:3px;font-weight:500}
+  .kana.empty{visibility:hidden}
+  .kana.learned{border-color:var(--good);background:var(--good-soft)}
+  .kana.learned::after{content:"✓";position:absolute;top:5px;right:7px;color:var(--good);font-size:11px;font-weight:700}
+
+  .toggle-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;align-items:center}
+  .pill{background:var(--surface);border:1px solid var(--line);padding:8px 14px;border-radius:999px;cursor:pointer;
+    font-size:13px;font-weight:500;color:var(--ink);transition:.15s;box-shadow:var(--shadow)}
+  .pill:hover{border-color:var(--accent)}
+  .pill.active{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 4px 12px rgba(79,70,229,.22)}
+
+  /* Flashcard */
+  .flash-wrap{display:flex;flex-direction:column;align-items:center;gap:18px;margin-top:14px}
+  .deck-pick{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:4px}
+  .card3d{perspective:1400px;width:100%;max-width:440px;height:280px;cursor:pointer}
+  .card-inner{position:relative;width:100%;height:100%;transition:transform .55s cubic-bezier(.4,.2,.2,1);transform-style:preserve-3d}
+  .card3d.flipped .card-inner{transform:rotateY(180deg)}
+  .face{
+    position:absolute;inset:0;backface-visibility:hidden;border-radius:22px;
+    background:var(--surface);border:1px solid var(--line);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;box-shadow:var(--shadow-lg);padding:22px;text-align:center
+  }
+  .face .front-main{font-size:72px;color:var(--jp);line-height:1;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif}
+  .face .reading{font-size:22px;color:var(--accent);font-weight:600}
+  .face .meaning{font-size:26px;font-weight:600}
+  .face small{color:var(--muted);font-size:13px}
+  .back{transform:rotateY(180deg);background:var(--accent-soft)}
+  .hint{color:var(--muted);font-size:13px}
+  .srs-buttons{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+  .srs-buttons button{padding:12px 20px;border-radius:12px;border:none;cursor:pointer;font-size:14px;font-weight:600;transition:.12s;box-shadow:var(--shadow)}
+  .srs-buttons button:hover{transform:translateY(-2px)}
+  .b-again{background:var(--bad-soft);color:var(--bad)}
+  .b-hard{background:var(--warn-soft);color:var(--warn)}
+  .b-good{background:var(--accent-soft);color:var(--accent)}
+  .b-easy{background:var(--good-soft);color:var(--good)}
+  .progressbar{width:100%;max-width:440px;height:8px;background:var(--surface-2);border-radius:99px;overflow:hidden;border:1px solid var(--line)}
+  .progressbar > div{height:100%;background:linear-gradient(90deg,var(--accent),#7c73f0);width:0%;transition:width .3s}
+  .small-btn{background:var(--surface);border:1px solid var(--line);color:var(--ink);padding:8px 14px;border-radius:10px;
+    cursor:pointer;font-size:13px;font-weight:500;transition:.15s;box-shadow:var(--shadow)}
+  .small-btn:hover{border-color:var(--accent);color:var(--accent)}
+
+  /* Quiz */
+  .quiz-q{font-size:46px;text-align:center;color:var(--jp);margin:20px 0;font-weight:600;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif}
+  .quiz-options{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:520px){.quiz-options{grid-template-columns:1fr}}
+  .quiz-options button{padding:18px;border-radius:14px;border:1px solid var(--line);background:var(--surface);
+    color:var(--ink);font-size:16px;font-weight:500;cursor:pointer;transition:.15s;box-shadow:var(--shadow)}
+  .quiz-options button:hover:not(:disabled){border-color:var(--accent);transform:translateY(-2px)}
+  .quiz-options button.correct{background:var(--good-soft);color:var(--good);border-color:var(--good);font-weight:600}
+  .quiz-options button.wrong{background:var(--bad-soft);color:var(--bad);border-color:var(--bad);font-weight:600}
+  .quiz-stat{text-align:center;color:var(--muted);margin-top:18px;font-weight:500}
+
+  /* Tables / memorize sheet */
+  table{width:100%;border-collapse:separate;border-spacing:0;margin:10px 0 24px;font-size:14px;
+    background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:var(--shadow)}
+  th,td{border-bottom:1px solid var(--line);padding:11px 14px;text-align:left}
+  tr:last-child td{border-bottom:none}
+  th{background:var(--surface-2);color:var(--ink);font-weight:600;font-size:13px}
+  td .jp{font-size:18px;color:var(--jp);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif}
+  .jp{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif}
+
+  .vocab-card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;
+    display:flex;justify-content:space-between;align-items:center;gap:10px;transition:.15s;box-shadow:var(--shadow)}
+  .vocab-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
+  .vocab-card .jp{font-size:24px;color:var(--jp)}
+  .vocab-card .rom{color:var(--accent);font-size:13px;font-weight:500;margin-top:2px}
+  .vocab-card .mean{color:var(--ink);font-weight:500}
+  .cat-title{margin:24px 0 10px;color:var(--ink);font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.6px}
+  .cat-title::before{content:"";display:inline-block;width:8px;height:8px;border-radius:3px;background:var(--accent);margin-right:8px;vertical-align:middle}
+  .speak{background:var(--surface-2);border:1px solid var(--line);border-radius:10px;cursor:pointer;font-size:15px;
+    padding:5px 9px;color:var(--accent);transition:.15s}
+  .speak:hover{background:var(--accent-soft)}
+
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:14px;margin:18px 0}
+  .stat{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px 14px;text-align:center;box-shadow:var(--shadow)}
+  .stat b{display:block;font-size:30px;color:var(--accent);font-weight:700;letter-spacing:-1px}
+  .stat span{font-size:12px;color:var(--muted);font-weight:500;margin-top:2px;display:block}
+  .danger{color:var(--bad);border-color:var(--bad)!important}
+  .danger:hover{background:var(--bad-soft);color:var(--bad)}
+  .note{background:var(--accent-soft);border:1px solid #dcd9fb;border-left:3px solid var(--accent);
+    padding:14px 16px;border-radius:12px;color:#3b3a6b;font-size:14px;margin:14px 0}
+  footer{text-align:center;color:var(--muted);font-size:12px;padding:32px 24px}
+  .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+
+  /* ---- user chip in header ---- */
+  .user-chip{display:inline-flex;align-items:center;gap:8px;flex:0 0 auto;
+    background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:4px 12px 4px 4px;
+    cursor:pointer;box-shadow:var(--shadow);transition:.15s}
+  .user-chip:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
+  .user-chip:empty{display:none}
+  .avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#7c73f0);
+    color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;flex:0 0 auto}
+  .uc-meta{display:flex;flex-direction:column;line-height:1.15;text-align:left}
+  .uc-meta b{font-size:13px}.uc-meta small{font-size:11px;color:var(--muted)}
+  /* on phones show just the avatar to save room */
+  @media(max-width:680px){
+    .user-chip{padding:3px;gap:0}
+    .user-chip .uc-meta{display:none}
+    .streak .d{display:none}
+  }
+
+  /* ---- toast ---- */
+  .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(160%);
+    background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:14px;z-index:120;
+    box-shadow:var(--shadow-lg);display:flex;flex-direction:column;gap:1px;max-width:88vw;
+    pointer-events:none;text-align:center;opacity:0}
+  .toast b{font-size:15px}.toast span{font-size:13px;opacity:.85}
+  /* CSS-driven lifecycle so it always auto-hides (no reliance on JS timers) */
+  .toast.show{animation:toastLife 3s cubic-bezier(.2,.9,.3,1) forwards}
+  @keyframes toastLife{
+    0%{opacity:0;transform:translateX(-50%) translateY(160%)}
+    10%{opacity:1;transform:translateX(-50%) translateY(0)}
+    85%{opacity:1;transform:translateX(-50%) translateY(0)}
+    100%{opacity:0;transform:translateX(-50%) translateY(160%)}
+  }
+  .toast.good{background:var(--good);color:#fff}
+  .toast.bad{background:var(--bad);color:#fff}
+  .toast.level{background:linear-gradient(135deg,var(--accent),#7c73f0);color:#fff}
+  .toast.badge{background:linear-gradient(135deg,var(--jp),#f59e0b);color:#fff}
+  @media(max-width:680px){.toast{bottom:96px}}
+
+  /* ---- floating XP ---- */
+  .xp-float{position:fixed;left:50%;top:42%;transform:translateX(-50%);z-index:110;pointer-events:none}
+  .xp-pop{font-weight:800;color:var(--accent);font-size:22px;text-shadow:0 2px 8px rgba(0,0,0,.15);
+    animation:xprise 1.05s ease forwards;text-align:center}
+  @keyframes xprise{0%{opacity:0;transform:translateY(10px) scale(.8)}20%{opacity:1;transform:translateY(0) scale(1.1)}100%{opacity:0;transform:translateY(-50px) scale(1)}}
+
+  /* ---- confetti ---- */
+  .confetti{position:fixed;inset:0;pointer-events:none;z-index:100;overflow:hidden}
+  .confetti i{position:absolute;top:-14px;width:9px;height:14px;border-radius:2px;opacity:.95;animation:fall 1.5s linear forwards}
+  @keyframes fall{to{transform:translateY(105vh) rotate(540deg);opacity:.9}}
+
+  /* ---- modal ---- */
+  .modal{position:fixed;inset:0;background:rgba(10,12,18,.55);backdrop-filter:blur(4px);
+    display:none;align-items:center;justify-content:center;z-index:200;padding:18px}
+  .modal.show{display:flex;animation:fade .25s ease}
+  .modal-card{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:26px;
+    max-width:440px;width:100%;box-shadow:var(--shadow-lg);text-align:center}
+  .modal-emoji{font-size:30px;font-weight:700;color:var(--jp);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif}
+  .text-input{flex:1;min-width:0;padding:12px 14px;border-radius:12px;border:1px solid var(--line);
+    background:var(--bg);color:var(--ink);font-size:15px;outline:none}
+  .text-input:focus{border-color:var(--accent)}
+  .primary-btn{padding:12px 18px;border-radius:12px;border:none;background:var(--accent);color:#fff;
+    font-weight:600;font-size:15px;cursor:pointer;box-shadow:0 4px 12px rgba(79,70,229,.25);transition:.15s}
+  .primary-btn:hover{transform:translateY(-2px)}
+
+  /* ---- user list ---- */
+  .user-list{display:flex;flex-direction:column;gap:8px}
+  .user-row{display:flex;gap:8px;align-items:stretch}
+  .user-pick{flex:1;display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);
+    border-radius:12px;padding:9px 12px;cursor:pointer;text-align:left;transition:.15s;color:var(--ink)}
+  .user-pick:hover{border-color:var(--accent)}
+  .user-row.active .user-pick{border-color:var(--accent);background:var(--accent-soft)}
+  .user-del{background:var(--surface);border:1px solid var(--line);border-radius:12px;cursor:pointer;
+    padding:0 12px;font-size:15px;color:var(--muted)}
+  .user-del:hover{border-color:var(--bad);color:var(--bad)}
+
+  /* ---- level + badges ---- */
+  .level-card{display:flex;gap:18px;align-items:center;flex-wrap:wrap;background:var(--surface);
+    border:1px solid var(--line);border-radius:18px;padding:20px;box-shadow:var(--shadow);margin-bottom:6px}
+  .lvl-ring{--p:0;width:88px;height:88px;border-radius:50%;flex:0 0 auto;display:flex;align-items:center;justify-content:center;
+    background:conic-gradient(var(--accent) calc(var(--p)*1%), var(--surface-2) 0)}
+  .lvl-ring span{width:68px;height:68px;border-radius:50%;background:var(--surface);display:flex;align-items:center;
+    justify-content:center;font-size:30px;font-weight:800;color:var(--accent)}
+  .badge-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+  .badge{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px 12px;text-align:center;
+    box-shadow:var(--shadow);transition:.15s}
+  .badge.got{border-color:var(--accent)}
+  .badge.locked{opacity:.55}
+  .badge:hover{transform:translateY(-3px)}
+  .b-icon{font-size:30px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif}
+  .b-name{font-weight:700;font-size:14px;margin-top:6px}
+  .b-desc{font-size:12px;color:var(--muted);margin-top:2px}
+
+  @media print{
+    body{background:#fff}
+    nav,header .streak,.srs-buttons,.speak{display:none}
+    section{display:block!important}
+    .kana,.vocab-card,table,.stat,.face{box-shadow:none}
+  }
+</style>
+</head>
+<body>
+
+<!-- effects layers -->
+<div id="confetti" class="confetti"></div>
+<div id="xpFloat" class="xp-float"></div>
+<div id="toast" class="toast"></div>
+
+<!-- login / profile modal -->
+<div id="loginModal" class="modal">
+  <div class="modal-card">
+    <div class="modal-emoji">こんにちは</div>
+    <h2 style="margin:.2em 0">Who's learning?</h2>
+    <p class="sub" style="margin-bottom:14px">Pick a profile or create one. Your progress is saved separately for each learner (remembered with a cookie).</p>
+    <div id="userList" class="user-list"></div>
+    <div class="row" style="margin-top:12px">
+      <input id="newUserName" maxlength="20" placeholder="Enter a name…" class="text-input" onkeydown="if(event.key==='Enter')addProfile()">
+      <button class="primary-btn" onclick="addProfile()">Start →</button>
+    </div>
+  </div>
+</div>
+
+<header>
+  <button id="themeToggle" class="theme-toggle" onclick="toggleTheme()" title="Toggle dark mode" aria-label="Toggle dark mode">🌙</button>
+  <div class="brand">
+    <h1>日本語</h1>
+    <span class="en">Learn Japanese — fast, with flashcards &amp; spaced repetition</span>
+  </div>
+  <div class="header-right">
+    <div class="streak">🔥 <b id="streakNum">0</b><span class="d">d</span></div>
+    <div class="user-chip" id="userChip" onclick="openLogin()" title="Switch profile"></div>
+  </div>
+</header>
+
+<nav id="nav"></nav>
+
+<main>
+  <!-- DASHBOARD -->
+  <section id="home" class="active">
+    <h2 id="welcomeMsg">Welcome 👋</h2>
+    <p class="sub">A self-contained Japanese tutor. Earn XP, level up, and unlock badges as you learn.</p>
+    <div id="homeLevel"></div>
+    <div class="stats" id="homeStats"></div>
+    <div class="note">Suggested daily routine: ① Learn 5 new kana → ② Review due flashcards → ③ Take a 10-question quiz → ④ Skim the memorize sheet before bed.</div>
+    <h3 class="cat-title">Quick start</h3>
+    <div class="row">
+      <button class="pill" onclick="go('kana')">あ Hiragana &amp; Katakana</button>
+      <button class="pill" onclick="go('flash')">🃏 Flashcards (SRS)</button>
+      <button class="pill" onclick="go('quiz')">📝 Quiz</button>
+      <button class="pill" onclick="go('vocab')">📚 Vocabulary</button>
+      <button class="pill" onclick="go('sheet')">📄 Memorize Sheet</button>
+    </div>
+    <h3 class="cat-title">How spaced repetition works here</h3>
+    <p class="sub">Each card lives in a "box" (1–5). Cards you rate <b>Good/Easy</b> move up a box and come back later; <b>Again</b> sends them to box 1 to see soon. Higher boxes = longer intervals. Just review what's "due" each day.</p>
+  </section>
+
+  <!-- KANA -->
+  <section id="kana">
+    <h2>Hiragana &amp; Katakana</h2>
+    <p class="sub">Tap a character to hear it and mark it learned. Master these first — they're the alphabet.</p>
+    <div class="toggle-row">
+      <span class="pill active" id="tHira" onclick="setKana('hira')">ひらがな Hiragana</span>
+      <span class="pill" id="tKata" onclick="setKana('kata')">カタカナ Katakana</span>
+      <button class="small-btn" style="margin-left:auto" onclick="resetKanaLearned()">Clear ✓ marks</button>
+    </div>
+    <div id="kanaGrid" class="grid kana-grid"></div>
+    <div class="note">Reading tip: rows go a-i-u-e-o (あいうえお). Learn one row a day and you'll know all kana in ~2 weeks.</div>
+  </section>
+
+  <!-- FLASHCARDS -->
+  <section id="flash">
+    <h2>Flashcards — Spaced Repetition</h2>
+    <p class="sub">Pick a deck. Only <b>due</b> cards are shown. Rate yourself honestly; the app schedules the rest.</p>
+    <div class="deck-pick" id="deckPick"></div>
+    <div class="flash-wrap">
+      <div class="progressbar"><div id="flashProg"></div></div>
+      <div id="flashCount" class="hint"></div>
+      <div class="card3d" id="card3d" onclick="flipCard()">
+        <div class="card-inner">
+          <div class="face front" id="cardFront"></div>
+          <div class="face back" id="cardBack"></div>
+        </div>
+      </div>
+      <div class="hint">Tap card to flip</div>
+      <div class="srs-buttons" id="srsButtons" style="display:none">
+        <button class="b-again" onclick="rate(0)">Again</button>
+        <button class="b-hard" onclick="rate(1)">Hard</button>
+        <button class="b-good" onclick="rate(2)">Good</button>
+        <button class="b-easy" onclick="rate(3)">Easy</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- QUIZ -->
+  <section id="quiz">
+    <h2>Quiz</h2>
+    <p class="sub">Multiple choice. Pick a topic and a direction.</p>
+    <div class="toggle-row" id="quizDeckPick"></div>
+    <div class="toggle-row">
+      <span class="pill active" id="dirJE" onclick="setQuizDir('je')">JP → English</span>
+      <span class="pill" id="dirEJ" onclick="setQuizDir('ej')">English → JP</span>
+      <button class="small-btn" style="margin-left:auto" onclick="startQuiz()">↻ New round</button>
+    </div>
+    <div class="quiz-q" id="quizQ"></div>
+    <div class="quiz-options" id="quizOpts"></div>
+    <div class="quiz-stat" id="quizStat"></div>
+  </section>
+
+  <!-- VOCAB -->
+  <section id="vocab">
+    <h2>Vocabulary &amp; Phrases</h2>
+    <p class="sub">Core beginner words grouped by theme, plus survival phrases. Tap 🔊 to hear it.</p>
+    <div class="toggle-row" id="vocabFilter"></div>
+    <div id="vocabList"></div>
+  </section>
+
+  <!-- KANJI -->
+  <section id="kanji">
+    <h2>Essential Kanji</h2>
+    <p class="sub">The most common starter kanji with readings and meaning.</p>
+    <table id="kanjiTable"></table>
+  </section>
+
+  <!-- MEMORIZE SHEET -->
+  <section id="sheet">
+    <h2>Memorize Sheet</h2>
+    <p class="sub">A one-page cheat sheet. Use your browser's Print (Ctrl/Cmd+P) to save as PDF.</p>
+    <button class="small-btn" onclick="window.print()">🖨️ Print / Save PDF</button>
+    <div id="sheetContent"></div>
+  </section>
+
+  <!-- GRAMMAR -->
+  <section id="grammar">
+    <h2>Grammar in a Nutshell</h2>
+    <p class="sub">Just enough to start building sentences.</p>
+    <div id="grammarContent"></div>
+  </section>
+
+  <!-- PROGRESS -->
+  <!-- PROFILE / ACHIEVEMENTS -->
+  <section id="profile">
+    <h2>Your Profile</h2>
+    <p class="sub">Level up by learning. Unlock badges as you go. がんばって！</p>
+    <div id="levelPanel"></div>
+    <h3 class="cat-title">Achievements</h3>
+    <div id="badgeGrid" class="badge-grid"></div>
+    <h3 class="cat-title">Profiles</h3>
+    <p class="sub" style="margin-bottom:8px">Each learner has their own saved progress. Active profile is remembered via a browser cookie.</p>
+    <div id="profileUsers" class="user-list"></div>
+    <div class="row" style="margin-top:10px">
+      <button class="small-btn" onclick="openLogin()">＋ Add / switch profile</button>
+    </div>
+  </section>
+
+  <section id="progress">
+    <h2>Progress</h2>
+    <p class="sub">Saved automatically in this browser, per profile.</p>
+    <div class="stats" id="progStats"></div>
+    <h3 class="cat-title">Flashcard boxes (SRS distribution)</h3>
+    <div id="boxDist"></div>
+    <h3 class="cat-title">Data</h3>
+    <div class="row">
+      <button class="small-btn" onclick="exportData()">⬇ Export progress (JSON)</button>
+      <button class="small-btn" onclick="document.getElementById('importFile').click()">⬆ Import</button>
+      <input type="file" id="importFile" accept="application/json" style="display:none" onchange="importData(event)">
+      <button class="small-btn danger" onclick="resetAll()">🗑 Reset everything</button>
+    </div>
+  </section>
+</main>
+
+<footer>Built for fast Japanese learning · all progress stored locally on your device · がんばって！</footer>
+
+<script>
+/* ============================ DATA ============================ */
+const HIRAGANA = [
+ ["あ","a"],["い","i"],["う","u"],["え","e"],["お","o"],
+ ["か","ka"],["き","ki"],["く","ku"],["け","ke"],["こ","ko"],
+ ["さ","sa"],["し","shi"],["す","su"],["せ","se"],["そ","so"],
+ ["た","ta"],["ち","chi"],["つ","tsu"],["て","te"],["と","to"],
+ ["な","na"],["に","ni"],["ぬ","nu"],["ね","ne"],["の","no"],
+ ["は","ha"],["ひ","hi"],["ふ","fu"],["へ","he"],["ほ","ho"],
+ ["ま","ma"],["み","mi"],["む","mu"],["め","me"],["も","mo"],
+ ["や","ya"],["",""],["ゆ","yu"],["",""],["よ","yo"],
+ ["ら","ra"],["り","ri"],["る","ru"],["れ","re"],["ろ","ro"],
+ ["わ","wa"],["",""],["",""],["",""],["を","wo"],
+ ["ん","n"],["",""],["",""],["",""],["",""]
+];
+const KATAKANA = [
+ ["ア","a"],["イ","i"],["ウ","u"],["エ","e"],["オ","o"],
+ ["カ","ka"],["キ","ki"],["ク","ku"],["ケ","ke"],["コ","ko"],
+ ["サ","sa"],["シ","shi"],["ス","su"],["セ","se"],["ソ","so"],
+ ["タ","ta"],["チ","chi"],["ツ","tsu"],["テ","te"],["ト","to"],
+ ["ナ","na"],["ニ","ni"],["ヌ","nu"],["ネ","ne"],["ノ","no"],
+ ["ハ","ha"],["ヒ","hi"],["フ","fu"],["ヘ","he"],["ホ","ho"],
+ ["マ","ma"],["ミ","mi"],["ム","mu"],["メ","me"],["モ","mo"],
+ ["ヤ","ya"],["",""],["ユ","yu"],["",""],["ヨ","yo"],
+ ["ラ","ra"],["リ","ri"],["ル","ru"],["レ","re"],["ロ","ro"],
+ ["ワ","wa"],["",""],["",""],["",""],["ヲ","wo"],
+ ["ン","n"],["",""],["",""],["",""],["",""]
+];
+
+const VOCAB = {
+ "Greetings & Phrases":[
+  ["こんにちは","konnichiwa","Hello / Good afternoon"],
+  ["おはよう","ohayō","Good morning (casual)"],
+  ["こんばんは","konbanwa","Good evening"],
+  ["さようなら","sayōnara","Goodbye"],
+  ["ありがとう","arigatō","Thank you"],
+  ["すみません","sumimasen","Excuse me / Sorry"],
+  ["はい","hai","Yes"],
+  ["いいえ","iie","No"],
+  ["おねがいします","onegaishimasu","Please"],
+  ["わかりません","wakarimasen","I don't understand"],
+  ["だいじょうぶ","daijōbu","It's okay / I'm fine"],
+  ["はじめまして","hajimemashite","Nice to meet you"]
+ ],
+ "Numbers":[
+  ["いち","ichi","1"],["に","ni","2"],["さん","san","3"],["よん","yon","4"],
+  ["ご","go","5"],["ろく","roku","6"],["なな","nana","7"],["はち","hachi","8"],
+  ["きゅう","kyū","9"],["じゅう","jū","10"],["ひゃく","hyaku","100"],["せん","sen","1000"]
+ ],
+ "People & Family":[
+  ["わたし","watashi","I / me"],["あなた","anata","you"],
+  ["ともだち","tomodachi","friend"],["かぞく","kazoku","family"],
+  ["はは","haha","(my) mother"],["ちち","chichi","(my) father"],
+  ["せんせい","sensei","teacher"],["がくせい","gakusei","student"]
+ ],
+ "Food & Drink":[
+  ["みず","mizu","water"],["おちゃ","ocha","tea"],["コーヒー","kōhī","coffee"],
+  ["ごはん","gohan","rice / meal"],["さかな","sakana","fish"],["にく","niku","meat"],
+  ["やさい","yasai","vegetables"],["たまご","tamago","egg"],["パン","pan","bread"],
+  ["おいしい","oishii","delicious"]
+ ],
+ "Time & Days":[
+  ["きょう","kyō","today"],["あした","ashita","tomorrow"],["きのう","kinō","yesterday"],
+  ["いま","ima","now"],["あさ","asa","morning"],["よる","yoru","night"],
+  ["げつようび","getsuyōbi","Monday"],["どようび","doyōbi","Saturday"]
+ ],
+ "Common Verbs":[
+  ["たべる","taberu","to eat"],["のむ","nomu","to drink"],["いく","iku","to go"],
+  ["くる","kuru","to come"],["みる","miru","to see/watch"],["きく","kiku","to listen/ask"],
+  ["はなす","hanasu","to speak"],["よむ","yomu","to read"],["かく","kaku","to write"],
+  ["する","suru","to do"],["わかる","wakaru","to understand"],["ある","aru","to exist (things)"]
+ ],
+ "Adjectives":[
+  ["おおきい","ōkii","big"],["ちいさい","chiisai","small"],["あつい","atsui","hot"],
+  ["さむい","samui","cold"],["たかい","takai","expensive/tall"],["やすい","yasui","cheap"],
+  ["いい","ii","good"],["わるい","warui","bad"],["あたらしい","atarashii","new"],["ふるい","furui","old"]
+ ],
+ "Places":[
+  ["いえ","ie","house"],["がっこう","gakkō","school"],["えき","eki","station"],
+  ["みせ","mise","shop"],["びょういん","byōin","hospital"],["トイレ","toire","toilet"],
+  ["くうこう","kūkō","airport"],["ぎんこう","ginkō","bank"]
+ ]
+};
+
+const KANJI = [
+ ["日","nichi/hi","day, sun"],["月","getsu/tsuki","month, moon"],["火","ka/hi","fire"],
+ ["水","sui/mizu","water"],["木","moku/ki","tree, wood"],["金","kin/kane","gold, money"],
+ ["土","do/tsuchi","earth, soil"],["人","jin/hito","person"],["大","dai/ō","big"],
+ ["小","shō/chii","small"],["山","san/yama","mountain"],["川","sen/kawa","river"],
+ ["田","den/ta","rice field"],["口","kō/kuchi","mouth"],["目","moku/me","eye"],
+ ["手","shu/te","hand"],["上","jō/ue","up, above"],["下","ka/shita","down, below"],
+ ["中","chū/naka","middle, inside"],["本","hon/moto","book, origin"],["一","ichi","one"],
+ ["二","ni","two"],["三","san","three"],["年","nen/toshi","year"],["今","kon/ima","now"],
+ ["私","watashi","I, private"],["食","shoku/ta","eat, food"],["飲","in/no","drink"],
+ ["行","kō/i","go"],["見","ken/mi","see"],["学","gaku","study"],["校","kō","school"],
+ ["国","koku/kuni","country"],["語","go","language"],["時","ji/toki","time, hour"],
+ ["分","fun/wa","minute, part"]
+];
+
+const GRAMMAR = [
+ ["Basic word order","Japanese is Subject–Object–Verb (SOV). 'I eat sushi' → わたしは すしを たべます (I-topic sushi-object eat)."],
+ ["は (wa) — topic marker","Marks what you're talking about. わたしは がくせいです = 'As for me, (I) am a student.' Written は but pronounced 'wa' here."],
+ ["を (o) — object marker","Marks the direct object of a verb. みずを のみます = '(I) drink water.'"],
+ ["です / だ — 'to be'","です is the polite 'is/am/are'. これは ほんです = 'This is a book.' Casual form is だ."],
+ ["ます — polite verbs","Add the polite ending. たべる→たべます (eat), いく→いきます (go). Negative: たべません (don't eat)."],
+ ["か — question marker","Add か to the end to make a question. がくせいですか = 'Are you a student?' No need to change word order."],
+ ["の — possession/linking","Like 's. わたしの ほん = 'my book'; にほんの くるま = 'Japanese car'."],
+ ["に / で — location & time","に marks destination/time (がっこうに いく = go to school). で marks where an action happens (いえで たべる = eat at home)."],
+ ["Counting note","Numbers often need counters (一つ ひとつ for things, 一人 ひとり for people). Start with the bare numbers, add counters later."]
+];
+
+/* ============================ STATE ============================ */
+const DECK_DEFS = {
+  hira: {name:"あ Hiragana", build:()=>HIRAGANA.filter(k=>k[0]).map(k=>({id:"h_"+k[1],front:k[0],reading:k[1],meaning:k[1],type:"kana"}))},
+  kata: {name:"ア Katakana", build:()=>KATAKANA.filter(k=>k[0]).map(k=>({id:"k_"+k[1],front:k[0],reading:k[1],meaning:k[1],type:"kana"}))},
+  vocab:{name:"📚 Vocabulary", build:()=>{let a=[];for(const cat in VOCAB)VOCAB[cat].forEach(v=>a.push({id:"v_"+v[1],front:v[0],reading:v[1],meaning:v[2],type:"vocab"}));return a;}},
+  kanji:{name:"漢 Kanji", build:()=>KANJI.map(k=>({id:"j_"+k[0],front:k[0],reading:k[1],meaning:k[2],type:"kanji"}))}
+};
+
+/* ---- cookie helpers ---- */
+function setCookie(name,val,days){
+  try{
+    const d=new Date();d.setTime(d.getTime()+days*864e5);
+    document.cookie=name+"="+encodeURIComponent(val)+";expires="+d.toUTCString()+";path=/;SameSite=Lax";
+  }catch(e){}
+}
+function getCookie(name){
+  try{
+    const m=document.cookie.match("(^|;)\\s*"+name+"\\s*=\\s*([^;]+)");
+    return m?decodeURIComponent(m.pop()):null;
+  }catch(e){return null;}
+}
+
+/* ---- multi-user accounts (cookie remembers who's logged in) ---- */
+const COOKIE_USER="jp_active_user";
+function getUsers(){try{return JSON.parse(localStorage.getItem("jp_users"))||[];}catch(e){return [];}}
+function saveUsers(list){localStorage.setItem("jp_users",JSON.stringify(list));}
+function activeUser(){
+  // cookie is the source of truth; localStorage is a fallback (file:// can block cookies)
+  return getCookie(COOKIE_USER) || localStorage.getItem(COOKIE_USER+"_ls") || null;
+}
+function setActiveUser(name){
+  setCookie(COOKIE_USER,name,365);
+  localStorage.setItem(COOKIE_USER+"_ls",name);
+}
+function userKey(name){return "jp_data::"+name;}
+function createUser(name){
+  name=(name||"").trim().slice(0,20)||"Learner";
+  const users=getUsers();
+  if(!users.includes(name)){users.push(name);saveUsers(users);}
+  setActiveUser(name);
+  if(!localStorage.getItem(userKey(name)))
+    localStorage.setItem(userKey(name),JSON.stringify(defaultState()));
+}
+
+let STATE = defaultState();
+function defaultState(){
+  return {kanaLearned:{}, srs:{}, streak:0, lastDay:null, quizDone:0, quizCorrect:0,
+          reviews:0, xp:0, badges:{}, bestCombo:0, created:Date.now()};
+}
+function loadState(){
+  const u=activeUser();
+  if(!u){STATE=defaultState();return;}
+  try{const s=JSON.parse(localStorage.getItem(userKey(u)));STATE=s?Object.assign(defaultState(),s):defaultState();}
+  catch(e){STATE=defaultState();}
+}
+function save(){
+  const u=activeUser();
+  if(u)localStorage.setItem(userKey(u),JSON.stringify(STATE));
+}
+
+function todayStr(){return new Date().toISOString().slice(0,10);}
+function touchStreak(){
+  const t=todayStr();
+  if(STATE.lastDay===t)return;
+  const y=new Date(Date.now()-86400000).toISOString().slice(0,10);
+  STATE.streak = (STATE.lastDay===y)?STATE.streak+1:1;
+  STATE.lastDay=t; save(); renderStreak();
+}
+function renderStreak(){const e=document.getElementById("streakNum");if(e)e.textContent=STATE.streak;renderUserChip();}
+
+/* ============================ GAMIFICATION ============================ */
+// level curve: cumulative XP needed grows each level
+function levelInfo(){
+  const xp=STATE.xp||0;
+  let lvl=1, need=100, acc=0;
+  while(xp>=acc+need){acc+=need;lvl++;need=Math.round(need*1.35);}
+  return {level:lvl, into:xp-acc, need:need, pct:Math.round((xp-acc)/need*100), title:levelTitle(lvl)};
+}
+function levelTitle(l){
+  const t=["Beginner 初心者","Novice","Apprentice","Student 学生","Scholar","Adept","Skilled 上手","Expert","Master 達人","Sensei 先生"];
+  return t[Math.min(l-1,t.length-1)];
+}
+function addXP(amount,reason){
+  const before=levelInfo().level;
+  STATE.xp=(STATE.xp||0)+amount;
+  save();
+  const after=levelInfo();
+  if(amount>0)floatXP("+"+amount+" XP"+(reason?" · "+reason:""));
+  if(after.level>before){
+    confetti();
+    toast("🎉 Level "+after.level+"! — "+after.title,"You leveled up! すごい！","level");
+  }
+  renderUserChip();renderHome();
+  checkBadges();
+}
+
+const BADGES=[
+ {id:"first_kana", icon:"🌱", name:"First Steps", desc:"Mark your first kana", chk:s=>Object.keys(s.kanaLearned).length>=1},
+ {id:"hira_done", icon:"あ", name:"Hiragana Hero", desc:"Mark all 46 hiragana", chk:s=>Object.keys(s.kanaLearned).filter(k=>k.startsWith("hira_")).length>=46},
+ {id:"kata_done", icon:"ア", name:"Katakana King", desc:"Mark all 46 katakana", chk:s=>Object.keys(s.kanaLearned).filter(k=>k.startsWith("kata_")).length>=46},
+ {id:"rev10", icon:"🃏", name:"Getting Going", desc:"Do 10 flashcard reviews", chk:s=>s.reviews>=10},
+ {id:"rev100", icon:"💯", name:"Centurion", desc:"Do 100 flashcard reviews", chk:s=>s.reviews>=100},
+ {id:"quiz10", icon:"📝", name:"Quiz Rookie", desc:"Answer 10 quiz questions", chk:s=>s.quizDone>=10},
+ {id:"quiz_acc", icon:"🎯", name:"Sharp Shooter", desc:"80%+ accuracy over 20+ quizzes", chk:s=>s.quizDone>=20 && s.quizCorrect/s.quizDone>=.8},
+ {id:"combo5", icon:"🔥", name:"On Fire", desc:"Get a 5-answer quiz combo", chk:s=>(s.bestCombo||0)>=5},
+ {id:"streak3", icon:"📅", name:"Habit Forming", desc:"Reach a 3-day streak", chk:s=>s.streak>=3},
+ {id:"streak7", icon:"🗓️", name:"Week Warrior", desc:"Reach a 7-day streak", chk:s=>s.streak>=7},
+ {id:"master25", icon:"⭐", name:"Rising Star", desc:"Master 25 cards (box 4+)", chk:s=>Object.values(s.srs).filter(x=>x.box>=4).length>=25},
+ {id:"lvl5", icon:"🏅", name:"High Achiever", desc:"Reach level 5", chk:()=>levelInfo().level>=5}
+];
+function checkBadges(){
+  let newly=[];
+  BADGES.forEach(b=>{if(!STATE.badges[b.id] && b.chk(STATE)){STATE.badges[b.id]=Date.now();newly.push(b);}});
+  if(newly.length){save();newly.forEach(b=>{confetti();toast(b.icon+" Achievement!",b.name+" — "+b.desc,"badge");});renderProfile();}
+}
+
+/* ---- toast + floating xp + confetti ---- */
+let toastTimer=null;
+function toast(title,msg,kind){
+  const c=document.getElementById("toast");
+  if(!c)return;
+  c.innerHTML="<b>"+title+"</b>"+(msg?"<span>"+msg+"</span>":"");
+  // restart the CSS animation cleanly (so repeated toasts re-trigger it)
+  c.className="toast "+(kind||"");
+  void c.offsetWidth;              // force reflow
+  c.className="toast show "+(kind||"");
+  // belt-and-suspenders: also hide via timer in case animations are throttled
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>{c.className="toast "+(kind||"");},3100);
+}
+function floatXP(text){
+  const c=document.getElementById("xpFloat");if(!c)return;
+  const el=document.createElement("div");el.className="xp-pop";el.textContent=text;
+  c.appendChild(el);setTimeout(()=>el.remove(),1100);
+}
+function confetti(){
+  const c=document.getElementById("confetti");if(!c)return;
+  const colors=["#4f46e5","#e4572e","#16a34a","#f59e0b","#ec4899","#06b6d4"];
+  for(let i=0;i<70;i++){
+    const p=document.createElement("i");
+    p.style.left=Math.random()*100+"%";
+    p.style.background=colors[i%colors.length];
+    p.style.animationDelay=(Math.random()*.25)+"s";
+    p.style.transform="rotate("+Math.random()*360+"deg)";
+    c.appendChild(p);setTimeout(()=>p.remove(),1600);
+  }
+}
+function praise(){const p=["すごい！ Awesome!","やった！ Nailed it!","上手！ Nice!","正解！ Correct!","いいね！ Great!","完璧！ Perfect!"];return p[Math.floor(Math.random()*p.length)];}
+
+/* ============================ NAV ============================ */
+const TABS=[["home","🏠 Home"],["kana","あ Kana"],["flash","🃏 Flashcards"],["quiz","📝 Quiz"],
+ ["vocab","📚 Vocab"],["kanji","漢 Kanji"],["grammar","📐 Grammar"],["sheet","📄 Sheet"],
+ ["profile","🏆 Profile"],["progress","📊 Progress"]];
+function buildNav(){
+  const n=document.getElementById("nav");
+  n.innerHTML=TABS.map(t=>{
+    const sp=t[1].indexOf(" ");
+    const ic=sp>0?t[1].slice(0,sp):t[1];
+    const lb=sp>0?t[1].slice(sp+1):"";
+    return `<button data-t="${t[0]}" onclick="go('${t[0]}')"><span class="nav-ic">${ic}</span><span class="nav-lb">${lb}</span></button>`;
+  }).join("");
+}
+function go(id){
+  document.querySelectorAll("section").forEach(s=>s.classList.toggle("active",s.id===id));
+  document.querySelectorAll("#nav button").forEach(b=>{
+    const on=b.dataset.t===id;b.classList.toggle("active",on);
+    if(on)try{b.scrollIntoView({inline:"center",block:"nearest",behavior:"smooth"});}catch(e){}
+  });
+  window.scrollTo({top:0,behavior:"smooth"});
+  if(id==="home")renderHome();
+  if(id==="progress")renderProgress();
+  if(id==="kana")renderKana();
+  if(id==="profile")renderProfile();
+}
+
+/* ============================ SPEECH ============================ */
+function speak(text){
+  try{
+    const u=new SpeechSynthesisUtterance(text);
+    u.lang="ja-JP"; u.rate=.85;
+    const v=speechSynthesis.getVoices().find(v=>v.lang&&v.lang.startsWith("ja"));
+    if(v)u.voice=v;
+    speechSynthesis.cancel(); speechSynthesis.speak(u);
+  }catch(e){}
+}
+
+/* ============================ KANA ============================ */
+let kanaMode="hira";
+function setKana(m){kanaMode=m;document.getElementById("tHira").classList.toggle("active",m==="hira");document.getElementById("tKata").classList.toggle("active",m==="kata");renderKana();}
+function renderKana(){
+  const data=kanaMode==="hira"?HIRAGANA:KATAKANA;
+  const g=document.getElementById("kanaGrid");
+  g.innerHTML=data.map(k=>{
+    if(!k[0])return `<div class="kana empty"></div>`;
+    const key=kanaMode+"_"+k[1];
+    const learned=STATE.kanaLearned[key]?"learned":"";
+    return `<div class="kana ${learned}" onclick="tapKana('${key}','${k[0]}')"><div class="big">${k[0]}</div><div class="romaji">${k[1]}</div></div>`;
+  }).join("");
+}
+function tapKana(key,ch){
+  speak(ch);
+  const wasLearned=!!STATE.kanaLearned[key];
+  STATE.kanaLearned[key]=!STATE.kanaLearned[key];
+  if(!STATE.kanaLearned[key])delete STATE.kanaLearned[key];
+  save();touchStreak();renderKana();
+  if(!wasLearned)addXP(5,"new kana"); else {checkBadges();}
+}
+function resetKanaLearned(){STATE.kanaLearned={};save();renderKana();}
+
+/* ============================ FLASHCARDS / SRS ============================ */
+const BOX_INTERVAL=[0,1,2,4,7,15]; // days by box index 1..5 (0 unused)
+let curDeck="hira", curCard=null, queue=[], flipped=false;
+function buildDeckPick(){
+  const html=Object.keys(DECK_DEFS).map(k=>`<button class="pill" data-d="${k}" onclick="pickDeck('${k}')">${DECK_DEFS[k].name}</button>`).join("");
+  document.getElementById("deckPick").innerHTML=html;
+}
+function pickDeck(k){
+  curDeck=k;
+  document.querySelectorAll("#deckPick .pill").forEach(b=>b.classList.toggle("active",b.dataset.d===k));
+  buildQueue();
+}
+function srsFor(id){
+  if(!STATE.srs[id])STATE.srs[id]={box:1,due:0,seen:0};
+  return STATE.srs[id];
+}
+function buildQueue(){
+  const cards=DECK_DEFS[curDeck].build();
+  const now=Date.now();
+  queue=cards.filter(c=>{const s=srsFor(c.id);return s.due<=now;});
+  if(queue.length===0)queue=cards.slice(); // nothing due → review all
+  // sort: lowest box first
+  queue.sort((a,b)=>srsFor(a.id).box-srsFor(b.id).box);
+  nextCard();
+}
+function nextCard(){
+  flipped=false;
+  document.getElementById("card3d").classList.remove("flipped");
+  document.getElementById("srsButtons").style.display="none";
+  const total=DECK_DEFS[curDeck].build().length;
+  const done=total-queue.length;
+  document.getElementById("flashProg").style.width=(total?Math.round(done/total*100):0)+"%";
+  if(queue.length===0){
+    document.getElementById("flashCount").textContent="🎉 Deck complete for now! Come back later or pick another deck.";
+    document.getElementById("cardFront").innerHTML=`<div class="meaning">✓ All done</div><small>No cards due</small>`;
+    document.getElementById("cardBack").innerHTML="";
+    curCard=null;return;
+  }
+  document.getElementById("flashCount").textContent=`${queue.length} card(s) left this session`;
+  curCard=queue[0];
+  const s=srsFor(curCard.id);
+  document.getElementById("cardFront").innerHTML=`<div class="front-main">${curCard.front}</div><small>Box ${s.box} · tap to reveal</small>`;
+  document.getElementById("cardBack").innerHTML=`<div class="reading">${curCard.reading}</div><div class="meaning">${curCard.meaning}</div><button class="speak" onclick="event.stopPropagation();speak('${curCard.front}')">🔊 listen</button>`;
+}
+function flipCard(){
+  if(!curCard)return;
+  flipped=!flipped;
+  document.getElementById("card3d").classList.toggle("flipped",flipped);
+  if(flipped){document.getElementById("srsButtons").style.display="flex";speak(curCard.front);}
+}
+function rate(q){
+  if(!curCard)return;
+  const s=srsFor(curCard.id);
+  s.seen++;
+  if(q===0){s.box=1;}            // Again
+  else if(q===1){s.box=Math.max(1,s.box);} // Hard - stay
+  else if(q===2){s.box=Math.min(5,s.box+1);} // Good
+  else{s.box=Math.min(5,s.box+2);} // Easy
+  s.due=Date.now()+BOX_INTERVAL[s.box]*86400000;
+  STATE.reviews++; save(); touchStreak();
+  addXP(q===0?2:(q===1?3:q===2?5:7),"review");
+  queue.shift();
+  if(q===0)queue.push(curCard); // see again this session
+  nextCard();
+}
+
+/* ============================ QUIZ ============================ */
+let quizDeck="vocab", quizDir="je", quizPool=[], quizCur=null, quizCombo=0;
+function buildQuizPick(){
+  document.getElementById("quizDeckPick").innerHTML=Object.keys(DECK_DEFS).map(k=>
+    `<span class="pill ${k===quizDeck?'active':''}" data-q="${k}" onclick="setQuizDeck('${k}')">${DECK_DEFS[k].name}</span>`).join("");
+}
+function setQuizDeck(k){quizDeck=k;document.querySelectorAll("#quizDeckPick .pill").forEach(p=>p.classList.toggle("active",p.dataset.q===k));startQuiz();}
+function setQuizDir(d){quizDir=d;document.getElementById("dirJE").classList.toggle("active",d==="je");document.getElementById("dirEJ").classList.toggle("active",d==="ej");startQuiz();}
+function startQuiz(){
+  quizPool=DECK_DEFS[quizDeck].build();
+  newQuizQ();
+}
+function newQuizQ(){
+  if(quizPool.length<4){document.getElementById("quizQ").textContent="Need a bigger deck.";return;}
+  quizCur=quizPool[Math.floor(Math.random()*quizPool.length)];
+  const promptText = quizDir==="je"?quizCur.front:quizCur.meaning;
+  const answerText = quizDir==="je"?quizCur.meaning:quizCur.front;
+  document.getElementById("quizQ").innerHTML = quizDir==="je"
+     ? `${quizCur.front} <button class="speak" onclick="speak('${quizCur.front}')">🔊</button>`
+     : quizCur.meaning;
+  // build options
+  let opts=[answerText];
+  let guard=0;
+  while(opts.length<4&&guard<200){
+    const r=quizPool[Math.floor(Math.random()*quizPool.length)];
+    const val=quizDir==="je"?r.meaning:r.front;
+    if(!opts.includes(val))opts.push(val);
+    guard++;
+  }
+  opts=shuffle(opts);
+  const oc=document.getElementById("quizOpts");
+  oc.innerHTML=opts.map(o=>`<button onclick="answerQuiz(this,'${escapeQ(o)}','${escapeQ(answerText)}')">${o}</button>`).join("");
+  document.getElementById("quizStat").textContent=`Score: ${STATE.quizCorrect}/${STATE.quizDone}`;
+}
+function escapeQ(s){return s.replace(/'/g,"\\'");}
+function answerQuiz(btn,chosen,correct){
+  STATE.quizDone++;
+  document.querySelectorAll("#quizOpts button").forEach(b=>b.disabled=true);
+  if(chosen===correct){
+    STATE.quizCorrect++;btn.classList.add("correct");
+    quizCombo++;
+    STATE.bestCombo=Math.max(STATE.bestCombo||0,quizCombo);
+    const bonus=quizCombo>=3?quizCombo:0;
+    addXP(6+bonus, quizCombo>=2?("combo x"+quizCombo):"correct");
+    toast(praise(), quizCombo>=3?("🔥 Combo x"+quizCombo+"!"):"", "good");
+  }else{
+    quizCombo=0;
+    btn.classList.add("wrong");
+    document.querySelectorAll("#quizOpts button").forEach(b=>{if(b.textContent===correct)b.classList.add("correct");});
+    toast("おしい！ Not quite","Answer: "+correct,"bad");
+  }
+  save();touchStreak();checkBadges();
+  document.getElementById("quizStat").innerHTML=`Score: ${STATE.quizCorrect}/${STATE.quizDone}` + (quizCombo>=2?` · 🔥 combo <b>${quizCombo}</b>`:``);
+  setTimeout(newQuizQ,1000);
+}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+/* ============================ VOCAB ============================ */
+let vocabCat="ALL";
+function buildVocabFilter(){
+  const cats=["ALL",...Object.keys(VOCAB)];
+  document.getElementById("vocabFilter").innerHTML=cats.map(c=>
+    `<span class="pill ${c===vocabCat?'active':''}" onclick="setVocabCat('${escapeQ(c)}')">${c}</span>`).join("");
+}
+function setVocabCat(c){vocabCat=c;buildVocabFilter();renderVocab();}
+function renderVocab(){
+  const out=document.getElementById("vocabList");
+  let html="";
+  for(const cat in VOCAB){
+    if(vocabCat!=="ALL"&&vocabCat!==cat)continue;
+    html+=`<div class="cat-title">${cat}</div><div class="grid">`;
+    VOCAB[cat].forEach(v=>{
+      html+=`<div class="vocab-card"><div><div class="jp">${v[0]}</div><div class="rom">${v[1]}</div></div>
+      <div style="text-align:right"><div class="mean">${v[2]}</div><button class="speak" onclick="speak('${v[0]}')">🔊</button></div></div>`;
+    });
+    html+="</div>";
+  }
+  out.innerHTML=html;
+}
+
+/* ============================ KANJI ============================ */
+function renderKanji(){
+  let html="<tr><th>Kanji</th><th>Reading</th><th>Meaning</th><th></th></tr>";
+  KANJI.forEach(k=>{html+=`<tr><td class="jp" style="font-size:24px">${k[0]}</td><td>${k[1]}</td><td>${k[2]}</td><td><button class="speak" onclick="speak('${k[0]}')">🔊</button></td></tr>`;});
+  document.getElementById("kanjiTable").innerHTML=html;
+}
+
+/* ============================ GRAMMAR ============================ */
+function renderGrammar(){
+  document.getElementById("grammarContent").innerHTML=GRAMMAR.map(g=>
+    `<div class="cat-title">${g[0]}</div><p class="sub">${g[1]}</p>`).join("");
+}
+
+/* ============================ MEMORIZE SHEET ============================ */
+function renderSheet(){
+  let h="";
+  h+="<div class='cat-title'>Hiragana</div><table>";
+  h+=kanaSheetRows(HIRAGANA);
+  h+="</table><div class='cat-title'>Katakana</div><table>";
+  h+=kanaSheetRows(KATAKANA);
+  h+="</table>";
+  h+="<div class='cat-title'>Survival Phrases</div><table><tr><th>JP</th><th>Romaji</th><th>English</th></tr>";
+  VOCAB["Greetings & Phrases"].forEach(v=>h+=`<tr><td class='jp'>${v[0]}</td><td>${v[1]}</td><td>${v[2]}</td></tr>`);
+  h+="</table>";
+  h+="<div class='cat-title'>Numbers 1–10</div><table><tr>";
+  VOCAB["Numbers"].slice(0,10).forEach(v=>h+=`<td style='text-align:center'><div class='jp'>${v[2]}</div>${v[0]}<br><small>${v[1]}</small></td>`);
+  h+="</tr></table>";
+  h+="<div class='cat-title'>Top Kanji</div><table><tr><th>Kanji</th><th>Meaning</th><th>Kanji</th><th>Meaning</th></tr>";
+  for(let i=0;i<KANJI.length;i+=2){
+    h+=`<tr><td class='jp'>${KANJI[i][0]}</td><td>${KANJI[i][2]}</td>`;
+    h+=KANJI[i+1]?`<td class='jp'>${KANJI[i+1][0]}</td><td>${KANJI[i+1][2]}</td></tr>`:`<td></td><td></td></tr>`;
+  }
+  h+="</table>";
+  document.getElementById("sheetContent").innerHTML=h;
+}
+function kanaSheetRows(data){
+  let h="";
+  for(let i=0;i<data.length;i+=5){
+    h+="<tr>";
+    for(let j=0;j<5;j++){const k=data[i+j];h+=k&&k[0]?`<td style='text-align:center'><span class='jp'>${k[0]}</span><br><small>${k[1]}</small></td>`:"<td></td>";}
+    h+="</tr>";
+  }
+  return h;
+}
+
+/* ============================ HOME / PROGRESS ============================ */
+function countLearnedKana(){return Object.keys(STATE.kanaLearned).length;}
+function countMastered(){let n=0;for(const id in STATE.srs)if(STATE.srs[id].box>=4)n++;return n;}
+function totalCards(){let n=0;for(const k in DECK_DEFS)n+=DECK_DEFS[k].build().length;return n;}
+function dueNow(){const now=Date.now();let n=0;for(const k in DECK_DEFS){DECK_DEFS[k].build().forEach(c=>{const s=STATE.srs[c.id];if(!s||s.due<=now)n++;});}return n;}
+function renderHome(){
+  const u=activeUser();const li=levelInfo();
+  const wm=document.getElementById("welcomeMsg");
+  if(wm)wm.textContent=u?("おかえり, "+u+"! 👋"):"Welcome 👋";
+  const hl=document.getElementById("homeLevel");
+  if(hl)hl.innerHTML=`
+    <div class="level-card" style="margin:6px 0 16px">
+      <div class="lvl-ring" style="--p:${li.pct}"><span>${li.level}</span></div>
+      <div style="flex:1;min-width:160px">
+        <div style="font-size:18px;font-weight:700">Level ${li.level} · ${li.title}</div>
+        <div class="sub" style="margin:2px 0 8px">${li.into}/${li.need} XP to next level</div>
+        <div class="progressbar" style="max-width:none"><div style="width:${li.pct}%"></div></div>
+      </div>
+    </div>`;
+  document.getElementById("homeStats").innerHTML=`
+   <div class="stat"><b>${STATE.xp||0}</b><span>total XP</span></div>
+   <div class="stat"><b>${STATE.streak}</b><span>day streak</span></div>
+   <div class="stat"><b>${countLearnedKana()}/92</b><span>kana marked</span></div>
+   <div class="stat"><b>${dueNow()}</b><span>cards due</span></div>
+   <div class="stat"><b>${countMastered()}</b><span>cards mastered</span></div>
+   <div class="stat"><b>${Object.keys(STATE.badges||{}).length}/${BADGES.length}</b><span>badges</span></div>`;
+}
+function renderProgress(){
+  document.getElementById("progStats").innerHTML=`
+   <div class="stat"><b>${STATE.streak}</b><span>day streak</span></div>
+   <div class="stat"><b>${countLearnedKana()}</b><span>kana learned</span></div>
+   <div class="stat"><b>${STATE.reviews}</b><span>flashcard reviews</span></div>
+   <div class="stat"><b>${countMastered()}/${totalCards()}</b><span>mastered cards</span></div>
+   <div class="stat"><b>${STATE.quizDone}</b><span>quiz questions</span></div>
+   <div class="stat"><b>${STATE.quizDone?Math.round(STATE.quizCorrect/STATE.quizDone*100):0}%</b><span>quiz accuracy</span></div>`;
+  const boxes=[0,0,0,0,0,0];
+  for(const id in STATE.srs)boxes[STATE.srs[id].box]++;
+  let h="<table><tr><th>Box</th><th>Cards</th><th>Next review interval</th></tr>";
+  for(let b=1;b<=5;b++)h+=`<tr><td>Box ${b}</td><td>${boxes[b]}</td><td>${BOX_INTERVAL[b]} day(s)</td></tr>`;
+  h+="</table>";
+  document.getElementById("boxDist").innerHTML=h;
+}
+function exportData(){
+  const blob=new Blob([JSON.stringify(STATE,null,2)],{type:"application/json"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);
+  a.download="japanese-progress-"+(activeUser()||"user")+".json";a.click();
+}
+function importData(e){
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=()=>{try{STATE=Object.assign(defaultState(),JSON.parse(r.result));save();initAll();alert("Progress imported ✓");}catch(err){alert("Invalid file");}};
+  r.readAsText(f);
+}
+function resetAll(){
+  if(confirm("Erase ALL progress for "+(activeUser()||"this profile")+"? This cannot be undone."))
+  {STATE=defaultState();save();initAll();alert("Reset complete.");}
+}
+
+/* ============================ USER UI ============================ */
+function initials(n){return (n||"?").trim().slice(0,2).toUpperCase();}
+function renderUserChip(){
+  const c=document.getElementById("userChip");if(!c)return;
+  const u=activeUser();const li=levelInfo();
+  if(!u){c.innerHTML="";return;}
+  c.innerHTML=`<span class="avatar">${initials(u)}</span><span class="uc-meta"><b>${u}</b><small>Lv ${li.level} · ${STATE.xp||0} XP</small></span>`;
+}
+function renderProfile(){
+  const li=levelInfo();
+  const lp=document.getElementById("levelPanel");
+  if(lp)lp.innerHTML=`
+    <div class="level-card">
+      <div class="lvl-ring" style="--p:${li.pct}"><span>${li.level}</span></div>
+      <div style="flex:1;min-width:160px">
+        <div style="font-size:18px;font-weight:700">${li.title}</div>
+        <div class="sub" style="margin:2px 0 8px">${STATE.xp||0} XP total · ${li.into}/${li.need} to Level ${li.level+1}</div>
+        <div class="progressbar" style="max-width:none"><div style="width:${li.pct}%"></div></div>
+      </div>
+    </div>
+    <div class="stats">
+      <div class="stat"><b>${STATE.streak}</b><span>day streak</span></div>
+      <div class="stat"><b>${Object.keys(STATE.badges||{}).length}/${BADGES.length}</b><span>badges</span></div>
+      <div class="stat"><b>${STATE.bestCombo||0}</b><span>best combo</span></div>
+      <div class="stat"><b>${STATE.reviews}</b><span>reviews</span></div>
+    </div>`;
+  const bg=document.getElementById("badgeGrid");
+  if(bg)bg.innerHTML=BADGES.map(b=>{
+    const got=STATE.badges&&STATE.badges[b.id];
+    return `<div class="badge ${got?'got':'locked'}"><div class="b-icon">${got?b.icon:'🔒'}</div><div class="b-name">${b.name}</div><div class="b-desc">${b.desc}</div></div>`;
+  }).join("");
+  renderProfileUsers();
+}
+function renderProfileUsers(){
+  const box=document.getElementById("profileUsers");if(!box)return;
+  box.innerHTML=userListHTML(false);
+}
+function userListHTML(inModal){
+  const users=getUsers();const cur=activeUser();
+  if(!users.length)return `<div class="sub">No profiles yet — create one below.</div>`;
+  return users.map(u=>{
+    let xp=0,lvl=1;
+    try{const s=JSON.parse(localStorage.getItem(userKey(u)));if(s){xp=s.xp||0;}}catch(e){}
+    const active=u===cur;
+    return `<div class="user-row ${active?'active':''}">
+      <button class="user-pick" onclick="switchProfile('${u.replace(/'/g,"\\'")}')">
+        <span class="avatar">${initials(u)}</span>
+        <span class="uc-meta"><b>${u}</b><small>${xp} XP${active?' · active':''}</small></span>
+      </button>
+      <button class="user-del" title="Delete profile" onclick="deleteProfile('${u.replace(/'/g,"\\'")}')">🗑</button>
+    </div>`;
+  }).join("");
+}
+function openLogin(){
+  document.getElementById("userList").innerHTML=userListHTML(true);
+  document.getElementById("loginModal").classList.add("show");
+  const inp=document.getElementById("newUserName");if(inp){inp.value="";setTimeout(()=>inp.focus(),50);}
+}
+function closeLogin(){if(activeUser())document.getElementById("loginModal").classList.remove("show");}
+function addProfile(){
+  const inp=document.getElementById("newUserName");
+  const name=(inp.value||"").trim();
+  if(!name){inp.focus();return;}
+  createUser(name);
+  loadState();
+  document.getElementById("loginModal").classList.remove("show");
+  initAll();
+  toast("ようこそ！ Welcome, "+activeUser()+"!","Let's learn some Japanese 🎌","good");
+}
+function switchProfile(name){
+  setActiveUser(name);loadState();
+  document.getElementById("loginModal").classList.remove("show");
+  initAll();go("home");
+  toast("おかえり！ Welcome back, "+name+"!","","good");
+}
+function deleteProfile(name){
+  if(!confirm('Delete profile "'+name+'" and its progress? This cannot be undone.'))return;
+  let users=getUsers().filter(u=>u!==name);
+  saveUsers(users);
+  localStorage.removeItem(userKey(name));
+  if(activeUser()===name){
+    if(users.length){setActiveUser(users[0]);loadState();initAll();}
+    else{setCookie(COOKIE_USER,"",-1);localStorage.removeItem(COOKIE_USER+"_ls");STATE=defaultState();openLogin();}
+  }
+  openLogin();renderProfile();
+}
+
+/* ============================ THEME ============================ */
+function applyTheme(){
+  const dark = localStorage.getItem("jp_theme")==="dark";
+  document.body.classList.toggle("dark",dark);
+  const btn=document.getElementById("themeToggle");
+  if(btn)btn.textContent=dark?"☀️":"🌙";
+}
+function toggleTheme(){
+  const dark = !(localStorage.getItem("jp_theme")==="dark");
+  localStorage.setItem("jp_theme",dark?"dark":"light");
+  applyTheme();
+}
+
+/* ============================ INIT ============================ */
+function initAll(){
+  renderUserChip();renderStreak();renderHome();renderKana();renderVocab();
+  renderKanji();renderGrammar();renderSheet();renderProgress();renderProfile();
+}
+applyTheme();
+buildNav();buildDeckPick();buildQuizPick();buildVocabFilter();
+pickDeck("hira");startQuiz();
+
+// boot: load active user or prompt to create one
+loadState();
+initAll();
+if(!activeUser()){openLogin();}
+
+// warm up speech voices
+if("speechSynthesis" in window){speechSynthesis.onvoiceschanged=()=>{};speechSynthesis.getVoices();}
+</script>
+</body>
+</html>
