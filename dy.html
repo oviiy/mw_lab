@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Douyin Downloader</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    body { font-family: system-ui, -apple-system, sans-serif; }
+    .result-card { transition: all 0.3s ease; }
+  </style>
+</head>
+<body class="bg-zinc-950 text-zinc-200">
+  <div class="max-w-2xl mx-auto px-4 py-12">
+    <!-- Header -->
+    <div class="text-center mb-10">
+      <h1 class="text-4xl font-bold tracking-tight">Douyin Downloader</h1>
+      <p class="text-zinc-400 mt-2">Paste link → Download without watermark</p>
+    </div>
+
+    <!-- Input Card -->
+    <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 mb-8">
+      <div class="flex gap-3">
+        <input 
+          id="videoUrl" 
+          type="text" 
+          placeholder="https://v.douyin.com/xxxxxxxx/" 
+          class="flex-1 bg-zinc-950 border border-zinc-700 focus:border-zinc-500 rounded-xl px-4 py-3 text-sm outline-none">
+        
+        <button 
+          onclick="downloadVideo()"
+          class="bg-white hover:bg-zinc-200 transition-colors text-zinc-900 font-semibold px-8 rounded-xl flex items-center gap-2">
+          <i class="fa-solid fa-download"></i>
+          <span>Get</span>
+        </button>
+      </div>
+      <p class="text-xs text-zinc-500 mt-2 px-1">Supports v.douyin.com links</p>
+    </div>
+
+    <!-- Result -->
+    <div id="result" class="hidden">
+      <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 result-card">
+        <div class="flex gap-4">
+          <!-- Thumbnail -->
+          <div class="flex-shrink-0">
+            <img id="thumbnail" class="w-32 h-44 object-cover rounded-xl border border-zinc-700" alt="thumbnail">
+          </div>
+          
+          <!-- Info -->
+          <div class="flex-1 min-w-0">
+            <div id="author" class="font-semibold text-lg"></div>
+            <div id="title" class="text-zinc-400 text-sm mt-1 line-clamp-2"></div>
+            
+            <div class="mt-4 flex flex-wrap gap-2">
+              <button onclick="downloadFile('hd')" 
+                      class="flex-1 bg-emerald-600 hover:bg-emerald-500 transition-colors text-white text-sm font-medium py-2.5 rounded-xl flex items-center justify-center gap-2">
+                <i class="fa-solid fa-download"></i>
+                <span>Download HD (No Watermark)</span>
+              </button>
+            </div>
+            
+            <div class="mt-2 flex flex-wrap gap-2">
+              <button onclick="downloadFile('music')" 
+                      class="flex-1 bg-zinc-800 hover:bg-zinc-700 transition-colors text-sm font-medium py-2 rounded-xl flex items-center justify-center gap-2">
+                <i class="fa-solid fa-music"></i>
+                <span>Download Music Only</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading -->
+    <div id="loading" class="hidden text-center py-8">
+      <i class="fa-solid fa-spinner fa-spin text-2xl text-zinc-400"></i>
+      <p class="mt-3 text-zinc-400">Fetching video info...</p>
+    </div>
+  </div>
+
+  <script>
+    async function downloadVideo() {
+      const input = document.getElementById('videoUrl').value.trim();
+      if (!input) {
+        alert("Please paste a Douyin link");
+        return;
+      }
+
+      const loading = document.getElementById('loading');
+      const result = document.getElementById('result');
+      
+      loading.classList.remove('hidden');
+      result.classList.add('hidden');
+
+      try {
+        // Using tikwm.com API (works well for static sites)
+        const apiUrl = `https://tikwm.com/api/?url=${encodeURIComponent(input)}`;
+        const res = await fetch(apiUrl);
+        const data = await res.json();
+
+        if (data.code !== 0 || !data.data) {
+          throw new Error(data.msg || "Failed to fetch video");
+        }
+
+        const videoData = data.data;
+
+        // Fill result
+        document.getElementById('thumbnail').src = videoData.cover || videoData.origin_cover;
+        document.getElementById('author').innerHTML = 
+          `<i class="fa-solid fa-user mr-2"></i>${videoData.author?.nickname || 'Unknown'}`;
+        document.getElementById('title').innerText = videoData.title || 'No title';
+
+        // Store data for download buttons
+        window.currentVideo = {
+          hd: videoData.play || videoData.hdplay,
+          music: videoData.music
+        };
+
+        loading.classList.add('hidden');
+        result.classList.remove('hidden');
+
+      } catch (err) {
+        loading.classList.add('hidden');
+        alert("Failed to get video. Try another link or refresh.\n\nError: " + err.message);
+      }
+    }
+
+    function downloadFile(type) {
+      if (!window.currentVideo) return;
+
+      let url = '';
+      let filename = 'douyin_video';
+
+      if (type === 'hd') {
+        url = window.currentVideo.hd;
+        filename = 'douyin_no_watermark.mp4';
+      } else if (type === 'music') {
+        url = window.currentVideo.music;
+        filename = 'douyin_music.mp3';
+      }
+
+      if (!url) {
+        alert("Download link not available for this video.");
+        return;
+      }
+
+      // Create download link
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+
+    // Allow pressing Enter
+    document.getElementById('videoUrl').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        downloadVideo();
+      }
+    });
+  </script>
+</body>
+</html>
