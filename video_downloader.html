@@ -5,7 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Video Downloader</title>
   <link rel="preconnect" href="https://proxy.cors.sh" crossorigin>
+  <link rel="preconnect" href="https://api.allorigins.win" crossorigin>
   <link rel="dns-prefetch" href="https://proxy.cors.sh">
+  <link rel="dns-prefetch" href="https://api.allorigins.win">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <style>
@@ -168,9 +170,75 @@
       },
     ];
 
+    // Optional: set a cors.sh key from https://cors.sh/console (live_ + allowlist github.io origin)
+    const CORS_API_KEY = '';
+
     const CORS_PROXY = (target) => `https://proxy.cors.sh/${target}`;
+    const ALLORIGINS_RAW = (target) => `https://api.allorigins.win/raw?url=${encodeURIComponent(target)}`;
+    const CORS_GET_PROXIES = [CORS_PROXY, ALLORIGINS_RAW];
     const XHS_PAGE_TIMEOUT_MS = 25000;
     const XHS_SHORT_LINK_TIMEOUT_MS = 25000;
+
+    function corsProxyHeaders(forPost = false) {
+      const headers = forPost
+        ? { 'Content-Type': 'application/x-www-form-urlencoded' }
+        : { Accept: 'text/html,*/*' };
+      if (CORS_API_KEY) headers['x-cors-api-key'] = CORS_API_KEY;
+      return headers;
+    }
+
+    function normalizeCorsTarget(url) {
+      return url.replace(/^http:\/\//i, 'https://');
+    }
+
+    async function fetchViaCorsGet(target, timeoutMs) {
+      const normalized = normalizeCorsTarget(target);
+      const errors = [];
+
+      for (const wrap of CORS_GET_PROXIES) {
+        const proxyUrl = wrap(normalized);
+        const label = proxyUrl.includes('allorigins') ? 'allorigins' : 'cors.sh';
+        try {
+          const response = await fetchWithTimeout(proxyUrl, {
+            method: 'GET',
+            redirect: 'follow',
+            headers: corsProxyHeaders(false),
+          }, timeoutMs);
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          const html = await response.text();
+          return { html, responseUrl: response.url || normalized, proxy: label };
+        } catch (err) {
+          errors.push(`${label}: ${err.message}`);
+        }
+      }
+
+      throw new Error(errors.join('\n'));
+    }
+
+    async function fetchViaCorsPost(target, body, timeoutMs) {
+      const normalized = normalizeCorsTarget(target);
+      const attempts = [
+        { label: 'cors.sh', url: CORS_PROXY(normalized) },
+        { label: 'allorigins', url: ALLORIGINS_RAW(normalized) },
+      ];
+      const errors = [];
+
+      for (const attempt of attempts) {
+        try {
+          const response = await fetchWithTimeout(attempt.url, {
+            method: 'POST',
+            headers: corsProxyHeaders(true),
+            body,
+          }, timeoutMs);
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          return await response.json();
+        } catch (err) {
+          errors.push(`${attempt.label}: ${err.message}`);
+        }
+      }
+
+      throw new Error(errors.join('\n'));
+    }
 
     let isFetching = false;
 
@@ -343,11 +411,14 @@
     function switchPlatform(platform) {
       if (platform === activePlatform) return;
       activePlatform = platform;
+      document.getElementById('shareInput').value = '';
       applyPlatformUi();
       document.getElementById('result').classList.add('hidden');
       document.getElementById('loading').classList.add('hidden');
       clearResultViews();
       window.currentMedia = null;
+      showExtractedUrl(null);
+      document.getElementById('tokenWarning').classList.add('hidden');
     }
 
     function clearResultViews() {
@@ -464,19 +535,7 @@
 
     async function fetchViaProvider(provider, douyinUrl) {
       const body = new URLSearchParams({ q: douyinUrl, cursor: '0', page: '0', lang: 'en' });
-      const res = await fetchWithTimeout(CORS_PROXY(provider.api), {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-          'X-Requested-With': 'XMLHttpRequest',
-          'Accept': 'application/json, text/plain, */*',
-          'Origin': provider.origin,
-          'Referer': provider.referer,
-        },
-        body,
-      }, provider.timeoutMs || 15000);
-      if (!res.ok) throw new Error(`${provider.name} HTTP ${res.status}`);
-      const payload = await res.json();
+      const payload = await fetchViaCorsPost(provider.api, body, provider.timeoutMs || 15000);
       if (payload.status !== 'ok' || !payload.data) {
         throw new Error(payload.msg || `${provider.name} returned no video data`);
       }
@@ -537,33 +596,41 @@
       return { video, title, author, cover, images };
     }
 
+    function extractXhsCanonicalUrl(html, fallbackUrl) {
+      const fromMeta = firstMatch(html, [
+        /<meta[^>]+property=["']og:url["'][^>]+content=["']([^"']+)["']/i,
+        /<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:url["']/i,
+        /<link[^>]+rel=["']canonical["'][^>]+href=["']([^"']+)["']/i,
+        /(https?:\/\/(?:www\.)?xiaohongshu\.com\/(?:discovery\/item|explore)\/[a-f0-9]+(?:\?[^"'\\<\s]+)?)/i,
+      ]);
+      return fromMeta || fallbackUrl;
+    }
+
+    function resolveXhsFinalUrl(html, responseUrl, inputUrl) {
+      let finalUrl = responseUrl || inputUrl;
+      if (/proxy\.cors\.sh|allorigins\.win|xhslink\.com/i.test(finalUrl)) {
+        finalUrl = extractXhsCanonicalUrl(html, finalUrl);
+      }
+      return finalUrl;
+    }
+
     async function resolveXhsEntry(url) {
       if (!/xhslink\.com/i.test(url)) {
         return { url, html: null };
       }
 
       setLoadingText('Resolving Xiaohongshu short link...', 'Following redirect (one request)…');
-      const response = await fetchWithTimeout(CORS_PROXY(url), {
-        method: 'GET',
-        redirect: 'follow',
-        headers: { Accept: 'text/html,application/json,*/*' },
-      }, XHS_SHORT_LINK_TIMEOUT_MS);
-      if (!response.ok) throw new Error(`Short link resolve failed (HTTP ${response.status})`);
-
+      const fetched = await fetchViaCorsGet(url, XHS_SHORT_LINK_TIMEOUT_MS);
       return {
-        url: response.url || url,
-        html: await response.text(),
+        url: resolveXhsFinalUrl(fetched.html, fetched.responseUrl, url),
+        html: fetched.html,
       };
     }
 
     async function fetchNotePage(url) {
       setLoadingText('Fetching Xiaohongshu note page...', 'Downloading note data…');
-      const response = await fetchWithTimeout(CORS_PROXY(url), {
-        method: 'GET',
-        headers: { Accept: 'text/html,application/json,*/*' },
-      }, XHS_PAGE_TIMEOUT_MS);
-      if (!response.ok) throw new Error(`Page fetch failed (HTTP ${response.status})`);
-      return response.text();
+      const fetched = await fetchViaCorsGet(url, XHS_PAGE_TIMEOUT_MS);
+      return fetched.html;
     }
 
     function renderResult(data) {
