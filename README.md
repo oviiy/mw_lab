@@ -10,7 +10,7 @@ A collection of lightweight, browser-based tools for quantitative interview prep
 
 | Tool | Description | Link |
 |------|-------------|------|
-| **Douyin Downloader** | Download Douyin videos without watermark directly in browser | [dy.html](./dy.html) |
+| **Video Downloader** | Download Douyin & Xiaohongshu videos without watermark in browser | [video_downloader.html](./video_downloader.html) |
 | **Japanese Tools** | Japanese learning / utility tools | [jp.html](./jp.html) |
 | **Quant Resources** | Quant interview preparation materials | [q.html](./q.html) |
 

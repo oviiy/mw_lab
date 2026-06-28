@@ -3,163 +3,685 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Douyin Downloader</title>
+  <title>Video Downloader</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <style>
     body { font-family: system-ui, -apple-system, sans-serif; }
     .result-card { transition: all 0.3s ease; }
+    #previewVideo { max-height: 70vh; }
+    .tab-btn { transition: all 0.15s ease; }
+    .tab-btn.active-douyin { background: #fff; color: #18181b; }
+    .tab-btn.active-xhs { background: #f43f5e; color: #fff; }
+    @supports (padding-bottom: env(safe-area-inset-bottom)) {
+      body { padding-bottom: env(safe-area-inset-bottom); }
+    }
   </style>
 </head>
 <body class="bg-zinc-950 text-zinc-200">
-  <div class="max-w-2xl mx-auto px-4 py-12">
-    <!-- Header -->
-    <div class="text-center mb-10">
-      <h1 class="text-4xl font-bold tracking-tight">Douyin Downloader</h1>
-      <p class="text-zinc-400 mt-2">Paste link → Download without watermark</p>
+  <div class="max-w-2xl mx-auto px-4 py-10 sm:py-12">
+    <div class="text-center mb-8">
+      <h1 class="text-3xl sm:text-4xl font-bold tracking-tight">Video Downloader</h1>
+      <p class="text-zinc-400 mt-2">Paste share text or link → Download without watermark</p>
     </div>
 
-    <!-- Input Card -->
+    <nav class="flex gap-2 p-1 mb-6 bg-zinc-900 border border-zinc-800 rounded-2xl" id="platformTabs">
+      <button type="button" data-platform="douyin"
+              class="tab-btn active-douyin flex-1 py-3 rounded-xl text-sm font-semibold flex items-center justify-center gap-2">
+        <i class="fa-brands fa-tiktok"></i>
+        <span>抖音 Douyin</span>
+      </button>
+      <button type="button" data-platform="xhs"
+              class="tab-btn flex-1 py-3 rounded-xl text-sm font-semibold text-zinc-400 hover:text-zinc-200 flex items-center justify-center gap-2">
+        <i class="fa-solid fa-book-open"></i>
+        <span>小红书 XHS</span>
+      </button>
+    </nav>
+
     <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 mb-8">
-      <div class="flex gap-3">
-        <input 
-          id="videoUrl" 
-          type="text" 
-          placeholder="https://v.douyin.com/xxxxxxxx/" 
-          class="flex-1 bg-zinc-950 border border-zinc-700 focus:border-zinc-500 rounded-xl px-4 py-3 text-sm outline-none">
-        
-        <button 
-          onclick="downloadVideo()"
-          class="bg-white hover:bg-zinc-200 transition-colors text-zinc-900 font-semibold px-8 rounded-xl flex items-center gap-2">
+      <div class="flex flex-col sm:flex-row gap-3">
+        <textarea
+          id="shareInput"
+          rows="3"
+          placeholder="Paste full Douyin share text or https://v.douyin.com/…"
+          class="flex-1 bg-zinc-950 border border-zinc-700 focus:border-zinc-500 rounded-xl px-4 py-3 text-sm outline-none resize-y min-h-[4rem]"></textarea>
+
+        <button
+          id="getBtn"
+          onclick="fetchMedia()"
+          class="bg-white hover:bg-zinc-200 active:bg-zinc-300 transition-colors text-zinc-900 font-semibold px-8 py-3 sm:py-0 rounded-xl flex items-center justify-center gap-2 shrink-0">
           <i class="fa-solid fa-download"></i>
           <span>Get</span>
         </button>
       </div>
-      <p class="text-xs text-zinc-500 mt-2 px-1">Supports v.douyin.com links</p>
+      <p id="platformHint" class="text-xs text-zinc-500 mt-2 px-1">
+        Accepts full share messages — the v.douyin.com link is extracted automatically
+      </p>
+      <p id="extractedUrl" class="hidden text-xs mt-1 px-1 break-all"></p>
+      <p id="tokenWarning" class="hidden text-xs text-amber-300/90 mt-1 px-1">
+        Warning: link has no xsec_token. Paste the full share text from the 小红书 app for best results.
+      </p>
     </div>
 
-    <!-- Result -->
     <div id="result" class="hidden">
-      <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 result-card">
+      <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 sm:p-6 result-card">
         <div class="flex gap-4">
-          <!-- Thumbnail -->
-          <div class="flex-shrink-0">
+          <div class="flex-shrink-0 hidden sm:block">
             <img id="thumbnail" class="w-32 h-44 object-cover rounded-xl border border-zinc-700" alt="thumbnail">
           </div>
-          
-          <!-- Info -->
           <div class="flex-1 min-w-0">
-            <div id="author" class="font-semibold text-lg"></div>
-            <div id="title" class="text-zinc-400 text-sm mt-1 line-clamp-2"></div>
-            
-            <div class="mt-4 flex flex-wrap gap-2">
-              <button onclick="downloadFile('hd')" 
-                      class="flex-1 bg-emerald-600 hover:bg-emerald-500 transition-colors text-white text-sm font-medium py-2.5 rounded-xl flex items-center justify-center gap-2">
-                <i class="fa-solid fa-download"></i>
-                <span>Download HD (No Watermark)</span>
-              </button>
-            </div>
-            
-            <div class="mt-2 flex flex-wrap gap-2">
-              <button onclick="downloadFile('music')" 
-                      class="flex-1 bg-zinc-800 hover:bg-zinc-700 transition-colors text-sm font-medium py-2 rounded-xl flex items-center justify-center gap-2">
-                <i class="fa-solid fa-music"></i>
-                <span>Download Music Only</span>
-              </button>
-            </div>
+            <div id="author" class="font-semibold text-base sm:text-lg"></div>
+            <div id="title" class="text-zinc-400 text-sm mt-1 line-clamp-4"></div>
           </div>
         </div>
+
+        <div id="videoWrap" class="hidden mt-4">
+          <video
+            id="previewVideo"
+            class="w-full rounded-xl border border-zinc-700 bg-black"
+            controls
+            playsinline
+            webkit-playsinline
+            preload="metadata"
+          ></video>
+          <p id="videoError" class="hidden mt-2 text-xs text-amber-300/90 px-1">
+            Inline playback failed. Tap the download button to open the video in a new tab, then Share → Save Video.
+          </p>
+        </div>
+
+        <div id="imageWrap" class="hidden mt-4 grid grid-cols-2 sm:grid-cols-3 gap-2"></div>
+
+        <div id="iosHint" class="hidden mt-3 rounded-xl border border-sky-900/60 bg-sky-950/40 px-4 py-3 text-sm text-sky-100">
+          <p class="font-medium flex items-start gap-2">
+            <i class="fa-solid fa-mobile-screen-button mt-0.5 text-sky-300"></i>
+            <span>Save to Photos on iPhone</span>
+          </p>
+          <ol class="mt-2 space-y-1.5 text-xs text-sky-100/90 list-decimal list-inside">
+            <li>Play the video above (tap the play button).</li>
+            <li>Tap <strong>Share</strong> below the video.</li>
+            <li>Choose <strong>Save Video</strong> to add it to Photos.</li>
+          </ol>
+          <p id="iosImageTip" class="hidden mt-2 text-xs text-sky-200/70">For images: long-press an image → Add to Photos.</p>
+        </div>
+
+        <div id="desktopHint" class="hidden mt-3 text-xs text-zinc-500 px-1">
+          Video plays above. Use Download to open the file in a new tab, or right-click → Save.
+        </div>
+
+        <div class="mt-4 flex flex-wrap gap-2">
+          <button id="downloadBtn" onclick="downloadPrimary()"
+                  class="flex-1 bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 transition-colors text-white text-sm font-medium py-3 rounded-xl flex items-center justify-center gap-2">
+            <i class="fa-solid fa-download"></i>
+            <span id="downloadBtnLabel">Download HD (No Watermark)</span>
+          </button>
+        </div>
+
+        <div id="musicSection" class="mt-2 flex flex-wrap gap-2">
+          <button onclick="downloadMusic()"
+                  class="flex-1 bg-zinc-800 hover:bg-zinc-700 active:bg-zinc-600 transition-colors text-sm font-medium py-3 rounded-xl flex items-center justify-center gap-2">
+            <i class="fa-solid fa-music"></i>
+            <span>Download Music Only</span>
+          </button>
+        </div>
+
+        <p id="musicIosHint" class="hidden mt-2 text-xs text-zinc-500 px-1">
+          On iPhone, music saves to the Files app (not Photos).
+        </p>
       </div>
     </div>
 
-    <!-- Loading -->
     <div id="loading" class="hidden text-center py-8">
       <i class="fa-solid fa-spinner fa-spin text-2xl text-zinc-400"></i>
-      <p class="mt-3 text-zinc-400">Fetching video info...</p>
+      <p id="loadingText" class="mt-3 text-zinc-400">Fetching video info...</p>
     </div>
   </div>
 
   <script>
-    async function downloadVideo() {
-      const input = document.getElementById('videoUrl').value.trim();
-      if (!input) {
-        alert("Please paste a Douyin link");
+    const DOUYIN_URL_PATTERNS = [
+      /https?:\/\/v\.douyin\.com\/[A-Za-z0-9_-]+\/?/i,
+      /https?:\/\/(?:www\.)?douyin\.com\/video\/\d+/i,
+      /https?:\/\/(?:www\.)?iesdouyin\.com\/share\/video\/\d+\/?/i,
+    ];
+
+    const XHS_URL_PATTERNS = [
+      /https?:\/\/(?:www\.)?xiaohongshu\.com\/(?:discovery\/item|explore)\/[a-f0-9]+(?:\?[^\s\u3000]+)?/i,
+      /https?:\/\/xhslink\.com\/[A-Za-z0-9/_-]+/i,
+    ];
+
+    const LOOKUP_PROVIDERS = [
+      {
+        name: 'SaveTik',
+        api: 'https://savetik.io/api/ajaxSearch',
+        origin: 'https://savetik.io',
+        referer: 'https://savetik.io/en/douyin-downloader',
+      },
+      {
+        name: 'SnapTik',
+        api: 'https://snaptik.net/api/ajaxSearch',
+        origin: 'https://snaptik.net',
+        referer: 'https://snaptik.net/',
+      },
+    ];
+
+    const CORS_PROXY = (target) => `https://proxy.cors.sh/${target}`;
+
+    const PLATFORM_UI = {
+      douyin: {
+        placeholder: 'Paste full Douyin share text or https://v.douyin.com/…',
+        hint: 'Accepts full share messages — the v.douyin.com link is extracted automatically',
+        loading: 'Fetching Douyin video info...',
+        extractedClass: 'text-emerald-400/90',
+        getBtnClass: 'bg-white hover:bg-zinc-200 active:bg-zinc-300 text-zinc-900',
+        downloadBtnClass: 'bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700',
+        focusClass: 'focus:border-zinc-500',
+      },
+      xhs: {
+        placeholder: 'Paste full 小红书 share text or https://www.xiaohongshu.com/discovery/item/…',
+        hint: 'Accepts full share messages — the xiaohongshu.com link is extracted automatically (keep xsec_token if present)',
+        loading: 'Fetching Xiaohongshu note info...',
+        extractedClass: 'text-rose-300/90',
+        getBtnClass: 'bg-rose-500 hover:bg-rose-400 active:bg-rose-600 text-white',
+        downloadBtnClass: 'bg-rose-600 hover:bg-rose-500 active:bg-rose-700',
+        focusClass: 'focus:border-rose-500',
+      },
+    };
+
+    let activePlatform = 'douyin';
+
+    function isIOS() {
+      return /iPad|iPhone|iPod/i.test(navigator.userAgent)
+        || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    }
+
+    function normalizeShareText(text) {
+      return text
+        .replace(/[\u2010\u2011\u2012\u2013\u2014\u2212\uFE58\uFE63\uFF0D]/g, '-')
+        .replace(/[\uFF0F\u2044]/g, '/')
+        .replace(/[\uFF1A]/g, ':');
+    }
+
+    function extractDouyinUrl(text) {
+      const normalized = normalizeShareText(text.trim());
+      if (!normalized) return null;
+      for (const pattern of DOUYIN_URL_PATTERNS) {
+        const match = normalized.match(pattern);
+        if (match) return match[0];
+      }
+      return null;
+    }
+
+    function extractXhsUrl(text) {
+      const normalized = normalizeShareText(text.trim());
+      if (!normalized) return null;
+      for (const pattern of XHS_URL_PATTERNS) {
+        const match = normalized.match(pattern);
+        if (match) return match[0].replace(/[.,;)\]]+$/, '');
+      }
+      return null;
+    }
+
+    function extractUrl(text, platform = activePlatform) {
+      return platform === 'douyin' ? extractDouyinUrl(text) : extractXhsUrl(text);
+    }
+
+    function uniqueUrls(urls) {
+      return [...new Set(urls.filter(Boolean))];
+    }
+
+    function decodeHtml(value) {
+      const el = document.createElement('textarea');
+      el.innerHTML = value || '';
+      return el.value.trim();
+    }
+
+    function normalizeHref(href) {
+      return (href || '').replace(/&amp;/g, '&').trim();
+    }
+
+    function unescapeJsonUrl(value) {
+      return (value || '')
+        .replace(/\\u002F/g, '/')
+        .replace(/\\\//g, '/')
+        .replace(/&amp;/g, '&')
+        .trim();
+    }
+
+    function showExtractedUrl(url) {
+      const el = document.getElementById('extractedUrl');
+      const warn = document.getElementById('tokenWarning');
+      const ui = PLATFORM_UI[activePlatform];
+
+      if (!url) {
+        el.classList.add('hidden');
+        warn.classList.add('hidden');
+        el.textContent = '';
         return;
       }
 
+      el.textContent = `Using link: ${url}`;
+      el.className = `text-xs mt-1 px-1 break-all ${ui.extractedClass}`;
+      el.classList.remove('hidden');
+
+      if (activePlatform === 'xhs') {
+        warn.classList.toggle('hidden', /xsec_token=/i.test(url));
+      } else {
+        warn.classList.add('hidden');
+      }
+    }
+
+    function normalizeInput() {
+      showExtractedUrl(extractUrl(document.getElementById('shareInput').value));
+    }
+
+    function applyPlatformUi() {
+      const ui = PLATFORM_UI[activePlatform];
+      const input = document.getElementById('shareInput');
+      const getBtn = document.getElementById('getBtn');
+      const downloadBtn = document.getElementById('downloadBtn');
+
+      input.placeholder = ui.placeholder;
+      input.className = `flex-1 bg-zinc-950 border border-zinc-700 ${ui.focusClass} rounded-xl px-4 py-3 text-sm outline-none resize-y min-h-[4rem]`;
+      document.getElementById('platformHint').textContent = ui.hint;
+      getBtn.className = `${ui.getBtnClass} transition-colors font-semibold px-8 py-3 sm:py-0 rounded-xl flex items-center justify-center gap-2 shrink-0`;
+      downloadBtn.className = `flex-1 ${ui.downloadBtnClass} transition-colors text-white text-sm font-medium py-3 rounded-xl flex items-center justify-center gap-2`;
+
+      document.querySelectorAll('.tab-btn').forEach((btn) => {
+        const selected = btn.dataset.platform === activePlatform;
+        btn.classList.toggle('active-douyin', selected && activePlatform === 'douyin');
+        btn.classList.toggle('active-xhs', selected && activePlatform === 'xhs');
+        btn.classList.toggle('text-zinc-400', !selected);
+        btn.classList.toggle('hover:text-zinc-200', !selected);
+      });
+
+      normalizeInput();
+    }
+
+    function switchPlatform(platform) {
+      if (platform === activePlatform) return;
+      activePlatform = platform;
+      applyPlatformUi();
+      document.getElementById('result').classList.add('hidden');
+      document.getElementById('loading').classList.add('hidden');
+      clearResultViews();
+      window.currentMedia = null;
+    }
+
+    function clearResultViews() {
+      document.getElementById('videoWrap').classList.add('hidden');
+      document.getElementById('imageWrap').classList.add('hidden');
+      document.getElementById('imageWrap').innerHTML = '';
+      document.getElementById('videoError').classList.add('hidden');
+      document.getElementById('musicSection').classList.add('hidden');
+      const video = document.getElementById('previewVideo');
+      video.removeAttribute('src');
+      video.removeAttribute('poster');
+    }
+
+    function updatePlatformHints(hasVideo, hasImages = false) {
+      const ios = isIOS();
+      document.getElementById('iosHint').classList.toggle('hidden', !ios || (!hasVideo && !hasImages));
+      document.getElementById('iosImageTip').classList.toggle('hidden', !hasImages);
+      document.getElementById('desktopHint').classList.toggle('hidden', ios || !hasVideo);
+      document.getElementById('musicIosHint').classList.toggle('hidden', !ios || activePlatform !== 'douyin');
+
+      const label = document.getElementById('downloadBtnLabel');
+      if (hasVideo) {
+        label.textContent = ios ? 'Play Video (then Share → Save Video)' : (activePlatform === 'douyin' ? 'Download HD (No Watermark)' : 'Download Video');
+      } else if (hasImages) {
+        label.textContent = 'Open First Image';
+      }
+    }
+
+    function showPreviewVideo(url, poster) {
+      const videoWrap = document.getElementById('videoWrap');
+      const video = document.getElementById('previewVideo');
+
+      if (!url) {
+        videoWrap.classList.add('hidden');
+        return;
+      }
+
+      video.onerror = () => {
+        const fallbacks = window.currentMedia?.hdFallbacks || [];
+        const next = fallbacks.find((candidate) => candidate && candidate !== video.src);
+        if (next) {
+          video.src = next;
+          video.load();
+          return;
+        }
+        document.getElementById('videoError').classList.remove('hidden');
+      };
+
+      video.poster = poster || '';
+      video.src = url;
+      video.load();
+      videoWrap.classList.remove('hidden');
+      document.getElementById('videoError').classList.add('hidden');
+    }
+
+    function showImages(images) {
+      const wrap = document.getElementById('imageWrap');
+      wrap.innerHTML = '';
+      if (!images.length) {
+        wrap.classList.add('hidden');
+        return;
+      }
+      images.forEach((url) => {
+        const img = document.createElement('img');
+        img.src = url;
+        img.alt = 'note image';
+        img.className = 'w-full h-36 object-cover rounded-xl border border-zinc-700';
+        img.loading = 'lazy';
+        wrap.appendChild(img);
+      });
+      wrap.classList.remove('hidden');
+    }
+
+    function isDirectMediaUrl(href) {
+      return /zjcdn\.com|douyinvod\.com|douyinstatic\.com|bytecdn\.cn|\.mp4(?:\?|$)/i.test(href)
+        && !/snapcdn\.app/i.test(href);
+    }
+
+    function pickDownloadLink(links, patterns) {
+      for (const pattern of patterns) {
+        const hit = links.find((item) => pattern.test(item.label));
+        if (hit) return normalizeHref(hit.href);
+      }
+      return null;
+    }
+
+    function parseAjaxSearchHtml(html) {
+      const doc = new DOMParser().parseFromString(html, 'text/html');
+      const cover = normalizeHref(doc.querySelector('.image-tik img, .thumbnail img, img')?.getAttribute('src') || '');
+      const title = decodeHtml(doc.querySelector('h3, h2')?.innerHTML || '');
+      const author = decodeHtml(doc.querySelector('.author, .nickname, .video-author')?.textContent || '');
+
+      const links = [...doc.querySelectorAll('a[href]')].map((anchor) => ({
+        label: anchor.textContent.replace(/\s+/g, ' ').trim(),
+        href: normalizeHref(anchor.getAttribute('href')),
+      })).filter((item) => item.href && /^https?:\/\//i.test(item.href));
+
+      const videoUrls = uniqueUrls([
+        pickDownloadLink(links, [/download mp4 \[2\]/i]),
+        links.map((item) => item.href).find(isDirectMediaUrl),
+        pickDownloadLink(links, [/download mp4 hd/i, /hd.*mp4/i]),
+        pickDownloadLink(links, [/download mp4 \[1\]/i, /download mp4/i, /without watermark/i]),
+      ]);
+
+      return {
+        cover,
+        title,
+        author,
+        hd: videoUrls[0] || null,
+        hdFallbacks: videoUrls.slice(1),
+        music: pickDownloadLink(links, [/download mp3/i, /music/i]),
+      };
+    }
+
+    async function fetchViaProvider(provider, douyinUrl, useProxy) {
+      const target = useProxy ? CORS_PROXY(provider.api) : provider.api;
+      const body = new URLSearchParams({ q: douyinUrl, cursor: '0', page: '0', lang: 'en' });
+      const res = await fetch(target, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+          'X-Requested-With': 'XMLHttpRequest',
+          'Accept': 'application/json, text/plain, */*',
+          'Origin': provider.origin,
+          'Referer': provider.referer,
+        },
+        body,
+      });
+      if (!res.ok) throw new Error(`${provider.name} HTTP ${res.status}`);
+      const payload = await res.json();
+      if (payload.status !== 'ok' || !payload.data) {
+        throw new Error(payload.msg || `${provider.name} returned no video data`);
+      }
+      const parsed = parseAjaxSearchHtml(payload.data);
+      if (!parsed.hd && !parsed.music) throw new Error(`${provider.name} found no download links`);
+      return parsed;
+    }
+
+    async function resolveDouyinVideo(douyinUrl) {
+      const errors = [];
+      for (const provider of LOOKUP_PROVIDERS) {
+        for (const useProxy of [true, false]) {
+          try {
+            return await fetchViaProvider(provider, douyinUrl, useProxy);
+          } catch (err) {
+            errors.push(`${provider.name}${useProxy ? ' (proxy)' : ''}: ${err.message}`);
+          }
+        }
+      }
+      throw new Error(errors.join('\n'));
+    }
+
+    function firstMatch(html, patterns) {
+      for (const pattern of patterns) {
+        const match = html.match(pattern);
+        if (match) return unescapeJsonUrl(match[1]);
+      }
+      return null;
+    }
+
+    function parseXhsHtml(html) {
+      const video = firstMatch(html, [
+        /"masterUrl"\s*:\s*"([^"]+)"/,
+        /"originVideoKey"\s*:\s*"([^"]+)"/,
+        /(https?:\/\/[^"\\]*xhscdn[^"\\]+\.mp4[^"\\]*)/,
+      ]);
+
+      const descCandidates = [...html.matchAll(/"desc"\s*:\s*"([^"]{8,500})"/g)]
+        .map((match) => unescapeJsonUrl(match[1]))
+        .filter((value) => !value.startsWith('小红书_') && !value.includes('沪ICP备'));
+      const title = descCandidates.sort((a, b) => b.length - a.length)[0] || null;
+
+      const author = firstMatch(html, [/"(?:nickname|name)"\s*:\s*"([^"]{1,80})"/]);
+      const cover = firstMatch(html, [
+        /"urlPre"\s*:\s*"([^"]+)"/,
+        /"cover"\s*:\s*\{[^}]*"url"\s*:\s*"([^"]+)"/,
+        /(https?:\/\/[^"\\]*xhscdn[^"\\]*webpic[^"\\]+)/,
+      ]);
+
+      const images = [...new Set(
+        [...html.matchAll(/(https?:\/\/[^"\\]*xhscdn[^"\\]*(?:webpic|spectrum)[^"\\]+)/g)]
+          .map((match) => unescapeJsonUrl(match[1]))
+          .filter((url) => !/avatar|logo|icon/i.test(url))
+      )].slice(0, 12);
+
+      return { video, title, author, cover, images };
+    }
+
+    async function resolveShortLink(url) {
+      if (!/xhslink\.com/i.test(url)) return url;
+      const response = await fetch(CORS_PROXY(url), { method: 'GET', redirect: 'follow' });
+      if (!response.ok) throw new Error(`Short link resolve failed (HTTP ${response.status})`);
+      return response.url || url;
+    }
+
+    async function fetchNotePage(url) {
+      const response = await fetch(CORS_PROXY(url), {
+        method: 'GET',
+        headers: { Accept: 'text/html,application/json,*/*' },
+      });
+      if (!response.ok) throw new Error(`Page fetch failed (HTTP ${response.status})`);
+      return response.text();
+    }
+
+    function renderResult(data) {
+      document.getElementById('thumbnail').src = data.cover || data.images?.[0] || '';
+      document.getElementById('author').innerHTML = data.author
+        ? `<i class="fa-solid fa-user mr-2"></i>${data.author}`
+        : `<i class="fa-solid fa-user mr-2"></i>${data.platformLabel}`;
+      document.getElementById('title').innerText = data.title || 'No title';
+
+      if (data.hd) showPreviewVideo(data.hd, data.cover);
+      else document.getElementById('videoWrap').classList.add('hidden');
+
+      if (data.images?.length) showImages(data.images);
+      else document.getElementById('imageWrap').classList.add('hidden');
+
+      document.getElementById('musicSection').classList.toggle('hidden', !data.music);
+      updatePlatformHints(Boolean(data.hd), Boolean(data.images?.length));
+    }
+
+    async function fetchDouyin(url) {
+      const videoData = await resolveDouyinVideo(url);
+      window.currentMedia = {
+        platform: 'douyin',
+        hd: videoData.hd,
+        hdFallbacks: videoData.hdFallbacks || [],
+        music: videoData.music,
+        images: [],
+      };
+      renderResult({
+        cover: videoData.cover,
+        title: videoData.title,
+        author: videoData.author,
+        platformLabel: 'Douyin',
+        hd: videoData.hd,
+        music: videoData.music,
+        images: [],
+      });
+    }
+
+    async function fetchXhs(url) {
+      url = await resolveShortLink(url);
+      showExtractedUrl(url);
+
+      const html = await fetchNotePage(url);
+      const parsed = parseXhsHtml(html);
+
+      if (!parsed.video && !parsed.images.length) {
+        const hint = /xsec_token=/i.test(url)
+          ? 'No video or images found. The note may be private, deleted, or not supported.'
+          : 'No media found. Paste the full share text from the 小红书 app — the link needs xsec_token.';
+        throw new Error(hint);
+      }
+
+      const videoUrls = uniqueUrls([
+        parsed.video,
+        ...[...html.matchAll(/(https?:\/\/[^"\\]*xhscdn[^"\\]+\.mp4[^"\\]*)/g)].map((m) => unescapeJsonUrl(m[1])),
+      ]);
+
+      window.currentMedia = {
+        platform: 'xhs',
+        hd: videoUrls[0] || null,
+        hdFallbacks: videoUrls.slice(1),
+        music: null,
+        images: parsed.images,
+      };
+
+      renderResult({
+        cover: parsed.cover,
+        title: parsed.title,
+        author: parsed.author,
+        platformLabel: '小红书',
+        hd: window.currentMedia.hd,
+        music: null,
+        images: parsed.images,
+      });
+    }
+
+    async function fetchMedia() {
+      const input = document.getElementById('shareInput').value.trim();
+      if (!input) {
+        alert(`Please paste a ${activePlatform === 'douyin' ? 'Douyin' : 'Xiaohongshu'} share message or link`);
+        return;
+      }
+
+      const url = extractUrl(input);
+      if (!url) {
+        const msg = activePlatform === 'douyin'
+          ? 'No Douyin link found.\n\nPaste the full share text (with v.douyin.com/…) or a direct link.'
+          : 'No Xiaohongshu link found.\n\nPaste the full share text or a xiaohongshu.com / xhslink.com URL.';
+        alert(msg);
+        return;
+      }
+
+      showExtractedUrl(url);
+
       const loading = document.getElementById('loading');
       const result = document.getElementById('result');
-      
       loading.classList.remove('hidden');
+      document.getElementById('loadingText').textContent = PLATFORM_UI[activePlatform].loading;
       result.classList.add('hidden');
+      clearResultViews();
 
       try {
-        // Using tikwm.com API (works well for static sites)
-        const apiUrl = `https://tikwm.com/api/?url=${encodeURIComponent(input)}`;
-        const res = await fetch(apiUrl);
-        const data = await res.json();
-
-        if (data.code !== 0 || !data.data) {
-          throw new Error(data.msg || "Failed to fetch video");
-        }
-
-        const videoData = data.data;
-
-        // Fill result
-        document.getElementById('thumbnail').src = videoData.cover || videoData.origin_cover;
-        document.getElementById('author').innerHTML = 
-          `<i class="fa-solid fa-user mr-2"></i>${videoData.author?.nickname || 'Unknown'}`;
-        document.getElementById('title').innerText = videoData.title || 'No title';
-
-        // Store data for download buttons
-        window.currentVideo = {
-          hd: videoData.play || videoData.hdplay,
-          music: videoData.music
-        };
+        if (activePlatform === 'douyin') await fetchDouyin(url);
+        else await fetchXhs(url);
 
         loading.classList.add('hidden');
         result.classList.remove('hidden');
 
+        if (isIOS() && window.currentMedia?.hd) {
+          document.getElementById('videoWrap').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
       } catch (err) {
         loading.classList.add('hidden');
-        alert("Failed to get video. Try another link or refresh.\n\nError: " + err.message);
+        alert(`Failed to get media. Try another link or refresh.\n\n${err.message}`);
       }
     }
 
-    function downloadFile(type) {
-      if (!window.currentVideo) return;
+    function openMediaUrl(url) {
+      if (!url) return;
+      window.open(url, '_blank', 'noopener,noreferrer');
+    }
 
-      let url = '';
-      let filename = 'douyin_video';
+    function downloadPrimary() {
+      if (!window.currentMedia) return;
 
-      if (type === 'hd') {
-        url = window.currentVideo.hd;
-        filename = 'douyin_no_watermark.mp4';
-      } else if (type === 'music') {
-        url = window.currentVideo.music;
-        filename = 'douyin_music.mp3';
-      }
-
-      if (!url) {
-        alert("Download link not available for this video.");
+      if (window.currentMedia.hd) {
+        const candidates = uniqueUrls([
+          window.currentMedia.hd,
+          ...(window.currentMedia.hdFallbacks || []),
+        ]);
+        if (!candidates.length) {
+          alert('Download link not available.');
+          return;
+        }
+        if (isIOS()) {
+          const video = document.getElementById('previewVideo');
+          video.poster = document.getElementById('thumbnail').src || '';
+          video.src = candidates[0];
+          video.load();
+          video.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          video.play().catch(() => openMediaUrl(candidates[0]));
+          return;
+        }
+        openMediaUrl(candidates[0]);
         return;
       }
 
-      // Create download link
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
+      if (window.currentMedia.images?.length) {
+        openMediaUrl(window.currentMedia.images[0]);
+      }
     }
 
-    // Allow pressing Enter
-    document.getElementById('videoUrl').addEventListener('keypress', function(e) {
-      if (e.key === 'Enter') {
-        downloadVideo();
+    function downloadMusic() {
+      if (!window.currentMedia?.music) {
+        alert('Download link not available for this video.');
+        return;
+      }
+      openMediaUrl(window.currentMedia.music);
+    }
+
+    document.querySelectorAll('#platformTabs .tab-btn').forEach((btn) => {
+      btn.addEventListener('click', () => switchPlatform(btn.dataset.platform));
+    });
+
+    const shareInput = document.getElementById('shareInput');
+    shareInput.addEventListener('paste', () => setTimeout(normalizeInput, 0));
+    shareInput.addEventListener('blur', normalizeInput);
+    shareInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        fetchMedia();
       }
     });
+
+    applyPlatformUi();
   </script>
 </body>
 </html>
