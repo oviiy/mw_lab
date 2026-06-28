@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Video Downloader</title>
+  <link rel="preconnect" href="https://proxy.cors.sh" crossorigin>
+  <link rel="dns-prefetch" href="https://proxy.cors.sh">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <style>
@@ -82,7 +84,7 @@
             controls
             playsinline
             webkit-playsinline
-            preload="metadata"
+            preload="none"
           ></video>
           <p id="videoError" class="hidden mt-2 text-xs text-amber-300/90 px-1">
             Inline playback failed. Tap the download button to open the video in a new tab, then Share → Save Video.
@@ -133,6 +135,7 @@
     <div id="loading" class="hidden text-center py-8">
       <i class="fa-solid fa-spinner fa-spin text-2xl text-zinc-400"></i>
       <p id="loadingText" class="mt-3 text-zinc-400">Fetching video info...</p>
+      <p id="loadingSubtext" class="hidden mt-1 text-xs text-zinc-500"></p>
     </div>
   </div>
 
@@ -154,16 +157,57 @@
         api: 'https://savetik.io/api/ajaxSearch',
         origin: 'https://savetik.io',
         referer: 'https://savetik.io/en/douyin-downloader',
+        timeoutMs: 18000,
       },
       {
         name: 'SnapTik',
         api: 'https://snaptik.net/api/ajaxSearch',
         origin: 'https://snaptik.net',
         referer: 'https://snaptik.net/',
+        timeoutMs: 10000,
       },
     ];
 
     const CORS_PROXY = (target) => `https://proxy.cors.sh/${target}`;
+    const XHS_PAGE_TIMEOUT_MS = 25000;
+    const XHS_SHORT_LINK_TIMEOUT_MS = 25000;
+
+    let isFetching = false;
+
+    function setLoadingText(text, subtext = '') {
+      document.getElementById('loadingText').textContent = text;
+      const sub = document.getElementById('loadingSubtext');
+      if (subtext) {
+        sub.textContent = subtext;
+        sub.classList.remove('hidden');
+      } else {
+        sub.textContent = '';
+        sub.classList.add('hidden');
+      }
+    }
+
+    function setFetching(active) {
+      isFetching = active;
+      const btn = document.getElementById('getBtn');
+      btn.disabled = active;
+      btn.classList.toggle('opacity-50', active);
+      btn.classList.toggle('pointer-events-none', active);
+    }
+
+    async function fetchWithTimeout(url, options = {}, timeoutMs = 15000) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), timeoutMs);
+      try {
+        return await fetch(url, { ...options, signal: controller.signal });
+      } catch (err) {
+        if (err.name === 'AbortError') {
+          throw new Error(`Request timed out after ${Math.round(timeoutMs / 1000)}s`);
+        }
+        throw err;
+      } finally {
+        clearTimeout(timer);
+      }
+    }
 
     const PLATFORM_UI = {
       douyin: {
@@ -353,8 +397,8 @@
       };
 
       video.poster = poster || '';
+      video.preload = 'none';
       video.src = url;
-      video.load();
       videoWrap.classList.remove('hidden');
       document.getElementById('videoError').classList.add('hidden');
     }
@@ -418,10 +462,9 @@
       };
     }
 
-    async function fetchViaProvider(provider, douyinUrl, useProxy) {
-      const target = useProxy ? CORS_PROXY(provider.api) : provider.api;
+    async function fetchViaProvider(provider, douyinUrl) {
       const body = new URLSearchParams({ q: douyinUrl, cursor: '0', page: '0', lang: 'en' });
-      const res = await fetch(target, {
+      const res = await fetchWithTimeout(CORS_PROXY(provider.api), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
@@ -431,7 +474,7 @@
           'Referer': provider.referer,
         },
         body,
-      });
+      }, provider.timeoutMs || 15000);
       if (!res.ok) throw new Error(`${provider.name} HTTP ${res.status}`);
       const payload = await res.json();
       if (payload.status !== 'ok' || !payload.data) {
@@ -443,16 +486,18 @@
     }
 
     async function resolveDouyinVideo(douyinUrl) {
-      const errors = [];
-      for (const provider of LOOKUP_PROVIDERS) {
-        for (const useProxy of [true, false]) {
-          try {
-            return await fetchViaProvider(provider, douyinUrl, useProxy);
-          } catch (err) {
-            errors.push(`${provider.name}${useProxy ? ' (proxy)' : ''}: ${err.message}`);
-          }
-        }
-      }
+      setLoadingText('Fetching Douyin video info...', 'Querying download services in parallel…');
+
+      const results = await Promise.allSettled(
+        LOOKUP_PROVIDERS.map((provider) => fetchViaProvider(provider, douyinUrl)),
+      );
+
+      const success = results.find((result) => result.status === 'fulfilled');
+      if (success) return success.value;
+
+      const errors = results
+        .filter((result) => result.status === 'rejected')
+        .map((result) => result.reason?.message || 'Unknown error');
       throw new Error(errors.join('\n'));
     }
 
@@ -492,18 +537,31 @@
       return { video, title, author, cover, images };
     }
 
-    async function resolveShortLink(url) {
-      if (!/xhslink\.com/i.test(url)) return url;
-      const response = await fetch(CORS_PROXY(url), { method: 'GET', redirect: 'follow' });
+    async function resolveXhsEntry(url) {
+      if (!/xhslink\.com/i.test(url)) {
+        return { url, html: null };
+      }
+
+      setLoadingText('Resolving Xiaohongshu short link...', 'Following redirect (one request)…');
+      const response = await fetchWithTimeout(CORS_PROXY(url), {
+        method: 'GET',
+        redirect: 'follow',
+        headers: { Accept: 'text/html,application/json,*/*' },
+      }, XHS_SHORT_LINK_TIMEOUT_MS);
       if (!response.ok) throw new Error(`Short link resolve failed (HTTP ${response.status})`);
-      return response.url || url;
+
+      return {
+        url: response.url || url,
+        html: await response.text(),
+      };
     }
 
     async function fetchNotePage(url) {
-      const response = await fetch(CORS_PROXY(url), {
+      setLoadingText('Fetching Xiaohongshu note page...', 'Downloading note data…');
+      const response = await fetchWithTimeout(CORS_PROXY(url), {
         method: 'GET',
         headers: { Accept: 'text/html,application/json,*/*' },
-      });
+      }, XHS_PAGE_TIMEOUT_MS);
       if (!response.ok) throw new Error(`Page fetch failed (HTTP ${response.status})`);
       return response.text();
     }
@@ -546,10 +604,12 @@
     }
 
     async function fetchXhs(url) {
-      url = await resolveShortLink(url);
+      const entry = await resolveXhsEntry(url);
+      url = entry.url;
       showExtractedUrl(url);
 
-      const html = await fetchNotePage(url);
+      const html = entry.html || await fetchNotePage(url);
+      setLoadingText('Parsing Xiaohongshu media...', 'Extracting video URL…');
       const parsed = parseXhsHtml(html);
 
       if (!parsed.video && !parsed.images.length) {
@@ -584,6 +644,8 @@
     }
 
     async function fetchMedia() {
+      if (isFetching) return;
+
       const input = document.getElementById('shareInput').value.trim();
       if (!input) {
         alert(`Please paste a ${activePlatform === 'douyin' ? 'Douyin' : 'Xiaohongshu'} share message or link`);
@@ -603,8 +665,9 @@
 
       const loading = document.getElementById('loading');
       const result = document.getElementById('result');
+      setFetching(true);
       loading.classList.remove('hidden');
-      document.getElementById('loadingText').textContent = PLATFORM_UI[activePlatform].loading;
+      setLoadingText(PLATFORM_UI[activePlatform].loading);
       result.classList.add('hidden');
       clearResultViews();
 
@@ -621,6 +684,8 @@
       } catch (err) {
         loading.classList.add('hidden');
         alert(`Failed to get media. Try another link or refresh.\n\n${err.message}`);
+      } finally {
+        setFetching(false);
       }
     }
 
