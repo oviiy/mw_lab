@@ -217,15 +217,14 @@
 
     async function fetchViaCorsPost(target, body, timeoutMs) {
       const normalized = normalizeCorsTarget(target);
-      const attempts = [
-        { label: 'cors.sh', url: CORS_PROXY(normalized) },
-        { label: 'allorigins', url: ALLORIGINS_RAW(normalized) },
-      ];
+      const proxyUrl = CORS_PROXY(normalized);
       const errors = [];
 
-      for (const attempt of attempts) {
+      // allorigins /raw only forwards GET bodies, so POST APIs (SaveTik/SnapTik) must use cors.sh.
+      for (let attempt = 0; attempt < 2; attempt++) {
+        const label = attempt === 0 ? 'cors.sh' : 'cors.sh (retry)';
         try {
-          const response = await fetchWithTimeout(attempt.url, {
+          const response = await fetchWithTimeout(proxyUrl, {
             method: 'POST',
             headers: corsProxyHeaders(true),
             body,
@@ -233,7 +232,7 @@
           if (!response.ok) throw new Error(`HTTP ${response.status}`);
           return await response.json();
         } catch (err) {
-          errors.push(`${attempt.label}: ${err.message}`);
+          errors.push(`${label}: ${err.message}`);
         }
       }
 
@@ -750,7 +749,10 @@
         }
       } catch (err) {
         loading.classList.add('hidden');
-        alert(`Failed to get media. Try another link or refresh.\n\n${err.message}`);
+        const hint = /cors\.sh/i.test(err.message)
+          ? '\n\nThe download proxy may be busy — wait a moment and try again.'
+          : '';
+        alert(`Failed to get media. Try another link or refresh.${hint}\n\n${err.message}`);
       } finally {
         setFetching(false);
       }
