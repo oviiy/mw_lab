@@ -1,0 +1,3139 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Sleeve Research • Strategy Backtesting &amp; Signals</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap');
+  :root {
+    --bg: #0b0c10;
+    --bg-elev: #121418;
+    --bg-elev2: #1a1d24;
+    --border: #252932;
+    --text: #e6e8ee;
+    --muted: #8b92a3;
+    --cyan: #22d3ee;
+    --emerald: #10b981;
+    --amber: #f59e0b;
+    --violet: #a855f7;
+    --rose: #ef4444;
+    --accent: #22d3ee;
+  }
+  * { box-sizing: border-box; }
+  body { font-family: 'Inter', system_ui, sans-serif; background: var(--bg); color: var(--text); }
+  .mono { font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .glass { background: var(--bg-elev); border: 1px solid var(--border); }
+  .section-title { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+  .kpi-val { font-size: 22px; font-weight: 700; line-height: 1; }
+  .card { background: var(--bg-elev); border: 1px solid var(--border); border-radius: 14px; }
+  .mini-card { background: var(--bg-elev2); border: 1px solid var(--border); border-radius: 10px; }
+  .pill { font-size: 11px; padding: 1px 9px; border-radius: 999px; font-weight: 600; letter-spacing: .3px; }
+  .btn { transition: all .1s ease; }
+  .btn:hover { transform: translateY(-1px); }
+  .tab { padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all .1s; }
+  .tab.active { background: #1f242e; color: var(--cyan); border: 1px solid #334155; }
+  .tab:not(.active) { color: var(--muted); }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* Stronger tab bar for clear navigation */
+  .main-tab {
+    padding: 8px 18px;
+    font-size: 13.5px;
+    font-weight: 600;
+    border-bottom: 3px solid transparent;
+    transition: all .1s ease;
+    background: transparent;
+    color: #e6e8ee;
+  }
+  .main-tab.active {
+    background: #1f242e;
+    color: #22d3ee;
+    border-bottom-color: #22d3ee;
+    font-weight: 700;
+  }
+  .main-tab:hover:not(.active) {
+    background: #161a20;
+    border-bottom-color: #334155;
+  }
+  .metric { font-variant-numeric: tabular-nums; }
+  .data-table th { font-size: 10px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .6px; }
+  .strategy-pill { transition: all .1s cubic-bezier(0.2,0,0,1); }
+  .strategy-pill.active { border-color: var(--cyan); background: rgba(34,211,238,0.08); box-shadow: 0 0 0 1px rgba(34,211,238,0.2); }
+  .sleeve-bonds { border-color: #22d3ee; }
+  .sleeve-commodity { border-color: #f59e0b; }
+  .sleeve-crypto { border-color: #a855f7; }
+  .sleeve-growth { border-color: #10b981; }
+  .sleeve-tech { border-color: #ef4444; }
+  .sleeve-bench { border-color: #64748b; }
+  .chart-container { position: relative; }
+  .number-green { color: #10b981; }
+  .number-red { color: #ef4444; }
+  .number-amber { color: #f59e0b; }
+  .subtle-grid { background-image: linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px); background-size: 24px 24px; }
+  .hover-lift { transition: transform .1s ease, box-shadow .1s ease; }
+  .hover-lift:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.15); }
+  .value-input { background: var(--bg); border: 1px solid var(--border); color: var(--text); font-size: 13px; padding: 4px 8px; border-radius: 6px; }
+  .value-input:focus { outline: none; border-color: #334155; }
+  .fin-table { font-size: 13px; }
+  .fin-table td, .fin-table th { padding: 7px 11px; border-bottom: 1px solid var(--border); }
+  .legend-dot { width: 9px; height: 9px; border-radius: 2px; display: inline-block; }
+  .section { margin-bottom: 18px; }
+  .modal { animation: popIn .12s ease-out; }
+  @keyframes popIn { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: scale(1); } }
+  /* UI/UX polish: collapsible + sticky controls status */
+  details summary::-webkit-details-marker { display: none; }
+  details summary::marker { content: '▸ '; }
+  details[open] summary::marker { content: '▾ '; }
+  .sticky.top-\[44px\] { box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
+  #bt-progress-bar { box-shadow: 0 0 6px #22d3ee; }
+</style>
+</head>
+<body class="text-[13.5px]">
+<div class="max-w-[1280px] mx-auto">
+  <!-- Topbar -->
+  <div class="flex items-center justify-between px-6 pt-5 pb-3 border-b border-[#252932]">
+    <div class="flex items-center gap-x-3">
+      <div class="flex items-center gap-x-2.5">
+        <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-cyan-400 to-emerald-400 flex items-center justify-center">
+          <i class="fa-solid fa-flask text-black text-lg"></i>
+        </div>
+        <div>
+          <div class="font-semibold tracking-tighter text-xl">Sleeve<span class="text-cyan-400">Research</span></div>
+          <div class="text-[10px] text-[#64748b] -mt-0.5">multi-sleeve strategy backtesting &amp; signals</div>
+        </div>
+      </div>
+      <div class="flex items-center gap-x-2">
+        <span id="data-badge" onclick="regenerateData()"
+              class="cursor-pointer pill bg-[#1a1d24] border border-[#334155] text-emerald-400 px-2.5 py-px flex items-center gap-x-1 text-[10px]" title="Regenerate synthetic prices">
+          <i class="fa-solid fa-sync fa-xs"></i> <span id="data-status">SYNTHETIC</span>
+        </span>
+        <button onclick="importPriceCSV()" class="btn px-2.5 py-px rounded-full text-xs border border-[#334155] hover:bg-[#252932] flex items-center gap-x-1 text-amber-400" title="Import custom price CSV (Yahoo format or date,close) for backtesting and signals">
+          <i class="fa-solid fa-file-csv fa-xs"></i> <span class="hidden sm:inline">Import Data</span>
+        </button>
+        <button onclick="clearCustomData()" class="btn px-1.5 py-px text-xs text-[#64748b] hover:text-rose-400" title="Clear custom data">×</button>
+        <span id="last-updated" class="text-xs text-[#64748b] mono"></span>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-x-2 text-sm">
+      <button onclick="exportState()" class="btn px-3 py-1.5 rounded-lg bg-[#1a1d24] hover:bg-[#252932] border border-[#334155] flex items-center gap-x-2 text-xs">
+        <i class="fa-solid fa-download"></i> <span class="hidden md:inline">Export</span>
+      </button>
+      <button onclick="importStateClick()" class="btn px-3 py-1.5 rounded-lg bg-[#1a1d24] hover:bg-[#252932] border border-[#334155] flex items-center gap-x-2 text-xs">
+        <i class="fa-solid fa-upload"></i> <span class="hidden md:inline">Import</span>
+      </button>
+      <button onclick="resetAll()" class="btn px-3 py-1.5 rounded-lg text-rose-400 hover:bg-[#2a1f1f] border border-[#3f2a2a] flex items-center gap-x-2 text-xs">
+        <i class="fa-solid fa-undo"></i> <span class="hidden md:inline">Reset</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Prominent, always-visible 3-tab navigation -->
+  <div class="px-6 flex items-center gap-x-1 border-b-2 border-[#252932] bg-[#0f1115] sticky top-0 z-30 shadow-sm">
+    <div class="text-[10px] text-[#64748b] font-medium pr-2 self-center">VIEWS:</div>
+    <button id="tab-signals" data-tab="signals"
+            class="main-tab flex items-center gap-x-2 rounded-t-md active">
+      <i class="fa-solid fa-broadcast-tower"></i>
+      <span class="font-semibold">Signals</span>
+      <span class="text-[9px] text-[#64748b] font-normal ml-0.5">live</span>
+    </button>
+    <button id="tab-backtest" data-tab="backtest"
+            class="main-tab flex items-center gap-x-2 rounded-t-md">
+      <i class="fa-solid fa-flask"></i>
+      <span class="font-semibold">Backtest</span>
+      <span class="text-[9px] text-[#64748b] font-normal ml-0.5">compute</span>
+    </button>
+    <button id="tab-universe" data-tab="universe"
+            class="main-tab flex items-center gap-x-2 rounded-t-md">
+      <i class="fa-solid fa-layer-group"></i>
+      <span class="font-semibold">Universe</span>
+      <span class="text-[9px] text-[#64748b] font-normal ml-0.5">explore</span>
+    </button>
+    <div class="flex-1"></div>
+    <div class="text-[10px] text-[#64748b] pr-3 self-center">No portfolio simulation • pure research</div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="px-6 py-5">
+
+    <!-- SIGNALS TAB -->
+    <div id="panel-signals" class="tab-panel active">
+      <div class="mb-4">
+        <div class="text-sm font-medium text-[#64748b] mb-1">SIGNAL ANALYSIS</div>
+        <div class="text-xl font-semibold">Current signals across the sleeve universe</div>
+      </div>
+
+      <div class="card p-5 mb-4">
+        <div class="flex justify-between items-start mb-3">
+          <div>
+            <div class="section-title">Composite Signal Score</div>
+            <div class="text-xs text-[#64748b]">Score = T% + M% − DD% − V% &nbsp; (table columns = actual weighted pieces). All from price series only.</div>
+          </div>
+          <button onclick="refreshSignals()" class="btn text-xs px-3 py-1 border border-[#334155] rounded">Refresh</button>
+        </div>
+        <!-- Signals config for picky users (affects score + computations) -->
+        <div class="text-[10px] mt-1 text-[#64748b]">
+          <div class="font-medium text-[#e6e8ee] mb-1 flex items-center justify-between">
+            <span>Weights (columns below = weight% × raw signal)</span>
+            <span class="text-[9px] text-[#64748b]">Purely from price close series (no fundamentals)</span>
+          </div>
+
+          <!-- Weight controls with sliders for sophistication -->
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <!-- Trend -->
+            <div>
+              <div class="flex items-center justify-between mb-0.5">
+                <span class="text-emerald-400 font-medium">Trend</span>
+                <div class="flex items-center gap-1">
+                  <input id="sig-wt" type="number" step="1" min="0" max="100" class="value-input w-11 text-center text-xs py-0.5" value="40" onchange="setSignalWeight('wt', this.value)">
+                  <span class="text-[9px]">%</span>
+                </div>
+              </div>
+              <input type="range" id="sig-wt-range" min="0" max="100" step="1" value="40" class="w-full accent-emerald-400" oninput="setSignalWeight('wt', this.value)">
+            </div>
+            <!-- Mom -->
+            <div>
+              <div class="flex items-center justify-between mb-0.5">
+                <span class="text-emerald-400 font-medium">Mom</span>
+                <div class="flex items-center gap-1">
+                  <input id="sig-wm" type="number" step="1" min="0" max="100" class="value-input w-11 text-center text-xs py-0.5" value="40" onchange="setSignalWeight('wm', this.value)">
+                  <span class="text-[9px]">%</span>
+                </div>
+              </div>
+              <input type="range" id="sig-wm-range" min="0" max="100" step="1" value="40" class="w-full accent-emerald-400" oninput="setSignalWeight('wm', this.value)">
+            </div>
+            <!-- DD-pen -->
+            <div>
+              <div class="flex items-center justify-between mb-0.5">
+                <span class="text-rose-400 font-medium">DD-pen</span>
+                <div class="flex items-center gap-1">
+                  <input id="sig-wd" type="number" step="1" min="0" max="50" class="value-input w-11 text-center text-xs py-0.5" value="10" onchange="setSignalWeight('wd', this.value)">
+                  <span class="text-[9px]">%</span>
+                </div>
+              </div>
+              <input type="range" id="sig-wd-range" min="0" max="50" step="1" value="10" class="w-full accent-rose-400" oninput="setSignalWeight('wd', this.value)">
+            </div>
+            <!-- Vol-pen -->
+            <div>
+              <div class="flex items-center justify-between mb-0.5">
+                <span class="text-rose-400 font-medium">Vol-pen</span>
+                <div class="flex items-center gap-1">
+                  <input id="sig-wv" type="number" step="1" min="0" max="50" class="value-input w-11 text-center text-xs py-0.5" value="10" onchange="setSignalWeight('wv', this.value)">
+                  <span class="text-[9px]">%</span>
+                </div>
+              </div>
+              <input type="range" id="sig-wv-range" min="0" max="50" step="1" value="10" class="w-full accent-rose-400" oninput="setSignalWeight('wv', this.value)">
+            </div>
+          </div>
+
+          <!-- Sophisticated controls: sum, presets, reset, normalize -->
+          <div class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px]">
+            <span id="weight-sum" class="font-mono px-2 py-px rounded bg-[#1a1d24] text-xs"></span>
+
+            <div class="flex gap-1">
+              <button onclick="applySignalPreset('balanced')" class="px-1.5 py-px text-[9px] border border-[#334155] rounded hover:bg-[#252932]">Balanced</button>
+              <button onclick="applySignalPreset('mom-heavy')" class="px-1.5 py-px text-[9px] border border-[#334155] rounded hover:bg-[#252932]">Mom Heavy</button>
+              <button onclick="applySignalPreset('low-risk')" class="px-1.5 py-px text-[9px] border border-[#334155] rounded hover:bg-[#252932]">Low Risk</button>
+            </div>
+
+            <div class="flex gap-1 ml-auto">
+              <button onclick="resetSignalWeights()" class="px-1.5 py-px text-[9px] border border-[#334155] rounded hover:bg-[#252932]">Reset</button>
+              <button onclick="normalizeSignalWeights()" class="px-1.5 py-px text-[9px] border border-[#334155] rounded hover:bg-[#252932]">Normalize</button>
+            </div>
+
+            <span class="mx-1 text-[#64748b]">|</span>
+            SMA <input id="sig-sma" type="number" class="value-input w-11 text-xs" value="200" onchange="updateSignalConfig()">d
+            Mom12 <input id="sig-m12" type="number" class="value-input w-11 text-xs" value="252" onchange="updateSignalConfig()">
+          </div>
+
+          <!-- Visual weight bar -->
+          <div class="mt-1">
+            <div class="h-1.5 flex rounded overflow-hidden bg-[#252932] text-[8px]">
+              <div id="weight-bar-trend" class="bg-emerald-400 flex items-center justify-center" style="width:40%" title="Trend"></div>
+              <div id="weight-bar-mom" class="bg-emerald-500 flex items-center justify-center" style="width:40%" title="Mom"></div>
+              <div id="weight-bar-dd" class="bg-rose-400 flex items-center justify-center" style="width:10%" title="DD-pen"></div>
+              <div id="weight-bar-vol" class="bg-rose-500 flex items-center justify-center" style="width:10%" title="Vol-pen"></div>
+            </div>
+            <div class="flex justify-between text-[8px] text-[#64748b] mt-px">
+              <span>Positive (Trend+Mom)</span>
+              <span>Penalties (DD+Vol)</span>
+            </div>
+          </div>
+        </div>
+        <div id="signals-summary" class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4"></div>
+      </div>
+
+      <div class="card p-4">
+        <div class="section-title mb-3">Ticker Signals — Ranked</div>
+        <div class="overflow-auto">
+          <table class="w-full fin-table text-sm" id="signals-table"></table>
+        </div>
+      </div>
+
+      <!-- More plots and info for Signals -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
+        <div class="card p-4">
+          <div class="section-title mb-2">Score Distribution</div>
+          <div class="chart-container h-[160px]"><canvas id="signals-hist"></canvas></div>
+        </div>
+        <div class="card p-4">
+          <div class="section-title mb-2">Average Score by Sleeve</div>
+          <div class="chart-container h-[160px]"><canvas id="signals-sleeve-bar"></canvas></div>
+        </div>
+      </div>
+
+      <div class="card p-4 mt-4">
+        <div class="section-title mb-2">Overall Signal Insights</div>
+        <div id="signals-insights" class="text-sm text-[#d1d5db] grid grid-cols-1 md:grid-cols-3 gap-3"></div>
+      </div>
+    </div>
+
+    <!-- BACKTESTING TAB -->
+    <div id="panel-backtest" class="tab-panel">
+      <div class="mb-4 flex items-end justify-between">
+        <div>
+          <div class="text-sm font-medium text-[#64748b]">BACKTESTING ENGINE</div>
+          <div class="text-xl font-semibold">Strategy performance across sleeves</div>
+        </div>
+        <button onclick="runResearch(true)" class="btn px-4 py-1.5 bg-cyan-600 hover:bg-cyan-500 text-black font-semibold rounded-lg text-sm">Run / Refresh Backtests</button>
+        <span id="bt-run-status" class="ml-2 text-[11px] px-2 py-0.5 rounded bg-[#1a1d24] border border-[#334155] text-[#64748b]">Ready</span>
+      </div>
+
+      <!-- Progress bar for Run (shows during full recompute) -->
+      <div id="bt-progress-wrap" class="hidden h-1 bg-[#252932] mb-3 rounded overflow-hidden">
+        <div id="bt-progress-bar" class="h-1 bg-cyan-500 transition-all" style="width:0%"></div>
+      </div>
+
+      <!-- Global controls (sticky for easier navigation while scrolling results) -->
+      <div class="card p-4 mb-4 sticky top-[44px] z-20 bg-[#0b0c10]">
+        <div class="flex flex-wrap gap-x-6 gap-y-3 items-end">
+          <div>
+            <div class="section-title mb-1">Strategy</div>
+            <div id="backtest-strat-pills" class="flex gap-1.5 flex-wrap"></div>
+          </div>
+
+          <div>
+            <div class="section-title mb-1">Lookback</div>
+            <div class="flex gap-1" id="lookback-pills"></div>
+          </div>
+
+          <div>
+            <div class="section-title mb-1">Rebalance Freq</div>
+            <div class="flex gap-1" id="rebal-pills"></div>
+          </div>
+
+          <div>
+            <div class="section-title mb-1">Rebal Mode</div>
+            <div class="flex gap-1" id="rebal-mode-pills"></div>
+          </div>
+
+          <div>
+            <div class="section-title mb-1">Cost (bps)</div>
+            <input id="cost-bps" type="number" value="5" step="1" class="value-input w-16" onchange="RESEARCH.cost_bps = parseFloat(this.value)||5; refreshFocusedBacktest();">
+          </div>
+
+          <div>
+            <div class="section-title mb-1">Slippage (bps)</div>
+            <input id="slippage-bps" type="number" value="2" step="1" class="value-input w-16" onchange="RESEARCH.slippage_bps = parseFloat(this.value)||2; refreshFocusedBacktest();">
+          </div>
+
+          <div>
+            <div class="section-title mb-1">Metric</div>
+            <select id="sweep-metric" class="value-input text-sm" onchange="markBacktestDirty(); refreshFocusedBacktest();">
+              <option>Sharpe</option><option>CAGR</option><option>Sortino</option><option>max_DD</option><option>Calmar</option>
+            </select>
+          </div>
+
+          <div>
+            <div class="section-title mb-1">Equity Scale</div>
+            <div class="flex gap-1" id="scale-pills"></div>
+          </div>
+
+          <div>
+            <div class="section-title mb-1">Risk: Max Ticker Wt</div>
+            <input id="max-ticker-wt" type="number" value="30" step="5" min="5" max="100" class="value-input w-16" onchange="RESEARCH.max_ticker_weight = Math.max(0.05, parseFloat(this.value)/100 || 0.30); saveToLocal(); refreshFocusedBacktest();">
+            <span class="text-[10px] text-[#64748b]">%</span>
+          </div>
+
+          <div>
+            <div class="section-title mb-1">Init Equity ($)</div>
+            <input id="init-equity" type="number" value="100000" step="5000" class="value-input w-24" onchange="RESEARCH.initial_equity = parseFloat(this.value)||100000; saveToLocal(); refreshFocusedBacktest();">
+          </div>
+
+          <div>
+            <div class="section-title mb-1">MC Sims</div>
+            <input id="mc-sims" type="number" value="500" step="100" min="50" max="5000" class="value-input w-16" onchange="RESEARCH.mc_sims = parseInt(this.value)||500; saveToLocal(); refreshFocusedBacktest();">
+          </div>
+
+          <div>
+            <div class="section-title mb-1">Rebal Band %</div>
+            <input id="rebal-band" type="number" value="5" step="0.5" class="value-input w-14" onchange="RESEARCH.rebal_band = Math.max(0, parseFloat(this.value)/100 || 0.05); saveToLocal(); refreshFocusedBacktest();">
+          </div>
+        </div>
+        <div class="text-xs text-[#64748b] mt-2">Backtests simulate allocation inside the engine. Cost+slippage combined on turnover at rebal. Rebal Mode + Band support custom rules. NaN-guarded metrics, consistent 100k start equity, 252-day annualization. <span class="text-cyan-400">Focused updates auto on param change.</span></div>
+      </div>
+
+      <!-- Results -->
+      <div id="backtest-kpis" class="grid grid-cols-2 md:grid-cols-5 lg:grid-cols-8 gap-2 mb-4"></div>
+      <!-- Compute status for computing sections -->
+      <div class="text-[10px] text-[#64748b] -mt-2 mb-2 flex items-center gap-2">
+        <span id="bt-focused-status" class="px-1.5 py-px rounded bg-[#1a1d24] border border-[#334155]">Focused: auto-updated on param</span>
+        <span id="bt-full-status" class="px-1.5 py-px rounded bg-[#1a1d24] border border-[#334155]">Full: requires Run</span>
+        <span id="bt-last-run" class="mono text-[9px]"></span>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+        <div class="card p-4">
+          <div class="section-title mb-2">Equity Curves</div>
+          <div class="chart-container h-[240px]"><canvas id="bt-eq-chart"></canvas></div>
+        </div>
+        <div class="card p-4">
+          <div class="section-title mb-2">Drawdown Curves</div>
+          <div class="chart-container h-[240px]"><canvas id="bt-dd-chart"></canvas></div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+        <div class="card p-4">
+          <div class="section-title mb-2">Strategy Comparison</div>
+          <div id="bt-comparison" class="overflow-auto"></div>
+        </div>
+        <div class="card p-4">
+          <div class="section-title mb-2">Rolling Sharpe (focus)</div>
+          <div class="chart-container h-[200px]"><canvas id="bt-roll-chart"></canvas></div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
+        <details class="card p-4" open>
+          <summary class="section-title mb-2 cursor-pointer select-none">2D Parameter Sweep</summary>
+          <div id="sweep-heatmap" class="overflow-auto"></div>
+        </details>
+        <details class="card p-4">
+          <summary class="section-title mb-2 cursor-pointer select-none">Strategy Correlation</summary>
+          <div id="corr-heatmap" class="overflow-auto"></div>
+        </details>
+        <details class="card p-4">
+          <summary class="section-title mb-2 cursor-pointer select-none">Monte Carlo (bootstrap)</summary>
+          <div id="mc-summary"></div>
+          <div class="chart-container h-32 mt-2"><canvas id="mc-chart"></canvas></div>
+        </details>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <details class="card p-4" open>
+          <summary class="section-title mb-2 cursor-pointer select-none">Walk-forward (4 folds)</summary>
+          <div id="wf-table"></div>
+        </details>
+        <details class="card p-4">
+          <summary class="section-title mb-2 cursor-pointer select-none">Monthly Returns Heatmap (focus)</summary>
+          <div id="monthly-heatmap"></div>
+        </details>
+      </div>
+
+      <!-- Additional insightful plots for density -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
+        <div class="card p-4">
+          <div class="section-title mb-2">Monthly Returns Distribution (focus strategy)</div>
+          <div class="chart-container h-[180px]"><canvas id="returns-hist"></canvas></div>
+        </div>
+        <div class="card p-4">
+          <div class="section-title mb-2">Sleeve Exposure (last backtest)</div>
+          <div id="sleeve-exposure" class="text-sm"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- UNIVERSE TAB -->
+    <div id="panel-universe" class="tab-panel">
+      <div class="mb-3">
+        <div class="text-sm font-medium text-[#64748b]">TICKER UNIVERSE</div>
+        <div class="text-xl font-semibold">Detailed profiles &amp; historical characteristics</div>
+      </div>
+
+      <!-- PLOTTING AT THE TOP as requested -->
+      <div class="card p-4 mb-4">
+        <div class="flex items-center justify-between mb-2">
+          <div>
+            <div class="section-title">Interactive Comparison (hover for exact values)</div>
+            <div class="text-xs text-[#64748b]">Select up to 8-10 tickers below. Time frame applies to plots.</div>
+          </div>
+
+          <!-- Time frame -->
+          <div class="flex gap-1" id="uni-period-btns">
+            <!-- populated by JS -->
+          </div>
+        </div>
+
+        <!-- Multi ticker selection as dropdown + chips -->
+        <div class="flex flex-wrap items-center gap-2 mb-2">
+          <select id="uni-ticker-select" multiple class="value-input text-sm min-w-[260px] h-20" onchange="addFromUniverseDropdown()">
+            <!-- options populated in JS -->
+          </select>
+          <span class="text-xs text-[#64748b]">Selected:</span>
+          <div id="uni-selected-chips" class="flex flex-wrap gap-1"></div>
+          <button onclick="clearUniverseSelection()" class="text-xs px-2 py-0.5 border rounded">Clear</button>
+        </div>
+
+        <div class="chart-container h-[380px]"><canvas id="universe-compare-chart"></canvas></div>
+      </div>
+
+      <!-- Single ticker deep dive plots -->
+      <div class="card p-4 mb-4">
+        <div class="section-title mb-1">Single Ticker Detail</div>
+        <div class="flex gap-2 mb-2 items-center">
+          <select id="uni-detail-select" class="value-input text-sm w-40" onchange="showUniverseDetail(this.value)">
+            <option value="">Select ticker...</option>
+          </select>
+          <span class="text-xs text-[#64748b]">or type</span>
+          <input id="uni-detail-ticker" class="value-input w-24 text-sm" placeholder="QQQ" onkeyup="if(event.key==='Enter') showUniverseDetail(this.value.toUpperCase())">
+          <button onclick="showUniverseDetail(document.getElementById('uni-detail-ticker').value.toUpperCase())" class="btn px-3 py-1 text-xs">Show Plots</button>
+          <span class="text-xs text-[#64748b]">Hover charts for values</span>
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
+          <div class="chart-container h-36"><canvas id="uni-price"></canvas></div>
+          <div class="chart-container h-36"><canvas id="uni-dd"></canvas></div>
+          <div class="chart-container h-36"><canvas id="uni-ret-hist"></canvas></div>
+          <div class="chart-container h-36"><canvas id="uni-roll-vol"></canvas></div>
+        </div>
+      </div>
+
+      <!-- Ticker cards / browser (now below plots) -->
+      <div class="mb-2 text-xs text-[#64748b]">Browse all tickers. Click a card to add/remove from comparison above.</div>
+      <div id="universe-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Strategy picker modal -->
+<div id="strat-modal" onclick="if (event.target.id==='strat-modal') hideStrategyPicker()" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center">
+  <div onclick="event.stopImmediatePropagation()" class="glass p-6 rounded-2xl w-[620px] modal max-h-[82vh] overflow-auto">
+    <div class="font-semibold text-lg mb-4">Select Strategy</div>
+    <div id="strat-modal-list" class="space-y-2"></div>
+  </div>
+</div>
+
+<script>
+// SleeveResearch v2026-06-29 • single-file research tool • hard-refresh (Ctrl+Shift+R) if seeing old errors
+// ==================== CONFIG & STATE ====================
+const SLEEVES = ["bonds", "commodity", "crypto", "growth", "tech", "benchmarks", "cash"];
+
+const UNIVERSE = {
+  "TLT": {display_name:"iShares 20+ Year Treasury Bond ETF", sleeve:"bonds", role:"Long Duration Treasury", desc:"Long-term U.S. Treasury bonds. High duration, sensitive to interest rates. Used for duration exposure and flight-to-quality."},
+  "IEF": {display_name:"iShares 7-10 Year Treasury Bond ETF", sleeve:"bonds", role:"Intermediate Treasury", desc:"Intermediate Treasuries. Moderate duration and lower volatility than long bonds."},
+  "SHY": {display_name:"iShares 1-3 Year Treasury Bond ETF", sleeve:"bonds", role:"Short Treasury", desc:"Short-term Treasuries. Very low duration, cash-like behavior with minimal rate risk."},
+  "LQD": {display_name:"iShares iBoxx Investment Grade Corporate Bond ETF", sleeve:"bonds", role:"IG Credit", desc:"Investment-grade corporate bonds. Credit spread exposure with moderate duration."},
+  "HYG": {display_name:"iShares iBoxx High Yield Corporate Bond ETF", sleeve:"bonds", role:"High Yield Credit", desc:"High-yield corporate bonds. Higher credit risk and equity beta than IG."},
+  "GLD": {display_name:"SPDR Gold Shares", sleeve:"commodity", role:"Gold", desc:"Physical gold ETF. Classic inflation hedge and crisis asset with low correlation to equities."},
+  "SLV": {display_name:"iShares Silver Trust", sleeve:"commodity", role:"Silver", desc:"Physical silver. Higher beta to gold and industrial demand component."},
+  "DBC": {display_name:"Invesco DB Commodity Index Tracking Fund", sleeve:"commodity", role:"Broad Commodity", desc:"Diversified commodity futures exposure (energy, metals, agriculture)."},
+  "USO": {display_name:"United States Oil Fund", sleeve:"commodity", role:"Crude Oil", desc:"WTI crude oil futures. High volatility, strong economic cycle sensitivity."},
+  "DBA": {display_name:"Invesco DB Agriculture Fund", sleeve:"commodity", role:"Agriculture", desc:"Broad agriculture futures basket (grains, livestock, softs)."},
+  "BTC-USD": {display_name:"Bitcoin USD", sleeve:"crypto", role:"Bitcoin", desc:"Largest cryptocurrency by market cap. Digital gold narrative with extreme volatility."},
+  "ETH-USD": {display_name:"Ethereum USD", sleeve:"crypto", role:"Ethereum", desc:"Smart contract platform and base layer for DeFi/NFTs. Higher beta to BTC."},
+  "SOL-USD": {display_name:"Solana USD", sleeve:"crypto", role:"Solana", desc:"High-throughput L1 blockchain. Higher beta crypto with strong developer activity."},
+  "QQQ": {display_name:"Invesco QQQ Trust", sleeve:"growth", role:"Nasdaq-100", desc:"Nasdaq-100 large-cap growth/tech heavy index ETF. Strong long-term growth but drawdown prone."},
+  "VUG": {display_name:"Vanguard Growth ETF", sleeve:"growth", role:"US Large Growth", desc:"Broad large-cap growth stocks. Core growth exposure with lower concentration than QQQ."},
+  "IWF": {display_name:"iShares Russell 1000 Growth ETF", sleeve:"growth", role:"Russell Growth", desc:"Russell 1000 Growth index. Large-cap growth tilt vs value."},
+  "ARKK": {display_name:"ARK Innovation ETF", sleeve:"growth", role:"Disruptive Innovation", desc:"Actively managed high-conviction innovation basket (Tesla, genomics, fintech, robotics). Very high volatility."},
+  "XLK": {display_name:"Technology Select Sector SPDR", sleeve:"tech", role:"Technology Sector", desc:"S&P 500 technology sector. Mega-cap tech concentration."},
+  "SOXX": {display_name:"iShares Semiconductor ETF", sleeve:"tech", role:"Semiconductors", desc:"Broad semiconductor industry exposure. Highly cyclical, strong secular growth."},
+  "SMH": {display_name:"VanEck Semiconductor ETF", sleeve:"tech", role:"Semiconductors", desc:"Semiconductor ETF with heavy Taiwan/TSMC and Nvidia exposure."},
+  "IGV": {display_name:"iShares Expanded Tech-Software Sector ETF", sleeve:"tech", role:"Software", desc:"Software & IT services. High margins, recurring revenue, growth at a price."},
+  "SPY": {display_name:"SPDR S&P 500 ETF Trust", sleeve:"benchmarks", role:"US Equity Benchmark", desc:"S&P 500 large-cap US equities. The standard equity market beta reference."},
+  "VTI": {display_name:"Vanguard Total Stock Market ETF", sleeve:"benchmarks", role:"Total US Market", desc:"Broad US equity market including small and mid caps."},
+  "AGG": {display_name:"iShares Core U.S. Aggregate Bond ETF", sleeve:"benchmarks", role:"US Aggregate Bond", desc:"Broad US investment-grade bond market (Treasuries + credit)."},
+  "CASH": {display_name:"Cash (Synthetic)", sleeve:"cash", role:"Risk-free Cash", desc:"Constant value synthetic cash for strategy modeling and risk-free fallback."},
+};
+
+// Patch UNIVERSE with numeric defaults for compatibility (used by static_target + init)
+Object.keys(UNIVERSE).forEach(t => {
+  if (typeof UNIVERSE[t].default_target === 'undefined') {
+    // heuristic defaults roughly mirroring sleeve bias for static
+    const sl = UNIVERSE[t].sleeve;
+    UNIVERSE[t].default_target = (sl==='cash' ? 0 : (sl==='benchmarks'?0 : (['bonds','growth'].includes(sl)?0.12 : 0.08)));
+  }
+});
+
+
+const STRATEGIES = {
+  xs_momentum: { name: "xs_momentum", label: "XS Momentum", color: "#22d3ee" },
+  dual_momentum: { name: "dual_momentum", label: "Dual Momentum", color: "#10b981" },
+  risk_parity: { name: "risk_parity", label: "Risk Parity", color: "#f59e0b" },
+  trend_following: { name: "trend_following", label: "Trend Following", color: "#a855f7" },
+  static_target: { name: "static_target", label: "Static Target", color: "#64748b" },
+};
+
+let ACTIVE_STRATEGY = "xs_momentum";
+let BT_CACHE = {};
+let PRICE_MATRIX = null;
+let UNI_SELECTED = ["QQQ","TLT","GLD","BTC-USD","SPY","XLK"];
+let UNI_PERIOD = "5y";
+
+const INITIAL_EQUITY = 100000;
+
+// Minimal state for legacy compat (no live portfolio sim)
+let state = {
+  active_strategy: "xs_momentum",
+  target_allocation: {},
+  holdings: {},
+  cash: INITIAL_EQUITY,
+  rebalance_band: 0.05,
+  drift_band: 0.02
+};
+let UNI_SLEEVE_FILTER = null; // e.g. 'bonds' or null for all
+
+let DATA = {};            // ticker -> [{date, o,h,l,c,adj,v}]
+let BARS_CACHE = {};      // fast access
+let CHARTS = {};
+let CURRENT_TAB = "signals";
+let MKT_TICKER = "QQQ";
+let MKT_PERIOD = "1y";
+let MKT_STYLE = "line";
+let CMP_TICKERS = ["QQQ","XLK","TLT","GLD","BTC-USD","SPY"];
+let RESEARCH = { years: 5, rebalance: "monthly", cost_bps: 5, slippage_bps: 2, metric: "Sharpe", eqScale: "log", strategies: {xs_momentum:true, dual_momentum:true, risk_parity:true, trend_following:false, static_target:false}, focus: "xs_momentum", useCustom: false, customStart: "", customEnd: "", max_ticker_weight: 0.30, rebal_band: 0.05, rebal_mode: "calendar", initial_equity: 100000, mc_sims: 500 };
+
+// Per-strategy config (exposed for HF managers; persisted alongside RESEARCH)
+let STRATEGY_PARAMS = {
+  xs_momentum: { top_k: 2, sleeve_weights: {bonds:0.25, commodity:0.15, crypto:0.10, growth:0.30, tech:0.20} },
+  dual_momentum: { cash_yield: 0.04 },
+  risk_parity: { sleeve_weights: {bonds:0.20, commodity:0.20, crypto:0.20, growth:0.20, tech:0.20} },
+  trend_following: {},
+  static_target: {}
+};
+
+// Signals config (weights are fractions; UI shows them as % that preferably sum ~100%)
+let SIGNAL_CONFIG = {
+  w_trend: 0.40, w_mom: 0.40, w_dd_pen: 0.10, w_vol_pen: 0.10,
+  sma_days: 200, mom12_window: 252, mom1_window: 21
+};
+
+// ==================== UTILS ====================
+function fmtNum(v, digits=2) {
+  if (v == null || !isFinite(v)) return "—";
+  if (Math.abs(v) >= 10000) return v.toLocaleString(undefined, {maximumFractionDigits:0});
+  return v.toFixed(digits);
+}
+function fmtPct(v) { if (v==null || !isFinite(v)) return "—"; return (v*100).toFixed(1) + "%"; }
+function fmt$(v) { if (!isFinite(v)) return "—"; const s = v<0 ? "-" : ""; return s + "$" + Math.abs(v).toLocaleString(undefined,{maximumFractionDigits:0}); }
+// INITIAL_EQUITY declared earlier to avoid TDZ and duplicate
+function todayStr() { return new Date().toISOString().slice(0,10); }
+function clamp(x, lo, hi) { return Math.max(lo, Math.min(hi, x)); }
+
+// Seeded RNG for reproducibility
+function mulberry32(seed) {
+  return function() {
+    let t = seed += 0x6D2B79F5;
+    t = Math.imul(t ^ t >>> 15, t | 1);
+    t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+
+// ==================== DATA GENERATION ====================
+function generateMockBars(ticker, years = 12, seedBase = 42) {
+  const days = Math.floor(years * 252);
+  const idx = [];
+  // Build trading-day dates consistently using UTC to avoid TZ weekday shifts
+  const base = new Date();
+  const startUTC = new Date(Date.UTC(base.getUTCFullYear(), base.getUTCMonth(), base.getUTCDate()));
+  startUTC.setUTCDate(startUTC.getUTCDate() - days);
+  for (let i = 0; i < days; i++) {
+    const d = new Date(startUTC);
+    d.setUTCDate(d.getUTCDate() + i);
+    const wd = d.getUTCDay();
+    if (wd === 0 || wd === 6) continue;
+    idx.push(d.toISOString().slice(0,10));
+  }
+  if (idx.length === 0) return [];
+
+  const seed = Math.abs(hashCode(ticker)) + seedBase;
+  const rng = mulberry32(seed);
+
+  let drift = 0.00038, vol = 0.0115, start = 100;
+  const overrides = {
+    "BTC-USD": {drift:0.00105, vol:0.041, start:22000},
+    "ETH-USD": {drift:0.00095, vol:0.052, start:1600},
+    "SOL-USD": {drift:0.00085, vol:0.068, start:28},
+    "TLT": {drift:0.00004, vol:0.009, start:105},
+    "GLD": {drift:0.00023, vol:0.0095, start:148},
+    "CASH": {drift:0.00001, vol:0.0001, start:1.0},
+    "SPY": {drift:0.00042, vol:0.012, start:280},
+  };
+  if (overrides[ticker]) { drift=overrides[ticker].drift; vol=overrides[ticker].vol; start=overrides[ticker].start; }
+
+  const close = new Array(idx.length);
+  close[0] = start;
+  for (let i=1; i<idx.length; i++) {
+    const ret = rng() * vol * 2.8 - vol * 1.4 + drift; // rough normal-ish
+    close[i] = close[i-1] * Math.exp(ret);
+  }
+
+  const bars = [];
+  for (let i=0; i<idx.length; i++) {
+    const c = close[i];
+    const o = c * (1 + (rng()-0.5)*0.0018);
+    const h = Math.max(c, o) * (1 + rng()*0.0042);
+    const l = Math.min(c, o) * (1 - rng()*0.0042);
+    const v = Math.floor(200000 + rng()*8500000);
+    bars.push({date:idx[i], o, h, l, c, adj:c, v});
+  }
+  return bars;
+}
+function hashCode(str) { let h=0; for (let i=0; i<str.length; i++) h = (h<<5)-h + str.charCodeAt(i); return h; }
+
+const CORE_TICKERS = ["QQQ", "SPY", "TLT", "GLD", "BTC-USD", "XLK", "VUG", "AGG"];
+
+function ensureCoreData() {
+  CORE_TICKERS.forEach(t => {
+    if (!DATA[t]) DATA[t] = generateMockBars(t, 5);
+  });
+}
+
+function ensurePriceMatrix(maxYears = 10) {
+  if (PRICE_MATRIX && PRICE_MATRIX.dates.length > 1000) return PRICE_MATRIX;
+  const tickers = tradeableTickers();
+  const allDatesSet = new Set();
+  tickers.forEach(t => {
+    if (!DATA[t]) DATA[t] = generateMockBars(t);
+    (DATA[t] || []).forEach(b => allDatesSet.add(b.date));
+  });
+  let dates = Array.from(allDatesSet).sort();
+  const cutoff = new Date();
+  cutoff.setFullYear(cutoff.getFullYear() - maxYears);
+  const cutoffStr = cutoff.toISOString().slice(0,10);
+  dates = dates.filter(d => d >= cutoffStr);
+
+  const prices = {};
+  tickers.forEach(t => {
+    const map = {};
+    (DATA[t]||[]).forEach(b => map[b.date] = b.adj);
+    // forward fill
+    let last = NaN;
+    prices[t] = dates.map(d => {
+      if (map[d] != null && isFinite(map[d])) last = map[d];
+      return last;
+    });
+  });
+  PRICE_MATRIX = { dates, prices };
+  return PRICE_MATRIX;
+}
+
+function getBars(ticker, period="1y") {
+  if (!DATA[ticker]) {
+    DATA[ticker] = generateMockBars(ticker);
+  }
+  const all = DATA[ticker] || [];
+  if (!all.length) return [];
+  const map = {"5d":7, "1m":32, "3m":98, "6m":195, "1y":260, "2y":520, "5y":1265, "10y":2520, "max":99999};
+  const n = map[period] || 260;
+  return all.slice(-n);
+}
+
+function computeReturns(ticker, startIdx=0) {
+  const bars = DATA[ticker] || [];
+  const rets = [];
+  for (let i = Math.max(1, startIdx); i < bars.length; i++) {
+    const r = Math.log(bars[i].adj / bars[i-1].adj);
+    rets.push(r);
+  }
+  return rets;
+}
+
+// ==================== SIGNALS (JS ports) ====================
+function sma(arr, n) { if (arr.length < n) return null; let s=0; for(let i=arr.length-n;i<arr.length;i++) s+=arr[i]; return s/n; }
+function momentum12_1(bars) {
+  const cfg = SIGNAL_CONFIG || {};
+  const w12 = cfg.mom12_window || 252;
+  const w1 = cfg.mom1_window || 21;
+  if (bars.length < Math.max(w12, w1) + 5) return 0;
+  const c = bars.map(b=>b.adj);
+  const r12 = c[c.length-1]/c[c.length-w12] - 1;
+  const r1  = c[c.length-1]/c[c.length-w1]  - 1;
+  return r12 - r1;
+}
+function trendScore(bars) {
+  const cfg = SIGNAL_CONFIG || {};
+  const n = cfg.sma_days || 200;
+  if (bars.length < n + 5) return 0;
+  const c = bars.map(b=>b.adj);
+  const ma = sma(c, n);
+  return (c[c.length-1] > ma) ? 1 : 0;
+}
+function realizedVol(bars) {
+  if (!bars || bars.length < 62) return 0.18;
+  const c = bars.map(b=>b.adj);
+  const rets = [];
+  for (let i=1; i<c.length; i++) rets.push(Math.log(c[i]/c[i-1]));
+  const last60 = rets.slice(-60).filter(isFinite);
+  if (last60.length < 2) return 0.18;
+  const mean = last60.reduce((a,b)=>a+b,0)/last60.length;
+  let varsum = 0; for (let r of last60) varsum += (r-mean)*(r-mean);
+  const std = Math.sqrt(varsum / Math.max(1, last60.length-1));
+  const ann = std * Math.sqrt(252);
+  return isFinite(ann) ? ann : 0.18;
+}
+function drawdownFromPeak(bars) {
+  if (bars.length < 30) return 0;
+  const c = bars.map(b=>b.adj);
+  let peak = c[c.length-252] || c[0];
+  for (let i=Math.max(0,c.length-252); i<c.length; i++) peak = Math.max(peak, c[i]);
+  return 1 - c[c.length-1] / peak;
+}
+function zscore60(bars) {
+  if (bars.length < 62) return 0;
+  const c = bars.map(b=>b.adj);
+  const win = c.slice(-60);
+  const m = win.reduce((a,b)=>a+b,0)/win.length;
+  let v=0; for(let x of win) v += (x-m)*(x-m);
+  const s = Math.sqrt(v/(win.length-1));
+  return s>0 ? (c[c.length-1]-m)/s : 0;
+}
+function corrToSPY(bars, window=60) {
+  const spy = DATA["SPY"] || [];
+  if (!spy.length || bars.length<30) return 0.6;
+  const retsT = [], retsS = [];
+  const minLen = Math.min(bars.length, spy.length);
+  for (let i=1; i<minLen; i++) {
+    retsT.push(Math.log(bars[i].adj / bars[i-1].adj));
+    retsS.push(Math.log(spy[i].adj / spy[i-1].adj));
+  }
+  const n = Math.min(window, retsT.length);
+  const rt = retsT.slice(-n), rs = retsS.slice(-n);
+  const mt = rt.reduce((a,b)=>a+b,0)/n, ms = rs.reduce((a,b)=>a+b,0)/n;
+  let cov=0, vt=0, vs=0;
+  for (let i=0;i<n;i++){ const dt=rt[i]-mt, ds=rs[i]-ms; cov+=dt*ds; vt+=dt*dt; vs+=ds*ds; }
+  return (Math.sqrt(vt*vs) > 1e-9) ? cov / Math.sqrt(vt*vs) : 0.6;
+}
+function signalScore(row) {
+  const cfg = SIGNAL_CONFIG || {w_trend:0.40, w_mom:0.40, w_dd_pen:0.10, w_vol_pen:0.10};
+  const trend = row.trend > 0 ? 1 : -1;
+  const mom = clamp(row.momentum * 2, -1, 1);
+  const ddPen = Math.min(1, row.drawdown * 2);
+  const volPen = Math.min(1, Math.max(0, (row.vol - 0.15)*4));
+  const score = cfg.w_trend*trend + cfg.w_mom*mom - cfg.w_dd_pen*ddPen - cfg.w_vol_pen*volPen;
+  // return breakdown for UI
+  return {
+    total: score,
+    trend: cfg.w_trend * trend,
+    mom: cfg.w_mom * mom,
+    dd: -cfg.w_dd_pen * ddPen,
+    vol: -cfg.w_vol_pen * volPen
+  };
+}
+function signalVerdict(score) {
+  if (score >= 0.55) return {tag:"STRONG BUY", color:"#10b981"};
+  if (score >= 0.25) return {tag:"BUY", color:"#10b981"};
+  if (score >= -0.05) return {tag:"HOLD", color:"#f59e0b"};
+  if (score >= -0.35) return {tag:"AVOID", color:"#ef4444"};
+  return {tag:"SELL", color:"#ef4444"};
+}
+
+// ==================== STRATEGIES ====================
+function tradeableTickers() {
+  return Object.keys(UNIVERSE).filter(t => !["benchmarks","cash"].includes(UNIVERSE[t].sleeve));
+}
+function barsFor(t) { return DATA[t] || []; }
+
+function computeWeights(strategy, params = {}) {
+  const ctx = { as_of: todayStr() };
+  if (strategy === "xs_momentum") {
+    const topK = params.top_k || 2;
+    const sw = params.sleeve_weights || {bonds:0.25, commodity:0.15, crypto:0.10, growth:0.30, tech:0.20};
+    let weights = {};
+    for (let [sleeve, swv] of Object.entries(sw)) {
+      const cands = tradeableTickers().filter(t => UNIVERSE[t].sleeve === sleeve);
+      let scored = [];
+      for (let t of cands) {
+        const bars = barsFor(t);
+        const mom = momentum12_1(bars);
+        const tr = trendScore(bars);
+        if (tr > 0) scored.push({t, mom});
+      }
+      scored.sort((a,b)=>b.mom - a.mom);
+      const keep = scored.slice(0, topK);
+      if (!keep.length) continue;
+      const per = swv / keep.length;
+      keep.forEach(k => weights[k.t] = per);
+    }
+    return weights;
+  }
+  if (strategy === "dual_momentum") {
+    let best = null, bestR = -1e9;
+    const cashYield = params.cash_yield || 0.04;
+    for (let t of tradeableTickers()) {
+      const bars = barsFor(t);
+      if (bars.length < 252) continue;
+      const r12 = bars[bars.length-1].adj / bars[bars.length-252].adj - 1;
+      if (r12 > bestR) { bestR = r12; best = t; }
+    }
+    if (!best || bestR < cashYield) return {"CASH": 1.0};
+    return {[best]:1.0};
+  }
+  if (strategy === "risk_parity") {
+    const sw = params.sleeve_weights || {bonds:0.20, commodity:0.20, crypto:0.20, growth:0.20, tech:0.20};
+    let weights = {};
+    for (let [sleeve, swv] of Object.entries(sw)) {
+      const cands = tradeableTickers().filter(t => UNIVERSE[t].sleeve === sleeve);
+      let invs = [];
+      for (let t of cands) {
+        const vol = realizedVol(barsFor(t));
+        if (vol > 0.0001) invs.push({t, iv: 1/vol});
+      }
+      const tot = invs.reduce((s,x)=>s+x.iv, 0);
+      if (tot <= 0) continue;
+      invs.forEach(x => weights[x.t] = swv * (x.iv / tot));
+    }
+    return weights;
+  }
+  if (strategy === "trend_following") {
+    let survivors = [];
+    for (let t of tradeableTickers()) {
+      if (trendScore(barsFor(t)) > 0) survivors.push(t);
+    }
+    if (!survivors.length) return {"CASH":1};
+    const per = 1 / survivors.length;
+    const w = {}; survivors.forEach(t => w[t] = per); return w;
+  }
+  // static_target
+  const tgt = {...state.target_allocation};
+  const s = Object.values(tgt).reduce((a,b)=>a+b,0);
+  if (s > 0) Object.keys(tgt).forEach(k => tgt[k] /= s);
+  return tgt;
+}
+
+// ==================== PORTFOLIO MATH ====================
+function applyPositionCap(weights, maxW) {
+  if (!maxW || maxW >= 0.999 || !weights) return weights || {};
+  const capped = {};
+  let sum = 0;
+  Object.entries(weights).forEach(([t, v]) => {
+    const c = Math.min(Math.max(v || 0, 0), maxW);
+    capped[t] = c;
+    sum += c;
+  });
+  if (sum > 1e-9) {
+    Object.keys(capped).forEach(k => capped[k] /= sum);
+  }
+  return capped;
+}
+
+function getPrices(tickers) {
+  const prices = { "CASH": 1.0 };
+  tickers.forEach(t => {
+    const b = DATA[t];
+    prices[t] = b && b.length ? b[b.length-1].c : 100;
+  });
+  return prices;
+}
+function currentEquity() {
+  const prices = getPrices(Object.keys(state.holdings));
+  let eq = state.cash;
+  for (let [t,h] of Object.entries(state.holdings)) {
+    eq += (h.shares || 0) * (prices[t] || 0);
+  }
+  return eq;
+}
+function currentWeights() {
+  const eq = currentEquity();
+  if (eq <= 0) return {};
+  const w = {};
+  const prices = getPrices(Object.keys(state.holdings));
+  for (let [t,h] of Object.entries(state.holdings)) {
+    w[t] = (h.shares * (prices[t]||0)) / eq;
+  }
+  w["CASH"] = state.cash / eq;
+  return w;
+}
+function getRecommendations() {
+  const prices = getPrices(Object.keys(UNIVERSE));
+  const eq = currentEquity();
+  const cw = currentWeights();
+  const p = getStrategyParams(state.active_strategy);
+  let targetW = computeWeights(state.active_strategy, p);
+  targetW = applyPositionCap(targetW, RESEARCH.max_ticker_weight || 1);
+  const sumW = Object.values(targetW).reduce((a,b)=>a+b,0);
+  if (sumW < 0.999) targetW["CASH"] = (targetW["CASH"]||0) + (1-sumW);
+
+  const recs = [];
+  const all = new Set([...Object.keys(targetW), ...Object.keys(cw)]);
+  all.forEach(t => {
+    const tw = targetW[t] || 0;
+    const curW = cw[t] || 0;
+    const drift = tw - curW;
+    const px = prices[t] || 1;
+    const heldVal = (t==="CASH") ? state.cash : (state.holdings[t]?.shares||0) * px;
+    const tgtVal = tw * eq;
+    const delta = tgtVal - heldVal;
+    let action = "HOLD";
+    if (Math.abs(drift) > state.rebalance_band) {
+      action = (tw > curW) ? (curW===0 ? "BUY" : "ADD") : (tw===0 ? "SELL" : "TRIM");
+    } else if (Math.abs(drift) > state.drift_band) {
+      action = drift > 0 ? "ADD" : "TRIM";
+    }
+    const priority = Math.abs(drift) < state.drift_band ? 3 : (Math.abs(drift) < state.rebalance_band ? 2 : 1);
+    if (tw === 0 && curW === 0) return;
+    recs.push({
+      ticker:t, action, target_shares: tw*eq/px, target_dollars:tgtVal, delta_dollars:delta,
+      current_weight: curW, target_weight: tw, drift, priority
+    });
+  });
+  recs.sort((a,b) => a.priority - b.priority || Math.abs(b.drift) - Math.abs(a.drift));
+  return recs;
+}
+
+// ==================== BACKTEST ENGINE ====================
+function getStrategyParams(strat) {
+  return (STRATEGY_PARAMS && STRATEGY_PARAMS[strat]) ? JSON.parse(JSON.stringify(STRATEGY_PARAMS[strat])) : {};
+}
+
+function getResearchRange() {
+  if (RESEARCH.useCustom && RESEARCH.customStart && RESEARCH.customEnd) {
+    return { start: RESEARCH.customStart, end: RESEARCH.customEnd };
+  }
+  const yrs = RESEARCH.years || 5;
+  const end = todayStr();
+  const start = new Date(Date.now() - yrs * 365.25 * 86400000).toISOString().slice(0,10);
+  return { start, end };
+}
+
+function isoWeekday(iso) {
+  // Parse "YYYY-MM-DD" as UTC date to avoid local TZ shifting the weekday for date-only strings.
+  const [y, mo, d] = iso.split('-').map(Number);
+  return new Date(Date.UTC(y, mo - 1, d)).getUTCDay(); // 0=Sun, 5=Fri
+}
+
+function getRebalanceDates(dates, freq="monthly") {
+  // dates are sorted ISO strings
+  if (!dates.length) return [];
+  const res = [];
+  let lastM = -1, lastY = -1, lastQ = -1;
+  for (let i = 0; i < dates.length; i++) {
+    const dstr = dates[i];
+    const m = parseInt(dstr.slice(5,7), 10) - 1;
+    const y = parseInt(dstr.slice(0,4), 10);
+    if (freq === "weekly") {
+      // Always rebalance on the first day of the window (so weekly always has exposure, like monthly)
+      // + every Friday (UTC-safe) for the weekly cadence.
+      if (i === 0 || isoWeekday(dstr) === 5) res.push(dstr);
+    } else if (freq === "quarterly") {
+      const q = Math.floor(m / 3);
+      if (q !== lastQ) { res.push(dstr); lastQ = q; }
+    } else { // monthly default
+      if (m !== lastM) { res.push(dstr); lastM = m; }
+    }
+  }
+  return res;
+}
+
+function runBacktest(strategyName, start, end, rebalFreq="monthly", costBps=5, slippageBps=2, initEquity=null) {
+  const universe = tradeableTickers();
+  const initE = (initEquity != null ? initEquity : (RESEARCH.initial_equity || INITIAL_EQUITY));
+
+  // Use shared fast price matrix (big speedup for repeated backtests)
+  const mat = ensurePriceMatrix(10);
+  let dates = mat.dates.filter(d => d >= start && d <= end);
+  if (dates.length < 30) dates = mat.dates.slice(-800);
+
+  // prices aligned to 'dates' (ffilled in matrix)
+  const prices = {};
+  universe.forEach(t => {
+    prices[t] = dates.map(d => {
+      const idx = mat.dates.indexOf(d);
+      return idx >= 0 ? (mat.prices[t]?.[idx] ?? NaN) : NaN;
+    });
+  });
+
+  let cash = initE, holdings = {}, equityCurve = [], ddCurve = [], tradeLog = [];
+  let peak = cash;
+  let prevWeights = {};
+  const rebalDates = getRebalanceDates(dates, rebalFreq);
+  const useThreshold = (RESEARCH.rebal_mode || 'calendar') === 'threshold';
+  const band = (RESEARCH.rebal_band != null ? RESEARCH.rebal_band : 0.05);
+  const effCostBps = (costBps || 0) + (slippageBps || 0); // robustness: combine explicit cost + slippage
+
+  for (let i = 0; i < dates.length; i++) {
+    const d = dates[i];
+    const todayP = {};
+    universe.forEach(t => { todayP[t] = prices[t]?.[i]; });
+
+    // 1. Mark-to-market using today's prices on holdings going into today
+    let portfolioValue = cash;
+    Object.keys(holdings).forEach(t => {
+      const p = todayP[t];
+      if (isFinite(p) && p > 0) portfolioValue += holdings[t] * p;
+    });
+
+    // Record the value for the day (this is what the strategy "earned" up to today)
+    equityCurve.push({ date: d, equity: portfolioValue });
+    peak = Math.max(peak, portfolioValue);
+    ddCurve.push({ date: d, dd: (peak - portfolioValue) / peak });
+
+    // 2. Rebalance at the close of this day if needed
+    let doRebal = rebalDates.includes(d);
+    if (doRebal && useThreshold && Object.keys(prevWeights).length > 0) {
+      // compute tentative target to measure drift (for custom rebal rule)
+      const p = getStrategyParams(strategyName);
+      let targetW = computeWeights(strategyName, p);
+      targetW = applyPositionCap(targetW, RESEARCH.max_ticker_weight);
+      const sumW = Object.values(targetW).reduce((a, b) => a + b, 0) || 1;
+      Object.keys(targetW).forEach(k => targetW[k] /= sumW);
+      let maxDrift = 0;
+      Object.keys(targetW).forEach(t => {
+        const drift = Math.abs((targetW[t] || 0) - (prevWeights[t] || 0));
+        if (drift > maxDrift) maxDrift = drift;
+      });
+      if (maxDrift < band) doRebal = false; // skip if within band (robustness control)
+    }
+
+    if (doRebal) {
+      const p = getStrategyParams(strategyName);
+      let targetW = computeWeights(strategyName, p);
+      // Apply risk control cap if set
+      targetW = applyPositionCap(targetW, RESEARCH.max_ticker_weight);
+      let sumW = Object.values(targetW).reduce((a, b) => a + b, 0) || 0;
+      if (sumW < 1e-9) {
+        // No assets selected by strategy this period (e.g. no positive trend in any sleeve for xs_momentum) → stay fully in cash, no trade
+        holdings = {};
+        cash = portfolioValue;
+        prevWeights = {};
+        tradeLog.push({ date: d, weights: { CASH: 1 }, turnover: 0, cost: 0 });
+      } else {
+        Object.keys(targetW).forEach(k => targetW[k] /= sumW);
+
+        let turnover = 0;
+        Object.keys(targetW).forEach(t => {
+          turnover += Math.abs((targetW[t] || 0) - (prevWeights[t] || 0));
+        });
+
+        const cost = (effCostBps / 10000) * turnover * portfolioValue;
+        const investable = portfolioValue - cost;
+
+        const newHoldings = {};
+        let remainingCash = 0;
+
+        Object.keys(targetW).forEach(t => {
+          if (t === "CASH") {
+            remainingCash += targetW[t] * investable;
+            return;
+          }
+          const p = todayP[t];
+          if (!isFinite(p) || p <= 0) {
+            remainingCash += targetW[t] * investable;
+            return;
+          }
+          newHoldings[t] = (targetW[t] * investable) / p;
+        });
+
+        holdings = newHoldings;
+        cash = remainingCash;
+        prevWeights = { ...targetW };
+
+        tradeLog.push({ date: d, weights: { ...targetW }, turnover, cost });
+      }
+    }
+  }
+
+  const ec = equityCurve.map(e=>e.equity);
+  const n = ec.length;
+  const final = (n > 0 ? ec[n-1] : initE);
+  // Guard for data integrity: prevent NaN / div0; use consistent initial for CAGR base
+  let cagr = 0, annVol = 0, sharpe = 0, sortino = 0, maxDD = 0, calmar = 0;
+  if (n >= 2) {
+    cagr = Math.pow(final / initE, 252 / n) - 1;
+    const rets = [];
+    for (let i=1;i<n;i++) rets.push((ec[i]-ec[i-1])/ec[i-1]);
+    const sumSq = rets.reduce((s,r)=>s + (isFinite(r)? r*r : 0), 0);
+    annVol = Math.sqrt(sumSq / rets.length) * Math.sqrt(252);
+    const sumR = rets.reduce((s,r)=>s + (isFinite(r)? r : 0), 0);
+    sharpe = annVol > 0 ? (sumR / rets.length * 252) / annVol : 0;
+    const neg = rets.filter(r=> isFinite(r) && r<0);
+    const downSq = neg.reduce((s,r)=>s + r*r, 0);
+    const downside = neg.length ? Math.sqrt(downSq / neg.length) * Math.sqrt(252) : annVol;
+    sortino = downside>0 ? (sumR / rets.length*252)/downside : 0;
+    const dds = ddCurve.map(x => (x && isFinite(x.dd) ? x.dd : 0));
+    maxDD = dds.length ? Math.max(...dds) : 0;
+    calmar = maxDD>0 ? cagr / maxDD : 0;
+  }
+
+  // sanitize to ensure no NaN in metrics (data integrity)
+  cagr = isFinite(cagr) ? cagr : 0;
+  annVol = isFinite(annVol) ? annVol : 0;
+  sharpe = isFinite(sharpe) ? sharpe : 0;
+  sortino = isFinite(sortino) ? sortino : 0;
+  maxDD = isFinite(maxDD) ? maxDD : 0;
+  calmar = isFinite(calmar) ? calmar : 0;
+
+  const monthly = {};
+  for (let i=1; i<n; i++) {
+    const m = dates[i].slice(0,7);
+    const r = (ec[i]-ec[i-1])/ec[i-1];
+    if (!monthly[m]) monthly[m] = isFinite(r) ? r : 0;
+  }
+
+  return {
+    equityCurve, ddCurve, summary: {CAGR:cagr, ann_vol:annVol, Sharpe:sharpe, Sortino:sortino, max_DD:maxDD, Calmar:calmar},
+    trade_log: tradeLog, monthly
+  };
+}
+
+// Simple multi-strat comparison
+function compareStrategies(years=5) {
+  const range = (RESEARCH.useCustom && RESEARCH.customStart && RESEARCH.customEnd) ? {start:RESEARCH.customStart, end:RESEARCH.customEnd} : getResearchRange();
+  const start = range.start, end = range.end;
+  const res = {};
+  Object.keys(STRATEGIES).forEach(s => {
+    try { res[s] = runBacktest(s, start, end, "monthly", RESEARCH.cost_bps, RESEARCH.slippage_bps, RESEARCH.initial_equity); } catch(e){ console.warn(e); }
+  });
+  return {results: res, start, end};
+}
+
+// ==================== STATE PERSIST + UI HELPERS ====================
+function saveToLocal() {
+  localStorage.setItem("pr_state_v1", JSON.stringify(state));
+  localStorage.setItem("pr_research_v1", JSON.stringify(RESEARCH));
+  localStorage.setItem("pr_strat_params_v1", JSON.stringify(STRATEGY_PARAMS));
+  localStorage.setItem("pr_signal_config_v1", JSON.stringify(SIGNAL_CONFIG));
+}
+function loadFromLocal() {
+  try {
+    const s = localStorage.getItem("pr_state_v1");
+    if (s) Object.assign(state, JSON.parse(s));
+    const r = localStorage.getItem("pr_research_v1");
+    if (r) Object.assign(RESEARCH, JSON.parse(r));
+    const sp = localStorage.getItem("pr_strat_params_v1");
+    if (sp) Object.assign(STRATEGY_PARAMS, JSON.parse(sp));
+    const sc = localStorage.getItem("pr_signal_config_v1");
+    if (sc) Object.assign(SIGNAL_CONFIG, JSON.parse(sc));
+  } catch(e){}
+}
+function resetAll() {
+  localStorage.clear();
+  location.reload();
+}
+function exportState() {
+  const blob = new Blob([JSON.stringify({state, research: RESEARCH, strat_params: STRATEGY_PARAMS, signal_config: SIGNAL_CONFIG, version:1}, null, 2)], {type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "sleeve_research_state.json";
+  a.click();
+}
+function importStateClick() {
+  const inp = document.createElement("input");
+  inp.type="file"; inp.accept=".json";
+  inp.onchange = e => {
+    const f = e.target.files[0];
+    const reader = new FileReader();
+    reader.onload = ev => {
+      try {
+        const data = JSON.parse(ev.target.result);
+        if (data.state) Object.assign(state, data.state);
+        if (data.research) Object.assign(RESEARCH, data.research);
+        if (data.strat_params) Object.assign(STRATEGY_PARAMS, data.strat_params);
+        if (data.signal_config) Object.assign(SIGNAL_CONFIG, data.signal_config);
+        saveToLocal(); location.reload();
+      } catch(err){ alert("Invalid state file"); }
+    };
+    reader.readAsText(f);
+  };
+  inp.click();
+}
+
+// ==================== INITIALIZE DEFAULT STATE ====================
+function initDefaultState() {
+  if (Object.keys(state.target_allocation).length === 0) {
+    const t = {};
+    let sum = 0;
+    Object.entries(UNIVERSE).forEach(([k,v]) => {
+      if (v.default_target > 0 && v.sleeve !== "benchmarks") {
+        t[k] = v.default_target; sum += v.default_target;
+      }
+    });
+    Object.keys(t).forEach(k => t[k] /= sum);
+    state.target_allocation = t;
+  }
+  // seed some realistic holdings if empty
+  if (Object.keys(state.holdings).length === 0) {
+    const prices = getPrices(Object.keys(state.target_allocation));
+    let rem = state.cash;
+    Object.entries(state.target_allocation).forEach(([t,w]) => {
+      if (t === "CASH") return;
+      const val = w * state.cash * 0.92;
+      const shares = Math.round(val / (prices[t] || 100));
+      if (shares > 0) {
+        state.holdings[t] = {shares, cost_basis: prices[t] || 100};
+        rem -= shares * (prices[t]||100);
+      }
+    });
+    state.cash = Math.max(100, rem);
+  }
+}
+
+// ==================== RENDER: OVERVIEW ====================
+function renderOverview() { /* removed - no live holdings */ }
+
+function renderAllocation() {
+  const cw = currentWeights();
+  const items = Object.entries(cw).filter(([k,v])=>v>0.001).sort((a,b)=>b[1]-a[1]);
+  const total = items.reduce((s,[,v])=>s+v,0) || 1;
+
+  // Donut via Chart.js
+  const host = document.getElementById("alloc-donut");
+  host.innerHTML = `<canvas id="alloc-donut-canvas" width="118" height="118"></canvas>`;
+  const ctx = document.getElementById("alloc-donut-canvas").getContext("2d");
+
+  if (CHARTS.alloc) CHARTS.alloc.destroy();
+  CHARTS.alloc = new Chart(ctx, {
+    type: "doughnut",
+    data: {
+      labels: items.map(([k])=>k),
+      datasets: [{ data: items.map(([,v])=>v), backgroundColor: items.map(([k]) => sleeveColor(UNIVERSE[k]?.sleeve)) }]
+    },
+    options: { cutout:"68%", plugins:{legend:{display:false}, tooltip:{callbacks:{label: (c)=> `${c.label}: ${(c.raw*100).toFixed(1)}%`}}} }
+  });
+
+  const leg = document.getElementById("alloc-legend");
+  leg.innerHTML = items.map(([k,v]) => {
+    const col = sleeveColor(UNIVERSE[k]?.sleeve);
+    return `<div class="flex items-center justify-between text-xs py-px"><div class="flex items-center gap-x-1.5"><span style="background:${col}" class="w-2.5 h-2.5 rounded"></span><span class="mono">${k}</span></div><span class="mono font-medium">${(v*100).toFixed(1)}%</span></div>`;
+  }).join("");
+}
+
+function sleeveColor(sleeve) {
+  if (sleeve==="bonds") return "#22d3ee";
+  if (sleeve==="commodity") return "#f59e0b";
+  if (sleeve==="crypto") return "#a855f7";
+  if (sleeve==="growth") return "#10b981";
+  if (sleeve==="tech") return "#ef4444";
+  return "#64748b";
+}
+
+function renderHoldingsTable() {
+  const tbody = document.getElementById("holdings-table-body");
+  tbody.innerHTML = "";
+  const prices = getPrices(Object.keys(state.holdings));
+  const eq = currentEquity();
+
+  Object.entries(state.holdings).forEach(([ticker, h]) => {
+    const px = prices[ticker] || 0;
+    const mv = h.shares * px;
+    const w = eq > 0 ? mv / eq : 0;
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td class="mono font-semibold text-cyan-400">${ticker}</td>
+      <td class="text-right"><input value="${h.shares}" type="number" step="1" class="value-input w-20 text-right" onchange="editHolding('${ticker}', 'shares', this.value)"></td>
+      <td class="text-right"><input value="${h.cost_basis.toFixed(2)}" type="number" step="0.01" class="value-input w-20 text-right" onchange="editHolding('${ticker}', 'cost', this.value)"></td>
+      <td class="text-right mono text-[#e6e8ee]">${fmtNum(px)}</td>
+      <td class="text-right mono font-medium">${fmt$(mv)}</td>
+      <td class="text-right mono text-emerald-400">${fmtPct(w)}</td>
+      <td class="text-right"><button onclick="removeHolding('${ticker}')" class="text-rose-400 hover:text-rose-300 text-xs px-1">×</button></td>`;
+    tbody.appendChild(tr);
+  });
+
+  // CASH row
+  const cashW = eq > 0 ? state.cash / eq : 0;
+  const trCash = document.createElement("tr");
+  trCash.innerHTML = `
+    <td class="mono font-semibold text-[#64748b]">CASH</td>
+    <td></td><td></td>
+    <td class="text-right mono">1.00</td>
+    <td class="text-right mono font-medium">${fmt$(state.cash)}</td>
+    <td class="text-right mono text-emerald-400">${fmtPct(cashW)}</td>
+    <td></td>`;
+  tbody.appendChild(trCash);
+}
+
+function editHolding(ticker, field, val) {
+  if (!state.holdings[ticker]) return;
+  if (field === "shares") state.holdings[ticker].shares = parseFloat(val) || 0;
+  if (field === "cost") state.holdings[ticker].cost_basis = parseFloat(val) || 0;
+  saveToLocal();
+  renderAll();
+}
+function removeHolding(t) {
+  delete state.holdings[t];
+  saveToLocal();
+  renderAll();
+}
+function addHoldingRow() {
+  const t = prompt("Ticker to add (e.g. QQQ, GLD):", "QQQ");
+  if (!t || !UNIVERSE[t]) return;
+  const px = (DATA[t] && DATA[t].length) ? DATA[t][DATA[t].length-1].c : 180;
+  state.holdings[t] = {shares: 50, cost_basis: px};
+  saveToLocal();
+  renderAll();
+}
+function updateCash() {
+  state.cash = parseFloat(document.getElementById("cash-input").value) || 0;
+  saveToLocal();
+  renderAll();
+}
+function toggleMode() {
+  state.mode = state.mode === "hypothetical" ? "live" : "hypothetical";
+  saveToLocal();
+  renderAll();
+}
+function resetToTargets() {
+  state.holdings = {};
+  const prices = getPrices(Object.keys(state.target_allocation));
+  let rem = state.cash;
+  Object.entries(state.target_allocation).forEach(([t,w]) => {
+    if (t==="CASH") return;
+    const val = w * state.cash;
+    const sh = Math.round(val / (prices[t]||100));
+    if (sh>0) { state.holdings[t] = {shares:sh, cost_basis:prices[t]||100}; rem -= sh*(prices[t]||100); }
+  });
+  state.cash = Math.max(0, rem);
+  saveToLocal();
+  renderAll();
+}
+
+function applyRecommendations() {
+  const recs = getRecommendations();
+  const prices = getPrices(Object.keys(UNIVERSE));
+  let eq = currentEquity();
+  let newHold = {};
+  let newCash = 0;
+
+  recs.forEach(r => {
+    if (r.ticker === "CASH") {
+      newCash += r.target_dollars;
+      return;
+    }
+    const px = prices[r.ticker] || 1;
+    const sh = (UNIVERSE[r.ticker]?.sleeve === "crypto") ? (r.target_dollars / px) : Math.round(r.target_dollars / px);
+    if (sh > 0) newHold[r.ticker] = {shares: sh, cost_basis: px};
+  });
+  state.holdings = newHold;
+  state.cash = newCash || (state.cash * 0.03); // small buffer
+  saveToLocal();
+  renderAll();
+  // flash success
+  const orig = document.getElementById("total-equity").style.color;
+  document.getElementById("total-equity").style.transition = "color .3s";
+  document.getElementById("total-equity").style.color = "#10b981";
+  setTimeout(()=> { document.getElementById("total-equity").style.color = orig || ""; }, 900);
+}
+
+// ==================== RESEARCH ====================
+let EQ_CHART = null, DD_CHART = null, ROLL_CHART = null, MC_CHART = null;
+
+function renderBacktestControls() {
+  const host = document.getElementById("backtest-strat-pills");
+  if (!host) return;
+
+  host.innerHTML = Object.keys(STRATEGIES).map(s => {
+    const st = STRATEGIES[s];
+    const on = RESEARCH.strategies[s];
+    return `<button onclick="setBacktestStrategy('${s}')" class="strategy-pill px-3 py-[3px] text-xs rounded border ${on?'active':''}" style="border-color:${st.color}40;color:${on?st.color:'#94a3b8'}">${st.label}</button>`;
+  }).join('');
+
+  const lp = document.getElementById("lookback-pills");
+  if (lp) {
+    const base = [1,3,5,10].map(y => `<button class="px-2 py-px text-xs border rounded ${!RESEARCH.useCustom && RESEARCH.years===y?'bg-[#1f242e] border-cyan-700':''}" onclick="setResearchYears(${y})">${y}y</button>`).join('');
+    lp.innerHTML = base + `<button class="px-2 py-px text-xs border rounded ${RESEARCH.useCustom?'bg-[#1f242e] border-cyan-700':''}" onclick="setCustomPeriodMode()">Custom</button>`;
+  }
+
+  const rp = document.getElementById("rebal-pills");
+  if (rp) rp.innerHTML = ['monthly','quarterly','weekly'].map(r => `<button class="px-2 py-px text-xs border rounded ${RESEARCH.rebalance===r?'bg-[#1f242e] border-cyan-700':''}" onclick="setRebal('${r}')">${r}</button>`).join('');
+
+  // Easy UI for rebal mode (calendar vs threshold for robustness)
+  const rm = document.getElementById("rebal-mode-pills");
+  if (rm) rm.innerHTML = ['calendar','threshold'].map(m => `<button class="px-2 py-px text-xs border rounded ${ (RESEARCH.rebal_mode||'calendar')===m ?'bg-[#1f242e] border-cyan-700':''}" onclick="setRebalMode('${m}')">${m}</button>`).join('');
+
+  const sp = document.getElementById("scale-pills");
+  if (sp) sp.innerHTML = [['log','Log'],['normalized','Rebased']].map(([k,l]) => `<button class="px-2 py-px text-xs border rounded ${RESEARCH.eqScale===k?'bg-[#1f242e] border-cyan-700':''}" onclick="setEqScale('${k}')">${l}</button>`).join('');
+
+  const cb = document.getElementById("cost-bps");
+  if (cb) cb.value = RESEARCH.cost_bps;
+  const sb = document.getElementById("slippage-bps");
+  if (sb) sb.value = RESEARCH.slippage_bps || 2;
+  const sm = document.getElementById("sweep-metric");
+  if (sm) sm.value = RESEARCH.metric;
+  const mw = document.getElementById("max-ticker-wt");
+  if (mw) mw.value = Math.round( (RESEARCH.max_ticker_weight || 0.30) * 100 );
+  const ie = document.getElementById("init-equity");
+  if (ie) ie.value = RESEARCH.initial_equity || 100000;
+  const ms = document.getElementById("mc-sims");
+  if (ms) ms.value = RESEARCH.mc_sims || 500;
+  const rb = document.getElementById("rebal-band");
+  if (rb) rb.value = (RESEARCH.rebal_band != null ? RESEARCH.rebal_band * 100 : 5);
+
+  // Add/refresh custom dates inline if present
+  const lookHost = document.getElementById("lookback-pills");
+  if (lookHost && RESEARCH.useCustom) {
+    const extra = document.createElement('span');
+    extra.style = 'margin-left:6px;font-size:10px';
+    extra.innerHTML = `<input type="date" value="${RESEARCH.customStart||''}" onchange="setCustomStart(this.value)" class="value-input text-[10px] w-[108px]">→<input type="date" value="${RESEARCH.customEnd||''}" onchange="setCustomEnd(this.value)" class="value-input text-[10px] w-[108px]">`;
+    // avoid dupes by id check
+    const old = document.getElementById('bt-custom-dates');
+    if (old) old.remove();
+    extra.id = 'bt-custom-dates';
+    lookHost.appendChild(extra);
+  }
+
+  // Render the per-focus strategy param editor (HF friendly)
+  renderFocusStrategyParams();
+}
+
+function refreshFocusedBacktest() {
+  const {start, end} = getResearchRange();
+  const s = RESEARCH.focus || ACTIVE_STRATEGY;
+
+  setBacktestStatus('Focused…', 'running');
+  let focusBT = {};
+  try {
+    focusBT = runBacktest(s, start, end, RESEARCH.rebalance, RESEARCH.cost_bps, RESEARCH.slippage_bps, RESEARCH.initial_equity);
+  } catch (e) {
+    console.warn(e);
+    setBacktestStatus('Error');
+    return;
+  }
+
+  const single = {};
+  single[s] = focusBT;
+  renderBacktestKPIs(focusBT, 1);
+  renderBtEqDd(single);
+  renderBtRolling(focusBT);
+  renderReturnsHistogram(focusBT);
+  renderSleeveExposure(focusBT);
+  const fs = document.getElementById('bt-focused-status');
+  if (fs) fs.textContent = 'Focused: auto-updated • ' + (RESEARCH.focus || '');
+  // keep comparison fresh too on param changes (lightweight)
+  try {
+    const btAll = {}; const picked = Object.keys(STRATEGIES).filter(k => RESEARCH.strategies && RESEARCH.strategies[k]);
+    if (!picked.length) picked.push(s);
+    const {start, end} = getResearchRange();
+    picked.forEach(k => { try { btAll[k] = runBacktest(k, start, end, RESEARCH.rebalance, RESEARCH.cost_bps, RESEARCH.slippage_bps, RESEARCH.initial_equity); } catch(e){} });
+    if (typeof renderBtComparison === 'function') renderBtComparison(btAll);
+  } catch(e){}
+  setBacktestStatus('Focused ready', 'done');
+  markLastRun();
+  setTimeout(() => setBacktestStatus('Ready'), 900);
+}
+
+function setBacktestStrategy(s) {
+  ACTIVE_STRATEGY = s;
+  RESEARCH.focus = s;
+  RESEARCH.strategies[s] = true;
+  renderBacktestControls();
+  refreshFocusedBacktest();
+
+  // Also refresh comparison lightly (all strategies, current params)
+  try {
+    const {start, end} = getResearchRange();
+    const allBt = {};
+    const picked = Object.keys(STRATEGIES).filter(k => RESEARCH.strategies[k]);
+    picked.forEach(k => {
+      allBt[k] = runBacktest(k, start, end, RESEARCH.rebalance, RESEARCH.cost_bps, RESEARCH.slippage_bps, RESEARCH.initial_equity);
+    });
+    renderBtComparison(allBt);
+  } catch(e) {}
+}
+
+function markBacktestDirty() {
+  // just a visual hint
+}
+
+function markResearchDirty() {
+  // deprecated - use markBacktestDirty
+  markBacktestDirty();
+}
+
+function toggleResearchStrat(s) {
+  RESEARCH.strategies[s] = !RESEARCH.strategies[s];
+  if (!RESEARCH.strategies[RESEARCH.focus]) RESEARCH.focus = s;
+  saveToLocal();
+  renderBacktestControls();
+  refreshFocusedBacktest();
+}
+function setResearchYears(y) { 
+  RESEARCH.years = y; 
+  RESEARCH.useCustom = false;
+  saveToLocal(); 
+  renderBacktestControls(); 
+  refreshFocusedBacktest();
+}
+function setCustomYears() { 
+  RESEARCH.years = null; 
+  saveToLocal(); 
+  renderBacktestControls(); 
+  refreshFocusedBacktest();
+}
+function setRebal(r) { 
+  RESEARCH.rebalance = r; 
+  saveToLocal(); 
+  renderBacktestControls(); 
+  refreshFocusedBacktest();
+}
+function setRebalMode(m) { 
+  RESEARCH.rebal_mode = m; 
+  saveToLocal(); 
+  renderBacktestControls(); 
+  refreshFocusedBacktest();
+}
+function setEqScale(s) { 
+  RESEARCH.eqScale = s; 
+  saveToLocal(); 
+  renderBacktestControls(); 
+  refreshFocusedBacktest();
+}
+function setFocus(s) { 
+  RESEARCH.focus = s; 
+  RESEARCH.strategies[s] = true; 
+  saveToLocal(); 
+  renderBacktestControls(); 
+  refreshFocusedBacktest();
+}
+
+// Custom period + HF manager config setters (UI friendly, trigger recompute)
+function setCustomPeriodMode() {
+  RESEARCH.useCustom = true;
+  if (!RESEARCH.customStart || !RESEARCH.customEnd) {
+    const r = getResearchRange();
+    RESEARCH.customStart = r.start; RESEARCH.customEnd = r.end;
+  }
+  saveToLocal();
+  renderBacktestControls();
+  refreshFocusedBacktest();
+}
+function setCustomStart(d) { RESEARCH.useCustom = true; RESEARCH.customStart = d; saveToLocal(); refreshFocusedBacktest(); }
+function setCustomEnd(d) { RESEARCH.useCustom = true; RESEARCH.customEnd = d; saveToLocal(); refreshFocusedBacktest(); }
+
+function updateStratParam(strat, key, val) {
+  if (!STRATEGY_PARAMS[strat]) STRATEGY_PARAMS[strat] = {};
+  if (key === 'sleeve_weights') {
+    // val is object like {bonds:0.25, ...}
+    STRATEGY_PARAMS[strat].sleeve_weights = val;
+  } else if (key.includes('.')) {
+    // e.g. sleeve_weights.bonds
+    const [p, sub] = key.split('.');
+    if (!STRATEGY_PARAMS[strat][p]) STRATEGY_PARAMS[strat][p] = {};
+    STRATEGY_PARAMS[strat][p][sub] = parseFloat(val) || 0;
+  } else {
+    STRATEGY_PARAMS[strat][key] = (typeof val === 'string' && !isNaN(val)) ? parseFloat(val) : val;
+  }
+  saveToLocal();
+  renderBacktestControls(); // re-render params UI
+  refreshFocusedBacktest();
+  // trigger full on major change for sweep etc
+  if (document.getElementById('sweep-heatmap')) runResearch(true);
+}
+
+function normalizeSleeveWeights(strat) {
+  const p = STRATEGY_PARAMS[strat] || {};
+  const sw = p.sleeve_weights || {};
+  const tot = Object.values(sw).reduce((a,b)=>a+(b||0),0);
+  if (tot > 0.001) {
+    Object.keys(sw).forEach(k => sw[k] = (sw[k]||0) / tot);
+    updateStratParam(strat, 'sleeve_weights', sw);
+  }
+}
+
+function renderFocusStrategyParams() {
+  // Inject or update a small dedicated editor next to global controls
+  let host = document.getElementById('strat-params-host');
+  const container = document.querySelector('#panel-backtest .card.p-4.mb-4');
+  if (!container) return;
+  if (!host) {
+    host = document.createElement('div');
+    host.id = 'strat-params-host';
+    host.className = 'mt-3 pt-3 border-t border-[#252932]';
+    container.appendChild(host);
+  }
+  const strat = RESEARCH.focus || 'xs_momentum';
+  const p = getStrategyParams(strat);
+  let ui = `<div style="font-size:10px;color:#64748b;margin-bottom:2px">FOCUS STRATEGY PARAMS <span class="mono">(${strat})</span> — changes update backtests live</div><div class="flex flex-wrap gap-x-4 gap-y-2 items-end text-xs">`;
+
+  if (strat === 'xs_momentum') {
+    ui += `<label>top_k: <input type="number" class="value-input w-14" value="${p.top_k||2}" min="1" max="6" step="1" onchange="updateStratParam('${strat}','top_k',this.value)"></label>`;
+    ui += `<span>Sleeve wts (%):</span>`;
+    const sw = p.sleeve_weights || {};
+    ['bonds','commodity','crypto','growth','tech'].forEach(sl => {
+      const v = (sw[sl]||0)*100;
+      ui += `<label>${sl.slice(0,3)}:<input type="number" class="value-input w-12" value="${v.toFixed(0)}" step="1" onchange="updateSleeveWt('${strat}','${sl}',this.value)"></label>`;
+    });
+    ui += `<button onclick="normalizeSleeveWeights('${strat}')" class="btn px-1.5 py-px text-[10px]">Norm</button>`;
+  } else if (strat === 'dual_momentum') {
+    ui += `<label>Cash yield: <input type="number" class="value-input w-16" value="${(p.cash_yield||0.04)*100}" step="0.1" onchange="updateStratParam('${strat}','cash_yield', parseFloat(this.value)/100 )"> %</label>`;
+  } else if (strat === 'risk_parity') {
+    ui += `<span>Sleeve wts (%):</span>`;
+    const sw = p.sleeve_weights || {};
+    ['bonds','commodity','crypto','growth','tech'].forEach(sl => {
+      const v = (sw[sl]||0)*100;
+      ui += `<label>${sl.slice(0,3)}:<input type="number" class="value-input w-12" value="${v.toFixed(0)}" step="1" onchange="updateSleeveWt('${strat}','${sl}',this.value)"></label>`;
+    });
+    ui += `<button onclick="normalizeSleeveWeights('${strat}')" class="btn px-1.5 py-px text-[10px]">Norm</button>`;
+  } else {
+    ui += `<span class="text-[#64748b]">No editable params for ${strat}.</span>`;
+  }
+  ui += `</div>`;
+  host.innerHTML = ui;
+}
+
+function updateSleeveWt(strat, sleeve, pctStr) {
+  const p = STRATEGY_PARAMS[strat] || (STRATEGY_PARAMS[strat]={});
+  if (!p.sleeve_weights) p.sleeve_weights = {bonds:0.2,commodity:0.2,crypto:0.2,growth:0.2,tech:0.2};
+  p.sleeve_weights[sleeve] = (parseFloat(pctStr)||0) / 100;
+  updateStratParam(strat, 'sleeve_weights', p.sleeve_weights);
+}
+
+function yieldUI(ms = 5) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+// Small UI helpers for computing sections: status + progress for Run
+function setBacktestStatus(msg, type='idle') {
+  const el = document.getElementById('bt-run-status');
+  if (el) {
+    el.textContent = msg;
+    el.className = `ml-2 text-[11px] px-2 py-0.5 rounded bg-[#1a1d24] border text-[#64748b] ${type==='running' ? 'border-cyan-600 text-cyan-400' : (type==='done' ? 'border-emerald-600 text-emerald-400' : 'border-[#334155]')}`;
+  }
+  // Update section status pills too
+  const fEl = document.getElementById('bt-focused-status');
+  const fullEl = document.getElementById('bt-full-status');
+  if (fEl && msg.toLowerCase().includes('focus')) fEl.textContent = 'Focused: ' + msg;
+  if (fullEl && (msg.toLowerCase().includes('full') || msg.toLowerCase().includes('done'))) fullEl.textContent = 'Full: ' + msg;
+}
+function showBtProgress(pct) {
+  const wrap = document.getElementById('bt-progress-wrap');
+  const bar = document.getElementById('bt-progress-bar');
+  if (!wrap || !bar) return;
+  wrap.classList.remove('hidden');
+  bar.style.width = Math.max(0, Math.min(100, pct)) + '%';
+}
+function hideBtProgress() {
+  const wrap = document.getElementById('bt-progress-wrap');
+  const bar = document.getElementById('bt-progress-bar');
+  if (!wrap || !bar) return;
+  setTimeout(() => { wrap.classList.add('hidden'); bar.style.width = '0%'; }, 400);
+}
+function markLastRun() {
+  const el = document.getElementById('bt-last-run');
+  if (el) el.textContent = 'last: ' + new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+}
+
+async function runResearch(force = false) {
+  const btns = document.querySelectorAll('#panel-backtest button');
+  btns.forEach(b => { if (b.textContent.includes('Recompute') || b.textContent.includes('Run')) b.disabled = true; });
+
+  setBacktestStatus('Running…', 'running');
+  showBtProgress(5);
+
+  const loading = '<div class="text-xs text-[#64748b] p-2">Computing…</div>';
+  ['backtest-kpis', 'bt-comparison', 'sweep-heatmap', 'mc-summary', 'wf-table', 'monthly-heatmap', 'corr-heatmap'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.innerHTML = loading;
+  });
+
+  try {
+    RESEARCH.cost_bps = parseFloat(document.getElementById("cost-bps").value) || 5;
+    RESEARCH.slippage_bps = parseFloat(document.getElementById("slippage-bps") ? document.getElementById("slippage-bps").value : RESEARCH.slippage_bps) || 2;
+    RESEARCH.metric = document.getElementById("sweep-metric").value || 'Sharpe';
+    if (document.getElementById("init-equity")) RESEARCH.initial_equity = parseFloat(document.getElementById("init-equity").value) || INITIAL_EQUITY;
+    if (document.getElementById("mc-sims")) RESEARCH.mc_sims = parseInt(document.getElementById("mc-sims").value) || 500;
+    if (document.getElementById("rebal-band")) RESEARCH.rebal_band = Math.max(0, parseFloat(document.getElementById("rebal-band").value)/100 || 0.05);
+
+    const range = getResearchRange();
+    let start = range.start, end = range.end;
+    if (!force) {
+      const fastEnd = todayStr();
+      start = new Date(Date.now() - 3*365.25*86400000).toISOString().slice(0,10);
+      end = fastEnd;
+    }
+
+    showBtProgress(18);
+    await yieldUI(1);
+
+    showBtProgress(35);
+    const bt = {};
+    try {
+      bt[RESEARCH.focus] = runBacktest(RESEARCH.focus, start, end, RESEARCH.rebalance, RESEARCH.cost_bps, RESEARCH.slippage_bps, RESEARCH.initial_equity);
+    } catch(e) {}
+
+    const picked = Object.keys(STRATEGIES).filter(s => RESEARCH.strategies && RESEARCH.strategies[s]);
+    picked.forEach(s => {
+      if (!bt[s]) {
+        try { bt[s] = runBacktest(s, start, end, RESEARCH.rebalance, RESEARCH.cost_bps, RESEARCH.slippage_bps, RESEARCH.initial_equity); } catch(e){}
+      }
+    });
+
+    const focusBT = bt[RESEARCH.focus] || {};
+    try { renderBacktestKPIs(focusBT, picked.length); } catch(e){}
+    try { renderBtEqDd(bt); } catch(e){}
+    try { renderBtComparison(bt); } catch(e){}
+    try { renderBtRolling(focusBT); } catch(e){}
+    try { renderReturnsHistogram(focusBT); } catch(e){}
+    try { renderSleeveExposure(focusBT); } catch(e){}
+    showBtProgress(65);
+
+    if (force) {
+      showBtProgress(78);
+      await yieldUI(5);
+      const fullRange = getResearchRange();
+      picked.forEach(s => { if (!bt[s]) { try { bt[s] = runBacktest(s, fullRange.start, fullRange.end, RESEARCH.rebalance, RESEARCH.cost_bps, RESEARCH.slippage_bps, RESEARCH.initial_equity); } catch(e){} } });
+
+      try { renderBtComparison(bt); } catch(e) { const el=document.getElementById('bt-comparison'); if(el) el.innerHTML='<div class="text-xs text-rose-400">Error</div>'; }
+      try { renderSweep(); } catch(e) { const el=document.getElementById('sweep-heatmap'); if(el) el.innerHTML='<div class="text-xs text-rose-400">Error</div>'; }
+      try { renderMonteCarlo(focusBT); } catch(e) { const el=document.getElementById('mc-summary'); if(el) el.innerHTML='<div class="text-xs text-rose-400">Error</div>'; }
+      try { renderStrategyCorr(bt); } catch(e) { const el=document.getElementById('corr-heatmap'); if(el) el.innerHTML='<div class="text-xs text-rose-400">Error</div>'; }
+      try { renderWalkForward(); } catch(e) { const el=document.getElementById('wf-table'); if(el) el.innerHTML='<div class="text-xs text-rose-400">Error</div>'; }
+      try { renderMonthlyHeatmap(focusBT); } catch(e) { const el=document.getElementById('monthly-heatmap'); if(el) el.innerHTML='<div class="text-xs text-rose-400">Error</div>'; }
+      const fullS = document.getElementById('bt-full-status');
+      if (fullS) fullS.textContent = 'Full: up-to-date';
+      showBtProgress(96);
+    } else {
+      const ph = '<div class="text-xs text-[#64748b]">Click "Run / Refresh Backtests" (full) for sweep/MC/walk-forward etc. Focused updates automatically on param changes.</div>';
+      ['bt-comparison', 'sweep-heatmap', 'mc-summary', 'wf-table', 'monthly-heatmap'].forEach(id => {
+        const el = document.getElementById(id); if (el) el.innerHTML = ph;
+      });
+      const fullS = document.getElementById('bt-full-status');
+      if (fullS) fullS.textContent = 'Full: needs Run';
+    }
+
+    showBtProgress(100);
+    setBacktestStatus(force ? 'Full done' : 'Focused ready', 'done');
+    markLastRun();
+    setTimeout(() => { setBacktestStatus('Ready'); hideBtProgress(); }, 1400);
+  } catch (e) {
+    console.warn('runResearch error:', e);
+    const fullS = document.getElementById('bt-full-status');
+    if (fullS) fullS.textContent = 'Error during run';
+    setBacktestStatus('Error', 'idle');
+    // ensure progress cleared on error path too
+    setTimeout(() => hideBtProgress(), 300);
+  } finally {
+    btns.forEach(b => { if (b.textContent.includes('Recompute') || b.textContent.includes('Run')) { b.disabled = false; } });
+  }
+}
+
+function renderBacktestKPIs(bt, n) {
+  const host = document.getElementById('backtest-kpis');
+  if (!host || !bt || !bt.summary) return;
+  const s = bt.summary;
+  const cagr = isFinite(s.CAGR) ? s.CAGR : 0;
+  const vol = isFinite(s.ann_vol) ? s.ann_vol : 0;
+  const sh = isFinite(s.Sharpe) ? s.Sharpe : 0;
+  const mdd = isFinite(s.max_DD) ? s.max_DD : 0;
+  host.innerHTML = `
+    <div class="mini-card p-2"><div class="text-[10px]">CAGR</div><div class="mono text-lg ${cagr>0?'text-emerald-400':'text-rose-400'}">${fmtPct(cagr)}</div></div>
+    <div class="mini-card p-2"><div class="text-[10px]">Vol</div><div class="mono text-lg text-amber-400">${fmtPct(vol)}</div></div>
+    <div class="mini-card p-2"><div class="text-[10px]">Sharpe</div><div class="mono text-lg">${sh.toFixed(2)}</div></div>
+    <div class="mini-card p-2"><div class="text-[10px]">Max DD</div><div class="mono text-lg text-rose-400">${fmtPct(mdd)}</div></div>
+    <div class="mini-card p-2"><div class="text-[10px]">Strategies</div><div class="mono text-lg">${n||1}</div></div>`;
+}
+
+function renderBtEqDd(bts) {
+  const hostEq = document.getElementById('bt-eq-chart');
+  const hostDd = document.getElementById('bt-dd-chart');
+  if (!hostEq || !hostDd) return;
+  const first = Object.values(bts || {})[0];
+  if (!first || !first.equityCurve || first.equityCurve.length < 2) {
+    // leave charts or clear
+    return;
+  }
+  const labels = first.equityCurve.map(x=>x.date);
+  const eqs = Object.entries(bts || {}).map(([name,r]) => ({label:name, data:(r.equityCurve||[]).map(x=>x.equity), borderColor: (STRATEGIES[name]||{color:'#64748b'}).color, pointRadius:0 }));
+  if (window.btEq) window.btEq.destroy();
+  window.btEq = new Chart(hostEq, {type:'line', data:{labels, datasets:eqs}, options:{responsive:true,maintainAspectRatio:false, plugins:{legend:{position:'bottom',labels:{boxWidth:8}}}}});
+
+  const dds = Object.entries(bts || {}).map(([name,r]) => ({label:name, data:(r.ddCurve||[]).map(x=> (x&&x.dd!=null ? -x.dd : 0)), borderColor: (STRATEGIES[name]||{color:'#64748b'}).color, pointRadius:0 }));
+  if (window.btDd) window.btDd.destroy();
+  window.btDd = new Chart(hostDd, {type:'line', data:{labels, datasets:dds}, options:{responsive:true,maintainAspectRatio:false, plugins:{legend:{position:'bottom',labels:{boxWidth:8}}}}});
+}
+
+function renderBtComparison(bts) {
+  const host = document.getElementById('bt-comparison');
+  if (!host) return;
+  const rows = Object.entries(bts || {}).map(([n,r]) => ({n, ... (r&&r.summary||{})}));
+  if (!rows.length) { host.innerHTML = '<div class="text-xs text-[#64748b]">No backtest results.</div>'; return; }
+  rows.sort((a,b) => ((b[RESEARCH.metric]||0) - (a[RESEARCH.metric]||0)) || 0);
+  host.innerHTML = `<table class="w-full text-xs"><tr><th>Strat</th><th>CAGR</th><th>Sharpe</th><th>MaxDD</th></tr>` +
+    rows.map(r => {
+      const c = isFinite(r.CAGR)? r.CAGR : 0, sh=isFinite(r.Sharpe)?r.Sharpe:0, md=isFinite(r.max_DD)?r.max_DD:0;
+      return `<tr><td class="mono">${r.n}</td><td>${fmtPct(c)}</td><td>${sh.toFixed(2)}</td><td>${fmtPct(md)}</td></tr>`;
+    }).join('') + `</table>`;
+}
+
+function renderBtRolling(bt) {
+  const c = document.getElementById('bt-roll-chart');
+  if (!c || !bt || !bt.equityCurve || bt.equityCurve.length < 60) {
+    if (c) c.style.display = 'none';
+    return;
+  }
+  c.style.display = '';
+  const ec = bt.equityCurve.map(x => x.equity);
+  const rets = [];
+  for (let i = 1; i < ec.length; i++) rets.push((ec[i] - ec[i - 1]) / ec[i - 1]);
+  const roll = [];
+  const win = Math.min(252, Math.max(20, Math.floor(rets.length / 3)));
+  for (let i = win; i < rets.length; i++) {
+    const seg = rets.slice(i - win, i);
+    const m = seg.reduce((s, x) => s + x, 0) / win;
+    const varsum = seg.reduce((s, x) => s + (x - m) * (x - m), 0);
+    const sd = Math.sqrt(varsum / win);
+    roll.push(sd > 0 ? m * 252 / sd : 0);
+  }
+  const labels = bt.equityCurve.slice(win).map(x => x.date);
+  if (window.btRoll) window.btRoll.destroy();
+  window.btRoll = new Chart(c, {
+    type: 'line',
+    data: { labels, datasets: [{ label: RESEARCH.focus || 'focus', data: roll, borderColor: '#22d3ee', pointRadius: 0 }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: true, position: 'top' } } }
+  });
+}
+
+function renderReturnsHistogram(bt) {
+  const canvas = document.getElementById('returns-hist');
+  if (!canvas || !bt || !bt.equityCurve) return;
+  const ec = bt.equityCurve.map(x => x.equity);
+  const rets = [];
+  for (let i = 1; i < ec.length; i++) rets.push((ec[i] - ec[i-1]) / ec[i-1]);
+  if (rets.length === 0) return;
+
+  const bins = 12;
+  const minR = Math.min(...rets);
+  const maxR = Math.max(...rets);
+  const step = (maxR - minR) / bins || 0.01;
+  const counts = new Array(bins).fill(0);
+  rets.forEach(r => {
+    let idx = Math.floor((r - minR) / step);
+    idx = Math.max(0, Math.min(bins-1, idx));
+    counts[idx]++;
+  });
+  const labels = counts.map((_, i) => ((minR + (i + 0.5) * step) * 100).toFixed(1) + '%');
+
+  if (window.returnsHist) window.returnsHist.destroy();
+  window.returnsHist = new Chart(canvas, {
+    type: 'bar',
+    data: { labels, datasets: [{ data: counts, backgroundColor: '#22d3ee' }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+  });
+}
+
+function renderSleeveExposure(bt) {
+  const host = document.getElementById('sleeve-exposure');
+  if (!host) return;
+  if (!bt || !bt.trade_log || bt.trade_log.length === 0) {
+    host.innerHTML = '<span class="text-xs text-[#64748b]">Run backtest to view average sleeve allocation.</span>';
+    return;
+  }
+  const recent = bt.trade_log.slice(-6);
+  const acc = {};
+  recent.forEach(tr => {
+    Object.entries(tr.weights || {}).forEach(([tk, w]) => {
+      const sl = UNIVERSE[tk]?.sleeve || 'other';
+      if (sl === 'cash' || sl === 'benchmarks') return;
+      acc[sl] = (acc[sl] || 0) + (w / recent.length);
+    });
+  });
+  const total = Object.values(acc).reduce((a, b) => a + b, 0) || 1;
+  host.innerHTML = Object.entries(acc).sort((a,b)=>b[1]-a[1]).map(([s,v]) => 
+    `<div class="flex justify-between text-xs py-px"><span>${s}</span><span class="mono">${(v/total*100).toFixed(0)}%</span></div>`
+  ).join('');
+}
+
+function renderResearchKPIs(){}
+
+function renderEqDdCharts(bts) {
+  const labels = (Object.values(bts)[0]?.equityCurve || []).map(p => p.date);
+
+  const eqDs = [], ddDs = [];
+  Object.entries(bts).forEach(([name, res]) => {
+    const col = STRATEGIES[name].color;
+    let eqVals = res.equityCurve.map(p=>p.equity);
+    if (RESEARCH.eqScale === "normalized") {
+      const base = eqVals[0] || 1;
+      eqVals = eqVals.map(v => (v / base) * 100);
+    }
+    eqDs.push({label: name, data: eqVals, borderColor: col, borderWidth:1.6, pointRadius:0, tension:0.1});
+    ddDs.push({label: name, data: res.ddCurve.map(p => -p.dd), borderColor: col, borderWidth:1.6, pointRadius:0});
+  });
+
+  if (EQ_CHART) EQ_CHART.destroy();
+  EQ_CHART = new Chart(document.getElementById("eq-chart"), {
+    type:"line", data:{labels, datasets:eqDs},
+    options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:true, position:"bottom", labels:{boxWidth:10,font:{size:10}}}}, scales:{y:{grid:{color:"#252932"}, ticks:{color:"#64748b"}}}}
+  });
+
+  if (DD_CHART) DD_CHART.destroy();
+  DD_CHART = new Chart(document.getElementById("dd-chart"), {
+    type:"line", data:{labels, datasets:ddDs},
+    options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:true, position:"bottom", labels:{boxWidth:10,font:{size:10}}}}, scales:{y:{grid:{color:"#252932"}, ticks:{color:"#64748b", callback:v=> (v*100).toFixed(0)+"%"}}}}
+  });
+}
+
+function renderComparisonTable(bts) {
+  const rows = Object.entries(bts).map(([n,r]) => ({name:n, ... (r.summary||{})}));
+  const metric = RESEARCH.metric;
+  rows.sort((a,b) => (b[metric]||0) - (a[metric]||0));
+
+  let html = `<table class="w-full fin-table text-sm"><thead><tr>
+    <th class="text-left">Strategy</th><th>CAGR</th><th>Vol</th><th>Sharpe</th><th>Sortino</th><th>MaxDD</th><th>Calmar</th>
+  </tr></thead><tbody>`;
+  rows.forEach(r => {
+    const c = STRATEGIES[r.name].color;
+    html += `<tr onclick="setFocus('${r.name}')" class="cursor-pointer hover:bg-[#161a20]">
+      <td class="font-semibold mono" style="color:${c}">${r.name}</td>
+      <td class="mono text-right">${fmtPct(r.CAGR)}</td>
+      <td class="mono text-right">${fmtPct(r.ann_vol)}</td>
+      <td class="mono text-right font-semibold">${(r.Sharpe||0).toFixed(2)}</td>
+      <td class="mono text-right">${(r.Sortino||0).toFixed(2)}</td>
+      <td class="mono text-right text-rose-400">${fmtPct(r.max_DD)}</td>
+      <td class="mono text-right">${(r.Calmar||0).toFixed(2)}</td>
+    </tr>`;
+  });
+  html += "</tbody></table>";
+  document.getElementById("comparison-table").innerHTML = html;
+}
+
+function renderRolling(bt) {
+  const c = document.getElementById("roll-chart");
+  if (!bt || !bt.equityCurve) { c.style.display="none"; return; } else c.style.display="";
+  const ec = bt.equityCurve.map(p=>p.equity);
+  const rets = [];
+  for (let i=1;i<ec.length;i++) rets.push((ec[i]-ec[i-1])/ec[i-1]);
+  const roll = [];
+  const win = 252;
+  for (let i=win; i<rets.length; i++) {
+    const seg = rets.slice(i-win,i);
+    const m = seg.reduce((s,x)=>s+x,0)/win;
+    const sd = Math.sqrt(seg.reduce((s,x)=>s+(x-m)*(x-m),0)/win);
+    roll.push(sd>0 ? (m*252)/sd : 0);
+  }
+  const labels = bt.equityCurve.slice(win).map(p=>p.date);
+
+  if (ROLL_CHART) ROLL_CHART.destroy();
+  ROLL_CHART = new Chart(c, {
+    type:"line", data:{labels, datasets:[{label:"Rolling Sharpe", data:roll, borderColor:"#22d3ee", borderWidth:1.5, pointRadius:0}]},
+    options:{responsive:true,maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{y:{grid:{color:"#252932"}}}}
+  });
+}
+
+function renderSweep() {
+  const host = document.getElementById("sweep-heatmap");
+  const strat = RESEARCH.focus;
+  const metric = RESEARCH.metric;
+  const {start, end} = getResearchRange();
+  const rebal = RESEARCH.rebalance;
+  const cost = RESEARCH.cost_bps;
+
+  // For xs_momentum: 2D sweep of top_k vs a secondary sleeve weight variation (growth weight as proxy)
+  // For others: simple 1D on a proxy param or just repeated runs
+  let html = `<div class="text-[10px] text-[#64748b] mb-1">Sweep for ${strat} (click cell to apply)</div>`;
+  if (strat === "xs_momentum") {
+    const ks = [1,2,3,4];
+    const growthWs = [0.15,0.25,0.35,0.45];
+    const matrix = [];
+    let minV = 99, maxV = -99;
+    ks.forEach(k => {
+      const row = [];
+      growthWs.forEach(gw => {
+        const origP = getStrategyParams(strat);
+        const testP = {...origP, top_k: k, sleeve_weights: {...origP.sleeve_weights, growth: gw }};
+        // temp override
+        const bak = STRATEGY_PARAMS[strat];
+        STRATEGY_PARAMS[strat] = testP;
+        let val = NaN;
+        try {
+          const res = runBacktest(strat, start, end, rebal, cost, (RESEARCH.slippage_bps||0));
+          val = res.summary[metric] || NaN;
+        } finally {
+          STRATEGY_PARAMS[strat] = bak;
+        }
+        if (isFinite(val)) { minV = Math.min(minV,val); maxV=Math.max(maxV,val); }
+        row.push(val);
+      });
+      matrix.push(row);
+    });
+    html += `<div class="grid" style="grid-template-columns:repeat(5,1fr);gap:1px;background:#252932;padding:1px;font-size:9px">`;
+    html += `<div></div>` + growthWs.map(g=>`<div class="text-center text-[#64748b]">gw=${(g*100).toFixed(0)}%</div>`).join("");
+    matrix.forEach((row,ri) => {
+      html += `<div class="text-right pr-1 text-[#64748b]">k=${ks[ri]}</div>`;
+      row.forEach((v,ci) => {
+        const t = (maxV===minV||!isFinite(maxV)) ? 0.5 : (v - minV)/(maxV-minV);
+        const col = `rgb(${Math.round(34+(239-34)*t)},${Math.round(211+(60-211)*t)},${Math.round(238+(60-238)*t)})`;
+        html += `<div onclick="applySweepParams(${ks[ri]},${growthWs[ci]})" class="text-center cursor-pointer py-px mono" style="background:${col};color:#111;font-weight:700">${isFinite(v)?v.toFixed(2):"—"}</div>`;
+      });
+    });
+    html += `</div><div class="text-[9px] text-[#64748b] mt-0.5">k=top_k; gw= growth sleeve weight (others renormalized on apply)</div>`;
+  } else {
+    const res = runBacktest(strat, start, end, rebal, cost, (RESEARCH.slippage_bps||0));
+    html += `<div class="text-xs">No 2D param for ${strat}. ${metric}: ${ (res.summary && res.summary[metric] ? res.summary[metric].toFixed(2) : '—') }. Edit params below for ${strat}.</div>`;
+  }
+  host.innerHTML = html;
+}
+function applySweepParams(k, growthW) {
+  RESEARCH.focus = "xs_momentum";
+  state.active_strategy = "xs_momentum";
+  if (!STRATEGY_PARAMS.xs_momentum) STRATEGY_PARAMS.xs_momentum = {top_k:2, sleeve_weights:{bonds:0.25,commodity:0.15,crypto:0.10,growth:0.30,tech:0.20}};
+  STRATEGY_PARAMS.xs_momentum.top_k = k;
+  const sw = {...STRATEGY_PARAMS.xs_momentum.sleeve_weights};
+  sw.growth = growthW;
+  // renormalize other sleeves proportionally (simple)
+  const others = Object.keys(sw).filter(x=>x!=='growth'); const sumO = others.reduce((s,x)=>s+(sw[x]||0),0);
+  if (sumO>0) others.forEach(x => sw[x] = (sw[x]||0) * (1-growthW) / sumO );
+  STRATEGY_PARAMS.xs_momentum.sleeve_weights = sw;
+  saveToLocal();
+  renderBacktestControls();
+  renderFocusStrategyParams();
+  runResearch(true);
+}
+
+function renderMonteCarlo(bt) {
+  const host = document.getElementById("mc-summary");
+  if (!bt) { host.innerHTML = "no data"; return; }
+  const ec = bt.equityCurve.map(e=>e.equity);
+  const rets = [];
+  for (let i=1;i<ec.length;i++) rets.push((ec[i]-ec[i-1])/ec[i-1]);
+  const N = Math.max(100, Math.min(5000, RESEARCH.mc_sims || 500));
+  const T = rets.length;
+  if (T < 10) { host.innerHTML = '<div class="text-xs text-[#64748b]">Insufficient history for MC.</div>'; return; }
+  const applyCosts = false; // future: could scale returns or deduct avg cost proxy; keep pure for now
+  const finals = [];
+  for (let i=0; i<N; i++) {
+    let v=1;
+    for (let j=0;j<T;j++) {
+      const r = rets[(Math.random()*T)|0];
+      v *= (1 + (isFinite(r) ? r : 0));
+    }
+    let cagrSim = v**(252/T) - 1;
+    finals.push(isFinite(cagrSim) ? cagrSim : 0);
+  }
+  finals.sort((a,b)=>a-b);
+  const p5 = finals[(N*0.05)|0] || 0, p50 = finals[(N*0.5)|0] || 0, p95 = finals[(N*0.95)|0] || 0;
+  const ciLo = Math.min(p5, p95), ciHi = Math.max(p5, p95); // robust order
+  host.innerHTML = `<div class="grid grid-cols-3 gap-2 text-xs">
+    <div class="mini-card p-2"><div class="text-[#64748b]">p5 CAGR</div><div class="mono font-semibold">${fmtPct(p5)}</div></div>
+    <div class="mini-card p-2"><div class="text-[#64748b]">p50 CAGR</div><div class="mono font-semibold">${fmtPct(p50)}</div></div>
+    <div class="mini-card p-2"><div class="text-[#64748b]">p95 CAGR</div><div class="mono font-semibold">${fmtPct(p95)}</div></div>
+  </div>
+  <div class="text-[10px] text-[#64748b] mt-1">MC bootstrap N=${N} (resample daily rets). 90% range ~${fmtPct(ciLo)} to ${fmtPct(ciHi)}. Add tx/slippage in future sims for robustness.</div>`;
+
+  const c = document.getElementById("mc-chart");
+  if (MC_CHART) MC_CHART.destroy();
+  // histogram bins; guard NaN
+  const validF = finals.filter(isFinite);
+  const bins=16, lo=Math.min(...validF), hi=Math.max(...validF), step=(hi-lo)/bins||0.01;
+  const cnts = new Array(bins).fill(0);
+  validF.forEach(v => { const i = Math.min(bins-1, Math.max(0, Math.floor((v-lo)/step))); cnts[i]++; });
+  MC_CHART = new Chart(c, {
+    type:"bar", data:{labels:cnts.map((_,i)=>((lo+step*(i+0.5))*100).toFixed(0)+"%"), datasets:[{data:cnts, backgroundColor:"#22d3ee"}]},
+    options:{plugins:{legend:{display:false}}, scales:{x:{ticks:{font:{size:9}}}, y:{ticks:{font:{size:9}}}}}
+  });
+}
+
+function renderStrategyCorr(bts) {
+  const host = document.getElementById("corr-heatmap");
+  const names = Object.keys(bts);
+  if (names.length < 2) { host.innerHTML = "<div class='text-xs text-[#64748b]'>Need ≥2 strategies</div>"; return; }
+  // compute daily return corr
+  const rets = {};
+  names.forEach(n => {
+    const eq = bts[n].equityCurve.map(p=>p.equity);
+    rets[n] = [];
+    for (let i=1;i<eq.length;i++) rets[n].push((eq[i]-eq[i-1])/eq[i-1]);
+  });
+  const len = Math.min(...Object.values(rets).map(r=>r.length));
+  const mat = [];
+  names.forEach((na,i) => {
+    const row = [];
+    names.forEach((nb,j) => {
+      const a=rets[na].slice(-len), b=rets[nb].slice(-len);
+      const ma = a.reduce((s,x)=>s+x,0)/len, mb=b.reduce((s,x)=>s+x,0)/len;
+      let cov=0,va=0,vb=0;
+      for(let k=0;k<len;k++){ const da=a[k]-ma, db=b[k]-mb; cov+=da*db; va+=da*da; vb+=db*db; }
+      const c = Math.sqrt(va*vb) > 1e-9 ? cov/Math.sqrt(va*vb) : 0;
+      row.push(c);
+    });
+    mat.push(row);
+  });
+
+  let html = `<div style="display:grid;grid-template-columns:repeat(${names.length+1},1fr);gap:1px;background:#252932;padding:1px;font-size:11px">`;
+  html += `<div></div>` + names.map(n=>`<div class="text-center text-[#64748b]" style="font-size:9px">${n.slice(0,5)}</div>`).join("");
+  mat.forEach((row,ri) => {
+    html += `<div class="pr-1 text-right" style="font-size:9px;color:#64748b">${names[ri].slice(0,5)}</div>`;
+    row.forEach(v => {
+      const t = (v + 1)/2;
+      const col = `rgb(${Math.round(34 + (239-34)*t)}, ${Math.round(197+(60-197)*t)}, ${Math.round(94+(60-94)*t)})`;
+      html += `<div class="text-center mono" style="background:${col};color:#111;font-size:10px;padding:2px 1px">${v.toFixed(2)}</div>`;
+    });
+  });
+  html += `</div>`;
+  host.innerHTML = html;
+}
+
+function renderWalkForward() {
+  const host = document.getElementById("wf-table");
+  if (!host) return;
+  const strat = RESEARCH.focus;
+  const {start, end} = getResearchRange();
+  const folds = [];
+  let foldLen = Math.floor((new Date(end) - new Date(start)) / (1000*3600*24) / 4);
+  if (!isFinite(foldLen) || foldLen < 10) foldLen = 90; // min ~3mo per fold fallback
+  for (let i=0; i<4; i++) {
+    const oosS = new Date(new Date(start).getTime() + foldLen*i*86400000);
+    const oosE = new Date(new Date(start).getTime() + foldLen*(i+1)*86400000);
+    const isE = oosS;
+    try {
+      const isB = runBacktest(strat, start, isE.toISOString().slice(0,10), RESEARCH.rebalance, RESEARCH.cost_bps, RESEARCH.slippage_bps, RESEARCH.initial_equity);
+      const oosB = runBacktest(strat, oosS.toISOString().slice(0,10), oosE.toISOString().slice(0,10), RESEARCH.rebalance, RESEARCH.cost_bps, RESEARCH.slippage_bps, RESEARCH.initial_equity);
+      const isS = (isB && isB.summary) || {};
+      const oosS = (oosB && oosB.summary) || {};
+      folds.push({fold:i+1, isCAGR:isS.CAGR, oosCAGR:oosS.CAGR, isSh:isS.Sharpe, oosSh:oosS.Sharpe});
+    } catch(e){}
+  }
+  if (folds.length === 0) {
+    host.innerHTML = '<div class="text-xs text-[#64748b]">Not enough history for walk-forward folds.</div>';
+    return;
+  }
+  let html = `<table class="w-full text-xs fin-table"><thead><tr><th>Fold</th><th>IS CAGR</th><th>OOS CAGR</th><th>IS Sh</th><th>OOS Sh</th></tr></thead><tbody>`;
+  folds.forEach(f => {
+    const isSh = (f.isSh != null && isFinite(f.isSh)) ? f.isSh.toFixed(2) : '—';
+    const oosSh = (f.oosSh != null && isFinite(f.oosSh)) ? f.oosSh.toFixed(2) : '—';
+    html += `<tr><td>${f.fold}</td><td class="mono">${fmtPct(f.isCAGR)}</td><td class="mono ${f.oosCAGR>=0?'text-emerald-400':'text-rose-400'}">${fmtPct(f.oosCAGR)}</td><td class="mono">${isSh}</td><td class="mono">${oosSh}</td></tr>`;
+  });
+  html += `</tbody></table>`;
+  host.innerHTML = html;
+}
+
+function renderMonthlyHeatmap(bt) {
+  const host = document.getElementById("monthly-heatmap");
+  if (!bt || !bt.equityCurve) { host.innerHTML=""; return; }
+  const ec = bt.equityCurve;
+  const grid = {};
+  for (let i=1; i<ec.length; i++) {
+    const d = ec[i].date.slice(0,7);
+    const r = (ec[i].equity - ec[i-1].equity) / ec[i-1].equity;
+    if (!grid[d]) grid[d] = r; else grid[d] = (1+grid[d])*(1+r)-1;
+  }
+  const years = [...new Set(Object.keys(grid).map(k=>k.slice(0,4)))].sort();
+  const months = ["01","02","03","04","05","06","07","08","09","10","11","12"];
+  let html = `<table class="text-xs"><thead><tr><th></th>${months.map(m=>`<th class="px-1">${m}</th>`).join("")}</tr></thead><tbody>`;
+  years.forEach(y => {
+    html += `<tr><td class="pr-1 mono">${y}</td>`;
+    months.forEach(m => {
+      const key = `${y}-${m}`;
+      const v = grid[key];
+      if (v == null) { html += `<td class="px-1 bg-[#161a20]"></td>`; return; }
+      const col = v>=0 ? `rgba(16,185,129,${0.2+Math.min(0.75,Math.abs(v)*3)})` : `rgba(239,68,68,${0.2+Math.min(0.75,Math.abs(v)*3)})`;
+      html += `<td class="px-1 text-right mono" style="background:${col}">${(v*100).toFixed(1)}</td>`;
+    });
+    html += `</tr>`;
+  });
+  html += `</tbody></table>`;
+  host.innerHTML = html;
+}
+
+function renderTradeLog(bt) {
+  const host = document.getElementById("trade-log");
+  const log = (bt && bt.trade_log) ? bt.trade_log.slice(-18).reverse() : [];
+  if (!log.length) { host.innerHTML = `<div class="text-xs text-[#64748b]">No trades in range.</div>`; return; }
+  let h = `<table class="w-full text-xs"><thead><tr><th>Date</th><th>Turnover</th><th>Cost</th><th>Weights</th></tr></thead><tbody>`;
+  log.forEach(e => {
+    const ws = Object.entries(e.weights||{}).filter(([,v])=>v>0.01).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`${k} ${(v*100).toFixed(0)}%`).join(" ");
+    h += `<tr><td class="mono">${e.date}</td><td class="mono">${(e.turnover*100||0).toFixed(1)}%</td><td class="mono text-rose-400">-${(e.cost||0).toFixed(0)}</td><td class="text-[11px]">${ws}</td></tr>`;
+  });
+  h += `</tbody></table>`;
+  host.innerHTML = h;
+}
+
+// ==================== MARKETS ====================
+let PRICE_CHART = null, CMP_CHART = null;
+
+function renderMarkets() {
+  // functionality moved to Universe tab
+  switchTab('universe');
+}
+
+function renderTickerPills() {
+  const host = document.getElementById("market-ticker-pills");
+  const keys = Object.keys(UNIVERSE).filter(t => t !== "CASH");
+  host.innerHTML = keys.map(t => {
+    const active = t===MKT_TICKER;
+    const col = sleeveColor(UNIVERSE[t].sleeve);
+    return `<button onclick="setMarketTicker('${t}')" class="px-2.5 py-[3px] text-xs rounded border ${active ? 'border-cyan-400 text-cyan-300' : 'border-[#334155]'} " style="border-left:3px solid ${col}">${t}</button>`;
+  }).join("");
+
+  // Periods
+  const ph = document.getElementById("market-periods");
+  const ps = ["1m","3m","6m","1y","2y","5y","10y"];
+  ph.innerHTML = ps.map(p => `<button onclick="setMarketPeriod('${p}')" class="px-2 py-[3px] text-xs rounded border ${p===MKT_PERIOD?'border-cyan-500 text-cyan-300 bg-[#1f242e]':'border-[#334155]'}">${p}</button>`).join("");
+
+  // Compare pills
+  const ch = document.getElementById("cmp-ticker-pills");
+  ch.innerHTML = CMP_TICKERS.map((t,i) => `<button onclick="toggleCmpTicker('${t}')" class="px-2 py-px text-[10px] border rounded" style="border-color:${sleeveColor(UNIVERSE[t].sleeve)}">${t}</button>`).join("");
+}
+
+function setMarketTicker(t) { MKT_TICKER = t; renderMarketChart(); }
+function setMarketPeriod(p) { MKT_PERIOD = p; renderMarketChart(); }
+function setMarketStyle(s) {
+  MKT_STYLE = s;
+  document.getElementById("mk-line").classList.toggle("active", s==="line");
+  document.getElementById("mk-candle").classList.toggle("active", s==="candle");
+  renderMarketChart();
+}
+function toggleCmpTicker(t) {
+  const i = CMP_TICKERS.indexOf(t);
+  if (i>=0) CMP_TICKERS.splice(i,1);
+  else if (CMP_TICKERS.length < 7) CMP_TICKERS.push(t);
+  renderCompareOverlay();
+}
+
+function renderMarketChart() {
+  const bars = getBars(MKT_TICKER, MKT_PERIOD);
+  const host = document.getElementById("market-header");
+  const last = bars[bars.length-1], first = bars[0];
+  const chg = first ? (last.c / first.c - 1) : 0;
+  host.innerHTML = `<div><span class="mono text-xl font-semibold text-cyan-400">${MKT_TICKER}</span> <span class="text-xs text-[#64748b]">${UNIVERSE[MKT_TICKER]?.display_name || ""}</span></div>
+    <div class="text-right"><span class="mono text-lg ${chg>=0?'text-emerald-400':'text-rose-400'}">${fmtPct(chg)}</span><span class="text-xs ml-2 text-[#64748b]">${bars.length} bars</span></div>`;
+
+  const ctx = document.getElementById("price-chart");
+  if (PRICE_CHART) PRICE_CHART.destroy();
+
+  if (MKT_STYLE === "line") {
+    PRICE_CHART = new Chart(ctx, {
+      type:"line",
+      data:{ labels: bars.map(b=>b.date), datasets:[{label:MKT_TICKER, data:bars.map(b=>b.c), borderColor:"#22d3ee", borderWidth:1.8, pointRadius:0, tension:0.05}] },
+      options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{ticks:{maxTicksLimit:7,font:{size:10}}}, y:{grid:{color:"#252932"}}}}
+    });
+  } else {
+    // Simple high/low/close representation
+    const labels = bars.map(b=>b.date);
+    PRICE_CHART = new Chart(ctx, {
+      type:"line",
+      data:{ labels, datasets: [
+        {label:"High", data:bars.map(b=>b.h), borderColor:"#64748b", borderWidth:1, pointRadius:0},
+        {label:"Close", data:bars.map(b=>b.c), borderColor:"#22d3ee", borderWidth:2, pointRadius:0},
+        {label:"Low", data:bars.map(b=>b.l), borderColor:"#64748b", borderWidth:1, pointRadius:0}
+      ]},
+      options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:true,position:"bottom",labels:{boxWidth:8,font:{size:9}}}}, scales:{x:{ticks:{maxTicksLimit:6}},y:{grid:{color:"#252932"}}}}
+    });
+  }
+}
+
+function renderCompareOverlay() {
+  const ctx = document.getElementById("compare-chart");
+  if (CMP_CHART) CMP_CHART.destroy();
+  if (!CMP_TICKERS.length) return;
+
+  const series = CMP_TICKERS.map((t,i) => {
+    const bars = getBars(t, MKT_PERIOD);
+    let base = bars[0] ? bars[0].c : 100;
+    return {
+      label: t,
+      data: bars.map(b => (b.c / base)*100),
+      borderColor: ["#22d3ee","#10b981","#f59e0b","#a855f7","#ef4444","#64748b","#3b82f6"][i % 7],
+      borderWidth: 1.6, pointRadius:0
+    };
+  });
+  const labels = getBars(CMP_TICKERS[0], MKT_PERIOD).map(b=>b.date);
+
+  CMP_CHART = new Chart(ctx, {
+    type:"line",
+    data:{labels, datasets: series},
+    options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:true,position:"bottom",labels:{boxWidth:8,font:{size:9}}}}, scales:{y:{grid:{color:"#252932"}}}}
+  });
+}
+
+// ==================== SIGNALS ====================
+function setSignalWeight(key, val) {
+  const pct = Math.max(0, Math.min(key === 'wd' || key === 'wv' ? 50 : 100, parseFloat(val) || 0));
+  const frac = pct / 100;
+
+  if (key === 'wt') SIGNAL_CONFIG.w_trend = frac;
+  else if (key === 'wm') SIGNAL_CONFIG.w_mom = frac;
+  else if (key === 'wd') SIGNAL_CONFIG.w_dd_pen = frac;
+  else if (key === 'wv') SIGNAL_CONFIG.w_vol_pen = frac;
+
+  // Sync the paired input + range
+  const numId = 'sig-w' + key;
+  const rangeId = 'sig-w' + key + '-range';
+  const numEl = document.getElementById(numId);
+  const rangeEl = document.getElementById(rangeId);
+  if (numEl) numEl.value = Math.round(pct);
+  if (rangeEl) rangeEl.value = Math.round(pct);
+
+  saveToLocal();
+  updateWeightSumUI();
+  renderWeightBars();
+  refreshSignals();
+}
+
+function updateSignalConfig() {
+  // Fallback for SMA/Mom12 only (weights now go through setSignalWeight)
+  SIGNAL_CONFIG.sma_days = parseInt(document.getElementById('sig-sma')?.value) || 200;
+  SIGNAL_CONFIG.mom12_window = parseInt(document.getElementById('sig-m12')?.value) || 252;
+  saveToLocal();
+  refreshSignals();
+}
+
+function syncSignalConfigUI() {
+  const c = SIGNAL_CONFIG || {};
+  const setNum = (id, frac) => {
+    const el = document.getElementById(id);
+    if (el) el.value = Math.round((frac || 0) * 100);
+  };
+  const setRange = (id, frac) => {
+    const el = document.getElementById(id);
+    if (el) el.value = Math.round((frac || 0) * 100);
+  };
+
+  setNum('sig-wt', c.w_trend);
+  setNum('sig-wm', c.w_mom);
+  setNum('sig-wd', c.w_dd_pen);
+  setNum('sig-wv', c.w_vol_pen);
+
+  setRange('sig-wt-range', c.w_trend);
+  setRange('sig-wm-range', c.w_mom);
+  setRange('sig-wd-range', c.w_dd_pen);
+  setRange('sig-wv-range', c.w_vol_pen);
+
+  const smaEl = document.getElementById('sig-sma'); if (smaEl) smaEl.value = c.sma_days || 200;
+  const m12El = document.getElementById('sig-m12'); if (m12El) m12El.value = c.mom12_window || 252;
+
+  updateWeightSumUI();
+  renderWeightBars();
+}
+
+// Ensure bars render even on early calls
+if (typeof window !== 'undefined') {
+  setTimeout(() => { try { const b=document.getElementById('weight-bar-trend'); if (b) renderWeightBars(); } catch(e){} }, 50);
+}
+
+function updateWeightSumUI() {
+  const el = document.getElementById('weight-sum');
+  if (!el) return;
+  const c = SIGNAL_CONFIG || {};
+  const pos = Math.round(((c.w_trend || 0) + (c.w_mom || 0)) * 100);
+  const pen = Math.round(((c.w_dd_pen || 0) + (c.w_vol_pen || 0)) * 100);
+  const total = pos + pen;
+  el.textContent = `Pos ${pos}% + Pen ${pen}% = ${total}%`;
+  el.className = `font-mono px-1.5 py-px rounded bg-[#1a1d24] text-xs ${total === 100 ? 'text-emerald-400' : 'text-amber-400'}`;
+}
+
+function renderWeightBars() {
+  const c = SIGNAL_CONFIG || {};
+  const t = Math.round(((c.w_trend||0) + (c.w_mom||0)) * 100);
+  const p = Math.round(((c.w_dd_pen||0) + (c.w_vol_pen||0)) * 100);
+  const total = Math.max(1, t + p);
+
+  const trendW = Math.round((c.w_trend || 0) * 100 / total * 100);
+  const momW   = Math.round((c.w_mom || 0) * 100 / total * 100);
+  const ddW    = Math.round((c.w_dd_pen || 0) * 100 / total * 100);
+  const volW   = Math.round((c.w_vol_pen || 0) * 100 / total * 100);
+
+  const setBar = (id, w) => {
+    const b = document.getElementById(id);
+    if (b) b.style.width = w + '%';
+  };
+  setBar('weight-bar-trend', trendW);
+  setBar('weight-bar-mom', momW);
+  setBar('weight-bar-dd', ddW);
+  setBar('weight-bar-vol', volW);
+}
+
+function normalizeSignalWeights() {
+  const c = SIGNAL_CONFIG;
+  const pos = (c.w_trend || 0) + (c.w_mom || 0);
+  const pen = (c.w_dd_pen || 0) + (c.w_vol_pen || 0);
+  const total = pos + pen;
+  if (total < 0.001) return;
+
+  c.w_trend = (c.w_trend / total);
+  c.w_mom = (c.w_mom / total);
+  c.w_dd_pen = (c.w_dd_pen / total);
+  c.w_vol_pen = (c.w_vol_pen / total);
+
+  syncSignalConfigUI();
+  saveToLocal();
+  refreshSignals();
+}
+
+function resetSignalWeights() {
+  SIGNAL_CONFIG.w_trend = 0.40;
+  SIGNAL_CONFIG.w_mom = 0.40;
+  SIGNAL_CONFIG.w_dd_pen = 0.10;
+  SIGNAL_CONFIG.w_vol_pen = 0.10;
+  SIGNAL_CONFIG.sma_days = 200;
+  SIGNAL_CONFIG.mom12_window = 252;
+
+  syncSignalConfigUI();
+  saveToLocal();
+  refreshSignals();
+}
+
+function applySignalPreset(preset) {
+  if (preset === 'balanced') {
+    SIGNAL_CONFIG.w_trend = 0.40; SIGNAL_CONFIG.w_mom = 0.40;
+    SIGNAL_CONFIG.w_dd_pen = 0.10; SIGNAL_CONFIG.w_vol_pen = 0.10;
+  } else if (preset === 'mom-heavy') {
+    SIGNAL_CONFIG.w_trend = 0.25; SIGNAL_CONFIG.w_mom = 0.55;
+    SIGNAL_CONFIG.w_dd_pen = 0.10; SIGNAL_CONFIG.w_vol_pen = 0.10;
+  } else if (preset === 'low-risk') {
+    SIGNAL_CONFIG.w_trend = 0.30; SIGNAL_CONFIG.w_mom = 0.30;
+    SIGNAL_CONFIG.w_dd_pen = 0.20; SIGNAL_CONFIG.w_vol_pen = 0.20;
+  }
+  syncSignalConfigUI();
+  saveToLocal();
+  refreshSignals();
+}
+
+function refreshSignals() {
+  syncSignalConfigUI();
+  const sigs = [];
+  const tickers = tradeableTickers();
+  tickers.forEach(t => {
+    const bars = DATA[t] || [];
+    if (!bars.length) return;
+    const row = {
+      ticker: t,
+      sleeve: UNIVERSE[t].sleeve,
+      momentum: momentum12_1(bars),
+      trend: trendScore(bars),
+      vol: realizedVol(bars),
+      zscore: zscore60(bars),
+      drawdown: drawdownFromPeak(bars),
+      corr_spy: corrToSPY(bars)
+    };
+    const sc = signalScore(row);
+    row.score = sc.total;
+    row.scoreBreak = sc;
+    row.verdict = signalVerdict(sc.total);
+    sigs.push(row);
+  });
+  sigs.sort((a,b)=>b.score - a.score);
+
+  // summary with decomposition
+  const buys = sigs.filter(r=>r.score>=0.25).slice(0,3);
+  const sells = sigs.filter(r=>r.score<-0.05).slice(-2);
+  const sHost = document.getElementById("signals-summary");
+
+  const compHtml = (r) => {
+    const b = r.scoreBreak || {trend:0, mom:0, dd:0, vol:0};
+    const f = (v) => (v >= 0 ? '+' : '') + v.toFixed(2);
+    return `<div class="text-[10px] mt-0.5 font-mono leading-tight">
+      ${f(b.trend)}T ${f(b.mom)}M <span class="text-rose-400">${f(b.dd)}DD ${f(b.vol)}V</span> <span class="text-[#64748b]">→ ${r.score.toFixed(2)}</span>
+    </div>`;
+  };
+
+  sHost.innerHTML = `
+    <div class="mini-card p-3"><div class="text-xs text-emerald-400 mb-1">TOP BUYS</div>${buys.map(b=>`<div class="text-xs"><span class="mono">${b.ticker}</span> <span class="pill" style="background:#10b98125;color:#10b981">${b.verdict.tag}</span>${compHtml(b)}</div>`).join("")||"<span class='text-[#64748b]'>—</span>"}</div>
+    <div class="mini-card p-3"><div class="text-xs text-rose-400 mb-1">AVOIDS / SELLS</div>${sells.map(b=>`<div class="text-xs"><span class="mono">${b.ticker}</span> <span class="pill" style="background:#ef444425;color:#ef4444">${b.verdict.tag}</span>${compHtml(b)}</div>`).join("")||"<span class='text-[#64748b]'>Broadly constructive</span>"}</div>
+    <div class="mini-card p-3 text-xs">Score = sum of weighted contribs (see % headers).<br>Strongest: <span class="mono text-emerald-400">${sigs[0]?.ticker} (${sigs[0]?.score.toFixed(2)})</span></div>`;
+
+  // full grid with breakdown
+  const tb = document.getElementById("signals-table");
+  if (!tb) return;
+  const w = SIGNAL_CONFIG || {};
+  const wt = Math.round((w.w_trend||0.40)*100);
+  const wm = Math.round((w.w_mom||0.40)*100);
+  const wd = Math.round((w.w_dd_pen||0.10)*100);
+  const wv = Math.round((w.w_vol_pen||0.10)*100);
+  let h = `<thead><tr>
+    <th>Verdict</th>
+    <th>Ticker</th>
+    <th>Sleeve</th>
+    <th title="Final composite = sum of the four weighted contributions">Score</th>
+    <th title="Trend contrib = wTrend × (+1 or -1)">Trend<br><span class="text-[10px] text-[#64748b]">${wt}%</span></th>
+    <th title="Momentum contrib = wMom × normalized 12m-1m mom">Mom<br><span class="text-[10px] text-[#64748b]">${wm}%</span></th>
+    <th title="Drawdown penalty (negative)">DD Pen<br><span class="text-[10px] text-[#64748b]">${wd}%</span></th>
+    <th title="Volatility penalty (negative)">Vol Pen<br><span class="text-[10px] text-[#64748b]">${wv}%</span></th>
+  </tr></thead><tbody>`;
+  sigs.forEach(r => {
+    const b = r.scoreBreak || {trend:0,mom:0,dd:0,vol:0};
+    const col = v => v>=0 ? 'text-emerald-400' : 'text-rose-400';
+    h += `<tr>
+      <td><span class="pill text-xs" style="background:${r.verdict.color}25;color:${r.verdict.color}">${r.verdict.tag}</span></td>
+      <td class="mono text-cyan-400">${r.ticker}</td>
+      <td class="text-xs">${r.sleeve}</td>
+      <td class="mono font-semibold">${r.score.toFixed(2)}</td>
+      <td class="mono ${col(b.trend)}" title="Weighted contribution to score">${b.trend.toFixed(2)}</td>
+      <td class="mono ${col(b.mom)}" title="Weighted contribution to score">${b.mom.toFixed(2)}</td>
+      <td class="mono ${col(b.dd)}" title="Weighted contribution to score (always subtracts)">${b.dd.toFixed(2)}</td>
+      <td class="mono ${col(b.vol)}" title="Weighted contribution to score (always subtracts)">${b.vol.toFixed(2)}</td>
+    </tr>`;
+  });
+  h += `</tbody>`;
+  tb.innerHTML = h;
+
+  // Extra plots & insights
+  renderSignalsExtraPlots(sigs);
+}
+
+function renderSignalsExtraPlots(sigs) {
+  const histCanvas = document.getElementById('signals-hist');
+  const barCanvas = document.getElementById('signals-sleeve-bar');
+
+  if (!sigs || sigs.length === 0) {
+    // fallback sample for usability
+    const sampleScores = [0.6, 0.5, 0.4, 0.3, -0.1, -0.2];
+    const sampleSigs = sampleScores.map((sc, i) => ({score: sc, sleeve: i % 2 === 0 ? 'growth' : 'bonds'}));
+    sigs = sampleSigs;
+  }
+
+  // Histogram of scores
+  if (histCanvas) {
+    if (window.sigHist) window.sigHist.destroy();
+    const scores = sigs.map(r => r.score).filter(s => isFinite(s));
+    if (scores.length > 0) {
+      const bins = 10;
+      const mn = Math.min(...scores), mx = Math.max(...scores);
+      const step = (mx-mn)/bins || 0.1;
+      const cnt = new Array(bins).fill(0);
+      scores.forEach(sc => { let i = Math.floor((sc-mn)/step); cnt[Math.max(0,Math.min(bins-1,i))] ++; });
+      const labels = cnt.map((_,i) => (mn + (i+0.5)*step).toFixed(1));
+      window.sigHist = new Chart(histCanvas, {
+        type:'bar',
+        data:{labels, datasets:[{data:cnt, backgroundColor:'#22d3ee'}]},
+        options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}}
+      });
+      histCanvas.style.display = '';
+    }
+  }
+
+  // Average by sleeve
+  if (barCanvas) {
+    const sleeveAvg = {};
+    const sleeveCount = {};
+    sigs.forEach(r => {
+      const sl = r.sleeve || 'other';
+      if (!sleeveAvg[sl]) sleeveAvg[sl] = 0;
+      if (!sleeveCount[sl]) sleeveCount[sl] = 0;
+      sleeveAvg[sl] += (r.score || 0);
+      sleeveCount[sl] += 1;
+    });
+    const sleeves = Object.keys(sleeveAvg);
+    const avgs = sleeves.map(sl => sleeveAvg[sl] / sleeveCount[sl]);
+    if (window.sigBar) window.sigBar.destroy();
+    window.sigBar = new Chart(barCanvas, {
+      type:'bar',
+      data:{labels:sleeves, datasets:[{data:avgs, backgroundColor: sleeves.map(s=>sleeveColor(s)) }]},
+      options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}}
+    });
+    barCanvas.style.display = '';
+  }
+
+  // Insights text
+  const ins = document.getElementById('signals-insights');
+  if (ins) {
+    const pos = sigs.filter(r=> (r.score||0) > 0).length;
+    ins.innerHTML = `
+      <div>Positive signals: <span class="font-semibold text-emerald-400">${pos}/${sigs.length}</span></div>
+      <div>Columns = weighted contributions (see % in headers). Tune weights above.</div>
+    `;
+  }
+}
+
+// ==================== STRATEGY PICKER ====================
+function showStrategyPicker() {
+  const modal = document.getElementById("strat-modal");
+  const list = document.getElementById("strat-modal-list");
+  list.innerHTML = "";
+  Object.keys(STRATEGIES).forEach(s => {
+    const st = STRATEGIES[s];
+    const div = document.createElement("div");
+    div.className = `p-3 rounded-xl border cursor-pointer flex justify-between items-center ${state.active_strategy===s ? "border-cyan-400 bg-cyan-950/30" : "border-[#252932] hover:bg-[#161a20]"}`;
+    div.innerHTML = `<div><span class="mono text-base" style="color:${st.color}">${st.label}</span><div class="text-xs text-[#64748b]">${s}</div></div>
+      <div>${state.active_strategy===s ? '<i class="fa-solid fa-check text-cyan-400"></i>' : ''}</div>`;
+    div.onclick = () => {
+      state.active_strategy = s;
+      RESEARCH.focus = s;
+      saveToLocal();
+      hideStrategyPicker();
+      renderAll();
+    };
+    list.appendChild(div);
+  });
+  modal.classList.remove("hidden");
+  modal.classList.add("flex");
+}
+function hideStrategyPicker() {
+  const m = document.getElementById("strat-modal");
+  m.classList.remove("flex"); m.classList.add("hidden");
+}
+
+// ==================== TAB SWITCHING & GLOBAL RENDER ====================
+function switchTab(tab) {
+  CURRENT_TAB = tab;
+
+  // Hide all panels using direct style (reliable) + manage active class
+  var ps = document.getElementById('panel-signals');
+  var pb = document.getElementById('panel-backtest');
+  var pu = document.getElementById('panel-universe');
+  [ps, pb, pu].forEach(p => { if (p) { p.style.display = 'none'; p.classList.remove('active'); } });
+
+  // Deactivate tabs
+  var ts = document.getElementById('tab-signals');
+  var tb = document.getElementById('tab-backtest');
+  var tu = document.getElementById('tab-universe');
+  [ts, tb, tu].forEach(t => { if (t) t.classList.remove('active'); });
+
+  // Show the target panel + activate
+  var targetP = document.getElementById('panel-' + tab);
+  if (targetP) { targetP.style.display = 'block'; targetP.classList.add('active'); }
+
+  // Activate the tab button
+  var targetT = document.getElementById('tab-' + tab);
+  if (targetT) targetT.classList.add('active');
+
+  // Load content
+  if (tab === 'signals') {
+    if (typeof refreshSignals === 'function') { try { refreshSignals(); } catch(e){} }
+  } else if (tab === 'backtest') {
+    if (typeof renderBacktestControls === 'function') { try { renderBacktestControls(); } catch(e){} }
+    setTimeout(() => {
+      if (typeof refreshFocusedBacktest === 'function') {
+        try { refreshFocusedBacktest(); } catch(e) { console.warn(e); }
+      }
+      // Light preload of comparison table on tab entry (so user sees table without clicking Run). Do not clobber focused eq/dd charts.
+      try {
+        const {start, end} = getResearchRange();
+        const bt = {};
+        const picked = Object.keys(STRATEGIES).filter(s => RESEARCH.strategies && RESEARCH.strategies[s]);
+        if (picked.length === 0) picked.push(RESEARCH.focus || 'xs_momentum');
+        picked.forEach(s => { try { bt[s] = runBacktest(s, start, end, RESEARCH.rebalance, RESEARCH.cost_bps||5, RESEARCH.slippage_bps||2, RESEARCH.initial_equity); } catch(e){} });
+        if (typeof renderBtComparison === 'function') renderBtComparison(bt);
+      } catch(e) {}
+      // Seed hints in advanced sections if they look empty (so never stuck blank)
+      try {
+        const ph = '<div class="text-xs text-[#64748b]">Click "Run / Refresh Backtests" for sweep, MC, WF, corr, monthly heatmap.</div>';
+        ['sweep-heatmap','mc-summary','wf-table','monthly-heatmap','corr-heatmap'].forEach(id => {
+          const el = document.getElementById(id);
+          if (el && (!el.innerHTML || el.innerHTML.trim()==='' || el.innerHTML.includes('Computing'))) el.innerHTML = ph;
+        });
+      } catch(e){}
+    }, 10);
+  } else if (tab === 'universe') {
+    if (typeof renderUniverse === 'function') { try { renderUniverse(); } catch(e){} }
+  }
+}
+
+function renderUniverse() {
+  const container = document.getElementById('universe-grid');
+  if (!container) return;
+
+  const allTickers = Object.keys(UNIVERSE).filter(t => t !== 'CASH');
+  const period = UNI_PERIOD || '5y';
+
+  // populate period buttons + sleeve filters (HF friendly: restrict analysis universe)
+  const periodHost = document.getElementById('uni-period-btns');
+  if (periodHost) {
+    const ps = ['1y','3y','5y','10y'];
+    const sleeves = ['all','bonds','commodity','crypto','growth','tech'];
+    periodHost.innerHTML = ps.map(p => `<button onclick="setUniversePeriod('${p}');renderUniverse()" class="px-2 py-0.5 text-xs border rounded ${UNI_PERIOD===p ? 'bg-[#1f242e] border-cyan-400' : ''}">${p}</button>`).join('') +
+      ' ' + sleeves.map(s => `<button onclick="setUniSleeveFilter('${s==='all'?null:s}');renderUniverse()" class="px-1.5 py-px text-[9px] border rounded ${(!UNI_SLEEVE_FILTER && s==='all') || UNI_SLEEVE_FILTER===s ? 'bg-[#1f242e] border-cyan-400' : ''}">${s}</button>`).join('');
+  }
+
+  let filteredTickers = allTickers;
+  if (UNI_SLEEVE_FILTER) filteredTickers = allTickers.filter(t => UNIVERSE[t].sleeve === UNI_SLEEVE_FILTER);
+
+  const stats = {};
+  filteredTickers.forEach(t => {
+    const bars = getBars(t, period);
+    if (bars.length < 60) { stats[t] = {cagr:0,vol:0,maxdd:0,sharpe:0}; return; }
+    const closes = bars.map(b=>b.adj);
+    const cagr = (bars.length>0) ? Math.pow(closes[closes.length-1]/closes[0], 252/bars.length) - 1 : 0;
+    const rets = [];
+    for(let i=1;i<closes.length;i++) rets.push(Math.log(closes[i]/closes[i-1]));
+    const nR = rets.length;
+    const sumSqR = rets.reduce((s,r)=>s + (isFinite(r)?r*r:0),0);
+    const vol = nR ? Math.sqrt(sumSqR / nR) * Math.sqrt(252) : 0;
+    let peak=closes[0]||0, mdd=0;
+    closes.forEach(c => { peak=Math.max(peak,c); mdd=Math.max(mdd,1-c/peak); });
+    const sr = vol>0 ? (rets.reduce((a,b)=>a+(isFinite(b)?b:0),0)/nR*252)/vol : 0;
+    stats[t]={cagr: isFinite(cagr)?cagr:0 ,vol, maxdd:mdd, sharpe:sr};
+  });
+
+  // grid cards (click to toggle selection)
+  container.innerHTML = filteredTickers.map(t => {
+    const m=UNIVERSE[t], s=stats[t], col=sleeveColor(m.sleeve);
+    const sel = UNI_SELECTED.includes(t) ? 'ring-2 ring-cyan-400 bg-[#0a141f]' : '';
+    return `<div onclick="toggleUniverseTicker('${t}')" class="card p-3 cursor-pointer hover-lift border-l-4 ${sel}" style="border-color:${col}">
+      <div class="flex justify-between"><span class="mono text-cyan-400">${t}</span><span class="pill text-[10px]" style="background:${col}25;color:${col}">${m.sleeve}</span></div>
+      <div class="text-xs font-medium">${m.display_name}</div>
+      <div class="text-[10px] text-[#64748b] mt-0.5">${m.role}</div>
+      <div class="grid grid-cols-4 gap-1 mt-2 text-center text-xs">
+        <div><div class="text-[#64748b] text-[9px]">CAGR</div><div class="mono ${s.cagr>0?'text-emerald-400':'text-rose-400'}">${(s.cagr*100).toFixed(1)}%</div></div>
+        <div><div class="text-[#64748b] text-[9px]">Vol</div><div class="mono text-amber-400">${(s.vol*100).toFixed(1)}%</div></div>
+        <div><div class="text-[#64748b] text-[9px]">DD</div><div class="mono text-rose-400">${(s.maxdd*100).toFixed(1)}%</div></div>
+        <div><div class="text-[#64748b] text-[9px]">Sh</div><div class="mono">${s.sharpe.toFixed(2)}</div></div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // populate the main dropdown for selection
+  const sel = document.getElementById('uni-ticker-select');
+  if (sel) {
+    sel.innerHTML = filteredTickers.map(t => `<option value="${t}">${t} — ${UNIVERSE[t].display_name}</option>`).join('');
+    // pre-select current
+    Array.from(sel.options).forEach(o => o.selected = UNI_SELECTED.includes(o.value));
+  }
+
+  // detail select
+  const detailSel = document.getElementById('uni-detail-select');
+  if (detailSel) {
+    detailSel.innerHTML = '<option value="">Select ticker...</option>' + filteredTickers.map(t => `<option value="${t}">${t}</option>`).join('');
+  }
+
+  renderUniverseChips();
+  renderUniverseCompare();
+}
+
+function addFromUniverseDropdown() {
+  const sel = document.getElementById('uni-ticker-select');
+  if (!sel) return;
+  const newOnes = Array.from(sel.selectedOptions).map(o => o.value);
+  UNI_SELECTED = Array.from(new Set([...UNI_SELECTED, ...newOnes])).slice(0, 10);
+  renderUniverseChips();
+  renderUniverseCompare();
+}
+
+function renderUniverseChips() {
+  const host = document.getElementById('uni-selected-chips');
+  if (!host) return;
+  host.innerHTML = UNI_SELECTED.map(t => 
+    `<span onclick="toggleUniverseTicker('${t}');renderUniverse()" class="inline-flex items-center px-2 py-0.5 text-xs rounded bg-[#1f242e] border border-cyan-700 cursor-pointer">${t} ×</span>`
+  ).join('');
+}
+
+function setUniSleeveFilter(sleeve) {
+  UNI_SLEEVE_FILTER = sleeve || null;
+  // when filtering, keep selected that match or clear mismatches?
+  if (UNI_SLEEVE_FILTER) {
+    UNI_SELECTED = UNI_SELECTED.filter(t => UNIVERSE[t] && UNIVERSE[t].sleeve === UNI_SLEEVE_FILTER);
+  }
+  renderUniverse();
+}
+
+function clearUniverseSelection() {
+  UNI_SELECTED = [];
+  renderUniverse();
+}
+
+function toggleUniverseTicker(t) {
+  if (UNI_SELECTED.includes(t)) {
+    UNI_SELECTED = UNI_SELECTED.filter(x => x !== t);
+  } else {
+    if (UNI_SELECTED.length >= 10) UNI_SELECTED.shift();
+    UNI_SELECTED.push(t);
+  }
+  renderUniverse();
+}
+
+function setUniversePeriod(p) {
+  UNI_PERIOD = p;
+  // re-render called by inline onclicks in period buttons
+  renderUniverse();
+}
+
+function renderUniverseCompare() {
+  const c = document.getElementById('universe-compare-chart');
+  if (!c) return;
+  if (window.uComp) window.uComp.destroy();
+
+  const sel = UNI_SELECTED.length ? UNI_SELECTED : ["QQQ","SPY"];
+  const period = UNI_PERIOD;
+  const datasets = sel.map((t,i) => {
+    const b = getBars(t, period);
+    const base = b[0] ? b[0].c : 100;
+    return {label:t, data:b.map(x=> (x.c/base)*100 ), borderColor:['#22d3ee','#10b981','#f59e0b','#a855f7','#ef4444','#64748b','#3b82f6','#ec4899'][i%8], borderWidth:1.4, pointRadius:0};
+  });
+  const labels = getBars(sel[0], period).map(b=>b.date);
+
+  window.uComp = new Chart(c, {
+    type:'line',
+    data:{labels, datasets},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{position:'bottom', labels:{boxWidth:8, font:{size:10}}} },
+      scales:{ y:{grid:{color:'#252932'}}, x:{ticks:{maxTicksLimit:8, font:{size:9}}} },
+      interaction: { mode: 'index', intersect: false }
+    }
+  });
+}
+
+function showUniverseDetail(ticker) {
+  if (!UNIVERSE[ticker]) return alert('Unknown ticker');
+  const p = UNI_PERIOD || '5y';
+  const bars = getBars(ticker, p);
+  if (!bars.length) return;
+
+  // price
+  const pc = document.getElementById('uni-price');
+  if (window.uniP) window.uniP.destroy();
+  window.uniP = new Chart(pc, {type:'line', data:{labels:bars.map(b=>b.date), datasets:[{label:ticker, data:bars.map(b=>b.c), borderColor:'#22d3ee', pointRadius:0}]}, options:{responsive:true,maintainAspectRatio:false, plugins:{legend:{display:false}}, interaction:{mode:'index',intersect:false}} });
+
+  // dd
+  let peak = bars[0].c, dds=[];
+  bars.forEach(b => { peak = Math.max(peak, b.c); dds.push(1 - b.c/peak); });
+  const dc = document.getElementById('uni-dd');
+  if (window.uniD) window.uniD.destroy();
+  window.uniD = new Chart(dc, {type:'line', data:{labels:bars.map(b=>b.date), datasets:[{label:'DD', data:dds, borderColor:'#ef4444', pointRadius:0}]}, options:{responsive:true,maintainAspectRatio:false, plugins:{legend:{display:false}}} });
+
+  // returns hist
+  const rets = [];
+  for(let i=1;i<bars.length;i++) rets.push((bars[i].c - bars[i-1].c)/bars[i-1].c);
+  const hc = document.getElementById('uni-ret-hist');
+  if (window.uniH) window.uniH.destroy();
+  // quick bins
+  const mn=Math.min(...rets), mx=Math.max(...rets), st=(mx-mn)/8||0.01; const cnt=new Array(8).fill(0);
+  rets.forEach(r=>{let i=Math.floor((r-mn)/st); cnt[Math.max(0,Math.min(7,i))]++;});
+  window.uniH = new Chart(hc,{type:'bar', data:{labels:cnt.map((_,i)=>((mn+(i+0.5)*st)*100).toFixed(1)+'%'), datasets:[{data:cnt, backgroundColor:'#22d3ee'}]}, options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
+
+  // rolling vol
+  const rvol = [];
+  for(let i=60;i<rets.length;i++){ const seg=rets.slice(i-60,i); const sd=Math.sqrt(seg.reduce((s,x)=>s+(x-0)**2,0)/60); rvol.push(sd*Math.sqrt(252)); }
+  const rc = document.getElementById('uni-roll-vol');
+  if (window.uniR) window.uniR.destroy();
+  window.uniR = new Chart(rc,{type:'line', data:{labels:bars.slice(60).map(b=>b.date), datasets:[{data:rvol, borderColor:'#f59e0b', pointRadius:0}]}, options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}} });
+}
+
+function setInitialResearch() {
+  // seed research state with better defaults for focused use
+  RESEARCH.focus = state.active_strategy || 'xs_momentum';
+  // focused-first defaults: main 3 on, advanced off until full Run
+  if (!RESEARCH.strategies) RESEARCH.strategies = {};
+  RESEARCH.strategies.xs_momentum = true;
+  RESEARCH.strategies.dual_momentum = true;
+  RESEARCH.strategies.risk_parity = true;
+  if (typeof RESEARCH.strategies.trend_following === 'undefined') RESEARCH.strategies.trend_following = false;
+  if (typeof RESEARCH.strategies.static_target === 'undefined') RESEARCH.strategies.static_target = false;
+  if (typeof RESEARCH.years !== 'number' || RESEARCH.years < 1) RESEARCH.years = 5;
+  if (typeof RESEARCH.max_ticker_weight !== 'number') RESEARCH.max_ticker_weight = 0.30;
+  if (typeof RESEARCH.cost_bps !== 'number') RESEARCH.cost_bps = 5;
+  if (typeof RESEARCH.slippage_bps !== 'number') RESEARCH.slippage_bps = 2;
+  if (typeof RESEARCH.initial_equity !== 'number') RESEARCH.initial_equity = INITIAL_EQUITY;
+  if (typeof RESEARCH.mc_sims !== 'number') RESEARCH.mc_sims = 500;
+  if (typeof RESEARCH.rebal_band !== 'number') RESEARCH.rebal_band = 0.05;
+  if (!RESEARCH.rebal_mode) RESEARCH.rebal_mode = 'calendar';
+}
+
+function regenerateData() {
+  DATA = {};
+  window._customTickers = {};
+  ensureCoreData();
+  document.getElementById("data-status").textContent = "FRESH";
+  setTimeout(()=> {
+    const el = document.getElementById("data-status");
+    el.textContent = Object.keys(window._customTickers||{}).length ? "MIXED" : "SYNTHETIC";
+  }, 1200);
+  renderAll();
+  if (CURRENT_TAB==="markets") renderMarkets();
+  if (CURRENT_TAB==="signals") refreshSignals();
+}
+
+function importPriceCSV() {
+  const inp = document.createElement("input");
+  inp.type = "file";
+  inp.accept = ".csv,text/csv";
+  inp.onchange = async () => {
+    const file = inp.files[0];
+    if (!file) return;
+    const text = await file.text();
+    // Try to guess ticker from filename (e.g. QQQ.csv or TLT_historical.csv)
+    let guessed = (file.name || "").toUpperCase().replace(/\.(CSV|csv)$/, "").split(/[-_.\s]/)[0];
+    if (!UNIVERSE[guessed]) guessed = MKT_TICKER || "QQQ";
+
+    const ticker = prompt("Ticker for this CSV data?", guessed) || guessed;
+    if (!UNIVERSE[ticker]) {
+      alert("Unknown ticker. Using QQQ instead.");
+    }
+    const finalTicker = UNIVERSE[ticker] ? ticker : "QQQ";
+
+    const bars = parsePriceCSV(text);
+    if (!bars || bars.length < 5) {
+      alert("Could not parse any price rows. Expect Yahoo Finance format (Date,Open,High,Low,Close,Adj Close,...) or simple date,close.");
+      return;
+    }
+
+    DATA[finalTicker] = bars;
+    window._customTickers = window._customTickers || {};
+    window._customTickers[finalTicker] = true;
+
+    const statusEl = document.getElementById("data-status");
+    statusEl.textContent = "CUSTOM";
+    statusEl.parentElement.style.borderColor = "#854d0e";
+    statusEl.parentElement.style.color = "#fbbf24";
+
+    alert(`Loaded ${bars.length} rows for ${finalTicker}. All calculations now use your data for this ticker.`);
+    renderAll();
+    if (CURRENT_TAB === "markets") renderMarkets();
+    if (CURRENT_TAB === "signals") refreshSignals();
+  };
+  inp.click();
+}
+
+function parsePriceCSV(text) {
+  // Supports:
+  // 1. Yahoo Finance historical: Date,Open,High,Low,Close,Adj Close,Volume
+  // 2. Simple: date,close   or   date,adj_close
+  const lines = text.trim().split(/\r?\n/);
+  if (lines.length < 2) return [];
+  const header = lines[0].toLowerCase().split(",").map(h => h.trim().replace(/"/g,""));
+
+  const find = (keys) => {
+    for (let k of keys) {
+      const i = header.findIndex(h => h.includes(k));
+      if (i >= 0) return i;
+    }
+    return -1;
+  };
+
+  const iDate = find(["date"]);
+  const iAdj = find(["adj close", "adj_close", "adjusted"]);
+  const iClose = find(["close"]);
+  const iOpen = find(["open"]);
+  const iHigh = find(["high"]);
+  const iLow = find(["low"]);
+
+  const closeIdx = iAdj >= 0 ? iAdj : iClose;
+  if (iDate < 0 || closeIdx < 0) {
+    // fallback: assume first col date, second numeric is close
+    const bars = [];
+    for (let i=1; i<lines.length; i++) {
+      const parts = lines[i].split(/,|;|\t/);
+      if (parts.length < 2) continue;
+      const d = parts[0].trim().slice(0,10);
+      const c = parseFloat(parts[1]);
+      if (!d || !isFinite(c)) continue;
+      bars.push({date:d, o:c*0.999, h:c*1.002, l:c*0.998, c, adj:c, v:0});
+    }
+    bars.sort((a,b) => a.date.localeCompare(b.date));
+    return bars;
+  }
+
+  const bars = [];
+  for (let i=1; i<lines.length; i++) {
+    const raw = lines[i];
+    if (!raw || raw.startsWith(",") || raw.length < 8) continue;
+    const cols = raw.split(",").map(x => x.trim().replace(/"/g,""));
+    const d = cols[iDate] ? cols[iDate].slice(0,10) : null;
+    const c = parseFloat(cols[closeIdx]);
+    if (!d || !isFinite(c)) continue;
+
+    const o = iOpen >=0 ? parseFloat(cols[iOpen]) || c : c;
+    const h = iHigh >=0 ? parseFloat(cols[iHigh]) || Math.max(o,c) : Math.max(o,c);
+    const l = iLow >=0 ? parseFloat(cols[iLow]) || Math.min(o,c) : Math.min(o,c);
+    const v = cols.length > 6 ? parseFloat(cols[cols.length-1]) || 0 : 0;
+
+    bars.push({date: d, o, h, l, c, adj: c, v});
+  }
+  bars.sort((a,b) => a.date.localeCompare(b.date));
+  return bars;
+}
+
+function clearCustomData() {
+  window._customTickers = {};
+  DATA = {};
+  ensureCoreData();
+  const statusEl = document.getElementById("data-status");
+  statusEl.textContent = "SYNTHETIC";
+  statusEl.parentElement.style.borderColor = "";
+  statusEl.parentElement.style.color = "";
+  renderAll();
+  if (CURRENT_TAB==="markets") renderMarkets();
+  if (CURRENT_TAB==="signals") refreshSignals();
+}
+
+function updateDataBadge() {
+  const el = document.getElementById("data-badge");
+  el.title = "Click to regenerate synthetic paths";
+}
+
+// ==================== INIT ====================
+function init() {
+  if (window.__srInitDone) return; window.__srInitDone = true;
+  loadFromLocal();
+  ensureCoreData();
+  ACTIVE_STRATEGY = "xs_momentum";
+  // ensure strat/signal defaults after load
+  if (!RESEARCH.max_ticker_weight) RESEARCH.max_ticker_weight = 0.30;
+  if (!STRATEGY_PARAMS.xs_momentum) STRATEGY_PARAMS.xs_momentum = { top_k: 2, sleeve_weights: {bonds:0.25, commodity:0.15, crypto:0.10, growth:0.30, tech:0.20} };
+  try { initDefaultState(); } catch(e){}
+  try { setInitialResearch(); } catch(e){}
+
+  updateDataBadge();
+
+  // Make sure Backtesting controls exist before switching
+  if (typeof renderBacktestControls === 'function') {
+    renderBacktestControls();
+  }
+
+  // Start on Signals for the view in the screenshot, but make tabs work
+  switchTab('signals');
+
+  // (listeners also attached eagerly at script end for immediate availability)
+
+  // Seed initial status indicators for computing sections
+  setTimeout(() => {
+    const fs = document.getElementById('bt-focused-status');
+    if (fs) fs.textContent = 'Focused: auto on param change';
+    const fl = document.getElementById('bt-full-status');
+    if (fl) fl.textContent = 'Full: click Run for advanced';
+    const lr = document.getElementById('bt-last-run');
+    if (lr) lr.textContent = '';
+  }, 80);
+
+  // Also pre-compute Signals so all tabs have content
+  setTimeout(() => {
+    if (typeof refreshSignals === 'function') refreshSignals();
+  }, 100);
+
+  document.addEventListener("keydown", e => {
+    if (e.key === "?" && document.activeElement.tagName === "BODY") {
+      e.preventDefault();
+      switchTab('backtest');
+    }
+  });
+
+  console.log("%c[SleeveResearch] ready - 3 clear tabs, tab switch + Run hardened, comparison preloaded on view", "color:#64748b");
+
+  // Lazy fill other tickers
+  setTimeout(() => {
+    const others = Object.keys(UNIVERSE).filter(t => !DATA[t]);
+    others.forEach((t, i) => setTimeout(() => { if (!DATA[t]) DATA[t] = generateMockBars(t); }, i * 8));
+  }, 700);
+}
+
+// Compatibility stubs for removed portfolio simulation
+window.renderAll = function(){};
+window.renderOverview = function(){};
+window.renderMarkets = function(){ switchTab('universe'); };
+window.renderRolling = function(){};
+window.renderResearchKPIs = function(){};
+
+// Eager, reliable tab wiring (executes during script eval; elements already parsed)
+(function attachTabListenersEarly() {
+  function wire() {
+    const tabEls = document.querySelectorAll('#tab-signals, #tab-backtest, #tab-universe');
+    tabEls.forEach(function(btn) {
+      // Prevent duplicate listeners if re-run
+      if (btn._tabWired) return; btn._tabWired = true;
+      btn.addEventListener('click', function() {
+        let target = btn.getAttribute('data-tab');
+        if (!target && btn.id) target = btn.id.replace('tab-', '');
+        if (target && typeof switchTab === 'function') {
+          switchTab(target);
+        }
+      });
+    });
+  }
+  wire();
+})();
+
+window.addEventListener("load", init);
+
+// Immediate kickoff (script tag is at the very end of body → DOM elements exist)
+if (!window.__srInitialized) {
+  window.__srInitialized = true;
+  try { init(); } catch(e) { console.warn('Immediate init warning', e); }
+}
+</script>
+</body>
+</html>
