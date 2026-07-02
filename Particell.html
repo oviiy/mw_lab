@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PARTICELL — a thermal sandbox world</title>
+<style>
+  :root{
+    --bg0:#05070c; --bg1:#0a0e16; --panel:#101622; --panel-d:#0a0e15; --panel-l:#1b2434;
+    --edge-l:rgba(255,255,255,.10); --edge-d:rgba(0,0,0,.55);
+    --txt:#d7e2f0; --dim:#7f8da6; --accent:#3df0c8; --accent2:#ff8a4c; --hot:#ff5236; --gold:#ffd35a; --xp:#7dd3ff;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{ background:#04060a; color:var(--txt); font:13px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; overflow:hidden; height:100vh; -webkit-font-smoothing:none; }
+  #game{position:fixed; inset:0; overflow:hidden; background:#04060a}
+  /* ---- top HUD strip ---- */
+  .hud-top{position:absolute; top:0; left:0; right:0; z-index:12; display:flex; align-items:center; gap:8px; padding:10px 12px; flex-wrap:wrap;
+    pointer-events:none; background:linear-gradient(180deg, rgba(4,6,10,.78), rgba(4,6,10,0))}
+  .hud-top>*{pointer-events:auto}
+  .logo{width:28px;height:28px;flex:none; image-rendering:pixelated;
+    background:conic-gradient(from 210deg,var(--accent),#3a86ff,var(--accent2),var(--gold),var(--accent));
+    border:2px solid #05070b; box-shadow:0 0 16px rgba(61,240,200,.5), inset 1px 1px 0 rgba(255,255,255,.4), inset -2px -2px 0 rgba(0,0,0,.5)}
+  .title{font-size:16px; letter-spacing:4px; font-weight:700; text-shadow:2px 2px 0 #05070b, 0 0 14px rgba(61,240,200,.3)}
+  .title b{color:var(--accent)}
+  .ver{font-size:9px; color:var(--dim); letter-spacing:1px; align-self:flex-start; margin-top:2px}
+  .spacer{flex:1}
+  .stat-chip{display:flex; align-items:center; gap:7px; background:#05080d; border:2px solid #000; padding:5px 10px;
+    box-shadow:inset 1px 1px 0 var(--edge-l), inset -1px -1px 0 var(--edge-d); font-size:11px; letter-spacing:.5px}
+  .stat-chip .k{color:var(--dim)} .stat-chip .v{color:var(--accent)}
+  .lvlwrap{display:flex; align-items:center; gap:8px}
+  .lvl{color:var(--gold); font-weight:700}
+  .xpbar{width:96px; height:8px; background:#05070b; border:2px solid #000; box-shadow:inset 1px 1px 0 rgba(0,0,0,.6); overflow:hidden}
+  .xpbar i{display:block; height:100%; width:0%; background:repeating-linear-gradient(90deg,var(--xp) 0 4px,#4aa6dd 4px 6px); transition:width .3s}
+  .clock{font-size:11px; color:var(--txt)} .clock .ico{filter:saturate(1.2)}
+  .icobtn{background:var(--panel-l); border:2px solid #05070b; color:var(--txt); cursor:pointer; font:inherit; padding:5px 9px;
+    box-shadow:inset 1px 1px 0 var(--edge-l), inset -2px -2px 0 var(--edge-d); letter-spacing:1px}
+  .icobtn:hover{background:#27344a; color:#fff}
+  /* ---- full-screen canvas layers ---- */
+  canvas#bg,canvas#c,canvas#glow{position:absolute; inset:0; width:100%; height:100%}
+  canvas#bg{image-rendering:pixelated; z-index:0}
+  canvas#c{display:block; cursor:crosshair; image-rendering:pixelated; background:transparent; touch-action:none; z-index:1}
+  canvas#glow{image-rendering:auto; filter:blur(5px) saturate(1.5) brightness(1.25); mix-blend-mode:screen; pointer-events:none; opacity:.9; z-index:2}
+  .scan{position:absolute; inset:0; pointer-events:none; z-index:3;
+    background:repeating-linear-gradient(0deg, rgba(0,0,0,.16) 0 1px, rgba(0,0,0,0) 1px 3px); mix-blend-mode:multiply}
+  .scan::after{content:''; position:absolute; inset:0; box-shadow:inset 0 0 120px 30px rgba(0,0,0,.5)}
+  .hud-info{position:absolute; bottom:12px; left:12px; display:flex; gap:8px; z-index:11; pointer-events:none}
+  .pill{background:rgba(5,8,13,.8); padding:4px 9px; border:2px solid #000; box-shadow:inset 1px 1px 0 var(--edge-l), inset -1px -1px 0 var(--edge-d); font-size:11px; letter-spacing:.5px; color:var(--dim)}
+  .pill b{color:var(--accent)} .pill.t b{color:var(--accent2)}
+  /* ---- collapsible config drawer ---- */
+  .drawer{position:absolute; top:0; right:0; height:100%; width:340px; max-width:90vw; z-index:20; display:flex; flex-direction:column;
+    background:rgba(9,13,21,.9); backdrop-filter:blur(9px); border-left:2px solid #05070b; box-shadow:-8px 0 30px rgba(0,0,0,.55);
+    transform:translateX(100%); transition:transform .26s cubic-bezier(.4,0,.2,1)}
+  .drawer.open{transform:translateX(0)}
+  .drawer-head{display:flex; justify-content:space-between; align-items:center; padding:12px 14px; border-bottom:2px solid #05070b; letter-spacing:2px; color:var(--gold); font-size:11px; font-weight:700}
+  .drawer-body{padding:12px; overflow-y:auto; display:flex; flex-direction:column; gap:12px; flex:1}
+  .drawer-body::-webkit-scrollbar{width:10px} .drawer-body::-webkit-scrollbar-thumb{background:#1b2434; border:2px solid #05070b}
+  .card{background:var(--panel); border:2px solid #05070b; padding:12px;
+    box-shadow: inset 1px 1px 0 var(--edge-l), inset -2px -2px 0 var(--edge-d)}
+  .card h2{font-size:9.5px; letter-spacing:2.5px; color:var(--gold); margin:0 0 9px; font-weight:700; text-transform:uppercase; display:flex; justify-content:space-between; text-shadow:1px 1px 0 #05070b}
+  .cat{margin-bottom:9px} .cat:last-child{margin-bottom:0}
+  .cat .lbl{font-size:9px; letter-spacing:2px; color:var(--dim); margin:0 0 5px 2px; text-transform:uppercase}
+  .palette{display:grid; grid-template-columns:repeat(2,1fr); gap:5px}
+  .mat{display:flex; align-items:center; gap:7px; padding:6px 7px; cursor:pointer; min-width:0; position:relative;
+    border:2px solid #05070b; background:var(--panel-l); color:var(--txt); font:inherit; text-align:left;
+    box-shadow:inset 1px 1px 0 var(--edge-l), inset -1px -1px 0 var(--edge-d); transition:background .1s, transform .03s}
+  .mat:hover{background:#27344a; color:#fff}
+  .mat:active{transform:translate(1px,1px)}
+  .mat.on{background:var(--accent); color:#04221c; box-shadow:inset 1px 1px 0 rgba(255,255,255,.4), inset -1px -1px 0 rgba(0,0,0,.3), 0 0 12px rgba(61,240,200,.45)}
+  .mat.locked{opacity:.4; cursor:not-allowed; filter:grayscale(.7)}
+  .mat.locked::after{content:'🔒'; position:absolute; right:6px; font-size:10px}
+  .mat span.nm{white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .sw{width:14px;height:14px;flex:none; image-rendering:pixelated; border:1px solid #000; box-shadow:inset 1px 1px 0 rgba(255,255,255,.3), inset -1px -1px 0 rgba(0,0,0,.45)}
+  .sw.tool{display:flex; align-items:center; justify-content:center; font-size:10px}
+  .row{display:flex; align-items:center; gap:9px; margin-bottom:9px} .row:last-child{margin-bottom:0}
+  .row label{color:var(--dim); font-size:11px; width:44px; flex:none}
+  input[type=range]{flex:1; accent-color:var(--accent); height:4px}
+  .val{width:26px; text-align:right; color:var(--accent); font-size:11px}
+  .btns{display:flex; gap:6px; margin-bottom:6px} .btns:last-child{margin-bottom:0}
+  button.ctl{flex:1; background:var(--panel-l); color:var(--txt); border:2px solid #05070b; padding:8px 5px; cursor:pointer; font:inherit; letter-spacing:1px; font-size:10.5px;
+    box-shadow:inset 1px 1px 0 var(--edge-l), inset -2px -2px 0 var(--edge-d), 2px 2px 0 rgba(0,0,0,.4); transition:background .1s, transform .03s}
+  button.ctl:hover{background:#27344a; color:#fff}
+  button.ctl:active{transform:translate(2px,2px); box-shadow:inset 1px 1px 0 var(--edge-d)}
+  button.ctl.warn:hover{background:#5a1f1a; color:#fff}
+  button.ctl.on{background:var(--accent); color:#04221c}
+  /* objective card */
+  .obj{border-color:var(--gold)!important; box-shadow: inset 1px 1px 0 var(--edge-l), inset -2px -2px 0 var(--edge-d), 4px 4px 0 rgba(0,0,0,.4), 0 0 16px rgba(255,211,90,.12)}
+  .obj .otitle{font-size:13px; color:var(--gold); letter-spacing:1px; margin-bottom:3px}
+  .obj .odesc{font-size:11px; color:var(--txt); opacity:.9; margin-bottom:7px}
+  .obj .oreward{font-size:10px; color:var(--xp); letter-spacing:1px}
+  .obj .oprog{font-size:10px; color:var(--dim); margin-top:6px}
+  .disc{display:flex; flex-direction:column; gap:4px}
+  .disc .item{display:flex; align-items:center; gap:8px; font-size:11px; color:var(--dim)}
+  .disc .item.got{color:var(--txt)}
+  .dot{width:8px;height:8px;background:#05070b;flex:none;box-shadow:inset 1px 1px 0 rgba(255,255,255,.08);transition:.2s}
+  .item.got .dot{background:var(--accent); box-shadow:0 0 9px var(--accent)}
+  .item .hint{font-size:10px; color:var(--dim); opacity:.7; font-style:italic}
+  .count{color:var(--accent)}
+  .bar{height:6px;background:#05070b;margin:2px 0 9px;border:2px solid #000;box-shadow:inset 1px 1px 0 rgba(0,0,0,.6);overflow:hidden}
+  .bar i{display:block;height:100%;background:repeating-linear-gradient(90deg,var(--accent) 0 4px,#2bbf9f 4px 6px);transition:width .3s}
+  /* toast + banners */
+  .toast{position:absolute; left:50%; bottom:22px; transform:translateX(-50%) translateY(18px); background:#05080d; border:2px solid var(--accent); color:var(--txt);
+    padding:8px 15px; font-size:12px; letter-spacing:1px; pointer-events:none; white-space:nowrap; z-index:5;
+    opacity:0; transition:opacity .25s, transform .25s; box-shadow:3px 3px 0 rgba(0,0,0,.5), 0 0 18px rgba(61,240,200,.3)}
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0)}
+  .toast b{color:var(--accent)}
+  .banner{position:absolute; left:50%; top:38%; transform:translateX(-50%) scale(.9); text-align:center; z-index:6; pointer-events:none; opacity:0; transition:opacity .3s, transform .3s}
+  .banner.show{opacity:1; transform:translateX(-50%) scale(1)}
+  .banner .big{font-size:26px; letter-spacing:3px; color:var(--gold); text-shadow:3px 3px 0 #05070b, 0 0 22px rgba(255,211,90,.5)}
+  .banner .sm{font-size:12px; color:var(--accent); letter-spacing:2px; margin-top:6px}
+  footer{margin-top:11px; color:var(--dim); font-size:10px; letter-spacing:.6px; text-align:center; opacity:.8}
+  footer b{color:var(--accent2)}
+  /* ---- overlays (menu / pause) ---- */
+  .overlay{position:fixed; inset:0; z-index:50; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:16px;
+    background:radial-gradient(1200px 700px at 50% 30%, rgba(10,16,28,.7), rgba(3,5,10,.92)); backdrop-filter:blur(3px)}
+  .overlay.hidden{display:none}
+  .menu-logo{width:78px;height:78px; image-rendering:pixelated; margin-bottom:2px;
+    background:conic-gradient(from 210deg,var(--accent),#3a86ff,var(--accent2),var(--gold),var(--accent));
+    border:3px solid #05070b; box-shadow:0 0 40px rgba(61,240,200,.5), inset 2px 2px 0 rgba(255,255,255,.4), inset -3px -3px 0 rgba(0,0,0,.5); animation:spin 14s linear infinite}
+  @keyframes spin{to{filter:hue-rotate(360deg)}}
+  .menu-title{font-size:44px; letter-spacing:12px; font-weight:700; text-shadow:4px 4px 0 #05070b, 0 0 30px rgba(61,240,200,.5)}
+  .menu-title b{color:var(--accent)}
+  .menu-sub{color:var(--dim); font-size:12px; letter-spacing:3px; margin-top:-8px}
+  .menu-btns{display:flex; flex-direction:column; gap:10px; width:280px; margin-top:10px}
+  .mbtn{background:var(--panel-l); color:var(--txt); border:2px solid #05070b; padding:13px; cursor:pointer; font:inherit; font-size:14px; letter-spacing:2px; text-align:center;
+    box-shadow:inset 1px 1px 0 var(--edge-l), inset -2px -2px 0 var(--edge-d), 3px 3px 0 rgba(0,0,0,.5); transition:background .1s, transform .04s}
+  .mbtn:hover{background:var(--accent); color:#04221c}
+  .mbtn:active{transform:translate(2px,2px)}
+  .mbtn.primary{background:var(--accent); color:#04221c; font-weight:700}
+  .mbtn.primary:hover{background:#57ffe0}
+  .mbtn.small{padding:9px; font-size:11px}
+  .menu-foot{color:var(--dim); font-size:10px; letter-spacing:1px; position:absolute; bottom:20px}
+  .help{max-width:520px; background:var(--panel); border:2px solid #05070b; padding:18px 22px; font-size:12px; line-height:1.7; box-shadow:5px 5px 0 rgba(0,0,0,.5)}
+  .help h3{color:var(--gold); letter-spacing:2px; margin:0 0 8px}
+  .help b{color:var(--accent)} .help .row2{color:var(--dim); margin-top:10px; font-size:11px}
+</style>
+</head>
+<body>
+<div id="game">
+  <canvas id="bg"></canvas>
+  <canvas id="c"></canvas>
+  <canvas id="glow"></canvas>
+  <div class="scan"></div>
+
+  <div class="hud-top">
+    <div class="logo"></div>
+    <span class="title">PARTI<b>CELL</b></span>
+    <span class="ver">v1.0</span>
+    <div class="lvlwrap" id="lvlwrap">
+      <span class="stat-chip"><span class="k">LVL</span><span class="lvl" id="lvl">1</span></span>
+      <div class="xpbar"><i id="xpFill"></i></div>
+    </div>
+    <span class="stat-chip clock"><span class="ico" id="clockIco">☀</span> <span id="clock">Day</span></span>
+    <span class="stat-chip"><span class="k">MODE</span> <span class="v" id="modeChip">—</span></span>
+    <div class="spacer"></div>
+    <button class="icobtn" id="cfgBtn">⚙ CONFIG</button>
+    <button class="icobtn" id="menuBtn">☰ MENU</button>
+  </div>
+
+  <div class="hud-info">
+    <span class="pill" id="hudMat">SAND</span>
+    <span class="pill t" id="hudTemp">T: 22°C</span>
+    <span class="pill"><b id="hudFps">60</b> fps · <b id="hudCells">0</b> active</span>
+  </div>
+
+  <div class="banner" id="banner"><div class="big" id="bannerBig">LEVEL UP</div><div class="sm" id="bannerSm"></div></div>
+  <div class="toast" id="toast"></div>
+
+  <aside class="drawer open" id="drawer">
+    <div class="drawer-head"><span>⚙ LAB CONFIG</span><button class="icobtn" id="drawerClose">✕</button></div>
+    <div class="drawer-body">
+      <div class="card obj" id="objCard">
+        <h2>Objective <span id="objNum"></span></h2>
+        <div class="otitle" id="objTitle">—</div>
+        <div class="odesc" id="objDesc"></div>
+        <div class="oreward" id="objReward"></div>
+        <div class="oprog" id="objProg"></div>
+      </div>
+
+      <div class="card">
+        <h2>Materials</h2>
+        <div id="palette"></div>
+      </div>
+
+      <div class="card">
+        <h2>Lab Controls</h2>
+        <div class="row"><label>Brush</label><input type="range" id="brush" min="1" max="18" value="5"><span class="val" id="brushVal">5</span></div>
+        <div class="row"><label>Speed</label><input type="range" id="speed" min="1" max="4" value="1"><span class="val" id="speedVal">1</span></div>
+        <div class="btns">
+          <button class="ctl" id="pause">⏸ PAUSE</button>
+          <button class="ctl" id="view">🌡 HEAT</button>
+        </div>
+        <div class="btns">
+          <button class="ctl" id="wClear">☀ CLEAR</button>
+          <button class="ctl" id="wRain">🌧 RAIN</button>
+          <button class="ctl" id="wSnow">❄ SNOW</button>
+        </div>
+        <div class="btns">
+          <button class="ctl warn" id="regen">↻ NEW WORLD</button>
+          <button class="ctl warn" id="wipe">✖ WIPE</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Discoveries <span class="count"><span id="discN">0</span>/16</span></h2>
+        <div class="bar"><i id="discBar" style="width:0%"></i></div>
+        <div class="disc" id="disc"></div>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<!-- MENU -->
+<div class="overlay" id="menu">
+  <div class="menu-logo"></div>
+  <div class="menu-title">PARTI<b>CELL</b></div>
+  <div class="menu-sub">A THERMAL SANDBOX WORLD</div>
+  <div class="menu-btns">
+    <button class="mbtn primary" id="mContinue">CONTINUE</button>
+    <button class="mbtn" id="mNew">NEW CAMPAIGN</button>
+    <button class="mbtn" id="mSandbox">FREE SANDBOX</button>
+    <button class="mbtn small" id="mHelp">HOW TO PLAY</button>
+    <button class="mbtn small" id="mMute">🔊 SOUND: ON</button>
+  </div>
+  <div class="menu-foot">procedural world · real heat physics · 16 discoveries · made in a single .html</div>
+</div>
+
+<!-- PAUSE -->
+<div class="overlay hidden" id="pauseMenu">
+  <div class="menu-title" style="font-size:30px">PAUSED</div>
+  <div class="menu-btns">
+    <button class="mbtn primary" id="pResume">RESUME</button>
+    <button class="mbtn" id="pRegen">NEW WORLD</button>
+    <button class="mbtn small" id="pMute">🔊 SOUND: ON</button>
+    <button class="mbtn small" id="pMenu">MAIN MENU</button>
+  </div>
+</div>
+
+<!-- HELP -->
+<div class="overlay hidden" id="helpMenu">
+  <div class="help">
+    <h3>HOW TO PLAY</h3>
+    Paint materials by dragging on the world. Every cell has a real <b>temperature</b> and heat flows between materials — so reactions emerge on their own.<br><br>
+    • <b>HEAT</b> / <b>COOL</b> tools raise or lower temperature — light fires or freeze lakes with no matter at all.<br>
+    • Pour <b>LAVA</b> into water to forge <b>obsidian</b> and boil <b>steam</b>.<br>
+    • Melt <b>SAND</b> into glass, melt and re-forge <b>METAL</b>, burn the forest, set off <b>gunpowder</b>.<br>
+    • Toggle <b>🌡 HEAT</b> view to see the world as a thermal camera.<br>
+    • Complete <b>objectives</b> to earn XP, level up, and unlock new materials.
+    <div class="row2">Progress saves automatically. Close this to return.</div>
+    <div style="margin-top:14px; text-align:center"><button class="mbtn small" id="helpClose" style="width:160px">CLOSE</button></div>
+  </div>
+</div>
+
+<script>
+"use strict";
+(function(){
+// ============================================================================
+//  MATERIALS
+// ============================================================================
+const EMPTY=0,WALL=1,STONE=2,GLASS=3,METAL=4,WOOD=5,PLANT=6,ICE=7,WAX=8,COAL=9,EMBER=10,
+      SAND=11,DIRT=12,SALT=13,SNOW=14,GUNPOWDER=15,ASH=16,MUD=17,
+      WATER=18,OIL=19,ACID=20,LAVA=21,MGLASS=22,MMETAL=23,MWAX=24,
+      FIRE=25,GAS=26,STEAM=27,SMOKE=28;
+const TOOL_HEAT=-1, TOOL_COOL=-2;   // temperature tools
+const AMBIENT=22;
+
+const M={
+ [EMPTY] :{name:'Air',     rgb:[14,18,26], phase:'air',   d:1,   cond:.04},
+ [WALL]  :{name:'Bedrock', rgb:[92,98,110],phase:'wall',  d:99,  cond:.05},
+ [STONE] :{name:'Stone',   rgb:[96,92,104],phase:'solid', d:99,  cond:.3,  melt:{t:1100,to:LAVA}},
+ [GLASS] :{name:'Glass',   rgb:[150,196,210],phase:'solid',d:99, cond:.25, melt:{t:1080,to:MGLASS}},
+ [METAL] :{name:'Metal',   rgb:[150,158,172],phase:'solid',d:99, cond:.92, melt:{t:1150,to:MMETAL,disc:'molten'}},
+ [WOOD]  :{name:'Wood',    rgb:[126,86,48],phase:'solid',  d:99, cond:.08, flam:{fireTemp:250,fuel:600,rate:1,burnTemp:720,residue:EMBER,disc:'char'}},
+ [PLANT] :{name:'Plant',   rgb:[74,182,90],phase:'solid',  d:99, cond:.1,  flam:{fireTemp:200,fuel:110,rate:2,burnTemp:600,residue:ASH,disc:'wildfire'}},
+ [ICE]   :{name:'Ice',     rgb:[176,220,240],phase:'solid',d:99, cond:.32, t0:-12, melt:{t:0,to:WATER,disc:'melt'}},
+ [WAX]   :{name:'Wax',     rgb:[232,224,196],phase:'solid',d:99, cond:.1,  melt:{t:60,to:MWAX}},
+ [COAL]  :{name:'Coal',    rgb:[54,54,60], phase:'solid',  d:99, cond:.2,  flam:{fireTemp:300,fuel:1600,rate:1,burnTemp:1000,residue:EMBER,disc:'char'}},
+ [EMBER] :{name:'Ember',   rgb:[170,40,16],phase:'solid',  d:99, cond:.5,  t0:820, glow:true},
+ [SAND]  :{name:'Sand',    rgb:[214,180,104],phase:'powder',d:5, cond:.2,  melt:{t:1080,to:MGLASS}},
+ [DIRT]  :{name:'Dirt',    rgb:[120,86,54],phase:'powder', d:5,  cond:.15},
+ [SALT]  :{name:'Salt',    rgb:[228,230,234],phase:'powder',d:5, cond:.2},
+ [SNOW]  :{name:'Snow',    rgb:[224,236,246],phase:'powder',d:4, cond:.15, t0:-6, melt:{t:0,to:WATER,disc:'melt'}},
+ [GUNPOWDER]:{name:'Gunpowder',rgb:[68,68,76],phase:'powder',d:5,cond:.15},
+ [ASH]   :{name:'Ash',     rgb:[96,96,104],phase:'powder', d:4,  cond:.1},
+ [MUD]   :{name:'Mud',     rgb:[88,64,42], phase:'powder', d:6,  cond:.2},
+ [WATER] :{name:'Water',   rgb:[54,118,210],phase:'liquid',d:3,  cond:.25, freeze:{t:0,to:ICE,disc:'frost'}, boil:{t:100,to:STEAM,disc:'steam'}},
+ [OIL]   :{name:'Oil',     rgb:[96,74,52], phase:'liquid', d:2,  cond:.15, flam:{fireTemp:250,fuel:220,rate:4,burnTemp:720}},
+ [ACID]  :{name:'Acid',    rgb:[150,232,72],phase:'liquid',d:3,  cond:.2,  glow:true},
+ [LAVA]  :{name:'Lava',    rgb:[230,96,38],phase:'liquid', d:6,  cond:.4,  t0:1200, glow:true, freeze:{t:700,to:STONE,disc:'obsidian'}},
+ [MGLASS]:{name:'Molten glass',rgb:[255,160,70],phase:'liquid',d:5,cond:.3,t0:1200, glow:true, freeze:{t:850,to:GLASS,disc:'glass'}},
+ [MMETAL]:{name:'Molten metal',rgb:[255,150,80],phase:'liquid',d:7,cond:.9,t0:1300, glow:true, freeze:{t:1000,to:METAL,disc:'forge'}},
+ [MWAX]  :{name:'Molten wax',rgb:[240,210,150],phase:'liquid',d:2.4,cond:.12,t0:70, freeze:{t:55,to:WAX}, flam:{fireTemp:170,fuel:500,rate:1,burnTemp:650,disc:'candle'}},
+ [FIRE]  :{name:'Fire',    rgb:[255,150,40],phase:'gas',d:.3,   cond:.5,  t0:850, glow:true},
+ [GAS]   :{name:'Gas',     rgb:[120,150,90],phase:'gas',d:.15,  cond:.05},
+ [STEAM] :{name:'Steam',   rgb:[182,198,216],phase:'gas',d:.3,  cond:.07, t0:115},
+ [SMOKE] :{name:'Smoke',   rgb:[74,78,86], phase:'gas',d:.3,    cond:.05, t0:80},
+};
+
+const PALETTE=[
+ {lbl:'Terrain', ids:[STONE,DIRT,SAND,WATER,PLANT,WOOD,METAL,GLASS]},
+ {lbl:'Elements',ids:[FIRE,LAVA,ICE,OIL,ACID,GAS]},
+ {lbl:'Volatile',ids:[GUNPOWDER,COAL,WAX,SALT,SNOW]},
+ {lbl:'Tools',   ids:[TOOL_HEAT,TOOL_COOL,EMPTY]},
+];
+const TOOLMETA={ [TOOL_HEAT]:{name:'Heat +',rgb:[255,120,40],ico:'▲'}, [TOOL_COOL]:{name:'Cool −',rgb:[90,170,255],ico:'▼'} };
+function matName(id){ return id<0?TOOLMETA[id].name:M[id].name; }
+function matRGB(id){ return id<0?TOOLMETA[id].rgb:M[id].rgb; }
+M[EMPTY].name='Eraser';
+
+const dens=i=>M[i].d, cond=i=>M[i].cond;
+const isGas=i=>M[i].phase==='gas';
+const isLiquid=i=>M[i].phase==='liquid';
+const isSolidLike=i=>{const p=M[i].phase; return p==='solid'||p==='wall';};
+
+// ============================================================================
+//  GRID + ENGINE  (verified physics)
+// ============================================================================
+// grid auto-sizes to the window so the world fills the page with crisp square pixels
+function fitDims(){
+ const vw=(typeof window!=='undefined'&&window.innerWidth)||1280;
+ const vh=(typeof window!=='undefined'&&window.innerHeight)||720;
+ const target=64000, aspect=vw/vh;
+ let h=Math.round(Math.sqrt(target/aspect)), w=Math.round(h*aspect);
+ w=Math.max(180,Math.min(440,w)); h=Math.max(130,Math.min(320,h));
+ return [w,h];
+}
+const _d=fitDims(); const W=_d[0], H=_d[1], N=W*H;
+let grid=new Uint8Array(N), life=new Float32Array(N), tint=new Int8Array(N), moved=new Uint8Array(N);
+let temp=new Float32Array(N).fill(AMBIENT), temp2=new Float32Array(N);
+const idx=(x,y)=>y*W+x;
+const inB=(x,y)=>x>=0&&x<W&&y>=0&&y<H;
+
+function life0(m){
+ const p=M[m];
+ if(p.flam) return p.flam.fuel;
+ if(m===FIRE) return 22+(Math.random()*26|0);
+ if(m===EMBER) return 500+(Math.random()*350|0);
+ if(m===STEAM) return 220+(Math.random()*220|0);
+ if(m===SMOKE) return 80+(Math.random()*90|0);
+ if(m===ACID) return 12;
+ if(m===LAVA) return 260;
+ if(m===MMETAL||m===MGLASS) return 170;
+ return 0;
+}
+function setCell(i,m,keepTemp){
+ grid[i]=m; moved[i]=1; tint[i]=(Math.random()*30-15)|0;
+ if(!keepTemp) temp[i]=(M[m].t0!==undefined)?M[m].t0:AMBIENT;
+ life[i]=life0(m);
+}
+function swap(a,b){
+ const g=grid[a];grid[a]=grid[b];grid[b]=g;
+ const l=life[a];life[a]=life[b];life[b]=l;
+ const t=tint[a];tint[a]=tint[b];tint[b]=t;
+ const T=temp[a];temp[a]=temp[b];temp[b]=T;
+ moved[a]=1;moved[b]=1;
+}
+
+// discoveries
+const DISC=[
+ {k:'steam',label:'Steam',hint:'boil water'},{k:'frost',label:'Ice',hint:'freeze water'},
+ {k:'melt',label:'Meltwater',hint:'melt ice or snow'},{k:'obsidian',label:'Obsidian',hint:'cool lava'},
+ {k:'glass',label:'Glass',hint:'melt sand, then cool'},{k:'molten',label:'Molten metal',hint:'melt metal'},
+ {k:'forge',label:'Forged metal',hint:'recast molten metal'},{k:'wildfire',label:'Wildfire',hint:'ignite a plant'},
+ {k:'char',label:'Charcoal',hint:'burn wood to embers'},{k:'boom',label:'Explosion',hint:'ignite gunpowder'},
+ {k:'flash',label:'Methane flash',hint:'ignite gas'},{k:'acid',label:'Acid burn',hint:'dissolve matter'},
+ {k:'deice',label:'De-icing',hint:'salt on ice'},{k:'candle',label:'Candle',hint:'burn molten wax'},
+ {k:'mud',label:'Mud',hint:'mix dirt and water'},{k:'smoke',label:'Smoke',hint:'let fire burn out'},
+];
+const found={};
+function discover(k){ if(found[k])return; found[k]=true; renderDisc(); const d=DISC.find(x=>x.k===k); showToast('Discovered — <b>'+d.label+'</b>'); addXP(10); save(); }
+
+function heatStep(){
+ for(let y=0;y<H;y++)for(let x=0;x<W;x++){
+   const i=idx(x,y), m=grid[i], ci=cond(m), t=temp[i];
+   let sum=0;
+   if(x>0){ const j=i-1; sum+=Math.min(ci,cond(grid[j]))*(temp[j]-t); }
+   if(x<W-1){ const j=i+1; sum+=Math.min(ci,cond(grid[j]))*(temp[j]-t); }
+   if(y>0){ const j=i-W; sum+=Math.min(ci,cond(grid[j]))*(temp[j]-t); }
+   if(y<H-1){ const j=i+W; sum+=Math.min(ci,cond(grid[j]))*(temp[j]-t); }
+   let nt=t+sum*0.22;
+   const relax=(m===EMPTY||isGas(m))?0.025:0.004;
+   nt+=(AMBIENT-nt)*relax;
+   temp2[i]=nt;
+ }
+ const tmp=temp; temp=temp2; temp2=tmp;
+}
+function sinkable(m,o){ if(o===EMPTY)return true; if(isSolidLike(o))return false; return dens(m)>dens(o); }
+function doPowder(x,y,i,m){
+ if(m===MUD&&Math.random()<0.55)return;
+ if(y<H-1){ const b=i+W; if(sinkable(m,grid[b])){swap(i,b);return;}
+  const dl=Math.random()<0.5?-1:1;
+  for(const dx of [dl,-dl]){ const nx=x+dx; if(nx>=0&&nx<W){const t=i+W+dx; if(sinkable(m,grid[t])){swap(i,t);return;}} }
+ }
+}
+function doLiquid(x,y,i,m){
+ if((m===LAVA&&Math.random()<0.4)||((m===MMETAL||m===MGLASS)&&Math.random()<0.3))return;
+ if(y<H-1){ const b=i+W; if(sinkable(m,grid[b])){swap(i,b);return;}
+  const dl=Math.random()<0.5?-1:1;
+  for(const dx of [dl,-dl]){ const nx=x+dx; if(nx>=0&&nx<W){const t=i+W+dx; if(sinkable(m,grid[t])){swap(i,t);return;}} }
+ }
+ const dl=Math.random()<0.5?-1:1;
+ for(const dx of [dl,-dl]){ const nx=x+dx; if(nx>=0&&nx<W){const t=i+dx,o=grid[t]; if(o===EMPTY||isGas(o)){swap(i,t);return;}} }
+}
+function doGas(x,y,i,m){
+ if(y>0){ const u=i-W,o=grid[u]; if(o===EMPTY||isLiquid(o)){swap(i,u);return;}
+  const dl=Math.random()<0.5?-1:1;
+  for(const dx of [dl,-dl]){ const nx=x+dx; if(nx>=0&&nx<W){const t=i-W+dx,oo=grid[t]; if(oo===EMPTY||isLiquid(oo)){swap(i,t);return;}} }
+ }
+ if(Math.random()<0.5){ const nx=x+(Math.random()<0.5?-1:1); if(nx>=0&&nx<W){const t=i+(nx-x); if(grid[t]===EMPTY){swap(i,t);return;}} }
+}
+function eachNb(x,y,fn){ if(x>0)fn(idx(x-1,y)); if(x<W-1)fn(idx(x+1,y)); if(y>0)fn(idx(x,y-1)); if(y<H-1)fn(idx(x,y+1)); }
+function transition(i,m){
+ const p=M[m];
+ if(p.melt && temp[i]>=p.melt.t){ if(p.melt.disc)discover(p.melt.disc); setCell(i,p.melt.to,true); return true; }
+ if(p.boil && temp[i]>=p.boil.t){ if(p.boil.disc)discover(p.boil.disc); setCell(i,p.boil.to,true); return true; }
+ if(p.freeze && temp[i]<=p.freeze.t){ if(p.freeze.disc)discover(p.freeze.disc); setCell(i,p.freeze.to,true); return true; }
+ return false;
+}
+function doCombust(x,y,i,m,f){
+ if(f.disc)discover(f.disc);
+ if(temp[i]<f.burnTemp)temp[i]=f.burnTemp;
+ life[i]-=f.rate;
+ if(life[i]<=0){
+   if(f.residue!==undefined){ setCell(i,f.residue,true); }
+   else { if(Math.random()<0.5){setCell(i,SMOKE,true);} else {grid[i]=EMPTY;life[i]=0;moved[i]=1;} }
+   return true;
+ }
+ if(Math.random()<0.5){
+   const c=[[0,-1],[0,-1],[-1,-1],[1,-1],[-1,0],[1,0]], p=c[(Math.random()*c.length)|0], dx=p[0],dy=p[1];
+   const nx=x+dx,ny=y+dy;
+   if(inB(nx,ny)){ const t=idx(nx,ny),o=grid[t]; if(o===EMPTY||isGas(o))setCell(t,FIRE,false); }
+ }
+ return false;
+}
+function explode(i){
+ discover('boom'); sfx.explosion();
+ const x=i%W,y=(i/W)|0;
+ for(let dy=-3;dy<=3;dy++)for(let dx=-3;dx<=3;dx++){
+   const nx=x+dx,ny=y+dy; if(!inB(nx,ny))continue;
+   const t=idx(nx,ny),o=grid[t]; if(o===WALL||o===METAL||o===STONE)continue;
+   const r2=dx*dx+dy*dy;
+   if(r2<=9){ temp[t]+=600; if(r2<=5){ setCell(t,FIRE,true); life[t]=30+(Math.random()*30|0);} }
+ }
+}
+function doFire(x,y,i){
+ if(temp[i]<820)temp[i]=820;
+ life[i]--;
+ eachNb(x,y,j=>{ const o=grid[j];
+   if(o!==EMPTY&&!isGas(o)) temp[j]+=7;
+   if(isLiquid(o)&&o!==LAVA&&o!==MMETAL&&o!==MGLASS) life[i]-=2;
+ });
+ if(life[i]<=0){ if(Math.random()<0.5){setCell(i,SMOKE,true);discover('smoke');} else {grid[i]=EMPTY;life[i]=0;moved[i]=1;} return; }
+ doGas(x,y,i,FIRE);
+}
+function doEmber(x,y,i){
+ if(temp[i]<800)temp[i]=800;
+ life[i]--;
+ if(life[i]<=0){ setCell(i,ASH,true); return; }
+ if(Math.random()<0.05 && y>0){ const u=i-W; if(grid[u]===EMPTY)setCell(u,Math.random()<0.5?SMOKE:FIRE,false); }
+}
+function doSteam(x,y,i){
+ life[i]--;
+ if((temp[i]<100&&Math.random()<0.04)||life[i]<=0){ setCell(i,WATER,true); return; }
+ doGas(x,y,i,STEAM);
+}
+function doSmoke(x,y,i){ life[i]--; if(life[i]<=0){grid[i]=EMPTY;life[i]=0;moved[i]=1;return;} doGas(x,y,i,SMOKE); }
+function dissolvable(o){ return o!==EMPTY&&o!==WALL&&!isGas(o)&&!isLiquid(o); }
+function doAcid(x,y,i){
+ let done=false;
+ eachNb(x,y,j=>{ if(done)return; const o=grid[j]; if(dissolvable(o)&&o!==ASH&&Math.random()<0.35){ setCell(j,EMPTY,true); discover('acid'); life[i]--; if(life[i]<=0){grid[i]=EMPTY;life[i]=0;moved[i]=1;done=true;} } });
+ if(grid[i]===ACID) doLiquid(x,y,i,ACID);
+}
+function doSaltReact(x,y,i){
+ eachNb(x,y,j=>{ if(grid[j]===ICE){setCell(j,WATER,true);discover('deice');} });
+ if(Math.random()<0.03){ let inW=false; eachNb(x,y,j=>{ if(grid[j]===WATER)inW=true; }); if(inW){grid[i]=EMPTY;life[i]=0;moved[i]=1;} }
+}
+function doDirtReact(x,y,i){
+ let made=false;
+ eachNb(x,y,j=>{ if(made)return; if(grid[j]===WATER&&Math.random()<0.14){ setCell(j,EMPTY,true); setCell(i,MUD,true); discover('mud'); made=true; } });
+ return made;
+}
+function doPlantGrow(x,y,i){ if(Math.random()<0.01*dayGrowth){ eachNb(x,y,j=>{ if(grid[j]===WATER&&Math.random()<0.4)setCell(j,PLANT,true); }); } }
+
+let active=0, frame=0;
+function moveStep(){
+ moved.fill(0); active=0;
+ const ltr=(frame&1)===0;
+ for(let y=H-1;y>=0;y--)for(let k=0;k<W;k++){
+   const x=ltr?k:(W-1-k), i=idx(x,y), m=grid[i];
+   if(m===EMPTY||moved[i])continue;
+   active++;
+   if(m===LAVA||m===MMETAL||m===MGLASS){
+     let drain=0.4;
+     eachNb(x,y,j=>{ const o=grid[j]; if(o===WATER||o===ICE||o===SNOW||o===STEAM)drain+=3; });
+     life[i]-=drain;
+     if(life[i]>0){ const h=M[m].t0; if(temp[i]<h)temp[i]=h; }
+   }
+   if(transition(i,m))continue;
+   const mm=grid[i];
+   switch(mm){
+     case FIRE: doFire(x,y,i); continue;
+     case EMBER: doEmber(x,y,i); continue;
+     case STEAM: doSteam(x,y,i); continue;
+     case SMOKE: doSmoke(x,y,i); continue;
+     case GAS: if(temp[i]>=150){setCell(i,FIRE,true);discover('flash');continue;} doGas(x,y,i,GAS); continue;
+     case ACID: doAcid(x,y,i); continue;
+     case GUNPOWDER: if(temp[i]>=200){explode(i);continue;} break;
+     case SALT: doSaltReact(x,y,i); break;
+     case DIRT: if(doDirtReact(x,y,i))continue; break;
+     case PLANT: doPlantGrow(x,y,i); break;
+   }
+   const f=M[mm].flam;
+   if(f&&temp[i]>=f.fireTemp&&doCombust(x,y,i,mm,f))continue;
+   const ph=M[mm].phase;
+   if(ph==='powder')doPowder(x,y,i,mm);
+   else if(ph==='liquid')doLiquid(x,y,i,mm);
+   else if(ph==='gas')doGas(x,y,i,mm);
+ }
+}
+
+// ============================================================================
+//  WORLD GENERATION
+// ============================================================================
+function mulberry32(a){ return function(){ a|=0;a=a+0x6D2B79F5|0; let t=Math.imul(a^a>>>15,1|a); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
+let rnd=mulberry32(12345);
+function hash2(x,y,s){ let h=(x*374761393+y*668265263+s*2246822519)>>>0; h=(h^(h>>13))*1274126177>>>0; return (h>>>0)/4294967296; }
+function smooth(t){ return t*t*(3-2*t); }
+function vnoise(x,y,s){ // value noise 2D
+ const x0=Math.floor(x),y0=Math.floor(y),fx=smooth(x-x0),fy=smooth(y-y0);
+ const a=hash2(x0,y0,s),b=hash2(x0+1,y0,s),c=hash2(x0,y0+1,s),d=hash2(x0+1,y0+1,s);
+ return (a*(1-fx)+b*fx)*(1-fy)+(c*(1-fx)+d*fx)*fy;
+}
+let plantStart=0;
+function genWorld(seed){
+ rnd=mulberry32(seed>>>0);
+ grid.fill(EMPTY); life.fill(0); temp.fill(AMBIENT); tint.fill(0);
+ const s=seed>>>0;
+ // surface height map (multi-octave)
+ const surf=new Int16Array(W);
+ for(let x=0;x<W;x++){
+   let h=0;
+   h+=vnoise(x/46,0,s)*26;
+   h+=vnoise(x/18,10,s)*11;
+   h+=vnoise(x/8,20,s)*4;
+   surf[x]=Math.round(H*0.40 + h);
+ }
+ const seaLevel=Math.round(H*0.60);
+ const bottom=H-1;
+ for(let x=0;x<W;x++){
+   const top=surf[x];
+   for(let y=top;y<H;y++){
+     const i=idx(x,y);
+     if(y>=H-2){ setCell(i,WALL,false); continue; }             // bedrock floor
+     const depth=y-top;
+     // deep magma pockets near the bottom
+     if(y> H-14 && vnoise(x/12, y/8+80, s) > 0.62){ setCell(i,LAVA,false); continue; }
+     if(depth<3){ setCell(i,DIRT,false); }                       // topsoil
+     else if(y> top+3 && y< H*0.66){ setCell(i,DIRT,false); }
+     else { setCell(i,STONE,false); }
+   }
+   // grass blades on the very top land row (above sea)
+   if(top<seaLevel){ setCell(idx(x,top),PLANT,false); if(top>0)setCell(idx(x,top-1),PLANT, false); }
+ }
+ // caves carved from stone
+ for(let x=0;x<W;x++)for(let y=Math.round(H*0.5);y<H-3;y++){
+   const i=idx(x,y);
+   if(grid[i]===STONE || grid[i]===DIRT){
+     const c=vnoise(x/13, y/10, s+7);
+     if(c>0.70) setCell(i,EMPTY,false);
+   }
+ }
+ // ore + sand veins in stone
+ for(let x=0;x<W;x++)for(let y=Math.round(H*0.55);y<H-3;y++){
+   const i=idx(x,y); if(grid[i]!==STONE)continue;
+   const o=vnoise(x/6, y/6, s+21);
+   if(o>0.80) setCell(i,METAL,false);
+   else if(o<0.14) setCell(i,COAL,false);
+ }
+ // lakes: fill air below sea level (valleys)
+ for(let x=0;x<W;x++)for(let y=seaLevel;y<H-2;y++){
+   const i=idx(x,y); if(grid[i]===EMPTY) setCell(i,WATER,false);
+ }
+ // sandy shore near waterline
+ for(let x=0;x<W;x++){ const t=surf[x]; if(Math.abs(t-seaLevel)<3){ for(let y=t;y<t+4&&y<H;y++){const i=idx(x,y); if(grid[i]===DIRT)setCell(i,SAND,false);} } }
+ // trees
+ const treeN=6+Math.floor(rnd()*6);
+ for(let n=0;n<treeN;n++){
+   const tx=8+Math.floor(rnd()*(W-16)); const ty=surf[tx];
+   if(ty>=seaLevel-1) continue;                     // no trees in water
+   const th=6+Math.floor(rnd()*6);
+   for(let k=0;k<th;k++){ const yy=ty-1-k; if(yy>1)setCell(idx(tx,yy),WOOD,false); }
+   const cy=ty-th, cr=3+Math.floor(rnd()*2);
+   for(let dy=-cr;dy<=cr;dy++)for(let dx=-cr;dx<=cr;dx++){ if(dx*dx+dy*dy<=cr*cr+1){const nx=tx+dx,ny=cy+dy; if(inB(nx,ny)&&grid[idx(nx,ny)]===EMPTY)setCell(idx(nx,ny),PLANT,false);} }
+ }
+ // occasional snow cap on the highest peaks
+ let minTop=H; for(let x=0;x<W;x++) if(surf[x]<minTop)minTop=surf[x];
+ for(let x=0;x<W;x++){ if(surf[x]<minTop+5){ const i=idx(x,surf[x]); setCell(i,SNOW,false);} }
+ plantStart=count(PLANT);
+ stat.maxFire=0;
+}
+function count(m){ let n=0; for(let i=0;i<N;i++)if(grid[i]===m)n++; return n; }
+
+// ============================================================================
+//  RENDER (textures + bloom) + SKY (day/night/weather)
+// ============================================================================
+const cv=document.getElementById('c'); cv.width=W; cv.height=H;
+const ctx=cv.getContext('2d'); const img=ctx.createImageData(W,H); const buf=img.data;
+const glc=document.getElementById('glow'); glc.width=W; glc.height=H;
+const gctx=glc.getContext('2d'); const gimg=gctx.createImageData(W,H); const gbuf=gimg.data;
+const bgc=document.getElementById('bg'); bgc.width=W; bgc.height=H; const bgx=bgc.getContext('2d');
+const noise=new Uint8Array(N);
+for(let y=0;y<H;y++)for(let x=0;x<W;x++){ let h=(x*92837111)^(y*689287499)^((x*y)*283923481); noise[idx(x,y)]=(h>>>5)&255; }
+let viewHeat=false, rframe=0;
+
+// sky state
+let timeOfDay=0.32, dayGrowth=1;
+const stars=[]; for(let i=0;i<70;i++)stars.push({x:Math.random()*W,y:Math.random()*H*0.55,p:Math.random()*6.28});
+const clouds=[]; for(let i=0;i<6;i++)clouds.push({x:Math.random()*W,y:6+Math.random()*H*0.28,w:14+Math.random()*22,sp:.02+Math.random()*.05});
+const SKY=[
+ {t:0.00,top:[7,9,22], bot:[16,18,44]},
+ {t:0.20,top:[35,28,66], bot:[224,120,74]},
+ {t:0.30,top:[86,150,224],bot:[176,214,244]},
+ {t:0.50,top:[70,142,238],bot:[150,202,246]},
+ {t:0.72,top:[58,92,182], bot:[248,146,84]},
+ {t:0.82,top:[30,26,60], bot:[128,60,74]},
+ {t:1.00,top:[7,9,22], bot:[16,18,44]},
+];
+function lerp(a,b,f){return a+(b-a)*f;}
+function skyAt(t){
+ for(let k=1;k<SKY.length;k++){ if(t<=SKY[k].t){ const a=SKY[k-1],b=SKY[k],f=(t-a.t)/(b.t-a.t);
+   return {top:[lerp(a.top[0],b.top[0],f),lerp(a.top[1],b.top[1],f),lerp(a.top[2],b.top[2],f)],
+           bot:[lerp(a.bot[0],b.bot[0],f),lerp(a.bot[1],b.bot[1],f),lerp(a.bot[2],b.bot[2],f)]}; } }
+ return {top:SKY[0].top,bot:SKY[0].bot};
+}
+function nightness(t){ // 1 at deep night, 0 at midday
+ if(t<0.18||t>0.84) return 1;
+ if(t<0.30) return 1-(t-0.18)/0.12;
+ if(t>0.72) return (t-0.72)/0.12;
+ return 0;
+}
+function drawSky(){
+ if(viewHeat){ bgx.fillStyle='#05070b'; bgx.fillRect(0,0,W,H); return; }
+ const sk=skyAt(timeOfDay), grd=bgx.createLinearGradient(0,0,0,H);
+ grd.addColorStop(0,`rgb(${sk.top[0]|0},${sk.top[1]|0},${sk.top[2]|0})`);
+ grd.addColorStop(1,`rgb(${sk.bot[0]|0},${sk.bot[1]|0},${sk.bot[2]|0})`);
+ bgx.fillStyle=grd; bgx.fillRect(0,0,W,H);
+ const nt=nightness(timeOfDay);
+ // stars
+ if(nt>0.05){ for(const s of stars){ const a=nt*(0.35+0.35*Math.sin(rframe*0.05+s.p)); bgx.fillStyle=`rgba(255,255,235,${a})`; bgx.fillRect(s.x|0,s.y|0,1,1);} }
+ // sun / moon
+ const day=timeOfDay>0.24&&timeOfDay<0.76;
+ const prog = day ? (timeOfDay-0.24)/0.52 : ((timeOfDay<0.24?timeOfDay+0.24:timeOfDay-0.76)/0.48);
+ const bx=prog*W, by=H*0.46 - Math.sin(prog*Math.PI)*H*0.34;
+ if(day){ bgx.fillStyle='rgba(255,236,150,.35)'; bgx.beginPath(); bgx.arc(bx,by,11,0,6.28); bgx.fill();
+   bgx.fillStyle='#fff4c2'; bgx.beginPath(); bgx.arc(bx,by,6.5,0,6.28); bgx.fill(); }
+ else { bgx.fillStyle='rgba(200,215,255,.25)'; bgx.beginPath(); bgx.arc(bx,by,8,0,6.28); bgx.fill();
+   bgx.fillStyle='#dfe7ff'; bgx.beginPath(); bgx.arc(bx,by,5,0,6.28); bgx.fill(); }
+ // clouds
+ const ca=0.85*(1-nt*0.8);
+ for(const cl of clouds){ cl.x+=cl.sp; if(cl.x>W+cl.w)cl.x=-cl.w;
+   const shade=120+120*(1-nt); bgx.fillStyle=`rgba(${shade|0},${(shade+8)|0},${(shade+18)|0},${ca})`;
+   const bxr=cl.x|0,byr=cl.y|0,w=cl.w|0;
+   bgx.fillRect(bxr,byr,w,3); bgx.fillRect(bxr+3,byr-2,w-6,3); bgx.fillRect(bxr+6,byr+2,w-10,2); }
+}
+function incand(t){
+ if(t<480)return null;
+ const s=[[480,90,0,0],[700,200,40,0],[950,255,110,10],[1200,255,180,60],[1500,255,232,160],[1900,255,255,240]];
+ for(let k=1;k<s.length;k++){ const a=s[k-1],b=s[k]; if(t<=b[0]||k===s.length-1){ const u=Math.max(0,Math.min(1,(t-a[0])/(b[0]-a[0]))); return [a[1]+(b[1]-a[1])*u,a[2]+(b[2]-a[2])*u,a[3]+(b[3]-a[3])*u]; } }
+ return [255,255,240];
+}
+function heatColor(t){
+ const u=Math.max(0,Math.min(1,(t+20)/1620));
+ const s=[[0,18,28,80],[0.18,30,110,200],[0.36,40,200,170],[0.52,130,215,70],[0.68,242,205,45],[0.84,232,72,30],[1,255,255,255]];
+ for(let k=1;k<s.length;k++){ const a=s[k-1],b=s[k]; if(u<=b[0]||k===s.length-1){ const f=(u-a[0])/(b[0]-a[0]); return [a[1]+(b[1]-a[1])*f,a[2]+(b[2]-a[2])*f,a[3]+(b[3]-a[3])*f]; } }
+ return [255,255,255];
+}
+function render(){
+ const t=rframe;
+ for(let i=0;i<N;i++){
+  const m=grid[i], Tp=temp[i]; let r,g,b, gr=0,gg=0,gb=0; const p=i*4;
+  if(viewHeat){ const c=heatColor(Tp); buf[p]=c[0];buf[p+1]=c[1];buf[p+2]=c[2];buf[p+3]=255; gbuf[p]=0;gbuf[p+1]=0;gbuf[p+2]=0;gbuf[p+3]=255; continue; }
+  if(m===EMPTY){ buf[p+3]=0; gbuf[p]=0;gbuf[p+1]=0;gbuf[p+2]=0;gbuf[p+3]=255; continue; } // air is transparent -> sky shows
+  const c=M[m].rgb, n=noise[i], tn=tint[i], x=i%W, y=(i/W)|0;
+  r=c[0]+tn; g=c[1]+tn; b=c[2]+tn;
+  switch(m){
+   case WATER:{ const w=Math.sin((x*0.42+y*0.22)+t*0.13)+Math.sin((x*0.13-y*0.27)-t*0.07); r=44+w*5; g=110+w*12; b=198+w*16; if((n&31)>27){g+=26;b+=26;} break; }
+   case ACID:{ const a=Math.sin(i*0.7+t*0.32); g=208+a*30; r=120+a*18; b=58; break; }
+   case OIL:{ const w=Math.sin((x*0.3)+t*0.06)*6; r=92+w; g=70+w; b=50+w; break; }
+   case LAVA:{ const cr=Math.sin(n*0.18+t*0.06); if(cr>0.62){r=110;g=28;b=12;} else {r=232+cr*16;g=88+cr*34;b=28;} break; }
+   case MGLASS: case MMETAL:{ const sh=Math.sin(i*0.3+t*0.1)*22; r+=sh; g+=sh*0.7; b+=sh*0.4; break; }
+   case FIRE:{ const f=Math.random(); const lo=Math.min(1,life[i]/45); r=255; g=120+f*95+lo*15; b=18+f*55; break; }
+   case EMBER:{ const pl=Math.sin(t*0.2+i)*0.5+0.5; r=150+pl*90; g=34+pl*40; b=14; break; }
+   case SMOKE:{ const s=(n&15); r=64+s; g=68+s; b=76+s; break; }
+   case STEAM:{ const s=(n&15); r=168+s; g=186+s; b=206+s; break; }
+   case SAND:{ const grit=((n*2)&31)-16; r+=grit*0.8; g+=grit*0.7; b+=grit*0.4; break; }
+   case DIRT:{ const grit=(n&31)-16; r+=grit*0.7; g+=grit*0.5; b+=grit*0.3; break; }
+   case MUD:{ const grit=(n&15)-7; r+=grit; g+=grit*0.7; b+=grit*0.5; break; }
+   case ASH:{ const s=(n&31)-16; r+=s; g+=s; b+=s; break; }
+   case SALT: case SNOW:{ if((n&31)>23){r+=16;g+=16;b+=18;} break; }
+   case GUNPOWDER:{ const s=(n&15)-7; r+=s; g+=s; b+=s; if((n&63)>60){r+=20;g+=20;b+=22;} break; }
+   case WOOD:{ const grain=(y%3===0)?-15:((y%3===1)?5:0); const v=(n&15)-7; r+=grain+v; g+=grain*0.7+v; b+=grain*0.4; break; }
+   case PLANT:{ if((n&31)>16){r-=10;g+=22;b-=4;} else {r+=6;g-=8;} break; }
+   case STONE: case WALL:{ const mo=(n&31)-16; r+=mo*0.8; g+=mo*0.8; b+=mo*0.9; break; }
+   case METAL:{ const sheen=Math.sin(x*0.6)*10; const mo=(n&15)-7; r+=sheen+mo; g+=sheen+mo; b+=sheen+mo+4; break; }
+   case GLASS:{ const sh=Math.sin(x*0.5+y*0.3)*9; r+=sh; g+=sh; b+=sh; break; }
+   case ICE:{ if((n&63)>57){r+=26;g+=22;b+=16;} const mo=(n&7)-3; r+=mo; g+=mo; b+=mo; break; }
+   case GAS:{ const s=(n&15); g+=s; r+=s*0.3; break; }
+  }
+  const inc=incand(Tp);
+  if(inc){ const f=Math.max(0,Math.min(0.9,(Tp-440)/640)); r=r*(1-f)+inc[0]*f; g=g*(1-f)+inc[1]*f; b=b*(1-f)+inc[2]*f; }
+  buf[p]=r<0?0:r>255?255:r; buf[p+1]=g<0?0:g>255?255:g; buf[p+2]=b<0?0:b>255?255:b; buf[p+3]=255;
+  if(m===FIRE){ gr=255; gg=130+Math.random()*40; gb=40; }
+  else if(m===ACID){ gr=80; gg=220; gb=55; }
+  else if(m===EMBER){ gr=230; gg=80; gb=24; }
+  else if(inc){ const f=Math.max(0,Math.min(1,(Tp-520)/700)); gr=inc[0]*f; gg=inc[1]*f; gb=inc[2]*f; }
+  gbuf[p]=gr; gbuf[p+1]=gg; gbuf[p+2]=gb; gbuf[p+3]=255;
+ }
+ ctx.putImageData(img,0,0);
+ gctx.putImageData(gimg,0,0);
+}
+
+// ============================================================================
+//  AUDIO
+// ============================================================================
+let AC=null, muted=false, master=null;
+function initAudio(){ if(AC)return; try{ AC=new (window.AudioContext||window.webkitAudioContext)(); master=AC.createGain(); master.gain.value=muted?0:0.28; master.connect(AC.destination);}catch(e){} }
+function tone(freq,dur,type,vol){ if(!AC||muted)return; try{ const o=AC.createOscillator(),g=AC.createGain(); o.type=type||'square'; o.frequency.value=freq; g.gain.value=vol||0.18; o.connect(g); g.connect(master); const t=AC.currentTime; g.gain.setValueAtTime(g.gain.value,t); g.gain.exponentialRampToValueAtTime(0.0008,t+dur); o.start(t); o.stop(t+dur);}catch(e){} }
+function noiseBurst(dur,vol,cut){ if(!AC||muted)return; try{ const n=AC.createBufferSource(), b=AC.createBuffer(1,(AC.sampleRate*dur)|0,AC.sampleRate), d=b.getChannelData(0); for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*(1-i/d.length); n.buffer=b; const g=AC.createGain(); g.gain.value=vol||0.4; const f=AC.createBiquadFilter(); f.type='lowpass'; f.frequency.value=cut||900; n.connect(f); f.connect(g); g.connect(master); n.start();}catch(e){} }
+const sfx={ click:()=>tone(620,0.05,'square',0.1), select:()=>tone(880,0.05,'square',0.09),
+  explosion:()=>noiseBurst(0.5,0.5,700), objective:()=>{[523,784].forEach((f,i)=>setTimeout(()=>tone(f,0.14,'triangle',0.16),i*110));},
+  levelup:()=>{[523,659,784,1047].forEach((f,i)=>setTimeout(()=>tone(f,0.13,'square',0.16),i*90));} };
+function setMuted(m){ muted=m; if(master)master.gain.value=muted?0:0.28;
+  const lbl=muted?'🔇 SOUND: OFF':'🔊 SOUND: ON'; document.getElementById('mMute').textContent=lbl; document.getElementById('pMute').textContent=lbl; save(); }
+
+// ============================================================================
+//  PROGRESSION (campaign / xp / unlocks / save)
+// ============================================================================
+let mode='campaign', xp=0, level=1, objIndex=0, screen='menu', simPaused=false;
+const baseUnlock=[STONE,DIRT,SAND,WATER,PLANT,WOOD,FIRE,TOOL_HEAT,TOOL_COOL,EMPTY];
+let unlocked=new Set(baseUnlock);
+const stat={count:new Int32Array(29), maxFire:0};
+
+const OBJ=[
+ {title:'First Spark', desc:'Create fire anywhere in the world.', xp:20, unlock:[LAVA], chk:()=>stat.count[FIRE]>0},
+ {title:'Boiling Point', desc:'Heat water until it boils into steam.', xp:25, unlock:[ICE,METAL], chk:()=>found.steam},
+ {title:'Deep Freeze', desc:'Use the COOL tool to freeze water into ice.', xp:25, unlock:[GLASS,SALT], chk:()=>found.frost},
+ {title:'Volcanic Glass', desc:'Pour lava into water to forge obsidian.', xp:35, unlock:[OIL], chk:()=>found.obsidian},
+ {title:'Glassblower', desc:'Melt sand into glass with intense heat.', xp:40, unlock:[GAS], chk:()=>found.glass},
+ {title:'Blacksmith', desc:'Melt metal, then let it cool and re-forge.', xp:45, unlock:[ACID], chk:()=>found.forge},
+ {title:'Green Thumb', desc:'Grow the forest — add 40 plants.', xp:35, unlock:[SNOW,COAL], chk:()=>stat.count[PLANT]>=plantStart+40},
+ {title:'Inferno', desc:'Have 120 flames burning at once.', xp:50, unlock:[GUNPOWDER], chk:()=>stat.maxFire>=120},
+ {title:'Demolition', desc:'Set off a gunpowder explosion.', xp:45, unlock:[WAX,WALL], chk:()=>found.boom},
+ {title:'Master Alchemist', desc:'Unlock 12 of the 16 discoveries.', xp:90, unlock:[], chk:()=>Object.keys(found).length>=12},
+];
+function xpForLevel(l){ return l*100; }
+function addXP(n){ xp+=n; while(xp>=xpForLevel(level)){ xp-=xpForLevel(level); level++; sfx.levelup(); banner('LEVEL '+level,'lab rank increased'); } updateHUD(); }
+function currentObj(){ return mode==='campaign' && objIndex<OBJ.length ? OBJ[objIndex] : null; }
+function checkObjective(){
+ const o=currentObj(); if(!o)return;
+ if(o.chk()){
+   sfx.objective(); addXP(o.xp);
+   o.unlock.forEach(id=>unlocked.add(id));
+   banner('OBJECTIVE COMPLETE', o.title);
+   objIndex++;
+   if(objIndex>=OBJ.length){ setTimeout(()=>banner('CAMPAIGN COMPLETE','you are a master alchemist'),1700); }
+   buildPalette(); renderObjective(); save();
+ }
+}
+function save(){ try{ localStorage.setItem('particell_v1', JSON.stringify({mode,xp,level,objIndex,unlocked:[...unlocked],found:Object.keys(found),muted})); }catch(e){} }
+function load(){ try{ return JSON.parse(localStorage.getItem('particell_v1')||'null'); }catch(e){ return null; } }
+function applySave(s){ mode=s.mode||'campaign'; xp=s.xp||0; level=s.level||1; objIndex=s.objIndex||0; unlocked=new Set(s.unlocked&&s.unlocked.length?s.unlocked:baseUnlock); (s.found||[]).forEach(k=>found[k]=true); muted=!!s.muted; }
+
+// ============================================================================
+//  UI
+// ============================================================================
+let current=WATER, brush=5, speed=1, drawing=false, hover=-1, weather='clear';
+const $=id=>document.getElementById(id);
+
+function buildPalette(){
+ const pal=$('palette'); pal.innerHTML='';
+ PALETTE.forEach(group=>{
+  const sec=document.createElement('div'); sec.className='cat';
+  const lbl=document.createElement('div'); lbl.className='lbl'; lbl.textContent=group.lbl; sec.appendChild(lbl);
+  const g=document.createElement('div'); g.className='palette';
+  group.ids.forEach(id=>{
+   const isTool=id<0; const c=matRGB(id); const locked=(mode==='campaign')&&!unlocked.has(id);
+   const b=document.createElement('button'); b.className='mat'+(id===current?' on':'')+(locked?' locked':'');
+   const sw = isTool ? '<span class="sw tool" style="background:rgb('+c[0]+','+c[1]+','+c[2]+')">'+TOOLMETA[id].ico+'</span>'
+                     : '<span class="sw" style="background:rgb('+c[0]+','+c[1]+','+c[2]+')"></span>';
+   b.innerHTML=sw+'<span class="nm">'+matName(id)+'</span>';
+   b.onclick=()=>{ if(locked){sfx.click();return;} current=id; sfx.select(); document.querySelectorAll('.mat').forEach(x=>x.classList.remove('on')); b.classList.add('on'); $('hudMat').textContent=matName(id).toUpperCase(); };
+   g.appendChild(b);
+  });
+  sec.appendChild(g); pal.appendChild(sec);
+ });
+}
+const discEl=$('disc');
+function renderDisc(){
+ discEl.innerHTML=''; let n=0;
+ DISC.forEach(d=>{ const got=!!found[d.k]; if(got)n++; const row=document.createElement('div'); row.className='item'+(got?' got':''); row.innerHTML='<span class="dot"></span>'+(got?d.label:'<span class="hint">'+d.hint+'</span>'); discEl.appendChild(row); });
+ $('discN').textContent=n; $('discBar').style.width=(n/DISC.length*100)+'%';
+}
+function renderObjective(){
+ const card=$('objCard'), o=currentObj();
+ if(!o){ card.style.display=(mode==='sandbox')?'none':'block';
+   if(mode!=='sandbox'){ $('objNum').textContent=''; $('objTitle').textContent='All objectives complete'; $('objDesc').textContent='Endless sandbox unlocked. Keep experimenting!'; $('objReward').textContent=''; $('objProg').textContent=''; }
+   return; }
+ card.style.display='block';
+ $('objNum').textContent=(objIndex+1)+'/'+OBJ.length;
+ $('objTitle').textContent=o.title; $('objDesc').textContent=o.desc;
+ $('objReward').textContent='REWARD  +'+o.xp+' XP'+(o.unlock.length?'  ·  unlocks '+o.unlock.map(matName).join(', '):'');
+ $('objProg').textContent='';
+}
+function updateHUD(){
+ $('lvl').textContent=level; $('xpFill').style.width=(100*xp/xpForLevel(level))+'%';
+ $('modeChip').textContent = mode==='sandbox'?'SANDBOX':'CAMPAIGN';
+ $('lvlwrap').style.display = mode==='sandbox'?'none':'flex';
+}
+let toastT=null; function showToast(html){ const t=$('toast'); t.innerHTML=html; t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),1900); }
+let banT=null; function banner(big,sm){ const b=$('banner'); $('bannerBig').textContent=big; $('bannerSm').textContent=sm||''; b.classList.add('show'); clearTimeout(banT); banT=setTimeout(()=>b.classList.remove('show'),1800); }
+
+// input
+function toGrid(cx,cy){ const r=cv.getBoundingClientRect(); return [Math.floor((cx-r.left)/r.width*W), Math.floor((cy-r.top)/r.height*H)]; }
+function paint(cx,cy){
+ const g=toGrid(cx,cy), gx=g[0], gy=g[1], rad=brush;
+ for(let dy=-rad;dy<=rad;dy++)for(let dx=-rad;dx<=rad;dx++){
+  if(dx*dx+dy*dy>rad*rad)continue; const nx=gx+dx, ny=gy+dy; if(!inB(nx,ny))continue; const i=idx(nx,ny);
+  if(current===TOOL_HEAT){ temp[i]=Math.min(2200,temp[i]+45); continue; }
+  if(current===TOOL_COOL){ temp[i]=Math.max(-60,temp[i]-45); continue; }
+  if(current===EMPTY){ grid[i]=EMPTY; life[i]=0; temp[i]=AMBIENT; moved[i]=1; continue; }
+  const sparse=isLiquid(current)||M[current].phase==='powder'||isGas(current);
+  if(sparse&&Math.random()<0.45)continue;
+  if(isSolidLike(current)||grid[i]===EMPTY||Math.random()<0.5) setCell(i,current,false);
+ }
+}
+cv.addEventListener('pointerdown',e=>{ if(screen!=='play')return; drawing=true; paint(e.clientX,e.clientY); });
+cv.addEventListener('pointermove',e=>{ const g=toGrid(e.clientX,e.clientY); hover=inB(g[0],g[1])?idx(g[0],g[1]):-1; if(drawing&&screen==='play')paint(e.clientX,e.clientY); });
+cv.addEventListener('pointerleave',()=>hover=-1);
+window.addEventListener('pointerup',()=>drawing=false);
+window.addEventListener('contextmenu',e=>{ if(e.target===cv)e.preventDefault(); });
+window.addEventListener('keydown',e=>{ if(e.key==='Escape'&&screen==='play')togglePause(); });
+
+// controls
+$('brush').oninput=function(){brush=+this.value;$('brushVal').textContent=brush;};
+$('speed').oninput=function(){speed=+this.value;$('speedVal').textContent=speed;};
+$('pause').onclick=function(){simPaused=!simPaused;this.textContent=simPaused?'▶ PLAY':'⏸ PAUSE';this.classList.toggle('on',simPaused);sfx.click();};
+$('view').onclick=function(){viewHeat=!viewHeat;this.classList.toggle('on',viewHeat);this.textContent=viewHeat?'🌡 HEAT':'🎨 REAL';sfx.click();};
+function setWeather(w){ weather=w; ['wClear','wRain','wSnow'].forEach(id=>$(id).classList.remove('on')); $(w==='clear'?'wClear':w==='rain'?'wRain':'wSnow').classList.add('on'); sfx.click(); }
+$('wClear').onclick=()=>setWeather('clear'); $('wRain').onclick=()=>setWeather('rain'); $('wSnow').onclick=()=>setWeather('snow');
+$('regen').onclick=()=>{ genWorld((Math.random()*1e9)|0); sfx.click(); };
+$('wipe').onclick=()=>{ grid.fill(0); life.fill(0); temp.fill(AMBIENT); sfx.click(); };
+
+// drawer (collapsible config)
+let drawerOpen=true;
+function setDrawer(open){ drawerOpen=open; $('drawer').classList.toggle('open',open); $('cfgBtn').classList.toggle('on',open); }
+$('cfgBtn').onclick=()=>{ sfx.click(); setDrawer(!drawerOpen); };
+$('drawerClose').onclick=()=>{ sfx.click(); setDrawer(false); };
+
+// menu / pause
+function startGame(m){ mode=m; screen='play'; simPaused=false; $('menu').classList.add('hidden'); buildPalette(); renderObjective(); renderDisc(); updateHUD(); setWeather(weather); initAudio(); }
+$('mNew').onclick=()=>{ sfx.click(); xp=0; level=1; objIndex=0; unlocked=new Set(baseUnlock); for(const k in found)delete found[k]; genWorld((Math.random()*1e9)|0); startGame('campaign'); save(); };
+$('mSandbox').onclick=()=>{ sfx.click(); unlocked=new Set(); genWorld((Math.random()*1e9)|0); startGame('sandbox'); };
+$('mContinue').onclick=()=>{ sfx.click(); const s=load(); if(s)applySave(s); genWorld((Math.random()*1e9)|0); startGame(mode); };
+$('mHelp').onclick=()=>{ sfx.click(); $('helpMenu').classList.remove('hidden'); };
+$('helpClose').onclick=()=>{ sfx.click(); $('helpMenu').classList.add('hidden'); };
+$('mMute').onclick=()=>{ initAudio(); setMuted(!muted); };
+function togglePause(){ simPausedByMenu=!simPausedByMenu; if(simPausedByMenu){ $('pauseMenu').classList.remove('hidden'); } else { $('pauseMenu').classList.add('hidden'); } }
+let simPausedByMenu=false;
+$('menuBtn').onclick=()=>{ sfx.click(); togglePause(); };
+$('pResume').onclick=()=>{ sfx.click(); simPausedByMenu=false; $('pauseMenu').classList.add('hidden'); };
+$('pRegen').onclick=()=>{ sfx.click(); genWorld((Math.random()*1e9)|0); simPausedByMenu=false; $('pauseMenu').classList.add('hidden'); };
+$('pMute').onclick=()=>{ setMuted(!muted); };
+$('pMenu').onclick=()=>{ sfx.click(); simPausedByMenu=false; $('pauseMenu').classList.add('hidden'); $('menu').classList.remove('hidden'); screen='menu'; save(); };
+
+// ============================================================================
+//  WEATHER + STATS + LOOP
+// ============================================================================
+function doWeather(){
+ if(weather==='clear')return;
+ const cells=Math.max(2,(W/60)|0);
+ for(let k=0;k<cells;k++){ const x=(Math.random()*W)|0; const i=idx(x,0); if(grid[i]===EMPTY){ setCell(i, weather==='rain'?WATER:SNOW, false); if(weather==='rain')temp[i]=12; } }
+}
+let statTick=0;
+function updateStats(){
+ stat.count.fill(0);
+ for(let i=0;i<N;i++)stat.count[grid[i]]++;
+ if(stat.count[FIRE]>stat.maxFire)stat.maxFire=stat.count[FIRE];
+ checkObjective();
+}
+
+let last=performance.now(), fps=60;
+const DAY_LEN=100; // seconds per full day/night cycle
+function loop(now){
+ const dt=(now-last)/1000; last=now;
+ fps+=((1/Math.max(dt,0.0001))-fps)*0.1;
+ timeOfDay=(timeOfDay+dt/DAY_LEN)%1;
+ dayGrowth=0.6+1.0*(1-nightness(timeOfDay));
+ const running = screen==='play' && !simPaused && !simPausedByMenu;
+ if(running){ for(let s=0;s<speed;s++){ doWeather(); heatStep(); moveStep(); frame++; } }
+ rframe++;
+ drawSky(); render();
+ // hud
+ $('hudFps').textContent=Math.round(fps);
+ $('hudCells').textContent=active;
+ $('hudTemp').innerHTML='T: <b>'+(hover>=0?Math.round(temp[hover]):AMBIENT)+'°C</b>';
+ const nt=nightness(timeOfDay); $('clockIco').textContent = nt>0.5?'🌙':(timeOfDay<0.25||timeOfDay>0.75?'🌅':'☀');
+ $('clock').textContent = nt>0.6?'Night':(timeOfDay<0.28?'Dawn':timeOfDay>0.72?'Dusk':'Day');
+ if(running && (statTick++ %15===0)) updateStats();
+ requestAnimationFrame(loop);
+}
+
+// ============================================================================
+//  BOOT
+// ============================================================================
+(function boot(){
+ const s=load();
+ if(s){ applySave(s); } else { $('mContinue').style.display='none'; }
+ setMuted(muted);
+ buildPalette(); renderDisc(); renderObjective(); updateHUD();
+ $('hudMat').textContent=matName(current).toUpperCase();
+ setWeather('clear');
+ genWorld((Math.random()*1e9)|0);   // attract-mode scene behind the menu
+ timeOfDay=0.7;                      // dusk on the menu, looks nice
+ requestAnimationFrame(loop);
+})();
+
+// expose for tests
+if(typeof globalThis!=='undefined') globalThis.__PC={heatStep,moveStep,genWorld,render,drawSky,grid,temp,life,setCell,idx,found,N,W,H,count,stat,updateStats,
+ EMPTY,WALL,STONE,DIRT,SAND,WATER,PLANT,WOOD,METAL,LAVA,MMETAL,FIRE,ICE,STEAM,GLASS,GUNPOWDER};
+})();
+</script>
+</body>
+</html>
