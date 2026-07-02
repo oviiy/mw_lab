@@ -16,9 +16,7 @@ A collection of lightweight, browser-based tools for quantitative research, inte
 | **Japanese Tools** | Japanese learning / utility tools | [jp.html](./jp.html) |
 | **Sleeve Research** | Pure single-file HTML/JS tool for sleeve-based strategy signals, interactive backtesting, parameter sweeps, Monte Carlo, walk-forward, universe exploration & research (no live portfolio simulation) | [sleeve_research.html](./sleeve_research.html) |
 | **Quant Resources** | Quant interview preparation materials | [itv.html](./itv.html) |
-
-
-[Particell.html](./Particell.html)
+| **Particell** | LandScape Game | [Particell.html](./Particell.html) |
 
 ---
 
