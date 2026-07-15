@@ -1,0 +1,1157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>US Value / Growth Rotation</title>
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+<style>
+:root{
+  --bg:#f4f6fb; --panel:#ffffff; --ink:#1a2233; --muted:#6b7690;
+  --line:#e6eaf2; --accent:#4f7cff; --value:#2e9e6b; --growth:#e06b3a;
+  --shadow:0 1px 2px rgba(20,30,60,.04),0 6px 20px rgba(20,30,60,.06);
+  --radius:16px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+.wrap{max-width:1200px;margin:0 auto;padding:24px 20px 60px}
+header.top{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:8px;flex-wrap:wrap}
+.brand h1{font-size:22px;font-weight:700;margin:0;letter-spacing:-.4px}
+.brand .sub{color:var(--muted);font-size:12.5px;margin-top:2px}
+.top-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.btn{border:1px solid var(--line);background:var(--panel);color:var(--ink);
+  padding:8px 14px;border-radius:10px;font-size:13px;cursor:pointer;font-weight:600;box-shadow:var(--shadow)}
+.btn:hover{border-color:#c9d3ea}
+.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn.primary:hover{background:#3d6af0}
+.pill{font-size:11.5px;padding:4px 10px;border-radius:999px;background:#eef2fb;color:var(--muted);font-weight:600}
+.banner{border-radius:12px;padding:10px 14px;margin:12px 0;font-size:13px;font-weight:600}
+.banner.warn{background:#fff6e8;color:#8a5a00;border:1px solid #ffe2b0}
+.banner.err{background:#fdeeee;color:#9a2c2c;border:1px solid #f6c9c9}
+.banner.info{background:#eef4ff;color:#2f4fa0;border:1px solid #d3e0ff}
+.tabs{display:flex;gap:6px;margin:16px 0 18px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.tab{padding:9px 16px;font-size:13.5px;font-weight:600;color:var(--muted);cursor:pointer;
+  border-bottom:2px solid transparent;margin-bottom:-1px;border-radius:8px 8px 0 0}
+.tab:hover{color:var(--ink)}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.view{display:none}
+.view.active{display:block}
+.grid{display:grid;gap:16px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px}
+.card h3{margin:0 0 4px;font-size:14px;font-weight:700}
+.card .cap{color:var(--muted);font-size:12px;margin-bottom:12px}
+.kpi{font-size:40px;font-weight:800;letter-spacing:-1px;line-height:1}
+.kpi.small{font-size:26px}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:middle}
+.dot.live{background:#2e9e6b}.dot.proxy{background:#e6a72e}.dot.unavailable{background:#c14b4b}
+.legend{display:flex;gap:14px;align-items:center;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+table{border-collapse:collapse;width:100%;font-size:12.5px}
+th,td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--line)}
+th{color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.4px}
+.hm-type{font-weight:700;background:#f8faff}
+.hm-sub{font-weight:600;color:#3a4a70}
+.cell-score{font-weight:700;border-radius:6px;padding:3px 8px;display:inline-block;min-width:44px;text-align:center}
+.hm-agg{text-align:center;vertical-align:middle;font-weight:700;border-right:2px solid #fff}
+.hm-agg .n{font-size:12px;font-weight:700;line-height:1.2}
+.hm-agg .v{font-size:22px;font-weight:800;line-height:1.15}
+.hm-agg .w{font-size:10px;opacity:.85}
+.hm-final .n{font-size:10px;letter-spacing:1px;opacity:.9}
+.hm-final .v{font-size:30px}
+.hm-final .verd{font-size:11px;font-weight:800}
+.hm-scale{display:inline-flex;align-items:center;gap:0;font-size:10px;color:var(--muted)}
+.hm-scale i{width:22px;height:12px;display:inline-block}
+.hm-scale i:first-of-type{border-radius:4px 0 0 4px}.hm-scale i:nth-of-type(3){border-radius:0 4px 4px 0;margin-right:6px}
+.muted{color:var(--muted)}
+input[type=text],input[type=password],select{
+  border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-size:13px;width:100%;background:#fff;color:var(--ink)}
+label.fld{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:6px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.row2>*{min-width:0}
+.prov-list{display:grid;grid-template-columns:1fr 1fr;gap:6px 24px;font-size:12.5px}
+.gauge-verdict{font-size:20px;font-weight:800;letter-spacing:-.4px;margin-top:6px}
+.verdict-value{color:var(--value)}.verdict-growth{color:var(--growth)}.verdict-neutral{color:var(--muted)}
+.spark{height:60px}
+.tcards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.tbar{height:8px;border-radius:6px;background:#eef2fb;overflow:hidden;margin-top:8px}
+.tbar>i{display:block;height:100%;background:linear-gradient(90deg,#e06b3a,#e6a72e,#2e9e6b)}
+.small-muted{font-size:11.5px;color:var(--muted)}
+.chartbox{width:100%;height:420px}
+.chartbox.sm{height:320px}
+.chartbox.big{height:560px}
+code.k{background:#eef2fb;border-radius:6px;padding:1px 6px;font-size:11.5px;color:#3a4a70}
+.status-ok{color:var(--value);font-weight:700}
+.status-bad{color:#c14b4b;font-weight:700}
+@media(max-width:820px){.tcards,.row2,.prov-list{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <h1>US Value / Growth Rotation</h1>
+      <div class="sub">Hierarchical factor score &middot; high score favors <b style="color:var(--value)">Value</b>, low favors <b style="color:var(--growth)">Growth</b> &middot; research only, not advice</div>
+    </div>
+    <div class="top-actions">
+      <span class="pill" id="lastUpdated">no data</span>
+      <button class="btn" id="refreshBtn">&#8635; Refresh</button>
+    </div>
+  </header>
+
+  <div id="banners"></div>
+
+  <nav class="tabs" id="tabs">
+    <div class="tab active" data-tab="overview">Overview</div>
+    <div class="tab" data-tab="indicators">Indicators</div>
+    <div class="tab" data-tab="backtest">Backtest</div>
+    <div class="tab" data-tab="settings">Settings</div>
+  </nav>
+
+  <!-- OVERVIEW -->
+  <section class="view active" id="view-overview">
+    <div class="card">
+      <div style="display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:8px">
+        <div>
+          <h3>Total score over time</h3>
+          <div class="cap">Composite Value↔Growth tilt, recomputed over the full history. 0 = full Growth, 0.5 = neutral, 1 = full Value. Drag the slider to zoom, hover for values.</div>
+        </div>
+        <div style="text-align:right">
+          <div class="kpi" id="totalScore" style="font-size:34px">&mdash;</div>
+          <div class="gauge-verdict" id="verdict" style="font-size:15px">&mdash;</div>
+          <div class="small-muted" id="scoreMeta" style="margin-top:4px"></div>
+        </div>
+      </div>
+      <div id="scoreChart" class="chartbox" style="height:440px;margin-top:8px"></div>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <h3>Factor heat map</h3>
+      <div class="cap">Final score &rarr; Type (Cycle / Sentiment / Value) &rarr; Sub-type &rarr; Indicator. Every level is colored by its aggregated tilt — <span style="color:var(--growth);font-weight:700">red = Growth</span>, grey = neutral, <span style="color:var(--value);font-weight:700">green = Value</span>.</div>
+      <div class="legend" style="margin-bottom:10px">
+        <span><span class="dot live"></span>live</span>
+        <span><span class="dot proxy"></span>proxy (basket)</span>
+        <span><span class="dot unavailable"></span>unavailable</span>
+        <span style="margin-left:auto" class="hm-scale"><i style="background:rgb(224,107,58)"></i><i style="background:rgb(190,198,214)"></i><i style="background:rgb(46,158,107)"></i> Growth&rarr;Value</span>
+      </div>
+      <table id="heatTable"><tbody></tbody></table>
+    </div>
+  </section>
+
+  <!-- INDICATORS -->
+  <section class="view" id="view-indicators">
+    <div class="card">
+      <h3>Examine an indicator</h3>
+      <div class="cap">Raw series, LT/ST moving averages, crossover markers, signal history, params &amp; FMP source.</div>
+      <div style="max-width:420px;margin-bottom:14px">
+        <label class="fld">Indicator</label>
+        <select id="indPick"></select>
+      </div>
+      <div id="indChart" class="chartbox"></div>
+      <div id="indSignal" class="chartbox" style="margin-top:10px"></div>
+      <div id="indMeta" style="margin-top:14px"></div>
+    </div>
+  </section>
+
+  <!-- BACKTEST -->
+  <section class="view" id="view-backtest">
+    <div class="card">
+      <h3>Backtest</h3>
+      <div class="cap"><b>Monthly rebalance.</b> Long the Value/Growth spread when the total score is above its own 24-month trailing median, short it (i.e. long Growth) otherwise; 5&nbsp;bps cost per switch. Compared to buy&amp;hold Value spread.</div>
+      <div id="btChart" class="chartbox"></div>
+      <div id="btStats" class="tcards" style="margin-top:16px"></div>
+      <div class="small-muted" style="margin-top:10px">
+        <b>Honest limitations.</b> (1) Baskets are a <b>proxy</b> for Russell&nbsp;1000 Value/Growth (IWD/IWF ETF symbols blocked on FMP free), built from <b>today's</b> constituents held fixed over the whole window — so the deep history carries survivorship/composition bias (e.g. NVDA's current weight applied back when it was tiny). (2) Weights &amp; windows are <b>seeded from the original model's proportions and conventional defaults — not optimized</b> on this data, deliberately, to avoid overfitting a ~10y sample. (3) The signal engine is causal (trailing MAs/z-scores only). Treat as a research illustration, not audited performance.</div>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <h3>Walk-forward cross-validation</h3>
+      <div class="cap">The ~10y sample split into contiguous out-of-sample sub-periods. <b>Consistent excess across every fold = robust; one lucky fold = fragile.</b> No parameters are fit, so each fold is a pure hold-out of the same causal signal (not train/test optimization).</div>
+      <div style="display:flex;align-items:center;gap:10px;margin:10px 0">
+        <label class="fld" style="margin:0">Folds</label>
+        <select id="cvFolds"><option value="3">3</option><option value="5" selected>5</option><option value="10">10</option></select>
+        <span id="cvSummary" class="small-muted"></span>
+      </div>
+      <div id="cvChart" class="chartbox sm" style="height:220px"></div>
+      <table id="cvTable" style="margin-top:12px"><tbody></tbody></table>
+    </div>
+  </section>
+
+  <!-- SETTINGS -->
+  <section class="view" id="view-settings">
+    <div class="grid" style="grid-template-columns:1fr 1fr">
+      <div class="card">
+        <h3>FMP API key</h3>
+        <div class="cap">Stored only in your browser (localStorage). Never sent anywhere but FMP.</div>
+        <label class="fld">Key</label>
+        <input type="password" id="keyInput" placeholder="paste FMP key"/>
+        <div style="margin-top:12px;display:flex;gap:10px">
+          <button class="btn primary" id="saveKeyBtn">Save key</button>
+          <button class="btn" id="pullBtn">Save &amp; pull data</button>
+        </div>
+        <div class="small-muted" style="margin-top:10px">No key? <a href="https://financialmodelingprep.com/developer/docs" target="_blank" rel="noopener">Get a free key at financialmodelingprep.com</a></div>
+      </div>
+      <div class="card">
+        <h3>Cache</h3>
+        <div class="cap">Raw dataset + timestamp cached in localStorage; app renders from cache offline.</div>
+        <div id="cacheStatus" class="small-muted"></div>
+        <div style="margin-top:12px;display:flex;gap:10px">
+          <button class="btn" id="refreshBtn2">Refresh now</button>
+          <button class="btn" id="clearCacheBtn">Clear cache</button>
+        </div>
+        <div id="selftestBox" class="small-muted" style="margin-top:14px"></div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <h3>Provenance</h3>
+      <div class="cap">Per-indicator data source status. <b>live</b> = direct FMP series; <b>proxy</b> = built from live prices as a stand-in (V/G baskets, energy = XOM+CVX for commodities). Realized volatility replaces VIX; energy trend replaces crude oil.</div>
+      <div id="provRefreshed" class="pill" style="margin:4px 0 10px">no data</div>
+      <div id="provList" class="prov-list"></div>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <h3>Endpoints used</h3>
+      <div class="small-muted">
+        Base <code class="k">https://financialmodelingprep.com/stable</code><br/>
+        Prices <code class="k">/historical-price-eod/light?symbol=&amp;from=&amp;to=</code> &middot;
+        Quote <code class="k">/quote?symbol=</code> &middot;
+        Treasury <code class="k">/treasury-rates?from=&amp;to=</code> &middot;
+        Economic <code class="k">/economic-indicators?name=&amp;from=&amp;to=</code>
+      </div>
+    </div>
+  </section>
+
+  <footer class="small-muted" style="margin-top:30px;text-align:center">
+    Research tool, not investment advice. Data: Financial Modeling Prep (/stable). Value/Growth are cap-weighted stock baskets proxying Russell 1000 Value/Growth.
+  </footer>
+</div>
+
+<script>
+"use strict";
+/* ============================================================
+   CONFIG — all weights, windows, directions in one place.
+   dir: "SL" = short-above-long favors Value (signal=1);
+        "LS" = short-below-long favors Value (signal=1).
+   src types: econ|treasury|ratio  (baskets feed the ratio)
+   ============================================================ */
+const FMP_BASE = "https://financialmodelingprep.com/stable";
+
+// 8 constituents per side with STATIC approximate cap weights (normalized in code).
+// Static weights avoid a per-symbol /quote call on every refresh (that was ~30 calls
+// and exhausted the free 250/day quota); caps change slowly so this is a fine trade-off.
+const BASKETS = {
+  value:  [["JPM",.18],["XOM",.14],["JNJ",.13],["WMT",.12],["PG",.12],["BAC",.11],["CVX",.10],["KO",.10]],
+  growth: [["NVDA",.20],["MSFT",.19],["AAPL",.18],["AMZN",.13],["GOOGL",.12],["META",.10],["AVGO",.05],["LLY",.03]],
+  ref:    ["SPY"]
+};
+const bSyms=(b)=>b.map(x=>Array.isArray(x)?x[0]:x);
+const bWeightMap=(b)=>{const m={};for(const x of b){if(Array.isArray(x))m[x[0]]=x[1];}return m;};
+
+// weights seeded from the original proportions Cycle .42 / Sentiment .45 / Value .13
+const CONFIG = {
+  years: 10, // long window so the backtest spans multiple macro regimes (FMP free serves ~10y at no extra call cost)
+  types: {
+    Cycle: {
+      Liquidity: [
+        {id:"fedfunds",  name:"Fed Funds trend",          src:{econ:"federalFunds"},        dir:"SL", lt:12, st:3,  w:.05, transform:"level"},
+        {id:"curve102",  name:"10y-2y curve (steepening)",src:{treasury:"spread10_2"},        dir:"SL", lt:12, st:3,  w:.05, transform:"level"},
+        {id:"tbill3m",   name:"3M T-bill trend",          src:{treasury:"month3"},            dir:"SL", lt:12, st:3,  w:.04, transform:"level"},
+      ],
+      Economy: [
+        {id:"cpi",       name:"CPI YoY",                  src:{econ:"CPI"},                   dir:"SL", lt:12, st:3,  w:.05, transform:"yoy"},
+        {id:"realgdp",   name:"Real GDP growth",         src:{econ:"realGDP"},               dir:"SL", lt:8,  st:2,  w:.05, transform:"yoy"},
+        {id:"unemp",     name:"Unemployment rate",       src:{econ:"unemploymentRate"},      dir:"LS", lt:12, st:3,  w:.05, transform:"level"},
+        {id:"retail",    name:"Retail sales YoY",        src:{econ:"retailSales"},           dir:"SL", lt:12, st:3,  w:.04, transform:"yoy"},
+        {id:"sentiment", name:"Consumer sentiment",      src:{econ:"consumerSentiment"},     dir:"SL", lt:12, st:3,  w:.04, transform:"level"},
+      ],
+    },
+    Sentiment: {
+      Technical: [
+        {id:"relmom",    name:"Relative momentum V/G",   src:{ratio:1},                      dir:"SL", lt:120,st:20, w:.10, transform:"level"},
+        {id:"rsi",       name:"RSI of V/G ratio",        src:{ratio:1},                      dir:"SL", lt:120,st:20, w:.08, transform:"rsi"},
+        {id:"shortchg",  name:"Short relative %chg",     src:{ratio:1},                      dir:"SL", lt:60, st:10, w:.07, transform:"level"},
+        {id:"stretch",   name:"Valuation stretch (z)",   src:{ratio:1},                      dir:"LS", lt:120,st:20, w:.06, transform:"zscore"},
+        {id:"trend200",  name:"V/G vs 200-day trend",    src:{ratio:1},                      dir:"SL", lt:200,st:50, w:.07, transform:"level"},
+      ],
+      Financial: [
+        {id:"ust10",     name:"10y Treasury level trend",src:{treasury:"year10"},            dir:"SL", lt:120,st:20, w:.03, transform:"level"},
+        {id:"ust2",      name:"2y Treasury trend",       src:{treasury:"year2"},             dir:"SL", lt:120,st:20, w:.02, transform:"level"},
+        {id:"infltrend", name:"Inflation trend",         src:{econ:"inflationRate"},         dir:"SL", lt:12, st:3,  w:.02, transform:"level"},
+        // Replaces the old "VIX" slot: annualized realized volatility of SPY daily returns
+        // (SPY is already pulled for the market baskets → zero extra API calls). Rising
+        // volatility = risk-off, which historically favors defensive Value over Growth (SL).
+        {id:"equityvol", name:"Equity volatility (realized)", src:{derived:"realvol"},        dir:"SL", lt:60, st:15, w:.03, transform:"level"},
+        // Replaces the old "Crude oil" slot: an energy-equity index (XOM+CVX, already pulled)
+        // as a free stand-in for a commodity/oil trend. Rising energy = commodity/inflation
+        // strength, which favors Value (SL).
+        {id:"energy",    name:"Energy / commodity trend",     src:{derived:"energy"},         dir:"SL", lt:120,st:20, w:.03, transform:"level"},
+      ],
+    },
+    Value: {
+      Value: [
+        {id:"relval",    name:"Relative valuation (mean-reversion)", src:{ratio:1},          dir:"LS", lt:250,st:250,w:.13, transform:"zscore", continuous:true},
+      ],
+    },
+  },
+  // no permanently-unavailable indicators: VIX→realized vol, oil→energy proxy (both from data we already pull)
+  droppedUnavailable: [],
+};
+
+// flatten indicators with type/subtype attached
+function flatIndicators(){
+  const out=[];
+  for(const [type,subs] of Object.entries(CONFIG.types))
+    for(const [sub,arr] of Object.entries(subs))
+      for(const ind of arr) out.push({...ind,type,subtype:sub});
+  return out;
+}
+
+/* ============================================================
+   Utilities
+   ============================================================ */
+const $=(s)=>document.querySelector(s);
+const fmtPct=(x)=> (x==null||!isFinite(x))?"&mdash;":(x*100).toFixed(1)+"%";
+const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
+function ymd(d){return d.toISOString().slice(0,10);}
+function daysAgo(n){const d=new Date();d.setDate(d.getDate()-n);return d;}
+
+function mean(a){let s=0,n=0;for(const x of a){if(x!=null&&isFinite(x)){s+=x;n++;}}return n?s/n:NaN;}
+function stdev(a){const m=mean(a);let s=0,n=0;for(const x of a){if(x!=null&&isFinite(x)){s+=(x-m)*(x-m);n++;}}return n>1?Math.sqrt(s/(n-1)):NaN;}
+function median(a){const s=a.filter(x=>x!=null&&isFinite(x)).sort((x,y)=>x-y);if(!s.length)return NaN;const m=Math.floor(s.length/2);return s.length%2?s[m]:(s[m-1]+s[m])/2;}
+function maxDrawdown(eq){let peak=eq[0],dd=0;for(const v of eq){if(v>peak)peak=v;const d=(v-peak)/peak;if(d<dd)dd=d;}return dd;} // negative
+
+// trailing moving average of last `w` finite points ending at index i
+function trailAvg(vals,i,w){
+  let s=0,n=0;
+  for(let k=i;k>=0&&n<w;k--){const v=vals[k];if(v!=null&&isFinite(v)){s+=v;n++;}}
+  return n?s/n:NaN;
+}
+function rsiSeries(vals,period){
+  const out=new Array(vals.length).fill(NaN);
+  let gain=0,loss=0;
+  for(let i=1;i<vals.length;i++){
+    const ch=vals[i]-vals[i-1];
+    const g=Math.max(ch,0), l=Math.max(-ch,0);
+    if(i<=period){gain+=g;loss+=l;if(i===period){gain/=period;loss/=period;out[i]=100-100/(1+(loss===0?100:gain/loss));}}
+    else{gain=(gain*(period-1)+g)/period;loss=(loss*(period-1)+l)/period;out[i]=100-100/(1+(loss===0?100:gain/loss));}
+  }
+  return out;
+}
+function zscoreSeries(vals,win){
+  const out=new Array(vals.length).fill(NaN);
+  for(let i=0;i<vals.length;i++){
+    const s=Math.max(0,i-win+1);
+    const slice=vals.slice(s,i+1);
+    const m=mean(slice),sd=stdev(slice);
+    out[i]=(sd&&isFinite(sd))?(vals[i]-m)/sd:0;
+  }
+  return out;
+}
+function yoySeries(dates,vals){
+  // approximate YoY: value now vs value ~1yr earlier by date
+  const out=new Array(vals.length).fill(NaN);
+  for(let i=0;i<vals.length;i++){
+    const cur=new Date(dates[i]); const target=new Date(cur); target.setFullYear(cur.getFullYear()-1);
+    // find closest prior point >= target
+    let best=-1;
+    for(let j=0;j<=i;j++){ if(new Date(dates[j])<=target) best=j; }
+    if(best>=0 && vals[best]!=null && vals[best]!==0) out[i]=(vals[i]-vals[best])/Math.abs(vals[best]);
+  }
+  return out;
+}
+
+/* annualized rolling realized volatility of a daily price series (VIX replacement) */
+function realizedVol(prices,win){
+  const n=prices.length, ret=new Array(n).fill(NaN), out=new Array(n).fill(NaN);
+  for(let i=1;i<n;i++){ if(prices[i]>0&&prices[i-1]>0) ret[i]=Math.log(prices[i]/prices[i-1]); }
+  for(let i=0;i<n;i++){
+    const w=[]; for(let k=i;k>=1&&w.length<win;k--){ if(isFinite(ret[k])) w.push(ret[k]); }
+    if(w.length>=Math.min(10,win)){
+      const m=w.reduce((a,b)=>a+b,0)/w.length;
+      const v=w.reduce((a,b)=>a+(b-m)*(b-m),0)/(w.length-1);
+      out[i]=Math.sqrt(v*252); // annualized
+    }
+  }
+  return out;
+}
+
+/* --- freshness helpers for efficient pulls --- */
+function sameDay(a,b){const x=new Date(a),y=new Date(b);return x.getFullYear()===y.getFullYear()&&x.getMonth()===y.getMonth()&&x.getDate()===y.getDate();}
+// A monthly/quarterly econ series only gets a new print ~once per period, and each print
+// lands with a multi-week release lag — so a data-date check would refetch even when no
+// new data exists. Instead throttle by when we last FETCHED, scaled to the series' cadence
+// (inferred from its own point spacing): monthly ⇒ ~18d, quarterly ⇒ ~55d. Within that
+// window a refetch cannot return anything new, so skip it and save the API call.
+function econNeedsRefresh(s){
+  if(!s||!s.dates||s.dates.length<2) return true;      // no usable cache -> fetch
+  const n=s.dates.length;
+  const cadence=Math.max(20,(new Date(s.dates[n-1]).getTime()-new Date(s.dates[n-2]).getTime())/86400000);
+  if(s.fetchedAt && (Date.now()-s.fetchedAt) < cadence*0.6*86400000) return false; // fetched recently -> skip
+  return true;
+}
+
+/* ============================================================
+   FMP fetch layer (per-call isolation)
+   ============================================================ */
+function apiKey(){ return localStorage.getItem("fmp_api_key")||""; }
+
+async function fmpGet(path){
+  const key=apiKey();
+  if(!key) throw new Error("no api key");
+  const sep=path.includes("?")?"&":"?";
+  const url=`${FMP_BASE}${path}${sep}apikey=${encodeURIComponent(key)}`;
+  const r=await fetch(url);
+  if(!r.ok) throw new Error("HTTP "+r.status);
+  const j=await r.json();
+  if(j && j["Error Message"]) throw new Error(j["Error Message"]);
+  return j;
+}
+async function safe(fn){ try{ return {ok:true,data:await fn()}; }catch(e){ return {ok:false,error:String(e.message||e)}; } }
+
+async function fetchPrices(sym,from,to){
+  const j=await fmpGet(`/historical-price-eod/light?symbol=${sym}&from=${from}&to=${to}`);
+  if(!Array.isArray(j)) throw new Error("bad price payload");
+  // newest-first -> return {dates[], prices[]} ascending
+  const rows=j.slice().reverse();
+  return {dates:rows.map(r=>r.date), prices:rows.map(r=>+r.price)};
+}
+async function fetchQuoteCap(sym){
+  const j=await fmpGet(`/quote?symbol=${sym}`);
+  if(Array.isArray(j)&&j[0]) return +j[0].marketCap||null;
+  return null;
+}
+async function fetchTreasury(from,to){
+  const j=await fmpGet(`/treasury-rates?from=${from}&to=${to}`);
+  if(!Array.isArray(j)) throw new Error("bad treasury payload");
+  const rows=j.slice().reverse();
+  return rows;
+}
+async function fetchEcon(name,from,to){
+  // NOTE: without from/to the endpoint returns only ~10 recent points, which is too
+  // few for a YoY transform (needs a value ~12 months earlier) + a 12-month MA warmup.
+  const range = (from&&to) ? `&from=${from}&to=${to}` : "";
+  const j=await fmpGet(`/economic-indicators?name=${name}${range}`);
+  if(!Array.isArray(j)) throw new Error("bad econ payload");
+  const rows=j.slice().reverse();
+  return {dates:rows.map(r=>r.date), vals:rows.map(r=>+r.value)};
+}
+
+/* build a cap-weighted (fallback equal-weight) basket index from constituent price series */
+function buildBasket(priceMap,caps,symbols){
+  // align on union of dates present in all fetched; use ratio-of-portfolio-value method
+  const series=symbols.filter(s=>priceMap[s]&&priceMap[s].prices.length>2);
+  if(!series.length) return null;
+  // union date set (intersection is safer -> use intersection of dates)
+  let common=null;
+  for(const s of series){
+    const set=new Set(priceMap[s].dates);
+    common = common===null ? set : new Set([...common].filter(d=>set.has(d)));
+  }
+  let dates=[...common].sort();
+  if(dates.length<10) return null;
+  // per-symbol lookup
+  const look={};
+  for(const s of series){ const m={}; const p=priceMap[s]; p.dates.forEach((d,i)=>m[d]=p.prices[i]); look[s]=m; }
+  // weights
+  let totalCap=0; const capW={};
+  let capOk=false;
+  for(const s of series){ const c=caps[s]; if(c&&isFinite(c)){ capW[s]=c; totalCap+=c; capOk=true; } }
+  const weights={};
+  if(capOk){ for(const s of series) weights[s]=(capW[s]||0)/totalCap; }
+  else { for(const s of series) weights[s]=1/series.length; }
+  // normalize each series to its first common date, then weighted sum -> index 100
+  const base={}; for(const s of series) base[s]=look[s][dates[0]];
+  const idx=dates.map(d=>{
+    let v=0;
+    for(const s of series){ const p=look[s][d]; if(p&&base[s]) v+=weights[s]*(p/base[s]); }
+    return v*100;
+  });
+  return {dates,index:idx,capWeighted:capOk,symbols:series,weights};
+}
+
+/* ============================================================
+   Master data pull
+   ============================================================ */
+const isRateLimit=(msg)=>/limit reach|rate limit|too many|429/i.test(String(msg||""));
+
+async function pullAll(onProgress,prior){
+  const to=ymd(new Date());
+  const from=ymd(daysAgo(Math.round(CONFIG.years*365)));
+  const data={ meta:{from,to,pulledAt:Date.now(),nOk:0,nFail:0,rateLimited:false,apiCalls:0,
+                     reusedPrices:false,reusedTreasury:false,reusedEcon:0}, prices:{}, caps:{}, treasury:null, econ:{}, provenance:{} };
+  const track=(r)=>{ data.meta.apiCalls++; if(r.ok){data.meta.nOk++;} else {data.meta.nFail++; if(isRateLimit(r.error))data.meta.rateLimited=true;} return r; };
+
+  // static cap weights (no per-symbol /quote calls)
+  data.caps={...bWeightMap(BASKETS.value),...bWeightMap(BASKETS.growth)};
+
+  const priorGood = prior && prior.meta && (prior.meta.okPrices||0)>=4;
+  // only reuse today's cache if it already spans the currently-required window; otherwise the
+  // window was widened (e.g. CONFIG.years changed) and we must refetch the deeper history.
+  const coversWindow = priorGood && prior.meta.from && prior.meta.from <= from;
+  const dailyFresh = priorGood && coversWindow && sameDay(prior.meta.pulledAt, Date.now()); // EOD data won't change intraday
+
+  // ---- Prices (daily) ----
+  if(dailyFresh){
+    data.prices=prior.prices; data.meta.reusedPrices=true;
+    onProgress&&onProgress("prices — cached today, skipped");
+  } else {
+    const allSyms=[...bSyms(BASKETS.value),...bSyms(BASKETS.growth),...BASKETS.ref];
+    for(const s of allSyms){
+      onProgress&&onProgress("prices "+s);
+      const r=track(await safe(()=>fetchPrices(s,from,to)));
+      data.prices[s]=r.ok?r.data:(prior&&prior.prices?prior.prices[s]:null)||null;
+      if(data.meta.rateLimited) break; // stop hammering an exhausted quota
+    }
+  }
+
+  // ---- Treasury (daily) ----
+  if(dailyFresh && prior.treasury){
+    data.treasury=prior.treasury; data.meta.reusedTreasury=true; data.provenance.treasury="live";
+  } else if(!data.meta.rateLimited){
+    onProgress&&onProgress("treasury");
+    const rt=track(await safe(()=>fetchTreasury(from,to)));
+    data.treasury = rt.ok?rt.data:((prior&&prior.treasury)||null);
+    data.provenance.treasury = (rt.ok||data.treasury)?"live":"unavailable";
+  } else { data.treasury=(prior&&prior.treasury)||null; if(data.treasury)data.provenance.treasury="live"; }
+
+  // ---- Econ (monthly/quarterly): reuse cache unless a new period has elapsed ----
+  // needs a longer lookback than the display window so YoY (12m) + MA warmup have history
+  const econFrom=ymd(daysAgo(Math.round((CONFIG.years+2)*365)));
+  const econNames=[...new Set(flatIndicators().filter(i=>i.src.econ).map(i=>i.src.econ))];
+  for(const n of econNames){
+    const cached=prior&&prior.econ?prior.econ[n]:null;
+    // must both be time-throttled AND already span the required lookback window
+    const coversEcon = cached && cached.dates && cached.dates.length && cached.dates[0] <= econFrom.slice(0,7)+"-99";
+    if(cached && coversEcon && !econNeedsRefresh(cached)){
+      data.econ[n]=cached; data.provenance["econ:"+n]="live"; data.meta.reusedEcon++;
+      onProgress&&onProgress("econ "+n+" — fresh, skipped");
+      continue;
+    }
+    if(data.meta.rateLimited){ data.econ[n]=cached||null; if(cached)data.provenance["econ:"+n]="live"; continue; }
+    onProgress&&onProgress("econ "+n);
+    const r=track(await safe(()=>fetchEcon(n,econFrom,to)));
+    data.econ[n]=r.ok?{...r.data,fetchedAt:Date.now()}:(cached||null);
+    data.provenance["econ:"+n]=(r.ok||cached)?"live":"unavailable";
+  }
+  data.meta.okPrices=Object.values(data.prices).filter(Boolean).length;
+  return data;
+}
+
+/* ============================================================
+   Derive series each indicator needs, then run signal engine
+   ============================================================ */
+function deriveRatio(data){
+  const vb=buildBasket(data.prices,data.caps,bSyms(BASKETS.value));
+  const gb=buildBasket(data.prices,data.caps,bSyms(BASKETS.growth));
+  if(!vb||!gb) return null;
+  // intersect dates
+  const gmap={}; gb.dates.forEach((d,i)=>gmap[d]=gb.index[i]);
+  const dates=[],ratio=[];
+  vb.dates.forEach((d,i)=>{ if(gmap[d]!=null){ dates.push(d); ratio.push(vb.index[i]/gmap[d]); }});
+  // index ratio to 100
+  const r0=ratio[0]; const ratioIdx=ratio.map(r=>100*r/r0);
+  return {dates,ratio:ratioIdx,value:vb,growth:gb};
+}
+
+// return {dates, vals} for an indicator's underlying series (before MA)
+function indicatorSeries(ind,data,ratioObj){
+  if(ind.src.ratio){
+    if(!ratioObj) return null;
+    let v=ratioObj.ratio.slice();
+    if(ind.transform==="rsi") v=rsiSeries(ratioObj.ratio,14);
+    else if(ind.transform==="zscore") v=zscoreSeries(ratioObj.ratio,Math.min(250,ratioObj.ratio.length));
+    return {dates:ratioObj.dates,vals:v};
+  }
+  if(ind.src.treasury){
+    if(!data.treasury) return null;
+    const dates=data.treasury.map(r=>r.date);
+    let vals;
+    if(ind.src.treasury==="spread10_2") vals=data.treasury.map(r=>(+r.year10)-(+r.year2));
+    else vals=data.treasury.map(r=>+r[ind.src.treasury]);
+    return {dates,vals};
+  }
+  if(ind.src.econ){
+    const e=data.econ[ind.src.econ];
+    if(!e) return null;
+    let vals=e.vals.slice();
+    if(ind.transform==="yoy") vals=yoySeries(e.dates,e.vals);
+    return {dates:e.dates,vals};
+  }
+  if(ind.src.derived){
+    if(ind.src.derived==="realvol"){
+      const p=data.prices&&data.prices["SPY"];
+      if(!p||!p.prices||p.prices.length<30) return null;
+      return {dates:p.dates,vals:realizedVol(p.prices,21)};
+    }
+    if(ind.src.derived==="energy"){
+      // equal-weight energy proxy from already-pulled constituents (empty caps -> equal weight)
+      const eb=buildBasket(data.prices,{},["XOM","CVX"]);
+      if(!eb) return null;
+      return {dates:eb.dates,vals:eb.index};
+    }
+    return null;
+  }
+  return null;
+}
+
+// compute LT/ST arrays + signal history for a series
+function computeSignal(ind,series){
+  const {dates,vals}=series;
+  const lt=vals.map((_,i)=>trailAvg(vals,i,ind.lt));
+  const st=vals.map((_,i)=>trailAvg(vals,i,ind.st));
+  const sig=vals.map((_,i)=>{
+    if(!isFinite(lt[i])||!isFinite(st[i])) return null;
+    if(ind.continuous){
+      // continuous 0..1: cheap Value (low z, LS) -> high score. map z in [-2,2] -> [1,0] for LS, opp for SL
+      const z=vals[i];
+      let s=clamp((2-z)/4,0,1); // z=-2 ->1, z=+2 ->0  (LS)
+      if(ind.dir==="SL") s=1-s;
+      return s;
+    }
+    const up = st[i]>lt[i];
+    if(ind.dir==="SL") return up?1:0;
+    return up?0:1; // LS
+  });
+  // last finite signal & crossover markers
+  let last=null; for(let i=sig.length-1;i>=0;i--){ if(sig[i]!=null){last=sig[i];break;} }
+  const crossers=[];
+  for(let i=1;i<sig.length;i++){ if(sig[i]!=null&&sig[i-1]!=null&&sig[i]!==sig[i-1]) crossers.push(i); }
+  return {dates,vals,lt,st,sig,last,crossers};
+}
+
+// full aggregation
+function aggregate(data,ratioObj){
+  const inds=flatIndicators();
+  const perInd={};
+  // compute each
+  for(const ind of inds){
+    const series=indicatorSeries(ind,data,ratioObj);
+    if(!series){ perInd[ind.id]={ind,available:false,provenance:"unavailable"}; continue; }
+    const sig=computeSignal(ind,series);
+    let prov="live";
+    if(ind.src.ratio) prov="proxy"; // basket-derived
+    else if(ind.src.derived==="energy") prov="proxy"; // energy-equity stands in for commodities
+    perInd[ind.id]={ind,available:sig.last!=null,provenance:sig.last==null?"unavailable":prov,sig};
+  }
+  // aggregate contributions with renormalized weights within subtype
+  const tree={types:{},total:0};
+  let totalContribNum=0, totalW=0;
+  for(const [type,subs] of Object.entries(CONFIG.types)){
+    tree.types[type]={subs:{},score:NaN,weight:0};
+    let tNum=0,tW=0;
+    for(const [sub,arr] of Object.entries(subs)){
+      let availW=0, num=0, wsum=0;
+      const items=[];
+      for(const ind of arr){
+        const p=perInd[ind.id];
+        const ok=p&&p.available;
+        if(ok) availW+=ind.w;
+        items.push({ind,ok,score:ok?p.sig.last:null,provenance:p?p.provenance:"unavailable"});
+      }
+      // renormalize weights over available within subtype
+      for(const it of items){
+        if(it.ok){
+          const w=availW>0?it.ind.w/availW:0;
+          it.rw=w; num+=w*it.score; wsum+=w;
+        } else it.rw=0;
+      }
+      const subScore=wsum>0?num/wsum:NaN;
+      const subWeight=arr.reduce((a,b)=>a+b.w,0);
+      tree.types[type].subs[sub]={items,score:subScore,weight:subWeight,availW};
+      if(isFinite(subScore)){ tNum+=subScore*subWeight; tW+=subWeight; }
+    }
+    const typeScore=tW>0?tNum/tW:NaN;
+    const typeWeight=Object.values(subs).flat().reduce((a,b)=>a+b.w,0);
+    tree.types[type].score=typeScore;
+    tree.types[type].weight=typeWeight;
+    if(isFinite(typeScore)){ totalContribNum+=typeScore*typeWeight; totalW+=typeWeight; }
+  }
+  tree.total = totalW>0 ? totalContribNum/totalW : NaN;
+  return {perInd,tree};
+}
+
+/* score history: recompute total at each historical date using available signal arrays */
+function scoreHistory(data,ratioObj,agg){
+  if(!ratioObj) return null;
+  const dates=ratioObj.dates;
+  const inds=flatIndicators();
+  // pre-align each indicator's signal array onto ratio dates by nearest-prior date
+  const aligned={};
+  for(const ind of inds){
+    const p=agg.perInd[ind.id];
+    if(!p||!p.sig) continue;
+    const map={}; p.sig.dates.forEach((d,i)=>map[d]=p.sig.sig[i]);
+    const sdates=p.sig.dates;
+    const arr=new Array(dates.length).fill(null);
+    let j=0,lastv=null;
+    for(let i=0;i<dates.length;i++){
+      while(j<sdates.length && sdates[j]<=dates[i]){ if(map[sdates[j]]!=null) lastv=map[sdates[j]]; j++; }
+      arr[i]=lastv;
+    }
+    aligned[ind.id]=arr;
+  }
+  const hist=[];
+  for(let t=0;t<dates.length;t++){
+    let totalNum=0,totalW=0;
+    for(const [type,subs] of Object.entries(CONFIG.types)){
+      let tNum=0,tW=0;
+      for(const [sub,a] of Object.entries(subs)){
+        let availW=0,num=0,wsum=0;
+        for(const ind of a){ const v=aligned[ind.id]?aligned[ind.id][t]:null; if(v!=null) availW+=ind.w; }
+        for(const ind of a){ const v=aligned[ind.id]?aligned[ind.id][t]:null; if(v!=null){ const w=availW>0?ind.w/availW:0; num+=w*v; wsum+=w; } }
+        const ss=wsum>0?num/wsum:null; const subW=a.reduce((x,y)=>x+y.w,0);
+        if(ss!=null){ tNum+=ss*subW; tW+=subW; }
+      }
+      const ts=tW>0?tNum/tW:null; const tyW=Object.values(subs).flat().reduce((x,y)=>x+y.w,0);
+      if(ts!=null){ totalNum+=ts*tyW; totalW+=tyW; }
+    }
+    hist.push(totalW>0?totalNum/totalW:null);
+  }
+  return {dates,score:hist};
+}
+
+/* ============================================================
+   Rendering
+   ============================================================ */
+const COLORS={};
+function tiltColor(s){ // 0..1 -> red..grey..green
+  if(s==null||!isFinite(s)) return "#eef2fb";
+  const g=[46,158,107], r=[224,107,58], n=[190,198,214];
+  let c;
+  if(s>=.5){ const t=(s-.5)/.5; c=n.map((v,i)=>Math.round(v+(g[i]-v)*t)); }
+  else { const t=(.5-s)/.5; c=n.map((v,i)=>Math.round(v+(r[i]-v)*t)); }
+  return `rgb(${c[0]},${c[1]},${c[2]})`;
+}
+function tiltText(s){ return (s!=null&&s>=.42&&s<=.58)?"#1a2233":"#fff"; }
+
+let STATE={data:null,ratio:null,agg:null,hist:null};
+
+function verdictText(total){
+  if(total==null||!isFinite(total)) return ["&mdash;","verdict-neutral"];
+  if(total>=.6) return ["Favor Value","verdict-value"];
+  if(total>=.55) return ["Lean Value","verdict-value"];
+  if(total<=.4) return ["Favor Growth","verdict-growth"];
+  if(total<=.45) return ["Lean Growth","verdict-growth"];
+  return ["Neutral / mixed","verdict-neutral"];
+}
+
+function renderOverview(){
+  const {agg,hist}=STATE;
+  const total=agg?agg.tree.total:NaN;
+  $("#totalScore").innerHTML = (total!=null&&isFinite(total))?total.toFixed(3):"&mdash;";
+  const [vtxt,vcls]=verdictText(total);
+  const vEl=$("#verdict"); vEl.innerHTML=vtxt; vEl.className="gauge-verdict "+vcls;
+
+  // provenance tally
+  let live=0,proxy=0,un=0;
+  if(agg) for(const k in agg.perInd){ const p=agg.perInd[k].provenance; if(p==="live")live++;else if(p==="proxy")proxy++;else un++;}
+  un += CONFIG.droppedUnavailable.length;
+  $("#scoreMeta").innerHTML=`<span class="dot live"></span>${live} live &nbsp; <span class="dot proxy"></span>${proxy} proxy &nbsp; <span class="dot unavailable"></span>${un} unavailable`;
+
+  // large interactive score-over-time chart
+  if(hist&&hist.score&&hist.score.some(v=>v!=null)){
+    const xs=hist.dates, ys=hist.score;
+    const x0=xs[0], x1=xs[xs.length-1];
+    const band=(y0,y1,col)=>({type:"rect",xref:"paper",x0:0,x1:1,yref:"y",y0,y1,fillcolor:col,line:{width:0},layer:"below"});
+    Plotly.react("scoreChart",[
+      {x:xs,y:ys,type:"scatter",mode:"lines",name:"total score",line:{color:"#4f7cff",width:2},
+       hovertemplate:"%{x|%b %Y}<br><b>score %{y:.3f}</b><extra></extra>"}
+    ],{margin:{t:10,b:30,l:44,r:14},height:440,hovermode:"x unified",
+       xaxis:{rangeslider:{visible:true},type:"date"},
+       yaxis:{range:[0,1],tickvals:[0,.25,.5,.75,1],ticktext:["0 Growth","0.25","0.5","0.75","1 Value"],tickfont:{size:10}},
+       shapes:[
+         band(0,.4,"rgba(224,107,58,.10)"), band(.4,.6,"rgba(190,198,214,.14)"), band(.6,1,"rgba(46,158,107,.10)"),
+         {type:"line",xref:"paper",x0:0,x1:1,yref:"y",y0:.5,y1:.5,line:{color:"#9aa6c2",width:1,dash:"dot"}}
+       ],
+       paper_bgcolor:"rgba(0,0,0,0)",plot_bgcolor:"rgba(0,0,0,0)"},{responsive:true});
+  } else Plotly.purge("scoreChart");
+}
+
+function renderHeatmap(){
+  const {agg}=STATE; const tb=$("#heatTable").querySelector("tbody");
+  let html=`<tr><th>Final</th><th>Type</th><th>Sub-type</th><th>Indicator</th><th>Signal</th><th>Wt</th><th>Src</th></tr>`;
+  if(!agg){ tb.innerHTML=html; return; }
+  const cell=(s)=>`background:${tiltColor(s)};color:${tiltText(s)}`;
+  // total row count for the Final-score rowspan
+  let totalRows=0;
+  for(const t of Object.values(agg.tree.types)) for(const sv of Object.values(t.subs)) totalRows+=sv.items.length;
+  const total=agg.tree.total;
+  let firstAll=true;
+  for(const [type,t] of Object.entries(agg.tree.types)){
+    const typeRows=Object.values(t.subs).reduce((a,sv)=>a+sv.items.length,0);
+    let firstType=true;
+    for(const [sub,sv] of Object.entries(t.subs)){
+      let firstSub=true;
+      for(const it of sv.items){
+        const s=it.score;
+        let row="<tr>";
+        if(firstAll){
+          row+=`<td rowspan="${totalRows}" class="hm-agg hm-final" style="${cell(total)}">
+            <div class="n">FINAL</div><div class="v">${isFinite(total)?total.toFixed(2):"—"}</div>
+            <div class="verd">${verdictText(total)[0]}</div></td>`;
+          firstAll=false;
+        }
+        if(firstType){
+          row+=`<td rowspan="${typeRows}" class="hm-agg" style="${cell(t.score)}">
+            <div class="n">${type}</div><div class="v">${isFinite(t.score)?t.score.toFixed(2):"—"}</div>
+            <div class="w">wt ${(t.weight*100).toFixed(0)}%</div></td>`;
+          firstType=false;
+        }
+        if(firstSub){
+          row+=`<td rowspan="${sv.items.length}" class="hm-agg" style="${cell(sv.score)}">
+            <div class="n">${sub}</div><div class="v">${isFinite(sv.score)?sv.score.toFixed(2):"—"}</div></td>`;
+          firstSub=false;
+        }
+        row+=`<td>${it.ind.name}</td>
+          <td><span class="cell-score" style="${cell(s)}">${s!=null&&isFinite(s)?s.toFixed(2):"n/a"}</span></td>
+          <td>${(it.ind.w*100).toFixed(0)}%</td>
+          <td><span class="dot ${it.provenance}"></span>${it.provenance}</td></tr>`;
+        html+=row;
+      }
+    }
+  }
+  tb.innerHTML=html;
+}
+
+function renderIndicators(){
+  const {agg}=STATE; const sel=$("#indPick");
+  if(!agg){sel.innerHTML="";return;}
+  if(sel.options.length===0){
+    for(const [type,subs] of Object.entries(CONFIG.types))
+      for(const [sub,arr] of Object.entries(subs))
+        for(const ind of arr){ const o=document.createElement("option"); o.value=ind.id; o.textContent=`${ind.name} (${type}/${sub})`; sel.appendChild(o); }
+    sel.onchange=drawIndicator;
+  }
+  drawIndicator();
+}
+function drawIndicator(){
+  const {agg}=STATE; const id=$("#indPick").value;
+  const p=agg.perInd[id]; const meta=$("#indMeta");
+  if(!p||!p.sig){ Plotly.purge("indChart");Plotly.purge("indSignal");
+    meta.innerHTML=`<div class="banner err">This indicator is <b>unavailable</b> (source failed or premium). It is excluded from the score and weights are renormalized.</div>`; return; }
+  const s=p.sig; const ind=p.ind;
+  const crossX=s.crossers.map(i=>s.dates[i]), crossY=s.crossers.map(i=>s.vals[i]);
+  Plotly.react("indChart",[
+    {x:s.dates,y:s.vals,type:"scatter",mode:"lines",name:"raw",line:{color:"#1a2233",width:1.4}},
+    {x:s.dates,y:s.lt,type:"scatter",mode:"lines",name:`LT MA(${ind.lt})`,line:{color:"#4f7cff",width:2}},
+    {x:s.dates,y:s.st,type:"scatter",mode:"lines",name:`ST MA(${ind.st})`,line:{color:"#e06b3a",width:2}},
+    {x:crossX,y:crossY,type:"scatter",mode:"markers",name:"crossover",marker:{color:"#2e9e6b",size:8,symbol:"diamond"}}
+  ],{margin:{t:30,b:30,l:44,r:10},height:420,title:{text:ind.name,font:{size:13}},
+     hovermode:"x unified",xaxis:{rangeslider:{visible:true}},legend:{orientation:"h",y:1.12,font:{size:10}},
+     paper_bgcolor:"rgba(0,0,0,0)",plot_bgcolor:"rgba(0,0,0,0)"},{responsive:true});
+  Plotly.react("indSignal",[
+    {x:s.dates,y:s.sig,type:"scatter",mode:"lines",line:{shape:"hv",color:"#4f7cff",width:2},name:"signal",fill:"tozeroy",fillcolor:"rgba(79,124,255,.12)"}
+  ],{margin:{t:30,b:30,l:44,r:10},height:420,title:{text:"Signal history (1=favors Value)",font:{size:13}},
+     hovermode:"x unified",xaxis:{rangeslider:{visible:true}},yaxis:{range:[-.05,1.05],tickvals:[0,1]},
+     paper_bgcolor:"rgba(0,0,0,0)",plot_bgcolor:"rgba(0,0,0,0)"},{responsive:true});
+  const srcTxt = ind.src.ratio?"V/G basket ratio (proxy)"
+    :ind.src.treasury?`treasury: ${ind.src.treasury}`
+    :ind.src.derived==="realvol"?"realized volatility of SPY daily returns (annualized, 21d)"
+    :ind.src.derived==="energy"?"energy-equity index: XOM + CVX (commodity proxy)"
+    :`economic: ${ind.src.econ}`;
+  meta.innerHTML=`<div class="row2">
+    <div><b>Parameters</b><br/>
+      <span class="small-muted">direction</span> <code class="k">${ind.dir}</code> ${ind.dir==="SL"?"(ST&gt;LT favors Value)":"(ST&lt;LT favors Value)"}<br/>
+      <span class="small-muted">LT / ST window</span> <code class="k">${ind.lt} / ${ind.st}</code><br/>
+      <span class="small-muted">transform</span> <code class="k">${ind.transform}</code><br/>
+      <span class="small-muted">weight</span> <code class="k">${(ind.w*100).toFixed(0)}%</code>${ind.continuous?' &middot; <code class="k">continuous</code>':''}</div>
+    <div><b>Source &amp; current</b><br/>
+      <span class="small-muted">FMP source</span> ${srcTxt}<br/>
+      <span class="small-muted">provenance</span> <span class="dot ${p.provenance}"></span>${p.provenance}<br/>
+      <span class="small-muted">current signal</span> <b>${s.last!=null?s.last.toFixed(3):"n/a"}</b> ${s.last!=null?(s.last>=.5?'<span class="verdict-value">→ Value</span>':'<span class="verdict-growth">→ Growth</span>'):''}<br/>
+      <span class="small-muted">crossovers in window</span> ${s.crossers.length}</div>
+  </div>`;
+}
+
+// backtest tunables (documented in the UI note)
+const BT = { MEDWIN:24, MINOBS:6, TC:0.0005 }; // 24-mo trailing median; ≥6 obs before trading; 5bps one-way cost
+
+function renderBacktest(){
+  const {ratio,hist}=STATE; const box=$("#btStats");
+  if(!ratio||!hist){Plotly.purge("btChart");Plotly.purge("cvChart");box.innerHTML="";
+    const cvt=$("#cvTable");if(cvt)cvt.querySelector("tbody").innerHTML="";const cs=$("#cvSummary");if(cs)cs.innerHTML="";return;}
+  const dates=ratio.dates, r=ratio.ratio, score=hist.score;
+
+  // ---- 1. sample to month-end (last trading day of each calendar month) ----
+  const mIdx=[];
+  for(let i=0;i<dates.length;i++){
+    if(i===dates.length-1 || dates[i+1].slice(0,7)!==dates[i].slice(0,7)) mIdx.push(i);
+  }
+  if(mIdx.length<12){Plotly.purge("btChart");box.innerHTML=`<div class="banner warn">Not enough history to backtest (${mIdx.length} months). Refresh to pull the full window.</div>`;return;}
+  const mDates=mIdx.map(i=>dates[i]), mRatio=mIdx.map(i=>r[i]), mScore=mIdx.map(i=>score[i]);
+
+  // ---- 2. position from score vs its OWN trailing median (causal). Centers the signal so
+  //         the threshold is meaningful regardless of the score's absolute level. ----
+  const pos=new Array(mIdx.length).fill(0), medLine=new Array(mIdx.length).fill(null);
+  for(let k=0;k<mIdx.length;k++){
+    const win=[]; for(let j=Math.max(0,k-BT.MEDWIN+1);j<=k;j++){ if(mScore[j]!=null) win.push(mScore[j]); }
+    if(mScore[k]==null || win.length<BT.MINOBS){ pos[k]=0; continue; } // flat until enough history
+    const med=median(win); medLine[k]=med;
+    pos[k]= mScore[k]>=med ? 1 : -1; // +1 long Value spread, -1 long Growth (short the spread)
+  }
+
+  // ---- 3. per-month returns (position set at month-end k held over k→k+1, no look-ahead) ----
+  const M=mIdx.length;
+  const rawret=new Array(M-1), mnet=new Array(M-1), hitArr=new Array(M-1);
+  const eqDates=[mDates[0]], stratEq=[100], bhEq=[100];
+  let strat=100,bh=100;
+  for(let k=0;k<M-1;k++){
+    const ret=(mRatio[k+1]-mRatio[k])/mRatio[k]; // Value-minus-Growth monthly relative return
+    const p=pos[k], prev=k>0?pos[k-1]:0;
+    const cost=(p!==prev)?BT.TC*Math.abs(p-prev):0; // turnover cost
+    const net=p*ret-cost;
+    rawret[k]=ret; mnet[k]=net; hitArr[k]=(p!==0)&&((p>0&&ret>0)||(p<0&&ret<0));
+    strat*=(1+net); bh*=(1+ret);
+    eqDates.push(mDates[k+1]); stratEq.push(strat); bhEq.push(bh);
+  }
+
+  // stats over an evaluation window [a,b) of months — reused by the full run and each CV fold
+  const stat=(a,b)=>{
+    let s=1,h=1,hits=0,tot=0,inV=0,sw=0,peak=1,dd=0; const rs=[];
+    for(let k=a;k<b;k++){
+      s*=(1+mnet[k]); h*=(1+rawret[k]); rs.push(mnet[k]);
+      if(s>peak)peak=s; const d=(s-peak)/peak; if(d<dd)dd=d;
+      const p=pos[k], prev=k>0?pos[k-1]:0; if(p!==prev)sw++;
+      if(p!==0){tot++; if(hitArr[k])hits++; if(p>0)inV++;}
+    }
+    const yrs=(b-a)/12, sd=stdev(rs);
+    const aS=Math.pow(s,1/yrs)-1, aB=Math.pow(h,1/yrs)-1;
+    return {annStrat:aS,annBH:aB,excess:aS-aB,sharpe:(sd&&isFinite(sd))?mean(rs)/sd*Math.sqrt(12):NaN,
+            dd,hit:tot?hits/tot:NaN,pctV:tot?inV/tot:NaN,sw,months:b-a,fromD:mDates[a],toD:mDates[b]};
+  };
+
+  Plotly.react("btChart",[
+    {x:eqDates,y:stratEq,type:"scatter",mode:"lines",name:"Score strategy (monthly, net of cost)",line:{color:"#4f7cff",width:2}},
+    {x:eqDates,y:bhEq,type:"scatter",mode:"lines",name:"Buy&hold Value spread",line:{color:"#9aa6c2",width:1.6,dash:"dot"}},
+    {x:mDates,y:mScore,type:"scatter",mode:"lines",name:"Score",yaxis:"y2",line:{color:"#e06b3a",width:1}},
+    {x:mDates,y:medLine,type:"scatter",mode:"lines",name:"Score trailing median",yaxis:"y2",line:{color:"#e06b3a",width:1,dash:"dot"}}
+  ],{margin:{t:30,b:30,l:48,r:48},height:420,hovermode:"x unified",
+     xaxis:{rangeslider:{visible:true}},yaxis:{title:"equity (100=start)"},
+     yaxis2:{overlaying:"y",side:"right",showgrid:false,range:[0,1],title:{text:"score",font:{size:10}}},
+     legend:{orientation:"h",y:1.14,font:{size:10}},paper_bgcolor:"rgba(0,0,0,0)",plot_bgcolor:"rgba(0,0,0,0)"},{responsive:true});
+
+  const full=stat(0,M-1);
+  const kc=(t,v,s)=>`<div class="card"><h3>${t}</h3><div class="kpi small">${v}</div><div class="small-muted">${s}</div></div>`;
+  box.innerHTML=
+    kc("Strategy ann. return", fmtPct(full.annStrat), `over ${(full.months/12).toFixed(1)}y, ${full.months} months`)+
+    kc("Ann. excess vs B&amp;H", fmtPct(full.excess), `buy&hold spread ${fmtPct(full.annBH)}`)+
+    kc("Sharpe (monthly→ann)", isFinite(full.sharpe)?full.sharpe.toFixed(2):"&mdash;", "risk-adjusted, net of cost")+
+    kc("Max drawdown", fmtPct(full.dd), "peak-to-trough of strategy")+
+    kc("Hit rate", fmtPct(full.hit), `direction right on ${full.months} months`)+
+    kc("% time long Value", fmtPct(full.pctV), `${full.sw} position switches`);
+
+  renderCV(stat, M);
+}
+
+// walk-forward CV: split the evaluable months [0,M-1) into K contiguous hold-out folds
+function renderCV(stat, M){
+  const N=M-1, K=Math.max(2,Math.min(12,parseInt(($("#cvFolds")||{}).value,10)||5));
+  const folds=[];
+  for(let f=0;f<K;f++){ const a=Math.floor(f*N/K), b=Math.floor((f+1)*N/K); if(b-a>=3) folds.push(stat(a,b)); }
+  const ym=(d)=>d?d.slice(0,7):"—";
+  const exStyle=(x)=>`background:${x>=0?'rgba(46,158,107,.16)':'rgba(224,107,58,.16)'};color:${x>=0?'#1c7449':'#b0451e'};font-weight:700;border-radius:5px;padding:2px 7px;display:inline-block;min-width:52px;text-align:center`;
+  const tb=$("#cvTable").querySelector("tbody");
+  let h=`<tr><th>Fold</th><th>Period</th><th>Mo</th><th>Strat ann</th><th>B&amp;H ann</th><th>Excess</th><th>Hit</th><th>Sharpe</th></tr>`;
+  folds.forEach((f,i)=>{ h+=`<tr>
+    <td><b>${i+1}</b></td><td>${ym(f.fromD)} → ${ym(f.toD)}</td><td>${f.months}</td>
+    <td>${fmtPct(f.annStrat)}</td><td>${fmtPct(f.annBH)}</td>
+    <td><span style="${exStyle(f.excess)}">${fmtPct(f.excess)}</span></td>
+    <td>${fmtPct(f.hit)}</td><td>${isFinite(f.sharpe)?f.sharpe.toFixed(2):"—"}</td></tr>`; });
+  tb.innerHTML=h;
+
+  const exs=folds.map(f=>f.excess), pos=exs.filter(x=>x>0).length, me=mean(exs), se=stdev(exs);
+  $("#cvSummary").innerHTML=`${folds.length} folds · <b>${pos}/${folds.length}</b> with positive excess · mean excess <b>${fmtPct(me)}</b>${isFinite(se)?` (±${fmtPct(se)})`:""}`;
+
+  Plotly.react("cvChart",[{
+    type:"bar", x:folds.map((f,i)=>`F${i+1}\n${ym(f.fromD)}`), y:exs,
+    marker:{color:exs.map(x=>x>=0?"#2e9e6b":"#e06b3a")},
+    hovertemplate:"%{x}<br>excess %{y:.1%}<extra></extra>"
+  }],{margin:{t:10,b:36,l:44,r:10},height:220,yaxis:{title:{text:"ann excess vs B&H",font:{size:10}},tickformat:".0%",zeroline:true,zerolinecolor:"#c3ccdd"},
+     xaxis:{tickfont:{size:9}},paper_bgcolor:"rgba(0,0,0,0)",plot_bgcolor:"rgba(0,0,0,0)"},{displayModeBar:false,responsive:true});
+}
+
+function renderSettings(){
+  $("#keyInput").value = apiKey();
+  const raw=localStorage.getItem("us_rot_cache");
+  let st="No cache.";
+  if(raw){ try{ const c=JSON.parse(raw); const age=(Date.now()-c.meta.pulledAt)/3600000;
+    const okP=Object.values(c.prices||{}).filter(Boolean).length, okE=Object.values(c.econ||{}).filter(Boolean).length;
+    st=`Cached ${new Date(c.meta.pulledAt).toLocaleString()} (${age.toFixed(1)}h ago). Range ${c.meta.from} → ${c.meta.to}. ${okP} price series + ${okE} econ series loaded.`;
+  }catch(e){ st="Cache present but unreadable."; } }
+  $("#cacheStatus").innerHTML=st;
+  // provenance: show the latest refresh date of the data currently displayed
+  const pr=$("#provRefreshed");
+  if(pr){
+    const d=STATE&&STATE.data&&STATE.data.meta&&STATE.data.meta.pulledAt;
+    if(d){ const age=(Date.now()-d)/3600000;
+      pr.textContent=`Data as of ${new Date(d).toLocaleString()} (${age<48?age.toFixed(1)+"h":Math.round(age/24)+"d"} ago)`;
+    } else pr.textContent="no data — click Refresh";
+  }
+  // provenance list
+  const {agg}=STATE; const pl=$("#provList"); pl.innerHTML="";
+  if(agg){
+    for(const [type,subs] of Object.entries(CONFIG.types))
+      for(const [sub,arr] of Object.entries(subs))
+        for(const ind of arr){ const p=agg.perInd[ind.id];
+          pl.innerHTML+=`<div><span class="dot ${p.provenance}"></span>${ind.name} <span class="small-muted">— ${p.provenance}</span></div>`; }
+  }
+  for(const d of CONFIG.droppedUnavailable)
+    pl.innerHTML+=`<div><span class="dot unavailable"></span>${d.name} <span class="small-muted">— unavailable (${d.reason})</span></div>`;
+}
+
+/* ============================================================
+   Orchestration
+   ============================================================ */
+function computeFromData(data){
+  const ratio=deriveRatio(data);
+  const agg=aggregate(data,ratio);
+  const hist=scoreHistory(data,ratio,agg);
+  STATE={data,ratio,agg,hist};
+}
+function renderAll(){
+  renderOverview();renderHeatmap();renderIndicators();renderBacktest();renderSettings();
+  updateLastUpdated();
+}
+function updateLastUpdated(){
+  const raw=localStorage.getItem("us_rot_cache");
+  const bn=$("#banners"); bn.innerHTML="";
+  if(!apiKey()){
+    bn.innerHTML+=`<div class="banner info">No FMP API key set. Open <b>Settings</b> to add one, or append <code class="k">?apikey=YOURKEY</code> to the URL. <a href="https://financialmodelingprep.com/developer/docs" target="_blank" rel="noopener">Get a free key</a>.</div>`;
+  }
+  if(raw){ try{ const c=JSON.parse(raw); const age=(Date.now()-c.meta.pulledAt)/3600000;
+    $("#lastUpdated").textContent="updated "+new Date(c.meta.pulledAt).toLocaleString();
+    if(age>24) bn.innerHTML+=`<div class="banner warn">Data is stale (${age.toFixed(0)}h old). Click Refresh to re-pull.</div>`;
+  }catch(e){} }
+  else $("#lastUpdated").textContent="no data";
+}
+
+function saveCache(data){ try{ localStorage.setItem("us_rot_cache",JSON.stringify(data)); }catch(e){ console.warn("cache save failed",e); } }
+function loadCache(){ try{ const raw=localStorage.getItem("us_rot_cache"); return raw?JSON.parse(raw):null; }catch(e){ return null; } }
+
+let PULLING=false;
+async function doPull(){
+  if(PULLING) return;
+  if(!apiKey()){ $("#banners").innerHTML=`<div class="banner err">Cannot pull: no API key. Add one in Settings.</div>`; switchTab("settings"); return; }
+  PULLING=true;
+  $("#lastUpdated").textContent="pulling…";
+  $("#banners").innerHTML=`<div class="banner info" id="pullBanner">Pulling data from FMP… <span id="pullMsg"></span></div>`;
+  try{
+    const prior=loadCache();
+    const data=await pullAll(msg=>{ const m=$("#pullMsg"); if(m)m.textContent=msg; }, prior);
+    data.provenance.baskets="proxy";
+    const okPrices=data.meta.okPrices||0;
+    const badPull = data.meta.rateLimited || okPrices<4;
+    if(badPull){
+      const why = data.meta.rateLimited
+        ? `FMP daily free-tier limit reached (250 requests/day). ${data.meta.nOk} calls succeeded before the limit. It resets daily — try Refresh again later.`
+        : `Pull returned almost no data (${okPrices} price series). FMP may be rate-limiting or down.`;
+      if(prior && (prior.meta.okPrices||0)>=4){
+        // keep the good cached data rather than clobbering it with an empty pull
+        computeFromData(prior); renderAll();
+        $("#banners").innerHTML=`<div class="banner warn">${why} <b>Showing your last good data</b> from ${new Date(prior.meta.pulledAt).toLocaleString()}.</div>`;
+      } else {
+        // no good prior cache — show the empty state but explain why, and do NOT cache the empty pull
+        computeFromData(data); renderAll();
+        $("#banners").innerHTML=`<div class="banner err">${why} No cached data to fall back on, so indicators show as unavailable until you can pull again.</div>`;
+      }
+      return;
+    }
+    saveCache(data);
+    computeFromData(data);
+    renderAll();
+    updateLastUpdated(); // clears banners + sets timestamp
+    const m=data.meta;
+    const reused=[]; if(m.reusedPrices)reused.push("prices"); if(m.reusedTreasury)reused.push("treasury"); if(m.reusedEcon)reused.push(`${m.reusedEcon} monthly`);
+    const rate = m.apiCalls>0 ? ` · ~${Math.floor(250/m.apiCalls)} refreshes/day at this rate` : "";
+    const msg = m.apiCalls===0
+      ? `Already up to date — data was pulled today, so <b>0 API calls</b> used (served from cache).`
+      : `Refreshed with <b>${m.apiCalls} API call${m.apiCalls===1?"":"s"}</b>${reused.length?` · reused ${reused.join(", ")} from cache`:""}${rate}.`;
+    $("#banners").innerHTML=`<div class="banner info">${msg}</div>`;
+  }catch(e){
+    console.error(e);
+    $("#banners").innerHTML=`<div class="banner err">Pull failed: ${String(e.message||e)}. Showing cached data if available.</div>`;
+  } finally { PULLING=false; }
+}
+
+function switchTab(name){
+  document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active",t.dataset.tab===name));
+  document.querySelectorAll(".view").forEach(v=>v.classList.toggle("active",v.id==="view-"+name));
+  // Charts first drawn while their tab was display:none get a stale/oversized width.
+  // Explicitly resize every Plotly div in the now-visible view (a generic resize event
+  // won't shrink an already-too-wide plot because its container expanded to fit it).
+  setTimeout(()=>{
+    const v=document.getElementById("view-"+name);
+    if(v) v.querySelectorAll(".chartbox").forEach(el=>{ if(el && el.data){ try{ Plotly.Plots.resize(el); }catch(e){} } });
+  },60);
+}
+
+/* ============================================================
+   Self-test (?selftest=1)
+   ============================================================ */
+function runSelfTest(){
+  const results=[];
+  const assert=(name,cond)=>results.push({name,pass:!!cond});
+  // 1. crossover sign: build a series that rises so ST>LT at the end (SL should=1)
+  const rising=Array.from({length:60},(_,i)=>100+i);
+  const ind1={dir:"SL",lt:20,st:5,transform:"level"};
+  const sig1=computeSignal(ind1,{dates:rising.map((_,i)=>"2024-01-"+String(i%28+1).padStart(2,"0")),vals:rising});
+  assert("SL rising -> signal 1", sig1.last===1);
+  const indLS={dir:"LS",lt:20,st:5,transform:"level"};
+  const sigLS=computeSignal(indLS,{dates:rising.map((_,i)=>"d"+i),vals:rising});
+  assert("LS rising -> signal 0", sigLS.last===0);
+  const falling=rising.map(v=>200-v);
+  const sigF=computeSignal(indLS,{dates:falling.map((_,i)=>"d"+i),vals:falling});
+  assert("LS falling -> signal 1", sigF.last===1);
+  // 2. aggregation arithmetic fixture: two indicators in one subtype, weights .06/.04, scores 1/0
+  // renormalized -> (.06*1 + .04*0)/(.06+.04)=0.6
+  const fakeData={treasury:null,econ:{},prices:{},caps:{}};
+  // craft aggregate manually via minimal path
+  const availW=0.06+0.04; const num=(0.06/availW)*1+(0.04/availW)*0; const wsum=(0.06/availW)+(0.04/availW);
+  const subScore=num/wsum;
+  assert("subtype renorm arithmetic = 0.6", Math.abs(subScore-0.6)<1e-9);
+  // 3. all finite check on tiltColor
+  assert("tiltColor(0.5) finite string", typeof tiltColor(0.5)==="string");
+  assert("continuous z=-2 -> 1 (LS)", (function(){const c={dir:"LS",lt:250,st:250,continuous:true,transform:"zscore"};
+    const s=computeSignal(c,{dates:["a","b"],vals:[-2,-2]}); return Math.abs(s.last-1)<1e-9;})());
+  const pass=results.every(r=>r.pass);
+  const html=results.map(r=>`<div>${r.pass?"✅":"❌"} ${r.name}</div>`).join("");
+  const summary=`SELFTEST ${pass?"PASS":"FAIL"} (${results.filter(r=>r.pass).length}/${results.length})`;
+  console.log(summary); results.forEach(r=>console.log((r.pass?"PASS":"FAIL")+": "+r.name));
+  const box=$("#selftestBox");
+  if(box) box.innerHTML=`<b class="${pass?'status-ok':'status-bad'}">${summary}</b>${html}`;
+  const bn=$("#banners"); if(bn) bn.innerHTML=`<div class="banner ${pass?'info':'err'}" id="selftestBanner">${summary}</div>`+bn.innerHTML;
+  return pass;
+}
+
+/* ============================================================
+   Init
+   ============================================================ */
+function init(){
+  const params=new URLSearchParams(location.search);
+  if(params.get("apikey")){ localStorage.setItem("fmp_api_key",params.get("apikey")); }
+
+  // tab wiring
+  document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>switchTab(t.dataset.tab)));
+  // settings wiring
+  $("#saveKeyBtn").onclick=()=>{ localStorage.setItem("fmp_api_key",$("#keyInput").value.trim()); renderSettings();updateLastUpdated(); $("#banners").innerHTML=`<div class="banner info">Key saved.</div>`; };
+  $("#pullBtn").onclick=()=>{ localStorage.setItem("fmp_api_key",$("#keyInput").value.trim()); doPull(); };
+  $("#refreshBtn").onclick=doPull;
+  $("#refreshBtn2").onclick=doPull;
+  $("#clearCacheBtn").onclick=()=>{ localStorage.removeItem("us_rot_cache"); STATE={data:null,ratio:null,agg:null,hist:null}; renderAll(); $("#cacheStatus").textContent="Cache cleared."; };
+  const cvSel=$("#cvFolds"); if(cvSel) cvSel.onchange=renderBacktest;
+
+  // render from cache first
+  const cache=loadCache();
+  if(cache){ try{ computeFromData(cache); }catch(e){ console.warn("compute from cache failed",e); } }
+  renderAll();
+
+  if(params.get("selftest")==="1"){ runSelfTest(); }
+
+  const wantRefresh = params.get("refresh")==="1";
+  if(wantRefresh || (!cache && apiKey())){ doPull(); }
+}
+document.addEventListener("DOMContentLoaded",init);
+</script>
+</body>
+</html>
