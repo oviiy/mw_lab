@@ -19,7 +19,10 @@ mw_lab/
 │   ├── Quick_Pull.bat
 │   └── portfolio_rotation.py
 ├── games/
-│   └── Particell.html
+│   ├── Particell.html
+│   ├── Blitz.html
+│   └── NeonDistrict/
+│       └── index.html   # single-file GTA-lite
 └── knowledge/
     └── itv.html
 ```
@@ -33,8 +36,19 @@ mw_lab/
 | **Sleeve Research**   | Pure single-file HTML/JS tool for sleeve-based strategy signals, interactive backtesting, parameter sweeps, Monte Carlo, walk-forward, universe exploration & research | [tools/sleeve_research.html](./tools/sleeve_research.html) |
 | **Video Downloader**  | Download Douyin & Xiaohongshu videos without watermark in browser           | [tools/video_downloader.html](./tools/video_downloader.html) |
 | **Japanese Tools**    | Japanese learning / utility tools                                           | [tools/jp.html](./tools/jp.html) |
+| **US Rotation**       | US equity rotation research dashboard (single-file HTML)                    | [tools/us_rotation.html](./tools/us_rotation.html) |
 | **Quick Pull**        | Hearthstone Battlegrounds one-click disconnect tool                         | [tools/Quick_Pull.bat](./tools/Quick_Pull.bat) |
 | **Portfolio Rotation**| Python script for portfolio rotation strategy                               | [tools/portfolio_rotation.py](./tools/portfolio_rotation.py) |
+
+---
+
+## 🎮 Games
+
+| Game            | Description                                                                 | Link |
+|-----------------|-----------------------------------------------------------------------------|------|
+| **Particell**   | Thermal sandbox world — paint materials, real heat physics, discoveries     | [games/Particell.html](./games/Particell.html) |
+| **Blitz**       | Neon arena survivor — move, auto-fire, level-up builds, shards & medals     | [games/Blitz.html](./games/Blitz.html) |
+| **Neon District** | Top-down GTA-lite (single HTML) — districts, driving physics, story, police | [games/NeonDistrict/index.html](./games/NeonDistrict/index.html) |
 
 ---
 
@@ -44,7 +58,7 @@ mw_lab/
    (Settings → Pages → Source: Deploy from `main` branch)
 2. Browse by category:
    - [Tools](./tools/)
-   - [Games](./games/)
+   - [Games](./games/) — Particell, Blitz, Neon District (top-down crime story)
    - [Knowledge](./knowledge/)
 3. Click any link to open the tool directly in your browser.
 4. All content runs **client-side** — no backend or installation needed.

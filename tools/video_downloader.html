@@ -732,6 +732,10 @@
       const author = tweet.author ? `${tweet.author.name} (@${tweet.author.screen_name})` : 'X User';
       const cover = videos[0]?.thumbnail || tweet.author?.avatar_url || '';
 
+      const safeXTitle = (title || 'x').replace(/[\\/:*?"<>|]/g, '_').replace(/\s+/g, '_').slice(0, 60);
+      const xVideoId = (statusId || Date.now().toString(36));
+      const xSuggested = `${safeXTitle}_${xVideoId}.mp4`;
+
       window.currentMedia = {
         platform: 'x',
         hd: videos[0].url,
@@ -740,6 +744,7 @@
         author,
         cover,
         hdFallbacks: videos.map(v => v.url),
+        suggestedFilename: xSuggested,
       };
 
       renderXResult(videos, title, author, cover);
@@ -777,7 +782,9 @@
           const btn = document.createElement('button');
           btn.className = 'bg-zinc-800 hover:bg-zinc-700 text-sm py-2 px-3 rounded-xl flex items-center justify-center gap-2 text-left';
           btn.innerHTML = `<i class="fa-solid fa-download"></i> <span>${vid.label || 'Video ' + (i+1)}</span>`;
-          btn.onclick = () => openMediaUrl(vid.url);
+          const safeAuthor = (author || 'post').replace(/[^a-zA-Z0-9_-]/g, '');
+          const fname = `x_${safeAuthor}_${(vid.label || 'video' + (i+1))}_${Date.now()}.mp4`.replace(/[^a-zA-Z0-9_.-]/g, '_');
+          btn.onclick = () => downloadBlobWithName(vid.url, fname);
           imageWrap.appendChild(btn);
         });
 
@@ -787,7 +794,8 @@
         allBtn.innerHTML = `<i class="fa-solid fa-download"></i> <span>Download All ${videos.length} Videos</span>`;
         allBtn.onclick = () => {
           videos.forEach((v, idx) => {
-            setTimeout(() => openMediaUrl(v.url), idx * 350);
+            const fname = `x_video${idx+1}_${Date.now()}.mp4`;
+            setTimeout(() => downloadBlobWithName(v.url, fname), idx * 350);
           });
         };
         imageWrap.appendChild(allBtn);
@@ -837,14 +845,40 @@
       updatePlatformHints(Boolean(data.hd), Boolean(data.images?.length));
     }
 
+    function extractDouyinVideoId(url) {
+      if (!url) return null;
+      const patterns = [
+        /\/video\/(\d{10,25})/i,
+        /\/share\/video\/(\d{10,25})/i,
+        /douyin\.com\/(\d{10,25})/i,
+        /iesdouyin\.com\/share\/video\/(\d{10,25})/i,
+      ];
+      for (const p of patterns) {
+        const m = url.match(p);
+        if (m && m[1]) return m[1];
+      }
+      // fallback short id from v.douyin.com path if present
+      const short = url.match(/v\.douyin\.com\/([A-Za-z0-9_-]+)/i);
+      return short ? short[1] : null;
+    }
+
     async function fetchDouyin(url) {
       const videoData = await resolveDouyinVideo(url);
+      const videoId = extractDouyinVideoId(url) || Date.now().toString(36);
+      const rawTitle = (videoData.title || 'douyin').trim();
+      const safeTitle = rawTitle.replace(/[\\/:*?"<>|]/g, '_').replace(/\s+/g, '_').slice(0, 60);
+      const suggestedFilename = `${safeTitle || 'douyin'}_${videoId}.mp4`;
+
       window.currentMedia = {
         platform: 'douyin',
         hd: videoData.hd,
         hdFallbacks: videoData.hdFallbacks || [],
         music: videoData.music,
         images: [],
+        suggestedFilename,
+        title: videoData.title,
+        author: videoData.author,
+        videoId,
       };
       renderResult({
         cover: videoData.cover,
@@ -878,12 +912,18 @@
         ...[...html.matchAll(/(https?:\/\/[^"\\]*xhscdn[^"\\]+\.mp4[^"\\]*)/g)].map((m) => unescapeJsonUrl(m[1])),
       ]);
 
+      const xhsIdMatch = url.match(/\/([a-f0-9]+)(?:\?|$)/i);
+      const xhsId = xhsIdMatch ? xhsIdMatch[1] : Date.now().toString(36);
+      const safeXhsTitle = (parsed.title || 'xhs').replace(/[\\/:*?"<>|]/g, '_').replace(/\s+/g, '_').slice(0, 60);
+      const xhsSuggested = `${safeXhsTitle}_${xhsId}.mp4`;
+
       window.currentMedia = {
         platform: 'xhs',
         hd: videoUrls[0] || null,
         hdFallbacks: videoUrls.slice(1),
         music: null,
         images: parsed.images,
+        suggestedFilename: xhsSuggested,
       };
 
       renderResult({
@@ -958,6 +998,36 @@
       window.open(url, '_blank', 'noopener,noreferrer');
     }
 
+    async function downloadBlobWithName(url, filename) {
+      if (!url) return;
+      try {
+        // Try direct first (some CDNs allow it)
+        let resp;
+        try {
+          resp = await fetch(normalizeCorsTarget(url), { method: 'GET', mode: 'cors' });
+        } catch (_) {
+          // Fallback via cors proxy
+          const proxy = CORS_PROXY(normalizeCorsTarget(url));
+          resp = await fetch(proxy, { method: 'GET', headers: corsProxyHeaders(false) });
+        }
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        const blob = await resp.blob();
+        const objectUrl = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = objectUrl;
+        a.download = filename || 'download.mp4';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
+      } catch (err) {
+        // Last resort: open in tab (user may have to rename manually)
+        console.warn('Blob download failed, falling back to open:', err);
+        alert('Direct download blocked by browser. Opening in new tab. You can right-click → Save video as… and rename it.');
+        window.open(url, '_blank', 'noopener,noreferrer');
+      }
+    }
+
     function downloadPrimary() {
       if (!window.currentMedia) return;
 
@@ -970,6 +1040,8 @@
           alert('Download link not available.');
           return;
         }
+        const platform = window.currentMedia.platform || 'video';
+        const filename = window.currentMedia.suggestedFilename || `${platform}_${Date.now()}.mp4`;
         if (isIOS()) {
           const video = document.getElementById('previewVideo');
           video.poster = document.getElementById('thumbnail').src || '';
@@ -977,14 +1049,17 @@
           video.load();
           video.scrollIntoView({ behavior: 'smooth', block: 'center' });
           video.play().catch(() => openMediaUrl(candidates[0]));
+          // On iOS we can't easily force filename; user can rename after save
           return;
         }
-        openMediaUrl(candidates[0]);
+        downloadBlobWithName(candidates[0], filename);
         return;
       }
 
       if (window.currentMedia.images?.length) {
-        openMediaUrl(window.currentMedia.images[0]);
+        let fname = window.currentMedia.suggestedFilename || `media_${Date.now()}.jpg`;
+        if (!/\.(jpe?g|png|webp|gif)$/i.test(fname)) fname = fname.replace(/\.[^/.]+$/, '') + '.jpg';
+        downloadBlobWithName(window.currentMedia.images[0], fname);
       }
     }
 
@@ -993,7 +1068,10 @@
         alert('Download link not available for this video.');
         return;
       }
-      openMediaUrl(window.currentMedia.music);
+      const media = window.currentMedia;
+      const base = (media.title || media.author || 'douyin').replace(/[\\/:*?"<>|]/g, '_').replace(/\s+/g, '_').slice(0, 50);
+      const fname = `${base}_music_${media.videoId || Date.now()}.mp3`;
+      downloadBlobWithName(media.music, fname);
     }
 
     document.querySelectorAll('#platformTabs .tab-btn').forEach((btn) => {

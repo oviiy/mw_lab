@@ -1,0 +1,2689 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0a0e16">
+<meta name="description" content="NEON DISTRICT — 俯视角犯罪都市。剧情、开车、开枪、警察通缉。">
+<title>NEON DISTRICT — 霓虹区</title>
+<style>
+:root{
+  --bg:#0a0e16; --panel:rgba(14,18,28,.92); --line:#2c364c; --txt:#e8eef8; --dim:#8490a8;
+  --acc:#3de0ff; --hot:#ff4d6d; --gold:#ffd166; --ok:#5dff9a; --vio:#b388ff;
+  --road:#2a3142; --sidewalk:#3a4254;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--txt);
+  font:13px/1.4 "Segoe UI",system-ui,"PingFang SC","Microsoft YaHei",sans-serif;user-select:none}
+#root{position:fixed;inset:0}
+canvas#game{display:block;width:100%;height:100%;cursor:crosshair;background:#0d121c;touch-action:none}
+.hud{position:absolute;inset:0;pointer-events:none;z-index:5;opacity:0;transition:opacity .25s}
+.hud.on{opacity:1}
+.top{position:absolute;top:0;left:0;right:0;padding:10px 12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;
+  background:linear-gradient(180deg,rgba(8,12,20,.92),transparent)}
+.brand{font-weight:900;letter-spacing:2px;font-size:14px}
+.brand b{color:var(--acc);text-shadow:0 0 14px rgba(61,224,255,.45)}
+.chip{background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:5px 10px;font-size:11px;font-variant-numeric:tabular-nums}
+.chip b{color:var(--acc)}.chip .r{color:var(--hot)}.chip .g{color:var(--ok)}.chip .y{color:var(--gold)}
+.stars{color:var(--gold);letter-spacing:2px;text-shadow:0 0 10px rgba(255,209,102,.35)}
+.flex1{flex:1}
+.obj{position:absolute;left:12px;top:52px;max-width:min(360px,72vw);background:var(--panel);border:1px solid var(--line);
+  border-left:3px solid var(--acc);border-radius:10px;padding:10px 12px;backdrop-filter:blur(8px)}
+.obj .t{font-weight:800;font-size:12px;color:var(--acc);letter-spacing:.5px;margin-bottom:4px}
+.obj .d{font-size:12px;line-height:1.5}
+.obj .h{font-size:11px;color:var(--dim);margin-top:6px}
+.minimap{position:absolute;right:12px;top:52px;width:148px;height:148px;border:2px solid var(--line);border-radius:10px;
+  background:rgba(8,12,20,.9);overflow:hidden;box-shadow:0 10px 28px rgba(0,0,0,.45)}
+.minimap canvas{width:100%;height:100%}
+.weapons{position:absolute;right:12px;bottom:18px;display:flex;flex-direction:column;gap:5px;align-items:flex-end}
+.wep{min-width:128px;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-size:11px;opacity:.5}
+.wep.on{opacity:1;border-color:var(--acc);box-shadow:0 0 16px rgba(61,224,255,.18)}
+.wep .n{font-weight:800}.wep .a{color:var(--dim);margin-top:1px}
+.speedo{position:absolute;left:12px;bottom:18px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px 12px;
+  font-variant-numeric:tabular-nums;min-width:100px}
+.speedo .big{font-size:22px;font-weight:900;color:var(--acc)}
+.speedo .sm{font-size:10px;color:var(--dim);letter-spacing:1px}
+.speedo.hid{display:none}
+.hint{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);background:var(--panel);border:1px solid var(--line);
+  border-radius:999px;padding:6px 14px;font-size:11px;color:var(--dim);white-space:nowrap;max-width:94vw;overflow:hidden;text-overflow:ellipsis}
+.hint b{color:var(--txt)}
+.toast{position:absolute;left:50%;top:20%;transform:translate(-50%,-8px);opacity:0;transition:.15s;font-weight:900;font-size:18px;
+  letter-spacing:1px;text-shadow:0 0 16px currentColor;white-space:nowrap;pointer-events:none}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.flash{position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle,transparent 35%,rgba(255,40,60,.28));opacity:0}
+.flash.on{opacity:1}
+.interact{position:absolute;left:50%;top:58%;transform:translate(-50%,0);background:rgba(61,224,255,.15);border:1px solid var(--acc);
+  color:var(--acc);padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;opacity:0;transition:.12s;pointer-events:none}
+.interact.on{opacity:1}
+
+.ov{position:fixed;inset:0;z-index:40;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;
+  padding:16px;background:radial-gradient(ellipse at 50% 18%,rgba(61,224,255,.09),transparent 42%),rgba(8,12,20,.93);backdrop-filter:blur(10px)}
+.ov.hid{display:none}
+.logo{font-size:clamp(30px,7vw,52px);font-weight:900;letter-spacing:5px;text-align:center;
+  background:linear-gradient(120deg,#3de0ff 10%,#ff4d6d 55%,#ffd166);-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 0 22px rgba(61,224,255,.28))}
+.sub{color:var(--dim);letter-spacing:3px;font-size:10px;text-transform:uppercase;text-align:center}
+.btn{border:0;border-radius:12px;padding:13px 22px;min-width:200px;font-weight:800;letter-spacing:1px;cursor:pointer;
+  background:var(--acc);color:#041018;font:inherit;box-shadow:0 0 26px rgba(61,224,255,.28);pointer-events:auto}
+.btn:hover{filter:brightness(1.07)}
+.btn.ghost{background:transparent;color:var(--txt);border:1px solid var(--line);box-shadow:none}
+.btn.hot{background:var(--hot);color:#fff;box-shadow:0 0 22px rgba(255,77,109,.3)}
+.btn.sm{min-width:0;padding:9px 12px;font-size:11px}
+.row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.pills{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.pill{background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:4px 10px;font-size:11px}
+.story{max-width:540px;width:100%;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;
+  box-shadow:0 22px 60px rgba(0,0,0,.55);pointer-events:auto}
+.story h2{margin:0 0 8px;font-size:16px;color:var(--gold)}
+.story p{margin:0;color:var(--dim);line-height:1.65;font-size:13px}
+.story .spk{color:var(--acc);font-weight:800;font-size:11px;letter-spacing:1px;margin-bottom:4px}
+.panel{max-width:500px;width:100%;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;pointer-events:auto}
+.panel h3{margin:0 0 10px;color:var(--acc);font-size:13px;letter-spacing:1px}
+.panel p,.panel li{color:var(--dim);font-size:12px;line-height:1.65}
+.panel b{color:var(--txt)}
+.foot{position:absolute;bottom:14px;color:var(--dim);font-size:10px;letter-spacing:1px;text-align:center}
+@media(max-width:700px){
+  .minimap{width:110px;height:110px}
+  .hint{font-size:10px;bottom:10px}
+  .obj{max-width:min(280px,80vw)}
+}
+
+</style>
+</head>
+<body>
+<div id="root">
+  <canvas id="game"></canvas>
+  <div class="hud" id="hud">
+    <div class="top">
+      <div class="brand">NEON <b>DISTRICT</b></div>
+      <div class="chip">♥ <b class="r" id="hHp">100</b></div>
+      <div class="chip">$ <b class="g" id="hCash">200</b></div>
+      <div class="chip stars" id="hStars">☆☆☆☆☆</div>
+      <div class="chip" id="hMode">步行</div>
+      <div class="flex1"></div>
+      <div class="chip">任务 <b class="y" id="hMis">1/8</b></div>
+    </div>
+    <div class="obj">
+      <div class="t" id="objTitle">目标</div>
+      <div class="d" id="objDesc">—</div>
+      <div class="h" id="objHint"></div>
+    </div>
+    <div class="minimap"><canvas id="mm" width="148" height="148"></canvas></div>
+    <div class="weapons" id="weps"></div>
+    <div class="speedo hid" id="speedo">
+      <div class="big"><span id="spdVal">0</span></div>
+      <div class="sm">KM/H</div>
+    </div>
+    <div class="hint"><b>WASD</b> 移动/驾驶 · <b>鼠标</b> 瞄准射击 · <b>F</b> 上下车 · <b>Shift</b> 加速 · <b>空格</b> 手刹 · <b>1-5</b> 武器 · <b>R</b> 装弹</div>
+    <div class="interact" id="interact"></div>
+    <div class="toast" id="toast"></div>
+    <div class="flash" id="flash"></div>
+  </div>
+</div>
+
+<div class="ov" id="menu">
+  <div class="logo">NEON DISTRICT</div>
+  <div class="sub">霓虹区 · 俯视角犯罪都市</div>
+  <div class="pills">
+    <div class="pill">多区域地图</div>
+    <div class="pill">驾驶物理</div>
+    <div class="pill">警察通缉</div>
+    <div class="pill">剧情任务</div>
+  </div>
+  <button class="btn" id="mPlay">开始游戏</button>
+  <div class="row">
+    <button class="btn ghost sm" id="mCont">继续进度</button>
+    <button class="btn ghost sm" id="mHelp">操作说明</button>
+  </div>
+  <div class="foot">单文件 · 本地存档 · 浏览器直接打开</div>
+</div>
+
+<div class="ov hid" id="story">
+  <div class="story">
+    <div class="spk" id="stSpk">—</div>
+    <h2 id="stTitle">—</h2>
+    <p id="stBody">—</p>
+    <div style="text-align:right;margin-top:12px"><button class="btn sm" id="stNext">继续</button></div>
+  </div>
+</div>
+
+<div class="ov hid" id="pause">
+  <div class="logo" style="font-size:34px">暂停</div>
+  <button class="btn" id="pResume">继续</button>
+  <button class="btn ghost" id="pMenu">主菜单</button>
+</div>
+
+<div class="ov hid" id="help">
+  <div class="panel">
+    <h3>操作说明</h3>
+    <p>
+      <b>WASD / 方向键</b> — 步行移动 / 驾驶油门转向<br>
+      <b>鼠标</b> — 瞄准 · 左键射击<br>
+      <b>F</b> — 上车 / 下车（需靠近车辆）<br>
+      <b>E</b> — 任务点交互<br>
+      <b>1–5 / 滚轮</b> — 切换武器<br>
+      <b>R</b> — 装弹<br>
+      <b>Shift</b> — 冲刺（步行）/ 加速（车）<br>
+      <b>空格</b> — 手刹（可甩尾）<br>
+      <b>Esc</b> — 暂停 · <b>M</b> — 静音<br><br>
+      地图分码头、夜市、金融、老城、工业、公园。通缉会引警察增援；远离交火可降温。
+    </p>
+    <div style="text-align:center;margin-top:10px"><button class="btn ghost sm" id="hClose">知道了</button></div>
+  </div>
+</div>
+
+<div class="ov hid" id="dead">
+  <div class="logo" style="font-size:30px">被击倒</div>
+  <p style="color:var(--dim)">医院醒来… 损失部分现金，通缉清零。</p>
+  <button class="btn hot" id="dRespawn">重新上路</button>
+</div>
+
+<div class="ov hid" id="win">
+  <div class="logo" style="font-size:30px">DISTRICT CLEARED</div>
+  <p style="color:var(--dim);text-align:center;max-width:420px">霓虹区今夜属于你。可继续自由活动，或回主菜单。</p>
+  <button class="btn" id="wOk">自由活动</button>
+  <button class="btn ghost" id="wMenu">主菜单</button>
+</div>
+
+<script>
+"use strict";
+(function(){
+// ===== js/math.js =====
+const TAU = Math.PI * 2;
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const lerp = (a, b, t) => a + (b - a) * t;
+const rand = (a, b) => a + Math.random() * (b - a);
+const randi = (a, b) => (a + Math.random() * (b - a + 1)) | 0;
+const len = (x, y) => Math.hypot(x, y) || 1e-8;
+const norm = (x, y) => { const l = len(x, y); return [x / l, y / l]; };
+const angTo = (x, y) => Math.atan2(y, x);
+const angDiff = (a, b) => {
+  let d = b - a;
+  while (d > Math.PI) d -= TAU;
+  while (d < -Math.PI) d += TAU;
+  return d;
+};
+const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
+const dist2 = (a, b) => {
+  const dx = a.x - b.x, dy = a.y - b.y;
+  return dx * dx + dy * dy;
+};
+
+/** Rotate local point by ang */
+function rot(lx, ly, ang) {
+  const c = Math.cos(ang), s = Math.sin(ang);
+  return [lx * c - ly * s, lx * s + ly * c];
+}
+
+/** World point to car local */
+function toLocal(px, py, ox, oy, ang) {
+  const dx = px - ox, dy = py - oy;
+  const c = Math.cos(-ang), s = Math.sin(-ang);
+  return [dx * c - dy * s, dx * s + dy * c];
+}
+
+
+// ===== js/config.js =====
+/** Global constants & weapon definitions */
+const SAVE_KEY = "neon_district_v2";
+const MAP_W = 4800;
+const MAP_H = 4800;
+const TILE = 48;
+
+const WEAPONS = [
+  { id: "fist", name: "拳头", dmg: 14, rate: 2.4, spread: 0.2, range: 38, auto: false, ammo: -1, magSize: 0, reload: 0, color: "#ccc", kick: 0, speed: 0 },
+  { id: "pistol", name: "手枪", dmg: 24, rate: 3.8, spread: 0.05, range: 460, auto: false, ammo: 80, magSize: 12, reload: 1.05, color: "#3de0ff", kick: 2.2, speed: 720 },
+  { id: "smg", name: "冲锋枪", dmg: 13, rate: 13, spread: 0.13, range: 400, auto: true, ammo: 160, magSize: 32, reload: 1.35, color: "#5dff9a", kick: 1.4, speed: 680 },
+  { id: "shotgun", name: "霰弹枪", dmg: 15, rate: 1.05, spread: 0.32, range: 240, auto: false, pellets: 7, ammo: 28, magSize: 6, reload: 1.75, color: "#ffd166", kick: 5.5, speed: 600 },
+  { id: "rifle", name: "步枪", dmg: 38, rate: 2.3, spread: 0.025, range: 620, auto: false, ammo: 50, magSize: 10, reload: 1.55, color: "#ff4d6d", kick: 4.2, speed: 900 },
+];
+
+const DISTRICTS = [
+  { id: "docks", name: "码头区", color: "#1a3040", road: "#243848", building: [200, 25, 30], neon: "#3de0ff" },
+  { id: "market", name: "夜市", color: "#2a1a28", road: "#3a2a38", building: [340, 40, 32], neon: "#ff4d9a" },
+  { id: "finance", name: "金融街", color: "#1a1e30", road: "#2a3048", building: [220, 15, 38], neon: "#b388ff" },
+  { id: "oldtown", name: "老城区", color: "#241c18", road: "#342c28", building: [30, 35, 28], neon: "#ffd166" },
+  { id: "industrial", name: "工业园", color: "#1c1c1c", road: "#2c2c2c", building: [0, 0, 26], neon: "#ff8844" },
+  { id: "park", name: "中央公园", color: "#14241c", road: "#1e3028", building: [140, 30, 24], neon: "#5dff9a" },
+];
+
+const CAR_TYPES = {
+  sedan:  { name: "轿车", w: 36, h: 18, maxSpd: 280, accel: 320, brake: 520, turn: 2.6, grip: 0.92, drag: 1.8, hp: 110 },
+  sport:  { name: "跑车", w: 38, h: 17, maxSpd: 380, accel: 480, brake: 600, turn: 3.1, grip: 0.96, drag: 1.5, hp: 100 },
+  van:    { name: "面包车", w: 42, h: 20, maxSpd: 220, accel: 220, brake: 480, turn: 2.0, grip: 0.88, drag: 2.2, hp: 150 },
+  police: { name: "警车", w: 37, h: 18, maxSpd: 320, accel: 400, brake: 580, turn: 2.8, grip: 0.94, drag: 1.7, hp: 140 },
+  taxi:   { name: "出租", w: 36, h: 18, maxSpd: 260, accel: 300, brake: 500, turn: 2.5, grip: 0.9, drag: 1.9, hp: 100 },
+};
+
+
+// ===== js/collision.js =====
+/** Circle vs AABB — push circle out, return true if hit */
+function circleAABB(ent, r, box) {
+  const cx = clamp(ent.x, box.x, box.x + box.w);
+  const cy = clamp(ent.y, box.y, box.y + box.h);
+  let dx = ent.x - cx, dy = ent.y - cy;
+  let d = Math.hypot(dx, dy);
+  if (d >= r) return false;
+  if (d < 1e-6) {
+    // center inside — push to nearest edge
+    const left = ent.x - box.x;
+    const right = box.x + box.w - ent.x;
+    const top = ent.y - box.y;
+    const bot = box.y + box.h - ent.y;
+    const m = Math.min(left, right, top, bot);
+    if (m === left) { ent.x = box.x - r; dx = -1; dy = 0; }
+    else if (m === right) { ent.x = box.x + box.w + r; dx = 1; dy = 0; }
+    else if (m === top) { ent.y = box.y - r; dx = 0; dy = -1; }
+    else { ent.y = box.y + box.h + r; dx = 0; dy = 1; }
+    return true;
+  }
+  const push = (r - d) / d;
+  ent.x += dx * push;
+  ent.y += dy * push;
+  return true;
+}
+
+/** Resolve circle against many static boxes */
+function resolveCircleWorld(ent, r, solids, iters = 4) {
+  let hit = false;
+  for (let k = 0; k < iters; k++) {
+    for (const s of solids) {
+      if (circleAABB(ent, r, s)) hit = true;
+    }
+  }
+  return hit;
+}
+
+/** Oriented car rect vs circle (player/npc) — returns push on circle, damage scale */
+function carVsCircle(car, ent, r) {
+  const [lx, ly] = toLocal(ent.x, ent.y, car.x, car.y, car.ang);
+  const hw = car.w / 2 + r;
+  const hh = car.h / 2 + r;
+  const cx = clamp(lx, -hw, hw);
+  const cy = clamp(ly, -hh, hh);
+  let dx = lx - cx, dy = ly - cy;
+  let d = Math.hypot(dx, dy);
+  if (d >= r && (Math.abs(lx) > hw || Math.abs(ly) > hh)) {
+    // outside
+    if (Math.abs(lx) <= car.w / 2 + r && Math.abs(ly) <= car.h / 2 + r) {
+      // still in expanded rect
+    } else return null;
+  }
+  // Use expanded OBB
+  const qx = clamp(lx, -car.w / 2, car.w / 2);
+  const qy = clamp(ly, -car.h / 2, car.h / 2);
+  dx = lx - qx; dy = ly - qy;
+  d = Math.hypot(dx, dy);
+  if (d >= r) return null;
+  if (d < 1e-4) {
+    dx = lx >= 0 ? 1 : -1;
+    dy = 0;
+    d = 1;
+  }
+  const push = r - d + 0.5;
+  const [wx, wy] = rot(dx / d, dy / d, car.ang);
+  return { nx: wx, ny: wy, push, overlap: push };
+}
+
+/** Car vs car (simple circle approximation + soft OBB) */
+function carVsCar(a, b) {
+  const ra = Math.max(a.w, a.h) * 0.45;
+  const rb = Math.max(b.w, b.h) * 0.45;
+  const dx = b.x - a.x, dy = b.y - a.y;
+  const d = Math.hypot(dx, dy) || 1e-6;
+  const minD = ra + rb;
+  if (d >= minD) return null;
+  const n = minD - d;
+  const nx = dx / d, ny = dy / d;
+  return { nx, ny, push: n * 0.5 };
+}
+
+/** Point in oriented car */
+function pointInCar(px, py, car, pad = 0) {
+  const [lx, ly] = toLocal(px, py, car.x, car.y, car.ang);
+  return Math.abs(lx) <= car.w / 2 + pad && Math.abs(ly) <= car.h / 2 + pad;
+}
+
+/** Segment vs AABB for bullets */
+function segmentHitsBox(x0, y0, x1, y1, box) {
+  // coarse: sample midpoints
+  for (let i = 0; i <= 4; i++) {
+    const t = i / 4;
+    const x = x0 + (x1 - x0) * t;
+    const y = y0 + (y1 - y0) * t;
+    if (x >= box.x && x <= box.x + box.w && y >= box.y && y <= box.y + box.h) return true;
+  }
+  return false;
+}
+
+function circleHit(ax, ay, ar, bx, by, br) {
+  const dx = bx - ax, dy = by - ay;
+  const r = ar + br;
+  return dx * dx + dy * dy < r * r;
+}
+
+
+// ===== js/world.js =====
+/**
+ * Procedural city with distinct districts, landmarks, varied blocks.
+ * solids[] = collision boxes (buildings + barriers)
+ */
+function createWorld() {
+  const solids = [];
+  const roads = [];
+  const buildings = [];
+  const props = [];
+  const landmarks = [];
+  const sidewalks = [];
+  const zones = []; // district paint regions
+  const spawnPoints = { player: { x: 600, y: 600 }, mission: {} };
+
+  // --- District grid 3x2 ---
+  const cols = 3, rows = 2;
+  const dw = MAP_W / cols, dh = MAP_H / rows;
+  for (let j = 0; j < rows; j++) {
+    for (let i = 0; i < cols; i++) {
+      const d = DISTRICTS[(j * cols + i) % DISTRICTS.length];
+      zones.push({
+        x: i * dw, y: j * dh, w: dw, h: dh,
+        district: d,
+      });
+    }
+  }
+
+  function districtAt(x, y) {
+    const i = clamp((x / dw) | 0, 0, cols - 1);
+    const j = clamp((y / dh) | 0, 0, rows - 1);
+    return zones[j * cols + i].district;
+  }
+
+  // --- Major avenues (irregular spacing for less grid feel) ---
+  const vLines = [180];
+  while (vLines[vLines.length - 1] < MAP_W - 200) {
+    vLines.push(vLines[vLines.length - 1] + randi(200, 340));
+  }
+  const hLines = [180];
+  while (hLines[hLines.length - 1] < MAP_H - 200) {
+    hLines.push(hLines[hLines.length - 1] + randi(200, 340));
+  }
+
+  const ROAD_W = 64;
+  for (const x of vLines) {
+    roads.push({ x: x - ROAD_W / 2, y: 0, w: ROAD_W, h: MAP_H, type: "v" });
+  }
+  for (const y of hLines) {
+    roads.push({ x: 0, y: y - ROAD_W / 2, w: MAP_W, h: ROAD_W, type: "h" });
+  }
+
+  // Sidewalks along roads
+  for (const r of roads) {
+    if (r.type === "v") {
+      sidewalks.push({ x: r.x - 14, y: r.y, w: 14, h: r.h });
+      sidewalks.push({ x: r.x + r.w, y: r.y, w: 14, h: r.h });
+    } else {
+      sidewalks.push({ x: r.x, y: r.y - 14, w: r.w, h: 14 });
+      sidewalks.push({ x: r.x, y: r.y + r.h, w: r.w, h: 14 });
+    }
+  }
+
+  function onRoad(x, y, pad = 0) {
+    for (const r of roads) {
+      if (x > r.x - pad && x < r.x + r.w + pad && y > r.y - pad && y < r.y + r.h + pad) return true;
+    }
+    return false;
+  }
+
+  function addBuilding(b) {
+    // don't place on roads
+    if (onRoad(b.x + b.w / 2, b.y + b.h / 2, 8)) return false;
+    buildings.push(b);
+    solids.push({ x: b.x, y: b.y, w: b.w, h: b.h, kind: "building" });
+    return true;
+  }
+
+  // --- Fill blocks between road lines ---
+  for (let vi = 0; vi < vLines.length - 1; vi++) {
+    for (let hi = 0; hi < hLines.length - 1; hi++) {
+      const x0 = vLines[vi] + ROAD_W / 2 + 16;
+      const y0 = hLines[hi] + ROAD_W / 2 + 16;
+      const x1 = vLines[vi + 1] - ROAD_W / 2 - 16;
+      const y1 = hLines[hi + 1] - ROAD_W / 2 - 16;
+      if (x1 - x0 < 60 || y1 - y0 < 60) continue;
+
+      const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
+      const dist = districtAt(cx, cy);
+      const seed = vi * 31 + hi * 17;
+
+      // Landmark blocks (unique)
+      if (seed % 11 === 0) {
+        placeLandmark(x0, y0, x1 - x0, y1 - y0, dist, seed);
+        continue;
+      }
+      // Plaza / empty market
+      if (seed % 7 === 0) {
+        placePlaza(x0, y0, x1 - x0, y1 - y0, dist);
+        continue;
+      }
+      // Park pocket
+      if (dist.id === "park" || seed % 9 === 0) {
+        placePark(x0, y0, x1 - x0, y1 - y0);
+        continue;
+      }
+      // Normal varied block
+      placeBlock(x0, y0, x1 - x0, y1 - y0, dist, seed);
+    }
+  }
+
+  function placeBlock(x, y, w, h, dist, seed) {
+    const style = seed % 4;
+    if (style === 0) {
+      // one big L-shape + alley
+      const bw = w * 0.55, bh = h * 0.9;
+      addBuilding(makeBldg(x + 4, y + 4, bw, bh * 0.45, dist, 0));
+      addBuilding(makeBldg(x + 4, y + 4 + bh * 0.5, bw * 0.5, bh * 0.45, dist, 1));
+      addBuilding(makeBldg(x + w * 0.55, y + 8, w * 0.4, h * 0.85, dist, 2));
+      scatterProps(x, y, w, h, 3);
+    } else if (style === 1) {
+      // courtyard
+      const t = 28;
+      addBuilding(makeBldg(x, y, w, t, dist, 0));
+      addBuilding(makeBldg(x, y + h - t, w, t, dist, 1));
+      addBuilding(makeBldg(x, y + t, t, h - 2 * t, dist, 2));
+      addBuilding(makeBldg(x + w - t, y + t, t, h - 2 * t, dist, 3));
+      // courtyard prop
+      props.push({ x: x + w / 2, y: y + h / 2, t: "tree", r: 12 });
+    } else if (style === 2) {
+      // strip mall row
+      const n = 2 + (seed % 3);
+      const bw = (w - 12) / n - 6;
+      for (let i = 0; i < n; i++) {
+        const bh = h * (0.5 + (i % 3) * 0.12);
+        addBuilding(makeBldg(x + 6 + i * (bw + 6), y + 8, bw, bh, dist, i));
+      }
+      scatterProps(x, y, w, h, 4);
+    } else {
+      // twin towers / dense
+      const gap = 20;
+      addBuilding(makeBldg(x + 6, y + 6, (w - gap) / 2 - 6, h - 12, dist, 0));
+      addBuilding(makeBldg(x + w / 2 + gap / 2, y + 6, (w - gap) / 2 - 6, h * 0.7, dist, 1));
+      if (h > 120) addBuilding(makeBldg(x + w / 2 + gap / 2, y + h * 0.72, (w - gap) / 2 - 6, h * 0.22, dist, 2));
+      scatterProps(x, y, w, h, 2);
+    }
+  }
+
+  function makeBldg(x, y, w, h, dist, k) {
+    const [hue, sat, light] = dist.building;
+    return {
+      x, y, w: Math.max(24, w), h: Math.max(24, h),
+      col: `hsl(${hue + k * 12},${sat}%,${light + k * 3}%)`,
+      edge: `hsl(${hue + k * 12},${sat + 10}%,${light + 14}%)`,
+      neon: dist.neon,
+      neonSide: k % 2 === 0,
+      windows: 1 + (k % 3),
+      roof: k % 2 === 0,
+      district: dist.id,
+    };
+  }
+
+  function placePlaza(x, y, w, h, dist) {
+    landmarks.push({ x: x + w / 2, y: y + h / 2, type: "plaza", name: dist.name + "广场", r: Math.min(w, h) * 0.35 });
+    // stalls / barriers as solids around edge
+    for (let i = 0; i < 6; i++) {
+      const a = (i / 6) * Math.PI * 2;
+      const px = x + w / 2 + Math.cos(a) * (Math.min(w, h) * 0.28);
+      const py = y + h / 2 + Math.sin(a) * (Math.min(w, h) * 0.28);
+      props.push({ x: px, y: py, t: "stall", r: 10 });
+      solids.push({ x: px - 10, y: py - 8, w: 20, h: 16, kind: "prop" });
+    }
+    props.push({ x: x + w / 2, y: y + h / 2, t: "fountain", r: 16 });
+  }
+
+  function placePark(x, y, w, h) {
+    landmarks.push({ x: x + w / 2, y: y + h / 2, type: "park", name: "绿地", r: Math.min(w, h) * 0.4, green: true });
+    for (let i = 0; i < 5; i++) {
+      props.push({
+        x: x + rand(20, w - 20),
+        y: y + rand(20, h - 20),
+        t: "tree", r: 14,
+      });
+      // trees are soft collision
+      const t = props[props.length - 1];
+      solids.push({ x: t.x - 6, y: t.y - 6, w: 12, h: 12, kind: "tree" });
+    }
+    // bench
+    props.push({ x: x + w * 0.5, y: y + h * 0.7, t: "bench", r: 8 });
+  }
+
+  function placeLandmark(x, y, w, h, dist, seed) {
+    const types = ["warehouse", "tower", "temple", "station", "club", "garage"];
+    const type = types[seed % types.length];
+    const names = {
+      warehouse: "码头仓库",
+      tower: "霓虹塔",
+      temple: "关帝庙",
+      station: "地铁站",
+      club: "午夜俱乐部",
+      garage: "修车厂",
+    };
+    const bw = w * 0.7, bh = h * 0.65;
+    const bx = x + (w - bw) / 2, by = y + (h - bh) / 2;
+    const b = makeBldg(bx, by, bw, bh, dist, 0);
+    b.landmark = type;
+    b.col = type === "temple" ? "#4a3020" : type === "club" ? "#3a1040" : b.col;
+    b.neon = dist.neon;
+    b.neonSide = true;
+    addBuilding(b);
+    landmarks.push({
+      x: bx + bw / 2, y: by + bh / 2,
+      type, name: names[type], r: Math.max(bw, bh) * 0.4,
+      key: type,
+    });
+    spawnPoints.mission[type] = { x: bx + bw / 2, y: by + bh + 40 };
+    scatterProps(x, y, w, h, 5);
+  }
+
+  function scatterProps(x, y, w, h, n) {
+    for (let i = 0; i < n; i++) {
+      const px = x + rand(12, w - 12);
+      const py = y + rand(12, h - 12);
+      if (onRoad(px, py, 20)) continue;
+      const t = ["lamp", "crate", "dumpster", "hydrant"][randi(0, 3)];
+      props.push({ x: px, y: py, t, r: t === "lamp" ? 6 : 10 });
+      if (t === "crate" || t === "dumpster") {
+        solids.push({ x: px - 8, y: py - 7, w: 16, h: 14, kind: "prop" });
+      }
+    }
+  }
+
+  // Outer walls
+  const wall = 40;
+  solids.push({ x: 0, y: 0, w: MAP_W, h: wall, kind: "wall" });
+  solids.push({ x: 0, y: MAP_H - wall, w: MAP_W, h: wall, kind: "wall" });
+  solids.push({ x: 0, y: 0, w: wall, h: MAP_H, kind: "wall" });
+  solids.push({ x: MAP_W - wall, y: 0, w: wall, h: MAP_H, kind: "wall" });
+
+  // Player spawn on open road center (not inside buildings)
+  spawnPoints.player = {
+    x: (vLines[1] || 400),
+    y: (hLines[1] || 400),
+  };
+  // ensure not inside a solid — nudge along road if needed
+  for (let tries = 0; tries < 20; tries++) {
+    let blocked = false;
+    for (const s of solids) {
+      const p = spawnPoints.player;
+      if (p.x > s.x && p.x < s.x + s.w && p.y > s.y && p.y < s.y + s.h) {
+        blocked = true;
+        spawnPoints.player.x += 40;
+        spawnPoints.player.y += 20;
+        break;
+      }
+    }
+    if (!blocked) break;
+  }
+  // Ensure first mission dock near player district
+  if (!spawnPoints.mission.warehouse) {
+    spawnPoints.mission.warehouse = { x: spawnPoints.player.x + 200, y: spawnPoints.player.y + 150 };
+  }
+  spawnPoints.mission.pickup = {
+    x: spawnPoints.player.x + 120,
+    y: spawnPoints.player.y + 80,
+  };
+
+  return {
+    solids, roads, buildings, props, landmarks, sidewalks, zones,
+    spawnPoints, districtAt, onRoad,
+    MAP_W, MAP_H,
+  };
+}
+
+/** Spatial hash for solids near a point */
+function solidsNear(world, x, y, radius) {
+  const out = [];
+  const r = radius;
+  for (const s of world.solids) {
+    if (s.x + s.w < x - r || s.x > x + r || s.y + s.h < y - r || s.y > y + r) continue;
+    out.push(s);
+  }
+  return out;
+}
+
+
+// ===== js/vehicle.js =====
+function createCar(x, y, type = "sedan", col = null) {
+  const def = CAR_TYPES[type] || CAR_TYPES.sedan;
+  return {
+    x, y, ang: 0,
+    vx: 0, vy: 0, // world velocity
+    spd: 0, // signed forward speed
+    type, def,
+    w: def.w, h: def.h,
+    col: col || randomCarColor(type),
+    hp: def.hp, maxHp: def.hp,
+    driver: null,
+    parked: true,
+    special: false,
+    cop: false,
+    mission: false,
+    skid: 0,
+    hornT: 0,
+  };
+}
+
+function randomCarColor(type) {
+  if (type === "police") return "#1e3a8a";
+  if (type === "taxi") return "#e8c84a";
+  if (type === "sport") {
+    const c = ["#ff3355", "#3de0ff", "#ffd166", "#b388ff", "#5dff9a"];
+    return c[(Math.random() * c.length) | 0];
+  }
+  const h = (Math.random() * 360) | 0;
+  return `hsl(${h},45%,42%)`;
+}
+
+/**
+ * Arcade-sim hybrid driving:
+ * - throttle / brake / reverse
+ * - steering scales with speed (not spin-in-place)
+ * - handbrake increases slide
+ * - grip loses when turning hard at speed
+ */
+function driveCar(car, input, dt, world) {
+  const d = car.def;
+  let thr = 0, steer = 0;
+  if (input.up) thr += 1;
+  if (input.down) thr -= 0.85;
+  if (input.left) steer -= 1;
+  if (input.right) steer += 1;
+  const boost = input.boost ? 1.2 : 1;
+  const handbrake = input.brake;
+
+  // engine
+  if (handbrake) {
+    car.spd *= Math.pow(0.08, dt);
+  } else if (thr > 0) {
+    car.spd += thr * d.accel * boost * dt;
+  } else if (thr < 0) {
+    if (car.spd > 10) car.spd -= d.brake * dt;
+    else car.spd += thr * d.accel * 0.55 * dt;
+  } else {
+    // coast friction
+    car.spd *= Math.pow(0.25, dt);
+  }
+  car.spd = clamp(car.spd, -d.maxSpd * 0.35, d.maxSpd * boost);
+
+  // steering — more responsive at mid speed, less at standstill & top speed
+  const absSpd = Math.abs(car.spd);
+  const steerEff = steer * d.turn * Math.min(1, absSpd / 90) * (1.15 - absSpd / (d.maxSpd * 1.8));
+  const grip = handbrake ? d.grip * 0.55 : d.grip * (1 - Math.min(0.35, Math.abs(steer) * absSpd / 900));
+  car.ang += steerEff * Math.sign(car.spd || 1) * dt;
+
+  // slide: blend forward heading vs velocity heading
+  const forward = car.ang;
+  const [fx, fy] = [Math.cos(forward), Math.sin(forward)];
+  // target velocity along car forward
+  let tvx = fx * car.spd;
+  let tvy = fy * car.spd;
+  // lateral kill by grip
+  car.vx = car.vx * (1 - grip) + tvx * grip;
+  car.vy = car.vy * (1 - grip) + tvy * grip;
+  // sync spd from velocity projection
+  car.spd = car.vx * fx + car.vy * fy;
+
+  const ox = car.x, oy = car.y;
+  car.x += car.vx * dt;
+  car.y += car.vy * dt;
+
+  // building collision — bounce
+  const near = solidsNear(world, car.x, car.y, 80);
+  const proxy = { x: car.x, y: car.y };
+  const hit = resolveCircleWorld(proxy, Math.max(car.w, car.h) * 0.42, near, 5);
+  if (hit) {
+    const dx = proxy.x - car.x, dy = proxy.y - car.y;
+    car.x = proxy.x;
+    car.y = proxy.y;
+    // reflect velocity
+    const nlen = len(dx, dy);
+    if (nlen > 1e-4) {
+      const nx = dx / nlen, ny = dy / nlen;
+      const vn = car.vx * nx + car.vy * ny;
+      if (vn < 0) {
+        car.vx -= 1.4 * vn * nx;
+        car.vy -= 1.4 * vn * ny;
+      }
+      car.spd *= -0.25;
+      car.hp -= Math.min(25, absSpd * 0.04);
+    }
+  }
+
+  car.x = clamp(car.x, 50, world.MAP_W - 50);
+  car.y = clamp(car.y, 50, world.MAP_H - 50);
+
+  // skid visual
+  car.skid = handbrake && absSpd > 80 ? 1 : Math.max(0, car.skid - dt * 3);
+
+  return { moved: Math.hypot(car.x - ox, car.y - oy), hit };
+}
+
+function resolveVehicleCrowd(cars, dt) {
+  for (let i = 0; i < cars.length; i++) {
+    for (let j = i + 1; j < cars.length; j++) {
+      const a = cars[i], b = cars[j];
+      const hit = carVsCar(a, b);
+      if (!hit) continue;
+      a.x -= hit.nx * hit.push;
+      a.y -= hit.ny * hit.push;
+      b.x += hit.nx * hit.push;
+      b.y += hit.ny * hit.push;
+      // exchange some velocity
+      const av = a.vx, bv = b.vx;
+      a.vx = av * 0.6 + b.vx * 0.2;
+      b.vx = bv * 0.6 + av * 0.2;
+      const ay = a.vy, by = b.vy;
+      a.vy = ay * 0.6 + b.vy * 0.2;
+      b.vy = by * 0.6 + ay * 0.2;
+      const impact = Math.abs(a.spd - b.spd) * 0.02;
+      a.hp -= impact;
+      b.hp -= impact;
+    }
+  }
+}
+
+function pushCircleFromCars(ent, r, cars) {
+  for (const car of cars) {
+    const hit = carVsCircle(car, ent, r);
+    if (!hit) continue;
+    ent.x += hit.nx * hit.push;
+    ent.y += hit.ny * hit.push;
+    const speed = Math.hypot(car.vx, car.vy);
+    if (speed > 70 && ent.hp != null) {
+      return speed * 0.06; // damage to return
+    }
+  }
+  return 0;
+}
+
+function carSpeedKmh(car) {
+  return Math.abs(car.spd) * 0.36 | 0;
+}
+
+
+// ===== js/audio.js =====
+let AC = null;
+let muted = false;
+
+function setMuted(m) { muted = m; }
+function isMuted() { return muted; }
+
+function ac() {
+  if (!AC) try { AC = new (window.AudioContext || window.webkitAudioContext)(); } catch { return null; }
+  if (AC.state === "suspended") AC.resume();
+  return AC;
+}
+
+function ensureAudio() { ac(); }
+
+function tone(f, d, type, v, f2) {
+  if (muted) return;
+  const a = ac(); if (!a) return;
+  const t = a.currentTime;
+  const o = a.createOscillator(), g = a.createGain();
+  o.type = type || "square";
+  o.frequency.setValueAtTime(f, t);
+  if (f2) o.frequency.exponentialRampToValueAtTime(Math.max(40, f2), t + d);
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(v || 0.04, t + 0.01);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + d);
+  o.connect(g); g.connect(a.destination);
+  o.start(t); o.stop(t + d + 0.02);
+}
+
+const sfx = {
+  shoot: () => tone(170, 0.05, "square", 0.028, 55),
+  hit: () => tone(110, 0.04, "sawtooth", 0.022),
+  car: () => tone(75, 0.04, "triangle", 0.018),
+  pickup: () => tone(620, 0.09, "sine", 0.04, 920),
+  wanted: () => tone(280, 0.14, "square", 0.035, 180),
+  die: () => tone(90, 0.28, "sawtooth", 0.045, 35),
+  ui: () => tone(400, 0.035, "square", 0.018),
+  reload: () => tone(480, 0.06, "triangle", 0.022, 280),
+  crash: () => tone(60, 0.12, "sawtooth", 0.04, 40),
+  enter: () => tone(200, 0.06, "sine", 0.03, 140),
+};
+
+
+// ===== js/missions.js =====
+/** Story mission definitions — positions resolved against world.spawnPoints */
+
+function buildMissions(world) {
+  const sp = world.spawnPoints;
+  const dock = sp.mission.warehouse || sp.mission.pickup || { x: 800, y: 800 };
+  const garage = sp.mission.garage || { x: 1600, y: 1200 };
+  const club = sp.mission.club || { x: 2200, y: 900 };
+  const temple = sp.mission.temple || { x: 2800, y: 1600 };
+  const tower = sp.mission.tower || { x: 2400, y: 2400 };
+  const station = sp.mission.station || { x: 1200, y: 2000 };
+
+  return [
+    {
+      id: "pickup",
+      title: "第一夜",
+      lines: [
+        { spk: "旁白", t: "霓虹区 · 码头", body: "雨后的霓虹还在跳。你是阿凯——跑腿的。今晚有人塞给你一个坐标、一笔定金，和一把还没开过火的枪。" },
+        { spk: "阿凯", t: "…", body: "「只是送货。」他们总这么说。先去蓝点拿钱。" },
+      ],
+      obj: "前往标记点领取定金",
+      type: "goto",
+      tx: sp.mission.pickup?.x ?? dock.x, ty: sp.mission.pickup?.y ?? dock.y, r: 48,
+      cash: 200,
+      completeText: "信封到手。耳机里有人说话了。",
+    },
+    {
+      id: "thugs",
+      title: "名单",
+      lines: [
+        { spk: "神秘人", t: "通讯", body: "停车场有几个黄衣混混欠账。清理干净。枪响之后，警察会来——自己掂量。" },
+      ],
+      obj: "清除停车场目标（黄衣）",
+      type: "kill", tag: "thug", count: 5,
+      spawnNear: { x: garage.x, y: garage.y, n: 5, tag: "thug", spread: 140 },
+      cash: 450,
+      completeText: "搞定。远处警笛拉长了。",
+    },
+    {
+      id: "hotcar",
+      title: "热车",
+      lines: [
+        { spk: "神秘人", t: "通讯", body: "修车厂有辆红跑车。开走它。腿太慢，车才是命。" },
+      ],
+      obj: "找到红色跑车并上车 (F)",
+      type: "drive",
+      carAt: { x: garage.x + 60, y: garage.y + 80, col: "#ff3355" },
+      cash: 250,
+      completeText: "引擎点火的瞬间，整条街都亮了。",
+    },
+    {
+      id: "delivery",
+      title: "夜送",
+      lines: [
+        { spk: "神秘人", t: "通讯", body: "把货送到夜市俱乐部后门。能不开枪就别开。" },
+      ],
+      obj: "送达俱乐部后门",
+      type: "goto",
+      tx: club.x, ty: club.y + 70, r: 52,
+      cash: 400,
+      completeText: "门缝里伸出一只手，拿走包裹，丢回更厚的信封。",
+    },
+    {
+      id: "ambush",
+      title: "伏击",
+      lines: [
+        { spk: "阿凯", t: "！", body: "有人截胡！杀出去——通缉会飙，想办法钻巷子甩掉条子。" },
+      ],
+      obj: "击溃伏击小队",
+      type: "kill", tag: "ambush", count: 7,
+      spawnNear: { x: 0, y: 0, n: 7, tag: "ambush", spread: 130, atPlayer: true },
+      heatOnStart: 2,
+      cash: 700,
+      completeText: "胸口还在跳。耳机只剩一句：来天台。",
+    },
+    {
+      id: "rooftop",
+      title: "天台",
+      lines: [
+        { spk: "神秘人", t: "通讯", body: "中央高塔附近见。带步枪。巷子是我们的，别把条子引进去。" },
+      ],
+      obj: "抵达霓虹塔坐标",
+      type: "goto",
+      tx: tower.x, ty: tower.y + 90, r: 55,
+      cash: 300,
+      completeText: "空无只有风。一箱弹药，一张最终名单。",
+    },
+    {
+      id: "boss",
+      title: "最终名单",
+      lines: [
+        { spk: "神秘人", t: "通讯", body: "码头仓库的老大。解决他。之后——你自由，或者死。" },
+      ],
+      obj: "击杀码头黑帮老大",
+      type: "boss",
+      spawnBoss: { x: dock.x, y: dock.y },
+      cash: 1600,
+      heatOnComplete: 2,
+      completeText: "枪火停了。债清了。警笛还没有。",
+    },
+    {
+      id: "escape",
+      title: "脱身",
+      lines: [
+        { spk: "旁白", t: "终章", body: "全城搜捕。把通缉降到零，活着离开霓虹区。" },
+      ],
+      obj: "将通缉降为 0",
+      type: "clearwanted",
+      cash: 1200,
+      completeText: "后视镜里，霓虹越来越小。故事结束——或者才开始。",
+    },
+  ];
+}
+
+
+// ===== js/game.js =====
+function createGame(hooks) {
+  const {
+    onMissionUI, onHud, onToast, onStory, onMode, onInteract,
+  } = hooks;
+
+  let world = null;
+  let missions = [];
+  let mode = "menu";
+  let player = null;
+  let cars = [];
+  let peds = [];
+  let npcs = [];
+  let cops = [];
+  let bullets = [];
+  let particles = [];
+  let floaters = [];
+  let cam = { x: 0, y: 0 };
+  let shake = 0;
+  let toastT = 0;
+  let mission = null;
+  let wantedCool = 0;
+  let reinforceT = 0;
+  let interactPrompt = null;
+
+  const meta = loadMeta();
+
+  function loadMeta() {
+    try {
+      const d = JSON.parse(localStorage.getItem(SAVE_KEY) || "null");
+      return Object.assign({ mission: 0, cash: 200, muted: false, started: false }, d || {});
+    } catch {
+      return { mission: 0, cash: 200, muted: false, started: false };
+    }
+  }
+  function saveMeta() {
+    try {
+      localStorage.setItem(SAVE_KEY, JSON.stringify({
+        mission: meta.mission, cash: meta.cash, muted: meta.muted, started: meta.started,
+      }));
+    } catch {}
+  }
+
+  function makePlayer(x, y) {
+    return {
+      x, y, r: 12, ang: 0,
+      hp: 100, maxHp: 100,
+      spd: 170, sprint: 1.5,
+      inCar: null,
+      wep: 1,
+      ammo: { pistol: 84, smg: 180, shotgun: 32, rifle: 55 },
+      mag: { pistol: 12, smg: 32, shotgun: 6, rifle: 10 },
+      reloading: 0, shootCd: 0, inv: 0,
+      money: typeof meta.cash === "number" ? meta.cash : 200,
+      wanted: 0,
+    };
+  }
+
+  function spawnTraffic() {
+    for (let i = 0; i < 40; i++) {
+      const road = world.roads[(Math.random() * world.roads.length) | 0];
+      let x, y, ang;
+      if (road.type === "v") {
+        x = road.x + road.w / 2 + rand(-8, 8);
+        y = rand(120, MAP_H - 120);
+        ang = Math.random() > 0.5 ? -Math.PI / 2 : Math.PI / 2;
+      } else {
+        y = road.y + road.h / 2 + rand(-8, 8);
+        x = rand(120, MAP_W - 120);
+        ang = Math.random() > 0.5 ? 0 : Math.PI;
+      }
+      const types = ["sedan", "sedan", "sedan", "taxi", "van", "sport"];
+      const t = types[(Math.random() * types.length) | 0];
+      const c = createCar(x, y, t);
+      c.ang = ang;
+      // more moving traffic so streets feel alive
+      c.parked = Math.random() > 0.55;
+      if (!c.parked) {
+        c.spd = rand(60, 140);
+        c.vx = Math.cos(c.ang) * c.spd;
+        c.vy = Math.sin(c.ang) * c.spd;
+      }
+      cars.push(c);
+    }
+  }
+
+  function spawnPed(x, y) {
+    peds.push({
+      x, y, r: 9, ang: rand(0, TAU),
+      col: `hsl(${randi(0, 360)},42%,58%)`,
+      spd: rand(45, 75), t: rand(0, 4), fear: 0, hp: 20,
+    });
+  }
+
+  function spawnEnemy(x, y, tag = "thug") {
+    const isBoss = tag === "boss";
+    npcs.push({
+      x, y, r: isBoss ? 15 : 11,
+      hp: isBoss ? 300 : 60, maxHp: isBoss ? 300 : 60,
+      ang: 0, aim: 0,
+      col: isBoss ? "#ff3355" : tag === "ambush" ? "#ff8844" : "#e8c84a",
+      edge: isBoss ? "#801020" : "#6a5020",
+      tag, type: "enemy", boss: isBoss,
+      spd: isBoss ? 85 : 100,
+      shootCd: rand(0.2, 0.8),
+      wep: isBoss ? "rifle" : Math.random() > 0.45 ? "smg" : "pistol",
+      state: "patrol", alert: isBoss ? 99 : 0,
+    });
+  }
+
+  function spawnCop(x, y, inCar = false) {
+    const cop = {
+      x, y, r: 11, hp: 75, maxHp: 75, ang: 0, aim: 0,
+      col: "#3a6cff", edge: "#1a3060",
+      type: "cop", spd: 120, shootCd: 0.45,
+      wep: "pistol", state: "chase", inCar: null, siren: 0,
+    };
+    if (inCar) {
+      const car = createCar(x, y, "police");
+      car.cop = true;
+      car.parked = false;
+      car.driver = cop;
+      cop.inCar = car;
+      cars.push(car);
+    }
+    cops.push(cop);
+  }
+
+  function resetWorld(fresh) {
+    world = createWorld();
+    missions = buildMissions(world);
+    cars = []; npcs = []; cops = []; bullets = []; particles = []; floaters = []; peds = [];
+    const sp = world.spawnPoints.player;
+    player = makePlayer(sp.x, sp.y);
+    if (fresh) {
+      meta.mission = 0;
+      meta.cash = 200;
+      player.money = 200;
+    }
+    spawnTraffic();
+    // start car near player
+    const sc = createCar(player.x + 90, player.y + 30, "sedan", "#7a8aa0");
+    sc.parked = true;
+    cars.push(sc);
+    for (let i = 0; i < 55; i++) {
+      const x = rand(100, MAP_W - 100), y = rand(100, MAP_H - 100);
+      if (world.onRoad(x, y, 10)) continue;
+      spawnPed(x, y);
+    }
+    cam.x = clamp(player.x - innerWidth / 2, 0, Math.max(0, MAP_W - innerWidth));
+    cam.y = clamp(player.y - innerHeight / 2, 0, Math.max(0, MAP_H - innerHeight));
+    startMission(meta.mission || 0);
+  }
+
+  function startMission(idx) {
+    if (idx >= missions.length) {
+      mission = { done: true, free: true, def: { title: "自由模式", obj: "霓虹区任你驰骋" } };
+      onMissionUI(mission);
+      return;
+    }
+    const def = missions[idx];
+    mission = {
+      idx, def, done: false, kills: 0,
+      sawWanted: false, seededWanted: false,
+    };
+    // spawns
+    if (def.spawnNear) {
+      const sn = def.spawnNear;
+      let cx = sn.x, cy = sn.y;
+      if (sn.atPlayer) { cx = player.x; cy = player.y; }
+      for (let i = 0; i < sn.n; i++) {
+        const a = rand(0, TAU), d = rand(40, sn.spread || 120);
+        spawnEnemy(cx + Math.cos(a) * d, cy + Math.sin(a) * d, sn.tag || "thug");
+      }
+    }
+    if (def.spawnBoss) {
+      spawnEnemy(def.spawnBoss.x, def.spawnBoss.y, "boss");
+      for (let i = 0; i < 3; i++) {
+        const a = rand(0, TAU);
+        spawnEnemy(def.spawnBoss.x + Math.cos(a) * 70, def.spawnBoss.y + Math.sin(a) * 70, "thug");
+      }
+    }
+    if (def.carAt) {
+      cars.forEach((c) => { c.special = false; });
+      const c = createCar(def.carAt.x, def.carAt.y, "sport", def.carAt.col || "#ff3355");
+      c.special = true;
+      c.mission = true;
+      c.parked = true;
+      cars.push(c);
+    }
+    if (def.heatOnStart) addWanted(def.heatOnStart);
+    onMissionUI(mission);
+  }
+
+  function completeMission() {
+    if (!mission || mission.done || mission.free) return;
+    const def = mission.def;
+    mission.done = true;
+    player.money += def.cash || 0;
+    meta.cash = player.money;
+    if (def.heatOnComplete) addWanted(def.heatOnComplete);
+    toast(`+$${def.cash || 0} · 任务完成`, "#5dff9a");
+    sfx.pickup();
+    meta.mission = mission.idx + 1;
+    saveMeta();
+
+    const finish = () => {
+      if (meta.mission >= missions.length) {
+        mission = { done: true, free: true, def: { title: "自由模式", obj: "霓虹区任你驰骋" } };
+        onMissionUI(mission);
+        mode = "win";
+        onMode("win");
+      } else {
+        const next = missions[meta.mission];
+        if (next.lines) {
+          mode = "story";
+          onMode("story");
+          onStory(next.lines, () => {
+            startMission(meta.mission);
+            mode = "play";
+            onMode("play");
+          });
+        } else {
+          startMission(meta.mission);
+          mode = "play";
+          onMode("play");
+        }
+      }
+    };
+
+    if (def.completeText) {
+      mode = "story";
+      onMode("story");
+      onStory([{ spk: "系统", t: "任务完成", body: def.completeText }], finish);
+    } else finish();
+  }
+
+  function addWanted(n) {
+    const prev = player.wanted;
+    player.wanted = clamp(player.wanted + n, 0, 5);
+    if (player.wanted > prev) {
+      toast("通缉 " + "★".repeat(player.wanted), "#ffd166");
+      sfx.wanted();
+      for (let i = 0; i < player.wanted; i++) {
+        const a = rand(0, TAU), d = rand(380, 560);
+        spawnCop(player.x + Math.cos(a) * d, player.y + Math.sin(a) * d, player.wanted >= 2 && Math.random() > 0.4);
+      }
+    }
+  }
+
+  function toast(msg, col) {
+    onToast(msg, col);
+    toastT = 1.5;
+  }
+
+  // ── combat ──
+  function currentWep() { return WEAPONS[player.wep]; }
+
+  function tryShoot() {
+    if (player.reloading > 0 || player.shootCd > 0 || player.hp <= 0) return;
+    const w = currentWep();
+    const origin = player.inCar || player;
+    if (w.id === "fist") {
+      player.shootCd = 1 / w.rate;
+      melee(w);
+      return;
+    }
+    if ((player.mag[w.id] || 0) <= 0) { tryReload(); return; }
+    player.mag[w.id]--;
+    player.shootCd = 1 / w.rate;
+    const n = w.pellets || 1;
+    for (let i = 0; i < n; i++) {
+      const a = player.ang + rand(-w.spread, w.spread);
+      const sp = w.speed || 700;
+      bullets.push({
+        x: origin.x + Math.cos(player.ang) * 16,
+        y: origin.y + Math.sin(player.ang) * 16,
+        vx: Math.cos(a) * sp, vy: Math.sin(a) * sp,
+        life: w.range / sp, dmg: w.dmg, r: 3.2,
+        col: w.color, friendly: true,
+      });
+    }
+    shake = Math.min(10, shake + w.kick);
+    sfx.shoot();
+    if (player.wanted < 1 && Math.random() < 0.12) addWanted(1);
+    peds.forEach((p) => { if (dist2(p, player) < 50000) p.fear = 3.5; });
+  }
+
+  function melee(w) {
+    for (const t of [...npcs, ...cops]) {
+      if (t.hp <= 0) continue;
+      if (dist(t, player) > w.range + t.r) continue;
+      let da = angTo(t.x - player.x, t.y - player.y) - player.ang;
+      while (da > Math.PI) da -= TAU;
+      while (da < -Math.PI) da += TAU;
+      if (Math.abs(da) < 1.0) {
+        damageActor(t, w.dmg);
+        burst(t.x, t.y, "#ff6b6b", 6);
+      }
+    }
+    sfx.hit();
+  }
+
+  function tryReload() {
+    const w = currentWep();
+    if (w.ammo < 0 || player.reloading > 0) return;
+    if ((player.ammo[w.id] || 0) <= 0) return;
+    if ((player.mag[w.id] || 0) >= w.magSize) return;
+    player.reloading = w.reload;
+    sfx.reload();
+    toast("装弹…", "#aaa");
+  }
+
+  function finishReload() {
+    const w = currentWep();
+    if (w.ammo < 0) return;
+    const need = w.magSize - (player.mag[w.id] || 0);
+    const take = Math.min(need, player.ammo[w.id] || 0);
+    player.ammo[w.id] -= take;
+    player.mag[w.id] = (player.mag[w.id] || 0) + take;
+  }
+
+  function damageActor(t, dmg) {
+    t.hp -= dmg;
+    t.state = "hunt";
+    t.alert = 5;
+    burst(t.x, t.y, t.col, 5);
+    float(t.x, t.y - 12, Math.floor(dmg), "#ffd166");
+    sfx.hit();
+    if (t.hp <= 0) {
+      t.hp = 0;
+      onKill(t);
+    }
+  }
+
+  function onKill(t) {
+    burst(t.x, t.y, t.col, 16);
+    if (Math.random() < 0.45) player.money += 25 + (Math.random() * 50) | 0;
+    if (t.type === "cop") addWanted(1);
+    else if (Math.random() < 0.3) addWanted(1);
+    if (mission && !mission.done && !mission.free) {
+      const def = mission.def;
+      if (def.type === "kill" && t.tag === def.tag) {
+        mission.kills++;
+        onMissionUI(mission);
+        if (mission.kills >= def.count) completeMission();
+      }
+      if (def.type === "boss" && t.boss) completeMission();
+    }
+    const keys = ["pistol", "smg", "shotgun", "rifle"];
+    if (Math.random() < 0.55) {
+      const k = keys[(Math.random() * keys.length) | 0];
+      player.ammo[k] = (player.ammo[k] || 0) + 10;
+    }
+  }
+
+  function damagePlayer(dmg) {
+    if (player.inv > 0) return;
+    player.hp -= dmg;
+    player.inv = 0.4;
+    shake = 7;
+    onHud({ flash: true });
+    sfx.hit();
+    if (player.hp <= 0) {
+      player.hp = 0;
+      player.money = Math.max(0, player.money - 100);
+      meta.cash = player.money;
+      saveMeta();
+      sfx.die();
+      onMode("dead");
+    }
+  }
+
+  function burst(x, y, col, n) {
+    for (let i = 0; i < n; i++) {
+      const a = rand(0, TAU), s = rand(50, 200);
+      particles.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, life: rand(0.2, 0.55), max: 0.55, r: rand(1.5, 3.5), col });
+    }
+  }
+  function float(x, y, text, col) {
+    floaters.push({ x, y, text: String(text), col, life: 0.7, vy: -45 });
+  }
+
+  // ── enter / exit car ──
+  function nearestCar(maxD = 52) {
+    let best = null, bd = maxD;
+    for (const v of cars) {
+      if (v.driver && v.driver !== player) continue;
+      const d = dist(v, player);
+      if (d < bd) { bd = d; best = v; }
+    }
+    return best;
+  }
+
+  function toggleCar() {
+    if (player.inCar) {
+      const car = player.inCar;
+      car.driver = null;
+      car.spd *= 0.4;
+      car.vx *= 0.4; car.vy *= 0.4;
+      // exit to side free of walls
+      const side = 32;
+      let ex = car.x + Math.cos(car.ang + Math.PI / 2) * side;
+      let ey = car.y + Math.sin(car.ang + Math.PI / 2) * side;
+      const test = { x: ex, y: ey };
+      resolveCircleWorld(test, player.r, solidsNear(world, ex, ey, 40));
+      player.x = test.x; player.y = test.y;
+      player.inCar = null;
+      toast("下车", "#aaa");
+      sfx.enter();
+      return;
+    }
+    const car = nearestCar(55);
+    if (!car) { toast("附近没有车辆", "#888"); return; }
+    if (car.driver && car.driver !== player) { toast("有人在车里", "#ff4d6d"); return; }
+    player.inCar = car;
+    car.driver = player;
+    car.parked = false;
+    toast("上车 · " + (car.def?.name || "载具"), "#3de0ff");
+    sfx.enter();
+    if (mission && !mission.done && mission.def.type === "drive" && car.special) {
+      completeMission();
+    }
+  }
+
+  // ── AI ──
+  function updateNpcs(dt) {
+    for (const n of npcs) {
+      if (n.hp <= 0) continue;
+      const target = player.inCar || player;
+      const d = dist(n, target);
+      if (d < 340) n.alert = Math.max(n.alert, 3);
+      if (n.alert > 0 || n.boss || n.state === "hunt") {
+        n.state = "hunt";
+        n.aim = angTo(target.x - n.x, target.y - n.y);
+        n.ang = n.aim;
+        if (d > 100) {
+          n.x += Math.cos(n.aim) * n.spd * dt;
+          n.y += Math.sin(n.aim) * n.spd * dt;
+        } else if (d < 60) {
+          n.x -= Math.cos(n.aim) * n.spd * 0.45 * dt;
+          n.y -= Math.sin(n.aim) * n.spd * 0.45 * dt;
+        }
+        resolveCircleWorld(n, n.r, solidsNear(world, n.x, n.y, 50));
+        // avoid cars
+        pushCircleFromCars(n, n.r, cars);
+        n.shootCd -= dt;
+        if (n.shootCd <= 0 && d < 420) {
+          n.shootCd = n.boss ? 0.32 : n.wep === "smg" ? 0.11 : 0.42;
+          const a = n.aim + rand(-0.09, 0.09);
+          const sp = 500;
+          bullets.push({
+            x: n.x + Math.cos(a) * 14, y: n.y + Math.sin(a) * 14,
+            vx: Math.cos(a) * sp, vy: Math.sin(a) * sp,
+            life: 0.95, dmg: n.boss ? 15 : 10, r: 3, col: "#ff8866", friendly: false,
+          });
+        }
+      } else {
+        n.t = (n.t || 0) + dt;
+        if (n.t > 2.2) { n.t = 0; n.ang = rand(0, TAU); }
+        n.x += Math.cos(n.ang) * 32 * dt;
+        n.y += Math.sin(n.ang) * 32 * dt;
+        resolveCircleWorld(n, n.r, solidsNear(world, n.x, n.y, 40));
+      }
+    }
+  }
+
+  function updateCops(dt) {
+    const target = player.inCar || player;
+    for (const c of cops) {
+      if (c.hp <= 0) continue;
+      c.siren += dt * 9;
+      const d = dist(c, target);
+      c.aim = angTo(target.x - c.x, target.y - c.y);
+      c.ang = c.aim;
+
+      if (c.inCar) {
+        const car = c.inCar;
+        car.driver = c;
+        const desired = c.aim;
+        let da = desired - car.ang;
+        while (da > Math.PI) da -= TAU;
+        while (da < -Math.PI) da += TAU;
+        car.ang += clamp(da, -2.6 * dt, 2.6 * dt);
+        car.spd = lerp(car.spd, car.def.maxSpd * 0.8, 1 - Math.pow(0.04, dt));
+        car.vx = Math.cos(car.ang) * car.spd;
+        car.vy = Math.sin(car.ang) * car.spd;
+        car.x += car.vx * dt;
+        car.y += car.vy * dt;
+        const proxy = { x: car.x, y: car.y };
+        if (resolveCircleWorld(proxy, 18, solidsNear(world, car.x, car.y, 60))) {
+          car.x = proxy.x; car.y = proxy.y;
+          car.spd *= -0.2;
+        }
+        c.x = car.x; c.y = car.y;
+        if (d < 75 && Math.abs(car.spd) < 50) {
+          car.driver = null; c.inCar = null;
+        }
+        c.shootCd -= dt;
+        if (c.shootCd <= 0 && d < 360) {
+          c.shootCd = 0.48;
+          const a = c.aim + rand(-0.1, 0.1);
+          bullets.push({ x: c.x, y: c.y, vx: Math.cos(a) * 520, vy: Math.sin(a) * 520, life: 0.85, dmg: 11, r: 3, col: "#88aaff", friendly: false });
+        }
+      } else {
+        if (d > 42) {
+          c.x += Math.cos(c.aim) * c.spd * dt;
+          c.y += Math.sin(c.aim) * c.spd * dt;
+        }
+        resolveCircleWorld(c, c.r, solidsNear(world, c.x, c.y, 50));
+        pushCircleFromCars(c, c.r, cars);
+        c.shootCd -= dt;
+        if (c.shootCd <= 0 && d < 400) {
+          c.shootCd = 0.4;
+          const a = c.aim + rand(-0.07, 0.07);
+          bullets.push({
+            x: c.x + Math.cos(a) * 12, y: c.y + Math.sin(a) * 12,
+            vx: Math.cos(a) * 540, vy: Math.sin(a) * 540,
+            life: 0.9, dmg: 12, r: 3, col: "#88aaff", friendly: false,
+          });
+        }
+      }
+    }
+  }
+
+  function updatePeds(dt) {
+    for (const p of peds) {
+      if (p.fear > 0) {
+        p.fear -= dt;
+        const a = angTo(p.x - player.x, p.y - player.y);
+        p.x += Math.cos(a) * 95 * dt;
+        p.y += Math.sin(a) * 95 * dt;
+      } else {
+        p.t += dt;
+        if (p.t > 3) { p.t = 0; p.ang = rand(0, TAU); }
+        p.x += Math.cos(p.ang) * p.spd * dt;
+        p.y += Math.sin(p.ang) * p.spd * dt;
+      }
+      resolveCircleWorld(p, p.r, solidsNear(world, p.x, p.y, 40));
+      const dmg = pushCircleFromCars(p, p.r, cars);
+      if (dmg > 5) {
+        p.fear = 4;
+        // running over civs adds wanted
+        if (Math.random() < 0.08) addWanted(1);
+      }
+    }
+  }
+
+  function coolWanted(dt) {
+    if (player.wanted <= 0) return;
+    let near = false;
+    for (const c of cops) {
+      if (dist2(c, player) < 420 * 420) { near = true; break; }
+    }
+    if (!near) {
+      wantedCool += dt;
+      if (wantedCool > 5.5) {
+        wantedCool = 0;
+        player.wanted = Math.max(0, player.wanted - 1);
+        if (player.wanted === 0) toast("通缉解除", "#5dff9a");
+      }
+    } else wantedCool = Math.max(0, wantedCool - dt * 0.4);
+
+    if (player.wanted >= 2 && cops.filter((c) => c.hp > 0).length < player.wanted * 2) {
+      reinforceT += dt;
+      if (reinforceT > 7) {
+        reinforceT = 0;
+        const a = rand(0, TAU), d = 500;
+        spawnCop(player.x + Math.cos(a) * d, player.y + Math.sin(a) * d, player.wanted >= 3);
+      }
+    }
+  }
+
+  function checkMissions(dt) {
+    if (!mission || mission.done || mission.free) return;
+    const def = mission.def;
+    if (def.type === "goto") {
+      if (dist(player, { x: def.tx, y: def.ty }) < def.r) completeMission();
+    }
+    if (def.type === "clearwanted") {
+      if (player.wanted >= 1) mission.sawWanted = true;
+      if (!mission.seededWanted) {
+        mission.seededWanted = true;
+        if (player.wanted <= 0) addWanted(2);
+      }
+      if (mission.sawWanted && player.wanted <= 0) completeMission();
+      onMissionUI(mission);
+    }
+  }
+
+  function updateInteract() {
+    interactPrompt = null;
+    if (!player || player.hp <= 0) { onInteract(null); return; }
+    if (!player.inCar) {
+      const car = nearestCar(55);
+      if (car) interactPrompt = { text: "F  上车", kind: "car" };
+    } else {
+      interactPrompt = { text: "F  下车", kind: "exit" };
+    }
+    if (mission && !mission.done && mission.def.type === "goto") {
+      const def = mission.def;
+      if (dist(player, { x: def.tx, y: def.ty }) < def.r + 25) {
+        interactPrompt = { text: "E  交互 / 进入范围完成", kind: "mission" };
+      }
+    }
+    onInteract(interactPrompt);
+  }
+
+  // ── main update ──
+  function update(dt, input, view) {
+    if (mode !== "play" || !player || player.hp <= 0) return;
+    const { W, H } = view;
+
+    if (player.reloading > 0) {
+      player.reloading -= dt;
+      if (player.reloading <= 0) { player.reloading = 0; finishReload(); toast("就绪", "#5dff9a"); }
+    }
+    if (player.shootCd > 0) player.shootCd -= dt;
+    if (player.inv > 0) player.inv -= dt;
+
+    // aim at world cursor
+    input.pointer.worldX = cam.x + input.pointer.x;
+    input.pointer.worldY = cam.y + input.pointer.y;
+    const ox = player.inCar ? player.inCar.x : player.x;
+    const oy = player.inCar ? player.inCar.y : player.y;
+    player.ang = angTo(input.pointer.worldX - ox, input.pointer.worldY - oy);
+
+    if (player.inCar) {
+      const car = player.inCar;
+      const res = driveCar(car, input.driveInput(), dt, world);
+      player.x = car.x;
+      player.y = car.y;
+      if (res.hit && Math.abs(car.spd) > 60) sfx.crash();
+      if (car.hp <= 0) {
+        explodeCar(car);
+      }
+      // run over
+      if (Math.hypot(car.vx, car.vy) > 90) {
+        for (const t of [...npcs, ...cops]) {
+          if (t.hp <= 0) continue;
+          if (dist(t, car) < 22) {
+            damageActor(t, Math.hypot(car.vx, car.vy) * 0.07);
+            t.x += Math.cos(car.ang) * 18;
+            t.y += Math.sin(car.ang) * 18;
+          }
+        }
+      }
+    } else {
+      const fi = input.footInput();
+      if (fi.mx || fi.my) {
+        const [nx, ny] = norm(fi.mx, fi.my);
+        const spd = player.spd * (fi.sprint ? player.sprint : 1);
+        player.x += nx * spd * dt;
+        player.y += ny * spd * dt;
+      }
+      resolveCircleWorld(player, player.r, solidsNear(world, player.x, player.y, 48), 5);
+      const dmg = pushCircleFromCars(player, player.r, cars);
+      if (dmg > 8) damagePlayer(dmg);
+    }
+
+    // bounds
+    player.x = clamp(player.x, 60, MAP_W - 60);
+    player.y = clamp(player.y, 60, MAP_H - 60);
+
+    if (input.pointer.down) {
+      const w = currentWep();
+      if (w.auto || player.shootCd <= 0) tryShoot();
+    }
+
+    // bullets
+    for (let i = bullets.length - 1; i >= 0; i--) {
+      const b = bullets[i];
+      const px = b.x, py = b.y;
+      b.x += b.vx * dt;
+      b.y += b.vy * dt;
+      b.life -= dt;
+      let dead = b.life <= 0;
+      // walls
+      for (const s of solidsNear(world, b.x, b.y, 20)) {
+        if (b.x >= s.x && b.x <= s.x + s.w && b.y >= s.y && b.y <= s.y + s.h) {
+          burst(b.x, b.y, b.col, 4);
+          dead = true;
+          break;
+        }
+      }
+      if (!dead && b.friendly) {
+        for (const t of npcs) {
+          if (t.hp > 0 && circleHit(b.x, b.y, b.r, t.x, t.y, t.r)) {
+            damageActor(t, b.dmg); dead = true; break;
+          }
+        }
+        if (!dead) for (const t of cops) {
+          if (t.hp > 0 && circleHit(b.x, b.y, b.r, t.x, t.y, t.r)) {
+            damageActor(t, b.dmg); dead = true; break;
+          }
+        }
+        if (!dead) for (const v of cars) {
+          if (pointInCar(b.x, b.y, v, 2)) {
+            v.hp -= b.dmg * 0.45;
+            burst(b.x, b.y, "#ffaa44", 4);
+            dead = true;
+            if (v.hp <= 0) explodeCar(v);
+            break;
+          }
+        }
+      } else if (!dead && !b.friendly) {
+        const o = player.inCar || player;
+        const pr = player.inCar ? 16 : player.r;
+        if (circleHit(b.x, b.y, b.r, o.x, o.y, pr)) {
+          damagePlayer(b.dmg);
+          dead = true;
+        }
+      }
+      if (dead) bullets.splice(i, 1);
+    }
+
+    updateNpcs(dt);
+    updateCops(dt);
+    updatePeds(dt);
+    resolveVehicleCrowd(cars, dt);
+    // ambient traffic AI — always move non-parked free cars
+    for (const v of cars) {
+      if (v.driver || v.parked || v.special) continue;
+      if (!world.onRoad(v.x, v.y, 20)) {
+        // nudge back toward nearest road roughly by continuing forward slowly
+        v.ang += rand(-0.8, 0.8) * dt;
+      }
+      const target = v.cop ? 160 : 90;
+      v.spd = lerp(v.spd || 0, target, 1 - Math.pow(0.08, dt));
+      // gentle wander on straights
+      if (Math.random() < dt * 0.4) v.ang += rand(-0.15, 0.15);
+      v.vx = Math.cos(v.ang) * v.spd;
+      v.vy = Math.sin(v.ang) * v.spd;
+      v.x += v.vx * dt;
+      v.y += v.vy * dt;
+      const proxy = { x: v.x, y: v.y };
+      if (resolveCircleWorld(proxy, 16, solidsNear(world, v.x, v.y, 50), 3)) {
+        v.x = proxy.x; v.y = proxy.y;
+        v.ang += Math.PI * 0.5 + rand(-0.2, 0.2);
+        v.spd *= 0.5;
+      }
+      v.x = clamp(v.x, 60, MAP_W - 60);
+      v.y = clamp(v.y, 60, MAP_H - 60);
+    }
+
+    coolWanted(dt);
+    checkMissions(dt);
+    updateInteract();
+
+    npcs = npcs.filter((n) => n.hp > 0);
+    cops = cops.filter((c) => c.hp > 0);
+
+    // camera
+    const focus = player.inCar || player;
+    const t = 1 - Math.pow(0.0006, Math.max(dt, 0.001));
+    // look-ahead when driving
+    let lx = focus.x, ly = focus.y;
+    if (player.inCar) {
+      lx += Math.cos(player.inCar.ang) * Math.min(120, Math.abs(player.inCar.spd) * 0.25);
+      ly += Math.sin(player.inCar.ang) * Math.min(120, Math.abs(player.inCar.spd) * 0.25);
+    }
+    cam.x = lerp(cam.x, lx - W / 2, t);
+    cam.y = lerp(cam.y, ly - H / 2, t);
+    cam.x = clamp(cam.x, 0, Math.max(0, MAP_W - W));
+    cam.y = clamp(cam.y, 0, Math.max(0, MAP_H - H));
+
+    if (shake > 0) shake = Math.max(0, shake - dt * 22);
+    if (toastT > 0) toastT -= dt;
+
+    for (let i = particles.length - 1; i >= 0; i--) {
+      const q = particles[i];
+      q.life -= dt; q.x += q.vx * dt; q.y += q.vy * dt; q.vx *= 0.96; q.vy *= 0.96;
+      if (q.life <= 0) particles.splice(i, 1);
+    }
+    for (let i = floaters.length - 1; i >= 0; i--) {
+      const f = floaters[i];
+      f.life -= dt; f.y += f.vy * dt;
+      if (f.life <= 0) floaters.splice(i, 1);
+    }
+
+    onHud({ player, mission, meta });
+  }
+
+  function explodeCar(v) {
+    if (v._dead) return;
+    v._dead = true;
+    burst(v.x, v.y, "#ff8844", 28);
+    burst(v.x, v.y, "#ffd166", 14);
+    sfx.crash();
+    toast("载具炸毁", "#ff4d6d");
+    if (v.driver === player) {
+      player.inCar = null;
+      damagePlayer(30);
+    } else if (v.driver) {
+      v.driver.inCar = null;
+      if (v.driver.hp != null) damageActor(v.driver, 45);
+    }
+    cars = cars.filter((c) => c !== v);
+  }
+
+  // ── public API ──
+  function start(fresh) {
+    ensureAudio();
+    setMuted(!!meta.muted);
+    meta.started = true;
+    if (fresh) { meta.mission = 0; meta.cash = 200; }
+    saveMeta();
+    resetWorld(!!fresh);
+    // snap cam
+    cam.x = clamp(player.x - innerWidth / 2, 0, Math.max(0, MAP_W - innerWidth));
+    cam.y = clamp(player.y - innerHeight / 2, 0, Math.max(0, MAP_H - innerHeight));
+    const m = missions[meta.mission];
+    if (m && m.lines && fresh) {
+      // Set story mode first, then show dialog (onMode must not hide story)
+      mode = "story";
+      onMode("story");
+      onStory(m.lines, () => {
+        mode = "play";
+        onMode("play");
+      });
+    } else {
+      mode = "play";
+      onMode("play");
+      if (!fresh) toast("继续 · 任务 " + (meta.mission + 1), "#3de0ff");
+    }
+  }
+
+  function setMode(m) { mode = m; }
+  function getMode() { return mode; }
+  function getState() {
+    return {
+      world, player, cars, peds, npcs, cops, bullets, particles, floaters,
+      cam, shake, mission, meta,
+    };
+  }
+
+  function handleKey(code) {
+    if (mode !== "play") return;
+    if (code === "KeyF") toggleCar();
+    if (code === "KeyR") tryReload();
+    if (code === "KeyE") {
+      if (mission && !mission.done && mission.def.type === "goto") {
+        const def = mission.def;
+        if (dist(player, { x: def.tx, y: def.ty }) < def.r + 30) completeMission();
+      }
+    }
+    if (code.startsWith("Digit")) {
+      const n = parseInt(code.replace("Digit", ""), 10);
+      if (n >= 1 && n <= 5) player.wep = n - 1;
+    }
+    if (code === "KeyM") {
+      meta.muted = !meta.muted;
+      setMuted(meta.muted);
+      saveMeta();
+      toast(meta.muted ? "静音" : "声音开", "#aaa");
+    }
+  }
+
+  function wheel(dir) {
+    if (!player || mode !== "play") return;
+    player.wep = (player.wep + dir + WEAPONS.length) % WEAPONS.length;
+  }
+
+  function respawn() {
+    player.hp = 100;
+    player.wanted = 0;
+    player.inCar = null;
+    const sp = world.spawnPoints.player;
+    player.x = sp.x; player.y = sp.y;
+    cops.length = 0;
+    mode = "play";
+    onMode("play");
+    toast("医院出院", "#5dff9a");
+  }
+
+  function freeRoam() {
+    mission = { done: true, free: true, def: { title: "自由模式", obj: "霓虹区任你驰骋" } };
+    onMissionUI(mission);
+    mode = "play";
+    onMode("play");
+  }
+
+  return {
+    start, update, getState, getMode, setMode, handleKey, wheel, respawn, freeRoam,
+    meta, saveMeta,
+    carSpeedKmh: () => (player && player.inCar ? carSpeedKmh(player.inCar) : 0),
+  };
+}
+
+
+// ===== js/input.js =====
+function createInput(canvas) {
+  const keys = Object.create(null);
+  const pointer = { x: 0, y: 0, down: false, worldX: 0, worldY: 0 };
+
+  function setPtr(e, W, H) {
+    const r = canvas.getBoundingClientRect();
+    const cx = (e.touches ? e.touches[0].clientX : e.clientX) - r.left;
+    const cy = (e.touches ? e.touches[0].clientY : e.clientY) - r.top;
+    pointer.x = cx * (W / r.width);
+    pointer.y = cy * (H / r.height);
+  }
+
+  const onKeyDown = (e) => {
+    keys[e.code] = true;
+    if (e.key) keys[e.key] = true;
+    // prevent page scroll with arrows/space while playing
+    if (["ArrowUp","ArrowDown","ArrowLeft","ArrowRight","Space"," "].includes(e.code) || e.key === " ") {
+      e.preventDefault();
+    }
+  };
+  const onKeyUp = (e) => {
+    keys[e.code] = false;
+    if (e.key) keys[e.key] = false;
+  };
+
+  window.addEventListener("keydown", onKeyDown);
+  window.addEventListener("keyup", onKeyUp);
+  function dims() {
+    return [canvas._W || canvas.clientWidth || innerWidth, canvas._H || canvas.clientHeight || innerHeight];
+  }
+  canvas.addEventListener("mousemove", (e) => {
+    const [W, H] = dims();
+    setPtr(e, W, H);
+  });
+  canvas.addEventListener("mousedown", (e) => {
+    const [W, H] = dims();
+    setPtr(e, W, H);
+    if (e.button === 0) pointer.down = true;
+  });
+  canvas.addEventListener("mouseup", (e) => { if (e.button === 0) pointer.down = false; });
+  canvas.addEventListener("mouseleave", () => { pointer.down = false; });
+  canvas.addEventListener("contextmenu", (e) => e.preventDefault());
+
+  function driveInput() {
+    return {
+      up: !!(keys.KeyW || keys.ArrowUp || keys.w || keys.W || keys.Up),
+      down: !!(keys.KeyS || keys.ArrowDown || keys.s || keys.S || keys.Down),
+      left: !!(keys.KeyA || keys.ArrowLeft || keys.a || keys.A || keys.Left),
+      right: !!(keys.KeyD || keys.ArrowRight || keys.d || keys.D || keys.Right),
+      boost: !!(keys.ShiftLeft || keys.ShiftRight || keys.Shift),
+      brake: !!(keys.Space || keys[" "]),
+    };
+  }
+
+  function footInput() {
+    let mx = 0, my = 0;
+    // support both e.code and e.key fallbacks
+    if (keys.KeyW || keys.ArrowUp || keys.w || keys.W || keys.Up) my -= 1;
+    if (keys.KeyS || keys.ArrowDown || keys.s || keys.S || keys.Down) my += 1;
+    if (keys.KeyA || keys.ArrowLeft || keys.a || keys.A || keys.Left) mx -= 1;
+    if (keys.KeyD || keys.ArrowRight || keys.d || keys.D || keys.Right) mx += 1;
+    return {
+      mx, my,
+      sprint: !!(keys.ShiftLeft || keys.ShiftRight || keys.Shift),
+    };
+  }
+
+  function consume(code) {
+    if (keys[code]) {
+      keys[code] = false;
+      return true;
+    }
+    return false;
+  }
+
+  return {
+    keys, pointer, driveInput, footInput, setPtr, consume,
+    pressed: (code) => !!keys[code],
+  };
+}
+
+
+// ===== js/render.js =====
+function createRenderer(canvas, mmCanvas) {
+  const ctx = canvas.getContext("2d", { alpha: false });
+  const mctx = mmCanvas.getContext("2d");
+  let W = 800, H = 600, DPR = 1;
+
+  function resize() {
+    DPR = Math.min(devicePixelRatio || 1, 2);
+    W = innerWidth;
+    H = innerHeight;
+    canvas.width = (W * DPR) | 0;
+    canvas.height = (H * DPR) | 0;
+    canvas._W = W;
+    canvas._H = H;
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  }
+
+  function roundRect(c, x, y, w, h, r) {
+    c.beginPath();
+    c.moveTo(x + r, y);
+    c.arcTo(x + w, y, x + w, y + h, r);
+    c.arcTo(x + w, y + h, x, y + h, r);
+    c.arcTo(x, y + h, x, y, r);
+    c.arcTo(x, y, x + w, y, r);
+    c.closePath();
+  }
+
+  function drawPerson(x, y, ang, col, r, armed, outline) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(ang);
+    // shadow
+    ctx.fillStyle = "rgba(0,0,0,0.35)";
+    ctx.beginPath();
+    ctx.ellipse(2, 3, r * 0.9, r * 0.45, 0, 0, TAU);
+    ctx.fill();
+    // body
+    ctx.fillStyle = col;
+    ctx.beginPath();
+    ctx.arc(0, 0, r, 0, TAU);
+    ctx.fill();
+    if (outline) {
+      ctx.strokeStyle = outline;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+    // shoulder
+    ctx.fillStyle = "rgba(255,255,255,0.2)";
+    ctx.beginPath();
+    ctx.arc(-r * 0.25, -r * 0.2, r * 0.35, 0, TAU);
+    ctx.fill();
+    if (armed) {
+      ctx.fillStyle = "#1a1a1a";
+      ctx.fillRect(r * 0.25, -2.5, r * 1.15, 5);
+      ctx.fillStyle = col;
+      ctx.fillRect(r * 0.9, -1.5, 6, 3);
+    }
+    ctx.fillStyle = "#fff";
+    ctx.beginPath();
+    ctx.moveTo(r * 0.55, 0);
+    ctx.lineTo(r * 0.1, -4);
+    ctx.lineTo(r * 0.1, 4);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function drawCar(v) {
+    ctx.save();
+    ctx.translate(v.x, v.y);
+    ctx.rotate(v.ang);
+    // shadow
+    ctx.fillStyle = "rgba(0,0,0,0.4)";
+    roundRect(ctx, -v.w / 2 + 4, -v.h / 2 + 5, v.w, v.h, 5);
+    ctx.fill();
+    // body
+    ctx.fillStyle = v.col;
+    roundRect(ctx, -v.w / 2, -v.h / 2, v.w, v.h, 5);
+    ctx.fill();
+    // roof
+    ctx.fillStyle = "rgba(15,22,40,0.5)";
+    roundRect(ctx, -v.w * 0.12, -v.h * 0.32, v.w * 0.38, v.h * 0.64, 3);
+    ctx.fill();
+    // lights
+    ctx.fillStyle = "rgba(255,245,200,0.9)";
+    ctx.fillRect(v.w / 2 - 5, -v.h * 0.38, 5, 6);
+    ctx.fillRect(v.w / 2 - 5, v.h * 0.38 - 6, 5, 6);
+    ctx.fillStyle = "#ff3355";
+    ctx.fillRect(-v.w / 2, -v.h * 0.32, 4, 5);
+    ctx.fillRect(-v.w / 2, v.h * 0.32 - 5, 4, 5);
+    // skid heat
+    if (v.skid > 0) {
+      ctx.strokeStyle = `rgba(255,255,255,${0.15 * v.skid})`;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(-v.w / 2, -v.h / 2);
+      ctx.lineTo(-v.w / 2 - 8, -v.h / 2);
+      ctx.moveTo(-v.w / 2, v.h / 2);
+      ctx.lineTo(-v.w / 2 - 8, v.h / 2);
+      ctx.stroke();
+    }
+    if (v.cop) {
+      ctx.fillStyle = Math.sin(performance.now() / 70) > 0 ? "#ff2244" : "#3366ff";
+      ctx.fillRect(-7, -v.h / 2 - 5, 14, 5);
+    }
+    if (v.special) {
+      ctx.strokeStyle = "#fff";
+      ctx.lineWidth = 1.5;
+      roundRect(ctx, -v.w / 2, -v.h / 2, v.w, v.h, 5);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  function draw(state) {
+    const { world, player, cars, peds, npcs, cops, bullets, particles, floaters, cam, shake, mission } = state;
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    ctx.fillStyle = "#15202e";
+    ctx.fillRect(0, 0, W, H);
+
+    if (!player || !world) {
+      ctx.fillStyle = "#8490a8";
+      ctx.font = "15px sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText("载入街区…", W / 2, H / 2);
+      return;
+    }
+
+    const sx = shake ? (Math.random() - 0.5) * shake : 0;
+    const sy = shake ? (Math.random() - 0.5) * shake : 0;
+    const cx = Number.isFinite(cam.x) ? cam.x : 0;
+    const cy = Number.isFinite(cam.y) ? cam.y : 0;
+
+    ctx.save();
+    ctx.translate(-cx + sx, -cy + sy);
+
+    // district ground tints
+    for (const z of world.zones) {
+      if (z.x + z.w < cx || z.x > cx + W || z.y + z.h < cy || z.y > cy + H) continue;
+      ctx.fillStyle = z.district.color;
+      ctx.fillRect(z.x, z.y, z.w, z.h);
+    }
+
+    // sidewalks
+    ctx.fillStyle = "#3a4254";
+    for (const s of world.sidewalks) {
+      if (s.x + s.w < cx - 10 || s.x > cx + W + 10) continue;
+      ctx.fillRect(s.x, s.y, s.w, s.h);
+    }
+
+    // roads
+    for (const r of world.roads) {
+      if (r.x + r.w < cx - 20 || r.x > cx + W + 20 || r.y + r.h < cy - 20 || r.y > cy + H + 20) continue;
+      ctx.fillStyle = "#2a3142";
+      ctx.fillRect(r.x, r.y, r.w, r.h);
+      ctx.strokeStyle = "rgba(255,220,100,0.28)";
+      ctx.lineWidth = 2;
+      ctx.setLineDash([14, 18]);
+      ctx.beginPath();
+      if (r.type === "v") {
+        ctx.moveTo(r.x + r.w / 2, Math.max(r.y, cy - 20));
+        ctx.lineTo(r.x + r.w / 2, Math.min(r.y + r.h, cy + H + 20));
+      } else {
+        ctx.moveTo(Math.max(r.x, cx - 20), r.y + r.h / 2);
+        ctx.lineTo(Math.min(r.x + r.w, cx + W + 20), r.y + r.h / 2);
+      }
+      ctx.stroke();
+      ctx.setLineDash([]);
+      // edge lines
+      ctx.strokeStyle = "rgba(255,255,255,0.12)";
+      ctx.lineWidth = 1;
+      if (r.type === "v") {
+        ctx.beginPath();
+        ctx.moveTo(r.x + 3, r.y);
+        ctx.lineTo(r.x + 3, r.y + r.h);
+        ctx.moveTo(r.x + r.w - 3, r.y);
+        ctx.lineTo(r.x + r.w - 3, r.y + r.h);
+        ctx.stroke();
+      }
+    }
+
+    // landmark ground circles
+    for (const lm of world.landmarks) {
+      if (lm.x < cx - 80 || lm.x > cx + W + 80) continue;
+      if (lm.green) {
+        ctx.fillStyle = "rgba(40,100,60,0.35)";
+        ctx.beginPath();
+        ctx.arc(lm.x, lm.y, lm.r || 40, 0, TAU);
+        ctx.fill();
+      }
+      if (lm.type === "plaza") {
+        ctx.fillStyle = "rgba(80,70,60,0.3)";
+        ctx.beginPath();
+        ctx.arc(lm.x, lm.y, lm.r || 40, 0, TAU);
+        ctx.fill();
+      }
+    }
+
+    // buildings
+    for (const b of world.buildings) {
+      if (b.x + b.w < cx - 10 || b.x > cx + W + 10 || b.y + b.h < cy - 10 || b.y > cy + H + 10) continue;
+      ctx.fillStyle = "rgba(0,0,0,0.35)";
+      ctx.fillRect(b.x + 5, b.y + 6, b.w, b.h);
+      ctx.fillStyle = b.col;
+      ctx.fillRect(b.x, b.y, b.w, b.h);
+      ctx.strokeStyle = b.edge;
+      ctx.lineWidth = 2;
+      ctx.strokeRect(b.x + 0.5, b.y + 0.5, b.w - 1, b.h - 1);
+      // windows
+      ctx.fillStyle = "rgba(255,230,140,0.32)";
+      const stepY = 12 + b.windows * 2;
+      for (let wy = b.y + 10; wy < b.y + b.h - 10; wy += stepY) {
+        for (let wx = b.x + 8; wx < b.x + b.w - 8; wx += 11) {
+          if (((wx + wy) | 0) % 3 !== 0) ctx.fillRect(wx, wy, 5, 6);
+        }
+      }
+      if (b.neonSide) {
+        ctx.strokeStyle = b.neon || "rgba(61,224,255,0.5)";
+        ctx.globalAlpha = 0.55;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(b.x + 2, b.y + 4);
+        ctx.lineTo(b.x + 2, b.y + b.h - 4);
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+      }
+      if (b.landmark) {
+        ctx.fillStyle = "rgba(255,209,102,0.9)";
+        ctx.font = "bold 10px sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText(b.landmark.toUpperCase(), b.x + b.w / 2, b.y - 6);
+      }
+    }
+
+    // props
+    for (const pr of world.props) {
+      if (pr.x < cx - 30 || pr.x > cx + W + 30 || pr.y < cy - 30 || pr.y > cy + H + 30) continue;
+      if (pr.t === "lamp") {
+        ctx.fillStyle = "#3a3a44";
+        ctx.fillRect(pr.x - 2, pr.y - 12, 4, 16);
+        ctx.fillStyle = "rgba(255,230,150,0.9)";
+        ctx.beginPath();
+        ctx.arc(pr.x, pr.y - 14, 5, 0, TAU);
+        ctx.fill();
+        ctx.fillStyle = "rgba(255,230,150,0.07)";
+        ctx.beginPath();
+        ctx.arc(pr.x, pr.y - 14, 36, 0, TAU);
+        ctx.fill();
+      } else if (pr.t === "tree") {
+        ctx.fillStyle = "#2d5a38";
+        ctx.beginPath();
+        ctx.arc(pr.x, pr.y, pr.r || 12, 0, TAU);
+        ctx.fill();
+        ctx.fillStyle = "#3a2a18";
+        ctx.fillRect(pr.x - 2, pr.y, 4, 8);
+      } else if (pr.t === "fountain") {
+        ctx.strokeStyle = "rgba(100,180,255,0.5)";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(pr.x, pr.y, 14, 0, TAU);
+        ctx.stroke();
+        ctx.fillStyle = "rgba(80,160,255,0.25)";
+        ctx.fill();
+      } else if (pr.t === "stall") {
+        ctx.fillStyle = "#8a5a30";
+        ctx.fillRect(pr.x - 10, pr.y - 8, 20, 16);
+        ctx.fillStyle = "#c44";
+        ctx.fillRect(pr.x - 12, pr.y - 12, 24, 5);
+      } else if (pr.t === "bench") {
+        ctx.fillStyle = "#5a4a38";
+        ctx.fillRect(pr.x - 12, pr.y - 4, 24, 6);
+      } else if (pr.t === "dumpster") {
+        ctx.fillStyle = "#3a5a3a";
+        ctx.fillRect(pr.x - 10, pr.y - 8, 20, 16);
+      } else if (pr.t === "hydrant") {
+        ctx.fillStyle = "#d44";
+        ctx.fillRect(pr.x - 4, pr.y - 6, 8, 12);
+      } else {
+        ctx.fillStyle = "#6a4a30";
+        ctx.fillRect(pr.x - 7, pr.y - 6, 14, 12);
+      }
+    }
+
+    // mission marker
+    if (mission && !mission.done && mission.def) {
+      const m = mission.def;
+      if (m.type === "goto" && m.tx != null) {
+        const pulse = 10 + Math.sin(performance.now() / 180) * 5;
+        ctx.strokeStyle = "rgba(61,224,255,0.85)";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(m.tx, m.ty, m.r || 50, 0, TAU);
+        ctx.stroke();
+        ctx.fillStyle = "rgba(61,224,255,0.12)";
+        ctx.fill();
+        ctx.fillStyle = "#3de0ff";
+        ctx.beginPath();
+        ctx.arc(m.tx, m.ty, pulse, 0, TAU);
+        ctx.fill();
+        // vertical beam
+        ctx.strokeStyle = "rgba(61,224,255,0.35)";
+        ctx.beginPath();
+        ctx.moveTo(m.tx, m.ty);
+        ctx.lineTo(m.tx, m.ty - 50);
+        ctx.stroke();
+      }
+    }
+
+    // peds
+    for (const ped of peds) {
+      if (ped.x < cx - 20 || ped.x > cx + W + 20 || ped.y < cy - 20 || ped.y > cy + H + 20) continue;
+      drawPerson(ped.x, ped.y, ped.ang, ped.col, 9, false, "#222");
+    }
+
+    // cars
+    for (const v of cars) {
+      if (v.x < cx - 50 || v.x > cx + W + 50 || v.y < cy - 50 || v.y > cy + H + 50) continue;
+      drawCar(v);
+      if (v.special) {
+        ctx.strokeStyle = `rgba(255,60,90,${0.5 + 0.3 * Math.sin(performance.now() / 150)})`;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(v.x, v.y, 30, 0, TAU);
+        ctx.stroke();
+      }
+    }
+
+    // npcs
+    for (const n of npcs) {
+      if (n.hp <= 0) continue;
+      drawPerson(n.x, n.y, n.ang, n.col, n.r, true, n.edge);
+      if (n.hp < n.maxHp) {
+        ctx.fillStyle = "#000";
+        ctx.fillRect(n.x - 14, n.y - n.r - 9, 28, 4);
+        ctx.fillStyle = n.boss ? "#ff3355" : "#5dff9a";
+        ctx.fillRect(n.x - 14, n.y - n.r - 9, 28 * (n.hp / n.maxHp), 4);
+      }
+      if (n.boss) {
+        ctx.fillStyle = "#ff3355";
+        ctx.font = "bold 11px sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText("老大", n.x, n.y - n.r - 14);
+      }
+    }
+
+    // cops
+    for (const c of cops) {
+      if (c.hp <= 0) continue;
+      if (!c.inCar) drawPerson(c.x, c.y, c.ang, c.col, c.r, true, c.edge);
+    }
+
+    // player
+    if (player.hp > 0 && !player.inCar) {
+      const flash = player.inv > 0 && ((player.inv * 18) | 0) % 2 === 0;
+      drawPerson(player.x, player.y, player.ang, flash ? "#fff" : "#3de0ff", 13, true, "#0a5060");
+      // ring
+      ctx.strokeStyle = "rgba(61,224,255,0.45)";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(player.x, player.y, 18, 0, TAU);
+      ctx.stroke();
+      ctx.fillStyle = "rgba(61,224,255,0.9)";
+      ctx.font = "bold 9px sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText("YOU", player.x, player.y - 22);
+    }
+
+    // aim line
+    if (player.hp > 0) {
+      const ox = player.inCar ? player.inCar.x : player.x;
+      const oy = player.inCar ? player.inCar.y : player.y;
+      ctx.strokeStyle = "rgba(255,80,100,0.35)";
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(ox, oy);
+      ctx.lineTo(ox + Math.cos(player.ang) * 48, oy + Math.sin(player.ang) * 48);
+      ctx.stroke();
+    }
+
+    // bullets
+    for (const b of bullets) {
+      ctx.fillStyle = b.col;
+      ctx.shadowColor = b.col;
+      ctx.shadowBlur = 10;
+      ctx.beginPath();
+      ctx.arc(b.x, b.y, b.r, 0, TAU);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+      // trail
+      ctx.strokeStyle = b.col;
+      ctx.globalAlpha = 0.35;
+      ctx.beginPath();
+      ctx.moveTo(b.x, b.y);
+      ctx.lineTo(b.x - b.vx * 0.02, b.y - b.vy * 0.02);
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+    }
+
+    // particles
+    for (const q of particles) {
+      ctx.globalAlpha = clamp(q.life / q.max, 0, 1);
+      ctx.fillStyle = q.col;
+      ctx.fillRect(q.x - q.r, q.y - q.r, q.r * 2, q.r * 2);
+    }
+    ctx.globalAlpha = 1;
+    for (const f of floaters) {
+      ctx.globalAlpha = clamp(f.life * 1.5, 0, 1);
+      ctx.fillStyle = f.col;
+      ctx.font = "bold 12px sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText(f.text, f.x, f.y);
+    }
+    ctx.globalAlpha = 1;
+
+    ctx.restore();
+
+    // vignette
+    const g = ctx.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.25, W / 2, H / 2, Math.min(W, H) * 0.78);
+    g.addColorStop(0, "rgba(0,0,0,0)");
+    g.addColorStop(1, "rgba(0,0,0,0.45)");
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, W, H);
+
+    if (player.wanted >= 3) {
+      ctx.strokeStyle = `rgba(255,40,60,${0.22 + 0.15 * Math.sin(performance.now() / 180)})`;
+      ctx.lineWidth = 5;
+      ctx.strokeRect(4, 4, W - 8, H - 8);
+    }
+
+    drawMinimap(state, cx, cy);
+  }
+
+  function drawMinimap(state, cx, cy) {
+    const { world, player, cops, mission, cars } = state;
+    const mw = mmCanvas.width, mh = mmCanvas.height;
+    const sx = mw / MAP_W, sy = mh / MAP_H;
+    mctx.fillStyle = "#0a1018";
+    mctx.fillRect(0, 0, mw, mh);
+    // zones
+    for (const z of world.zones) {
+      mctx.fillStyle = z.district.color;
+      mctx.globalAlpha = 0.8;
+      mctx.fillRect(z.x * sx, z.y * sy, z.w * sx, z.h * sy);
+    }
+    mctx.globalAlpha = 1;
+    mctx.fillStyle = "#3a4558";
+    for (const r of world.roads) {
+      mctx.fillRect(r.x * sx, r.y * sy, Math.max(1, r.w * sx), Math.max(1, r.h * sy));
+    }
+    if (mission && !mission.done && mission.def && mission.def.tx != null) {
+      mctx.fillStyle = "#3de0ff";
+      mctx.beginPath();
+      mctx.arc(mission.def.tx * sx, mission.def.ty * sy, 3.5, 0, TAU);
+      mctx.fill();
+    }
+    for (const c of cars) {
+      if (c.special) {
+        mctx.fillStyle = "#ff3355";
+        mctx.fillRect(c.x * sx - 1.5, c.y * sy - 1.5, 3, 3);
+      }
+    }
+    mctx.fillStyle = "#4488ff";
+    cops.forEach((c) => mctx.fillRect(c.x * sx - 1, c.y * sy - 1, 2, 2));
+    if (player) {
+      mctx.fillStyle = "#3de0ff";
+      mctx.beginPath();
+      mctx.arc(player.x * sx, player.y * sy, 3, 0, TAU);
+      mctx.fill();
+      mctx.strokeStyle = "rgba(61,224,255,0.5)";
+      mctx.strokeRect(cx * sx, cy * sy, W * sx, H * sy);
+    }
+  }
+
+  function drawMenuBg(t) {
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    ctx.fillStyle = "#0a0e16";
+    ctx.fillRect(0, 0, W, H);
+    for (let i = 0; i < 36; i++) {
+      const x = (i * 89 + t * 0.02) % (W + 50) - 20;
+      const h = 50 + (i * 41) % 160;
+      ctx.fillStyle = `hsl(${200 + i * 4},28%,${14 + (i % 6)}%)`;
+      ctx.fillRect(x, H - h - 30, 28 + (i % 5) * 8, h);
+      if (i % 3 === 0) {
+        ctx.fillStyle = "rgba(255,220,120,0.15)";
+        for (let wy = H - h; wy < H - 40; wy += 14) {
+          ctx.fillRect(x + 6, wy, 4, 5);
+        }
+      }
+    }
+    ctx.fillStyle = "rgba(61,224,255,0.05)";
+    ctx.fillRect(0, 0, W, H);
+  }
+
+  return {
+    resize,
+    draw,
+    drawMenuBg,
+    get size() { return { W, H, DPR }; },
+    get ctx() { return ctx; },
+  };
+}
+
+
+// ===== js/main.js =====
+const canvas = document.getElementById("game");
+const mm = document.getElementById("mm");
+const $ = (id) => document.getElementById(id);
+
+const renderer = createRenderer(canvas, mm);
+const input = createInput(canvas);
+
+let toastT = 0;
+
+const game = createGame({
+  onMissionUI(mission) {
+    if (!mission) return;
+    const def = mission.def || {};
+    if (mission.free) {
+      $("objTitle").textContent = "自由模式";
+      $("objDesc").textContent = def.obj || "霓虹区任你驰骋。惹事会引来警察。";
+      $("objHint").textContent = "";
+      $("hMis").textContent = "✓";
+      return;
+    }
+    $("objTitle").textContent = `${def.title || "任务"} · ${(mission.idx || 0) + 1}/8`;
+    let desc = def.obj || "";
+    if (def.type === "kill") desc += ` （${mission.kills || 0}/${def.count}）`;
+    if (def.type === "clearwanted") {
+      const st = game.getState();
+      const w = st.player ? st.player.wanted : 0;
+      desc += ` （通缉 ${w}）`;
+    }
+    $("objDesc").textContent = desc;
+    $("objHint").textContent =
+      def.type === "drive" ? "靠近红色跑车按 F 上车" :
+      def.type === "goto" ? "进入蓝色光圈完成" : "";
+    $("hMis").textContent = `${(mission.idx || 0) + 1}/8`;
+  },
+  onHud({ player, flash }) {
+    if (!player) return;
+    $("hHp").textContent = Math.max(0, Math.ceil(player.hp));
+    $("hCash").textContent = player.money | 0;
+    $("hMode").textContent = player.inCar ? (player.inCar.type === "sport" ? "跑车" : "驾驶") : "步行";
+    let stars = "";
+    for (let i = 0; i < 5; i++) stars += i < player.wanted ? "★" : "☆";
+    $("hStars").textContent = stars;
+
+    // weapons
+    const box = $("weps");
+    box.innerHTML = "";
+    WEAPONS.forEach((w, i) => {
+      const d = document.createElement("div");
+      d.className = "wep" + (player.wep === i ? " on" : "");
+      const mag = w.ammo < 0 ? "近战" : `${player.mag[w.id] || 0} | ${player.ammo[w.id] || 0}`;
+      d.innerHTML = `<div class="n">${i + 1} ${w.name}</div><div class="a">${player.reloading > 0 && player.wep === i ? "装弹…" : mag}</div>`;
+      box.appendChild(d);
+    });
+
+    // speedo
+    const sp = $("speedo");
+    if (player.inCar) {
+      sp.classList.remove("hid");
+      $("spdVal").textContent = game.carSpeedKmh();
+    } else sp.classList.add("hid");
+
+    if (flash) {
+      $("flash").classList.add("on");
+      setTimeout(() => $("flash").classList.remove("on"), 120);
+    }
+  },
+  onToast(msg, col) {
+    const el = $("toast");
+    el.textContent = msg;
+    el.style.color = col || "#3de0ff";
+    el.classList.add("on");
+    toastT = 1.4;
+  },
+  onStory(lines, cb) {
+    storyQueue = lines.slice();
+    storyCb = cb;
+    // show story WITHOUT going through hideOverlays (that was killing the dialog)
+    ["menu", "pause", "help", "dead", "win"].forEach((id) => $(id).classList.add("hid"));
+    $("story").classList.remove("hid");
+    $("hud").classList.add("on");
+    nextStory();
+  },
+  onMode(m) {
+    // Never call hideOverlays() for story — it was hiding the dialog while
+    // leaving mode==="story", so update() never ran (character frozen).
+    if (m === "story") {
+      $("hud").classList.add("on");
+      $("menu").classList.add("hid");
+      $("pause").classList.add("hid");
+      $("help").classList.add("hid");
+      $("dead").classList.add("hid");
+      $("win").classList.add("hid");
+      return;
+    }
+    hideOverlays();
+    if (m === "play") {
+      $("hud").classList.add("on");
+      $("story").classList.add("hid");
+    } else if (m === "menu") {
+      $("hud").classList.remove("on");
+      $("menu").classList.remove("hid");
+    } else if (m === "pause") {
+      $("pause").classList.remove("hid");
+      $("hud").classList.add("on");
+    } else if (m === "dead") {
+      $("dead").classList.remove("hid");
+    } else if (m === "win") {
+      $("win").classList.remove("hid");
+    }
+  },
+  onInteract(prompt) {
+    const el = $("interact");
+    if (prompt) {
+      el.textContent = prompt.text;
+      el.classList.add("on");
+    } else el.classList.remove("on");
+  },
+});
+
+let storyQueue = [], storyCb = null;
+function nextStory() {
+  if (!storyQueue.length) {
+    $("story").classList.add("hid");
+    const cb = storyCb;
+    storyCb = null;
+    // Always return control to play if callback forgets
+    if (cb) cb();
+    else {
+      game.setMode("play");
+      $("hud").classList.add("on");
+    }
+    return;
+  }
+  const L = storyQueue.shift();
+  $("stSpk").textContent = L.spk || "";
+  $("stTitle").textContent = L.t || "";
+  $("stBody").textContent = L.body || "";
+  $("story").classList.remove("hid");
+}
+
+function hideOverlays() {
+  ["menu", "story", "pause", "help", "dead", "win"].forEach((id) => $(id).classList.add("hid"));
+}
+
+// UI buttons
+$("mPlay").onclick = () => { ensureAudio(); game.start(true); };
+$("mCont").onclick = () => {
+  ensureAudio();
+  if (!game.meta.started && game.meta.mission === 0) {
+    game.start(true);
+    return;
+  }
+  game.start(false);
+};
+$("mHelp").onclick = () => $("help").classList.remove("hid");
+$("hClose").onclick = () => $("help").classList.add("hid");
+$("stNext").onclick = () => nextStory();
+$("pResume").onclick = () => { game.setMode("play"); hideOverlays(); $("hud").classList.add("on"); last = 0; };
+$("pMenu").onclick = () => { game.setMode("menu"); hideOverlays(); $("menu").classList.remove("hid"); $("hud").classList.remove("on"); };
+$("dRespawn").onclick = () => { hideOverlays(); game.respawn(); $("hud").classList.add("on"); last = 0; };
+$("wOk").onclick = () => { hideOverlays(); game.freeRoam(); $("hud").classList.add("on"); last = 0; };
+$("wMenu").onclick = () => { game.setMode("menu"); hideOverlays(); $("menu").classList.remove("hid"); $("hud").classList.remove("on"); };
+
+window.addEventListener("keydown", (e) => {
+  if (e.code === "Escape") {
+    const m = game.getMode();
+    if (m === "play") {
+      game.setMode("pause");
+      $("pause").classList.remove("hid");
+    } else if (m === "pause") {
+      game.setMode("play");
+      hideOverlays();
+      $("hud").classList.add("on");
+      last = 0;
+    }
+  }
+  game.handleKey(e.code);
+});
+
+canvas.addEventListener("wheel", (e) => {
+  e.preventDefault();
+  game.wheel(e.deltaY > 0 ? 1 : -1);
+}, { passive: false });
+
+// resize
+function onResize() {
+  renderer.resize();
+}
+window.addEventListener("resize", onResize);
+onResize();
+
+// loop
+let last = 0;
+function frame(ts) {
+  if (!last) last = ts;
+  let dt = Math.min(0.033, (ts - last) / 1000);
+  last = ts;
+
+  try {
+    const { W, H } = renderer.size;
+    const mode = game.getMode();
+
+    // Safety: if stuck in story with dialog closed, resume play
+    if (mode === "story" && $("story").classList.contains("hid") && !storyQueue.length) {
+      game.setMode("play");
+      mode = "play";
+    }
+
+    if (mode === "play") {
+      canvas._W = W;
+      canvas._H = H;
+      game.update(dt, input, { W, H });
+    }
+
+    if (mode === "play" || mode === "pause" || mode === "story" || mode === "dead" || mode === "win") {
+      renderer.draw(game.getState());
+    } else {
+      renderer.drawMenuBg(performance.now());
+    }
+
+    if (toastT > 0) {
+      toastT -= dt;
+      if (toastT <= 0) $("toast").classList.remove("on");
+    }
+  } catch (err) {
+    console.error(err);
+    const ctx = renderer.ctx;
+    const { W, H, DPR } = renderer.size;
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    ctx.fillStyle = "#1a2030";
+    ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = "#ff4d6d";
+    ctx.font = "13px monospace";
+    ctx.fillText("Error: " + (err.message || err), 16, 40);
+  }
+
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+})();
+</script>
+</body>
+</html>
