@@ -16,11 +16,14 @@ mw_lab/
 │   ├── sleeve_research.html
 │   ├── video_downloader.html
 │   ├── jp.html
+│   ├── us_rotation.html
 │   ├── Quick_Pull.bat
 │   └── portfolio_rotation.py
 ├── games/
 │   ├── Particell.html
 │   ├── Blitz.html
+│   ├── Catrun.html
+│   ├── Crimewave.html
 │   └── NeonDistrict/
 │       └── index.html   # single-file GTA-lite
 └── knowledge/
@@ -48,6 +51,8 @@ mw_lab/
 |-----------------|-----------------------------------------------------------------------------|------|
 | **Particell**   | Thermal sandbox world — paint materials, real heat physics, discoveries     | [games/Particell.html](./games/Particell.html) |
 | **Blitz**       | Neon arena survivor — move, auto-fire, level-up builds, shards & medals     | [games/Blitz.html](./games/Blitz.html) |
+| **Catrun**      | One-button dash runner (Dash Runner) — hop/float through biomes, coins & gust boosts | [games/Catrun.html](./games/Catrun.html) |
+| **Crimewave**   | Isometric crime sandbox — open world, wanted stars, cash & garage, no missions | [games/Crimewave.html](./games/Crimewave.html) |
 | **Neon District** | Top-down GTA-lite (single HTML) — districts, driving physics, story, police | [games/NeonDistrict/index.html](./games/NeonDistrict/index.html) |
 
 ---
@@ -58,7 +63,7 @@ mw_lab/
    (Settings → Pages → Source: Deploy from `main` branch)
 2. Browse by category:
    - [Tools](./tools/)
-   - [Games](./games/) — Particell, Blitz, Neon District (top-down crime story)
+   - [Games](./games/) — Particell, Blitz, Catrun, Crimewave, Neon District
    - [Knowledge](./knowledge/)
 3. Click any link to open the tool directly in your browser.
 4. All content runs **client-side** — no backend or installation needed.
