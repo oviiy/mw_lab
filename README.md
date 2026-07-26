@@ -39,7 +39,7 @@ mw_lab/
 | Resource | Description | Link |
 |----------|-------------|------|
 | **ITV** | Interview / knowledge page | [knowledge/itv.html](./knowledge/itv.html) |
-| **定理图书馆** | Classic math theorems in plain language — stories, people, proofs, KaTeX formulas & interactive diagrams | [knowledge/theorem-library/](./knowledge/theorem-library/index.html) |
+| **定理图书馆** | Math **and physics** theorems in plain language — Newton, thermo, Maxwell, relativity, quantum, plus classic math; KaTeX & interactive demos | [knowledge/theorem-library/](./knowledge/theorem-library/index.html) |
 
 ---
 

@@ -120,6 +120,101 @@ img { max-width: 100%; }
   text-decoration: none;
 }
 
+/* ----- field tabs (math / physics) ----- */
+.field-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0 0 1.1rem;
+}
+
+.field-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  border: 1px solid var(--line);
+  background: white;
+  border-radius: 12px;
+  padding: 0.55rem 0.95rem;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  color: var(--ink-soft);
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+}
+
+.field-tab:hover {
+  border-color: #b8ccff;
+  background: var(--sky);
+}
+
+.field-tab.active {
+  border-color: #93b4ff;
+  background: linear-gradient(135deg, #eef4ff, #f5f0ff);
+  color: var(--brand-2);
+  box-shadow: 0 4px 14px rgba(47, 111, 237, 0.12);
+}
+
+.field-tab-count {
+  font-size: 0.78rem;
+  font-weight: 750;
+  background: rgba(28, 36, 48, 0.06);
+  border-radius: 999px;
+  padding: 0.12rem 0.45rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.field-tab.active .field-tab-count {
+  background: rgba(47, 111, 237, 0.12);
+  color: var(--brand-2);
+}
+
+.field-badge {
+  font-size: 0.72rem;
+  font-weight: 750;
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.field-badge.field-math {
+  background: var(--sky);
+  color: var(--brand-2);
+}
+
+.field-badge.field-physics {
+  background: #fff1e8;
+  color: #c2410c;
+}
+
+.card-badges {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.3rem;
+}
+
+.catalog-section {
+  margin-bottom: 1.5rem;
+}
+
+.catalog-h {
+  font-size: 1.1rem;
+  margin: 0 0 0.65rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.catalog-n {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--muted);
+  background: #f1f3f7;
+  border-radius: 999px;
+  padding: 0.15rem 0.5rem;
+}
+
 /* ----- library home ----- */
 .library {
   padding: 1.5rem 0 3rem;
