@@ -24,6 +24,7 @@ mw_lab/
 │   ├── Blitz.html
 │   ├── Catrun.html
 │   ├── Crimewave.html
+│   ├── ThreeBody.html   # three-body celestial sim
 │   └── NeonDistrict/
 │       └── index.html   # single-file GTA-lite
 └── knowledge/
@@ -65,6 +66,7 @@ mw_lab/
 | **Catrun**      | One-button dash runner (Dash Runner) — hop/float through biomes, coins & gust boosts | [games/Catrun.html](./games/Catrun.html) |
 | **Crimewave**   | Isometric crime sandbox — open world, wanted stars, cash & garage, no missions | [games/Crimewave.html](./games/Crimewave.html) |
 | **Neon District** | Top-down GTA-lite (single HTML) — districts, driving physics, story, police | [games/NeonDistrict/index.html](./games/NeonDistrict/index.html) |
+| **三体 · 天体模拟** | Three-body gravitational sim — figure-8, Lagrange, chaotic presets, trails & energy | [games/ThreeBody.html](./games/ThreeBody.html) |
 
 ---
 
@@ -74,7 +76,7 @@ mw_lab/
    (Settings → Pages → Source: Deploy from `main` branch)
 2. Browse by category:
    - [Tools](./tools/)
-   - [Games](./games/) — Particell, Blitz, Catrun, Crimewave, Neon District
+   - [Games](./games/) — Particell, Blitz, Catrun, Crimewave, Neon District, 三体
    - [Knowledge](./knowledge/) — including [定理图书馆](./knowledge/theorem-library/index.html)
 3. Click any link to open the tool directly in your browser.
 4. All content runs **client-side** — no backend or installation needed.
