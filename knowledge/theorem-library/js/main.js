@@ -177,7 +177,7 @@
       field === "physics" ? "物理定理" : field === "math" ? "数学定理" : "定理图书馆";
     const sub =
       field === "physics"
-        ? `${countByField("physics")} 条 · 力学 · 热学 · 电磁 · 相对论 · 量子`
+        ? `${countByField("physics")} 条 · 力学 · 热学 · 电磁 · 光学 · 相对论 · 量子`
         : field === "math"
           ? `${countByField("math")} 条 · 大白话 · 证明与公式`
           : `${theorems.length} 条经典 · 数学 + 物理 · 大白话讲清楚`;
