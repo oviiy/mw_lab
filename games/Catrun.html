@@ -25,7 +25,7 @@
   }
   #combo {
     position: absolute; top: 68px; right: 24px; font-size: 12px; font-weight: 800; letter-spacing: 1px;
-    z-index: 5; color: #ff7a59; opacity: 0; transition: opacity .2s; text-shadow: 0 1px 4px rgba(0,0,0,0.25);
+    z-index: 5; color: #2db8a8; opacity: 0; transition: opacity .2s; text-shadow: 0 1px 4px rgba(0,0,0,0.25);
   }
   #biomeTag {
     position: absolute; top: 18px; left: 24px; font-size: 11px; font-weight: 800; letter-spacing: 2px;
@@ -36,10 +36,10 @@
     position: absolute; top: 40px; left: 24px; z-index: 5; display: flex; align-items: center; gap: 8px;
     opacity: 0; transition: opacity .2s;
   }
-  #boostLabel { font-size: 11px; font-weight: 800; letter-spacing: 1.5px; color: #ffd166;
+  #boostLabel { font-size: 11px; font-weight: 800; letter-spacing: 1.5px; color: #2db8a8;
     text-shadow: 0 1px 4px rgba(0,0,0,0.3); }
   #boostBarOuter { width: 90px; height: 8px; border-radius: 5px; background: rgba(0,0,0,0.2); overflow: hidden; }
-  #boostBarInner { height: 100%; width: 100%; background: linear-gradient(90deg,#ffd166,#ff7a59); }
+  #boostBarInner { height: 100%; width: 100%; background: linear-gradient(90deg,#5eead4,#2db8a8); }
 
   #muteBtn {
     position: absolute; bottom: 20px; right: 20px; z-index: 6; width: 34px; height: 34px;
@@ -104,9 +104,13 @@
   <div id="startScreen" class="screen">
     <div class="panel">
       <div class="title">DASH RUNNER</div>
-      <div class="subtitle">One button. A tap is a tiny hop — hold it down to float much higher.<br>Run through meadows, windmills, snowy peaks and old European towns as day turns to night.<br>Clear obstacles for coins, chain streaks for a wind gust boost.</div>
+      <div class="subtitle">One button. Tap for a tiny hop — hold to float high.<br>
+        <span style="color:#e24b4b;font-weight:800">RED</span> = danger ·
+        <span style="color:#e6a800;font-weight:800">GOLD</span> = coins ·
+        <span style="color:#2db8a8;font-weight:800">TEAL</span> = gust boost<br>
+        Chain clears for combos. Smash hazards while boosting.</div>
       <div class="subtitle" style="margin-top:-10px;">
-        <span class="keycap">SPACE</span> tap = tiny hop, hold = big float
+        <span class="keycap">SPACE</span> tap = hop · hold = float high · release = drop
       </div>
       <button class="bigBtn" id="startBtn">START</button>
     </div>
@@ -143,12 +147,21 @@
   function rand(a,b){ return a + Math.random()*(b-a); }
   function clamp(v,a,b){ return Math.max(a, Math.min(b,v)); }
 
-  // ---------------- global (biome-independent) colors ----------------
-  const OBSTACLE_DAY=[220,38,38], OBSTACLE_NIGHT=[255,90,90];
-  const EDGE_DAY=[255,255,255], EDGE_NIGHT=[20,10,25];
-  const RUNNER_DAY=[35,39,47], RUNNER_NIGHT=[236,238,245];
+  // ---------------- fixed game-object palette (readable on every biome) ----------------
+  // Hazards = red danger. Coins = solid gold. Gust = teal. Never share hues.
+  const HAZARD_FILL = [214, 48, 48];
+  const HAZARD_DARK = [120, 18, 28];
+  const HAZARD_EDGE = [255, 248, 240];
+  const HAZARD_STRIPE = [255, 214, 60];
+  const SAW_BODY = [55, 58, 72];
+  const SAW_TEETH = [230, 70, 70];
+  const SAW_GLOW = [255, 90, 90];
+  const COIN_GOLD = [255, 205, 55];
+  const COIN_GOLD_DEEP = [210, 145, 20];
+  const COIN_SHINE = [255, 248, 200];
+  const GUST_TEAL = [55, 210, 190];
+  const GUST_TEAL_DEEP = [20, 150, 140];
   const CLOUD_DAY=[255,255,255], CLOUD_NIGHT=[190,196,220];
-  const GUST_DAY=[255,214,110], GUST_NIGHT=[255,224,140];
   const CAT_OUTLINE_DAY=[80,52,38], CAT_OUTLINE_NIGHT=[255,240,220];
   const CAT_FUR = '#f2a154';
   const CAT_FUR_LIGHT = '#fff2dc';
@@ -248,16 +261,19 @@
   });
 
   // ---------------- constants ----------------
-  const GRAVITY = 2200;
-  const JUMP_V = -430;             // a plain tap is now a small hop (~40px peak)
-  const BASE_SPEED = 360;
-  const MAX_SPEED = 820;
-  const SPEED_RAMP = 5.2;
-  const BOOST_DURATION = 4200;
-  const BOOST_SPEED_MULT = 1.4;
-  const HOLD_GRAVITY_MULT = 0.12;  // reduced gravity while holding, so holding floats much higher
-  const MAX_HOLD_TIME = 0.5;       // seconds of extra lift available per jump (~200px peak when fully held)
-  let holding = false;             // is the jump input currently pressed
+  const GRAVITY = 2300;
+  const JUMP_V = -420;             // tap hop peak ≈ 38px — clears small spikes only
+  const BASE_SPEED = 380;
+  const MAX_SPEED = 920;
+  const SPEED_RAMP = 6.8;
+  const BOOST_DURATION = 3600;
+  const BOOST_SPEED_MULT = 1.38;
+  const HOLD_GRAVITY_MULT = 0.11;  // reduced gravity while holding → big float
+  const MAX_HOLD_TIME = 0.55;      // seconds of extra lift per jump
+  // jump peaks for reward placement (approx, px above ground contact)
+  const TAP_PEAK = (JUMP_V*JUMP_V)/(2*GRAVITY);          // ~38
+  const HOLD_PEAK = TAP_PEAK + Math.abs(JUMP_V)*MAX_HOLD_TIME*0.55; // ~160-ish
+  let holding = false;
 
   let state = 'start';
   let elapsed = 0, score = 0, speed = BASE_SPEED;
@@ -311,73 +327,172 @@
   function triggerFlash(amount){ flash = Math.min(1, flash + amount); }
 
   // ---------------- spawning ----------------
-  function currentAccentColor(){
-    const { a, b, t } = biomeState();
-    const night = (Math.sin(cyclePhase*Math.PI*2 - Math.PI/2)+1)/2;
-    const ca = lerpColor(a.accent.day, a.accent.night, night);
-    if (t <= 0) return ca;
-    const cb = lerpColor(b.accent.day, b.accent.night, night);
-    return lerpColor(ca, cb, t);
+  function pushSpike(x, h, w){
+    w = w || rand(22, 30);
+    h = h || rand(18, 34);
+    obstacles.push({ type:'spike', x, y: GROUND_Y - h, w, h, passed:false, minGap: Infinity });
+    return x + w;
   }
-
-  function spawnObstacle(){
-    const canFloat = elapsed > 6;
-    const canWall = elapsed > 10;
-    const r = Math.random();
-    let type = 'spike';
-    if (canWall && r < 0.18) type = 'wall';
-    else if (canFloat && r < 0.18 + 0.28) type = 'gem';
-
-    let rightMostX = W + 30, rightMostW = 0;
-    if (type === 'spike'){
-      const clusters = Math.random() < 0.22 ? 2 : 1;
-      let x = W + 30;
-      for (let i=0;i<clusters;i++){
-        const w = rand(20,28), h = rand(14,32);
-        obstacles.push({ type, x, y: GROUND_Y - h, w, h, passed:false, minGap: Infinity });
-        rightMostX = x; rightMostW = w;
-        x += w + 6;
-      }
-    } else if (type === 'wall'){
-      // tall — a quick tap alone won't clear it, holding the jump is required
-      const w = rand(26,34), h = rand(110,168);
-      obstacles.push({ type, x: W + 30, y: GROUND_Y - h, w, h, passed:false, minGap: Infinity });
-      rightMostX = W + 30; rightMostW = w;
-    } else {
-      const w = 24, h = 24;
-      const y = GROUND_Y - rand(30,65);
-      obstacles.push({ type, x: W + 30, y, w, h, passed:false, spin: Math.random()*Math.PI*2, minGap: Infinity });
-      rightMostX = W + 30; rightMostW = w;
-    }
-    // reward tied to the hazard: a little coin trail waiting right after it, as a "you made it" treat
-    if (Math.random() < 0.7){
-      spawnRewardTrail(rightMostX + rightMostW + rand(70,120));
-    }
+  function pushWall(x, h, w){
+    w = w || rand(28, 36);
+    h = h || rand(100, 150);
+    obstacles.push({ type:'wall', x, y: GROUND_Y - h, w, h, passed:false, minGap: Infinity });
+    return x + w;
   }
-
-  function spawnRewardTrail(startX){
-    const n = Math.random() < 0.4 ? 1 : rand(3,5)|0;
-    if (n === 1){
-      coins.push({ x: startX, y: GROUND_Y - rand(20,40), r: 8, taken:false, value: 10 });
-      return;
-    }
-    const jumpDur = 2*Math.abs(JUMP_V)/GRAVITY;
-    const peak = (JUMP_V*JUMP_V)/(2*GRAVITY);
-    const spacing = (jumpDur*speed/(n-1))*0.8;
+  function pushSaw(x, heightAboveGround, size){
+    size = size || 28;
+    // heightAboveGround = center height from ground
+    const y = GROUND_Y - heightAboveGround - size/2;
+    obstacles.push({ type:'saw', x, y, w: size, h: size, passed:false, spin: Math.random()*Math.PI*2, minGap: Infinity });
+    return x + size;
+  }
+  function pushCoin(x, yFromGround, value, r){
+    coins.push({ x, y: GROUND_Y - yFromGround, r: r||9, taken:false, value: value||12 });
+  }
+  // Arc of coins along a jump of given peak height (px above ground contact of player center-ish)
+  function pushCoinArc(startX, peakH, n, value){
+    n = n || 4;
+    value = value || 15;
+    // approximate airborne duration for a jump reaching peakH
+    const airT = Math.sqrt(2*peakH/GRAVITY) * 2;
+    const spacing = Math.max(28, (airT * speed * 0.72) / Math.max(1, n-1));
     for (let i=0;i<n;i++){
-      const t = i/(n-1);
-      const y = GROUND_Y - player.h*0.7 - peak*Math.sin(Math.PI*t);
-      coins.push({ x: startX + i*spacing, y, r: 9, taken:false, value: 15 });
+      const t = n===1 ? 0.5 : i/(n-1);
+      // coin height tracks a sin arc; keep slightly below peak so path feels "through" the jump
+      const lift = peakH * Math.sin(Math.PI * t) * 0.82 + player.h * 0.35;
+      pushCoin(startX + i*spacing, lift, value, 9);
+    }
+    return startX + (n-1)*spacing;
+  }
+  function pushGroundCoins(startX, n, value){
+    n = n || 3;
+    for (let i=0;i<n;i++) pushCoin(startX + i*36, 22, value||10, 8);
+    return startX + (n-1)*36;
+  }
+
+  // Pattern-based encounters: hazard + matching reward path so reads are clear
+  function spawnPattern(){
+    const x0 = W + 40;
+    const t = elapsed;
+    // unlock harder patterns over time
+    const pool = ['spike', 'spike', 'doubleSpike'];
+    if (t > 5)  pool.push('sawJump', 'sawJump');
+    if (t > 9)  pool.push('wall', 'wall');
+    if (t > 12) pool.push('sawDuck');
+    if (t > 16) pool.push('stair', 'spikeWall');
+    if (t > 22) pool.push('gauntlet', 'sawSandwich');
+    if (t > 30) pool.push('tightTriple', 'highWall');
+    // late-game bias toward harder
+    if (t > 40 && Math.random() < 0.35){
+      const hard = ['gauntlet','sawSandwich','highWall','tightTriple','spikeWall'];
+      return runPattern(hard[(Math.random()*hard.length)|0], x0);
+    }
+    return runPattern(pool[(Math.random()*pool.length)|0], x0);
+  }
+
+  function runPattern(name, x0){
+    switch(name){
+      case 'spike': {
+        // single ground spike — tap hop clears it; gold sits on the hop arc
+        const end = pushSpike(x0, rand(20, 30));
+        pushCoinArc(x0 - 8, TAP_PEAK + 18, 3, 12);
+        return end;
+      }
+      case 'doubleSpike': {
+        const e1 = pushSpike(x0, rand(22, 32));
+        const e2 = pushSpike(e1 + rand(10, 18), rand(24, 36));
+        pushCoinArc(x0 - 4, TAP_PEAK + 28, 4, 14);
+        return e2;
+      }
+      case 'tightTriple': {
+        let x = x0;
+        for (let i=0;i<3;i++) x = pushSpike(x + (i?8:0), 26 + i*4, 24) + 4;
+        pushCoinArc(x0, TAP_PEAK + 40, 5, 18);
+        return x;
+      }
+      case 'wall': {
+        // tall wall needs hold-float; high gold arc rewards the big jump
+        const h = rand(105, 140);
+        const end = pushWall(x0, h);
+        pushCoinArc(x0 - 10, Math.min(HOLD_PEAK, h + 30), 5, 20);
+        return end;
+      }
+      case 'highWall': {
+        const h = rand(145, 175);
+        const end = pushWall(x0, h, 32);
+        pushCoinArc(x0 - 6, HOLD_PEAK * 0.95, 5, 25);
+        return end;
+      }
+      case 'sawJump': {
+        // mid saw: grounded hits the blade — need a short HOLD to clear over it.
+        // top ≈ 58–70px; tap peak ~38 won't clear, light hold will.
+        const size = 28;
+        const centerH = rand(42, 54);
+        const end = pushSaw(x0, centerH, size);
+        const clearH = centerH + size * 0.55 + 22;
+        for (let i=0;i<3;i++){
+          pushCoin(x0 + size*0.5 + (i-1)*34, clearH + Math.sin(i*1.2)*8, 16, 9);
+        }
+        return end;
+      }
+      case 'sawDuck': {
+        // high saw: STAY ON THE GROUND — even a short hop clips the teeth.
+        // Blade bottom sits just above standing cat (~50px); ground coins pay you for restraint.
+        const size = 30;
+        const centerH = 50 + size * 0.5 + rand(2, 8); // bottom ≈ 52–58 above ground
+        const end = pushSaw(x0, centerH, size);
+        pushGroundCoins(x0 - 24, 4, 14);
+        pushCoin(x0 + size*0.5, 22, 20, 10);
+        return end;
+      }
+      case 'stair': {
+        // rising spikes teaching longer hold
+        let x = x0;
+        x = pushSpike(x, 20, 22) + 14;
+        x = pushSpike(x, 34, 24) + 14;
+        x = pushSpike(x, 48, 26);
+        pushCoinArc(x0, TAP_PEAK + 55, 5, 16);
+        return x;
+      }
+      case 'spikeWall': {
+        const e1 = pushSpike(x0, 28);
+        const e2 = pushWall(e1 + rand(70, 100), rand(110, 145));
+        pushCoinArc(x0 - 6, TAP_PEAK + 22, 2, 12);
+        pushCoinArc(e1 + 50, HOLD_PEAK * 0.75, 4, 20);
+        return e2;
+      }
+      case 'gauntlet': {
+        let x = x0;
+        x = pushSpike(x, 26) + 12;
+        x = pushSaw(x + 40, 55, 28) + 20;
+        x = pushWall(x + 50, rand(115, 150));
+        pushCoinArc(x0, TAP_PEAK + 20, 2, 12);
+        pushCoin(x0 + 90, 78, 20, 10);
+        pushCoinArc(x0 + 140, HOLD_PEAK * 0.8, 4, 22);
+        return x;
+      }
+      case 'sawSandwich': {
+        // saw high, spike under approach — force a short hop then land
+        const e1 = pushSpike(x0, 22);
+        const e2 = pushSaw(e1 + 36, 100, 30);
+        pushGroundCoins(e1 + 10, 2, 12);
+        pushCoin(e1 + 50, 26, 20, 10);
+        return e2;
+      }
+      default:
+        return pushSpike(x0, 28);
     }
   }
 
   function spawnAmbientExtras(){
-    // occasional free-floating gust pickup, independent of obstacle rhythm
-    if (elapsed - lastBoostSpawn > 13 && Math.random() < 0.5){
+    // Teal gust orb — rare, high value, distinct from gold
+    if (elapsed - lastBoostSpawn > 11 && Math.random() < 0.55){
       lastBoostSpawn = elapsed;
-      boosts.push({ x: W+30, y: GROUND_Y - rand(55,100), r: 15, taken:false, spin:0 });
-    } else if (Math.random() < 0.6) {
-      coins.push({ x: W+30, y: GROUND_Y - rand(18,44), r: 8, taken:false, value: 10 });
+      // place on a mid hop path so collecting it is a skill shot
+      boosts.push({ x: W+40, y: GROUND_Y - rand(50, 95), r: 16, taken:false, spin:0 });
+    } else if (Math.random() < 0.55) {
+      // single gold on a gentle hop — never mid-hazard height confusion
+      pushCoin(W+40, rand(20, 42), 10, 8);
     }
   }
 
@@ -452,9 +567,8 @@
   function celebrate(){
     sfxMilestone();
     triggerFlash(0.35);
-    const c = currentAccentColor();
-    addPopup(player.x + player.w/2, player.y - 20, 'NICE RUN!', rgb(c), true);
-    addSparks(player.x + player.w/2, player.y, rgb(c), 28);
+    addPopup(player.x + player.w/2, player.y - 20, 'NICE RUN!', rgb(COIN_GOLD), true);
+    addSparks(player.x + player.w/2, player.y, rgb(COIN_GOLD), 28);
   }
 
   // ---------------- update ----------------
@@ -530,16 +644,26 @@
     }
 
     if (boosting && Math.random() < 0.6){
-      addSparks(player.x + player.w*0.2, player.y + player.h*0.6, rgb(GUST_DAY), 1);
+      addSparks(player.x + player.w*0.2, player.y + player.h*0.6, rgb(GUST_TEAL), 1);
     }
 
-    // spawn obstacles (which also queue their own reward trail)
+    // spawn pattern encounters (hazard + matching reward path)
     spawnTimer += dt*1000;
     if (spawnTimer >= nextSpawnGap){
-      spawnTimer = 0;
-      spawnObstacle();
-      const minGap = Math.max(480, 1150 - elapsed*6);
-      nextSpawnGap = rand(minGap, minGap+420);
+      // don't stack a new pack while the previous is still near the spawn edge
+      let rightMost = 0;
+      for (const o of obstacles) rightMost = Math.max(rightMost, o.x + o.w);
+      for (const c of coins) if (!c.taken) rightMost = Math.max(rightMost, c.x);
+      if (rightMost < W - 40){
+        spawnTimer = 0;
+        spawnPattern();
+        // tighter gaps as speed rises; leave just enough air to land and re-jump
+        const minGap = Math.max(400, 1000 - elapsed*10);
+        const maxGap = minGap + Math.max(160, 360 - elapsed*3.5);
+        nextSpawnGap = rand(minGap, maxGap);
+      } else {
+        spawnTimer = nextSpawnGap - 120; // retry soon
+      }
     }
 
     // occasional ambient extras, independent rhythm
@@ -547,7 +671,7 @@
     if (ambientCoinTimer >= nextAmbientGap){
       ambientCoinTimer = 0;
       spawnAmbientExtras();
-      nextAmbientGap = rand(3200, 5200);
+      nextAmbientGap = rand(2800, 4600);
     }
 
     // precipitation spawn/update
@@ -576,26 +700,30 @@
 
     // obstacles
     const px1 = player.x, px2 = player.x+player.w, py1 = player.y, py2 = player.y+player.h;
+    // slightly forgiving hitboxes so spikes read fair (visual tip is sharper than hit)
+    const hitPadX = 4, hitPadY = 3;
     for (const o of obstacles){
       o.x -= effSpeed*dt;
-      if (o.type === 'gem') o.spin += dt*4;
-      const ox1=o.x, ox2=o.x+o.w, oy1=o.y, oy2=o.y+o.h;
+      if (o.type === 'saw') o.spin += dt*7;
+      const ox1=o.x+hitPadX, ox2=o.x+o.w-hitPadX, oy1=o.y+hitPadY, oy2=o.y+o.h-hitPadY;
       const xOverlap = px2>ox1 && px1<ox2;
       const yOverlap = py2>oy1 && py1<oy2;
       if (xOverlap && !yOverlap){
-        o.minGap = Math.min(o.minGap, oy1 - py2);
+        // track how close we skimmed over (or under) the hazard
+        if (py2 <= oy1) o.minGap = Math.min(o.minGap, oy1 - py2);
+        else if (py1 >= oy2) o.minGap = Math.min(o.minGap, py1 - oy2);
       }
       if (xOverlap && yOverlap){
         if (boosting){
           o.passed = true;
           o.x = -9999;
           combo++;
-          score += 20;
+          score += 30;
           shake = 180;
           triggerFlash(0.18);
           sfxSmash();
-          addSparks((ox1+ox2)/2, (oy1+oy2)/2, rgb(GUST_DAY), 16);
-          addPopup((ox1+ox2)/2, oy1-6, 'SMASH! +20', '#ff7a59');
+          addSparks((o.x+o.w/2), (o.y+o.h/2), rgb(GUST_TEAL), 16);
+          addPopup((o.x+o.w/2), o.y-6, 'SMASH! +30', '#2db8a8');
         } else {
           endGame();
           return;
@@ -604,49 +732,48 @@
       if (!o.passed && ox2 < px1){
         o.passed = true;
         combo++;
-        const accentCol = rgb(currentAccentColor());
-        if (o.minGap < 14){
-          score += 25;
+        if (o.minGap < 16){
+          score += 35;
           triggerFlash(0.15);
-          addPopup(ox1, oy1-10, 'PERFECT! +25', accentCol, true);
-          addSparks(ox1, oy1, accentCol, 12 + Math.min(combo,10));
+          addPopup(o.x, o.y-10, 'PERFECT! +35', rgb(COIN_GOLD), true);
+          addSparks(o.x, o.y, rgb(COIN_GOLD), 12 + Math.min(combo,10));
         } else {
-          score += 5;
-          addSparks(ox1, oy1, accentCol, 4 + Math.min(combo,8));
+          score += 8;
+          addSparks(o.x, o.y, rgb(HAZARD_FILL), 4 + Math.min(combo,6));
         }
       }
     }
     obstacles = obstacles.filter(o => o.x + o.w > -20 && o.x > -9000);
 
-    // coins
+    // coins (gold)
     for (const c of coins){
       c.x -= effSpeed*dt;
       if (!c.taken){
         const dx = c.x - (player.x+player.w/2), dy = c.y - (player.y+player.h/2);
-        if (Math.sqrt(dx*dx+dy*dy) < c.r + Math.max(player.w,player.h)/2 - 8){
+        if (Math.sqrt(dx*dx+dy*dy) < c.r + Math.max(player.w,player.h)/2 - 6){
           c.taken = true;
           score += c.value;
           sfxCoin();
-          addPopup(c.x, c.y-10, '+'+c.value, rgb(currentAccentColor()));
-          addSparks(c.x, c.y, rgb(currentAccentColor()), 8);
+          addPopup(c.x, c.y-10, '+'+c.value, rgb(COIN_GOLD));
+          addSparks(c.x, c.y, rgb(COIN_GOLD), 8);
         }
       }
     }
     coins = coins.filter(c => c.x > -30 && !c.taken);
 
-    // gust (boost) orbs
+    // gust (boost) orbs — teal
     for (const b of boosts){
       b.x -= effSpeed*dt;
-      b.spin += dt*3;
+      b.spin += dt*3.5;
       if (!b.taken){
         const dx = b.x - (player.x+player.w/2), dy = b.y - (player.y+player.h/2);
-        if (Math.sqrt(dx*dx+dy*dy) < b.r + Math.max(player.w,player.h)/2 - 6){
+        if (Math.sqrt(dx*dx+dy*dy) < b.r + Math.max(player.w,player.h)/2 - 4){
           b.taken = true;
-          boostTimer = Math.min(BOOST_DURATION*1.6, boostTimer + BOOST_DURATION);
+          boostTimer = Math.min(BOOST_DURATION*1.5, boostTimer + BOOST_DURATION);
           sfxBoost();
           triggerFlash(0.25);
-          addPopup(b.x, b.y-14, 'GUST!', '#ffb84d', true);
-          addSparks(b.x, b.y, rgb(GUST_DAY), 20);
+          addPopup(b.x, b.y-14, 'GUST!', '#2db8a8', true);
+          addSparks(b.x, b.y, rgb(GUST_TEAL), 22);
         }
       }
     }
@@ -668,10 +795,10 @@
       comboEl.style.opacity = 1;
       if (Math.floor(combo/5) > comboShown){
         comboShown = Math.floor(combo/5);
-        boostTimer = Math.min(BOOST_DURATION*1.6, boostTimer + 1200);
+        boostTimer = Math.min(BOOST_DURATION*1.5, boostTimer + 1000);
         triggerFlash(0.2);
-        addPopup(player.x+player.w/2, player.y-16, 'STREAK x'+mult, '#ff7a59', true);
-        addSparks(player.x+player.w/2, player.y, rgb(currentAccentColor()), 18);
+        addPopup(player.x+player.w/2, player.y-16, 'STREAK x'+mult, '#2db8a8', true);
+        addSparks(player.x+player.w/2, player.y, rgb(GUST_TEAL), 18);
       }
     } else {
       comboEl.style.opacity = 0;
@@ -700,9 +827,6 @@
     return {
       sky1: mix('sky1'), sky2: mix('sky2'),
       far: mix('far'), ground: mix('ground'), groundLine: mix('groundLine'), accent: mix('accent'),
-      obstacle: lerpColor(OBSTACLE_DAY, OBSTACLE_NIGHT, night),
-      obstacleEdge: lerpColor(EDGE_DAY, EDGE_NIGHT, night),
-      runner: lerpColor(RUNNER_DAY, RUNNER_NIGHT, night),
       cloud: lerpColor(CLOUD_DAY, CLOUD_NIGHT, night),
       catOutline: lerpColor(CAT_OUTLINE_DAY, CAT_OUTLINE_NIGHT, night),
       night, biomeA:a, biomeB:b, blendT:t
@@ -848,8 +972,8 @@
 
     if (boostTimer > 0){
       ctx.save();
-      ctx.globalAlpha = 0.12 + 0.05*Math.sin(elapsed*20);
-      ctx.strokeStyle = '#ffb84d';
+      ctx.globalAlpha = 0.14 + 0.05*Math.sin(elapsed*20);
+      ctx.strokeStyle = '#2db8a8';
       ctx.lineWidth = 14;
       ctx.strokeRect(0,0,W,H);
       ctx.restore();
@@ -1162,7 +1286,8 @@
   function drawObstacle(o, pal){
     ctx.save();
     if (o.type === 'spike'){
-      ctx.fillStyle = 'rgba(0,0,0,0.18)';
+      // ground hazard — solid crimson triangle, white rim, dark base (never gold)
+      ctx.fillStyle = 'rgba(0,0,0,0.22)';
       ctx.beginPath();
       ctx.ellipse(o.x+o.w*0.5, o.y+o.h+2, o.w*0.55, 4, 0, 0, Math.PI*2);
       ctx.fill();
@@ -1176,129 +1301,215 @@
       };
 
       ctx.save();
-      ctx.shadowColor = 'rgba(0,0,0,0.35)';
-      ctx.shadowBlur = 8;
-      ctx.shadowOffsetY = 3;
-      ctx.fillStyle = rgb(pal.obstacle);
+      ctx.shadowColor = 'rgba(180,20,30,0.45)';
+      ctx.shadowBlur = 10;
+      ctx.shadowOffsetY = 2;
+      const grad = ctx.createLinearGradient(o.x, o.y, o.x, o.y+o.h);
+      grad.addColorStop(0, rgb(HAZARD_FILL));
+      grad.addColorStop(1, rgb(HAZARD_DARK));
+      ctx.fillStyle = grad;
       spikePath();
       ctx.fill();
       ctx.restore();
 
       spikePath();
       ctx.lineWidth = 2.5;
-      ctx.strokeStyle = rgb(pal.obstacleEdge);
+      ctx.strokeStyle = rgb(HAZARD_EDGE);
       ctx.stroke();
 
+      // dark bevel so it reads as solid danger, not a gem
       ctx.beginPath();
-      ctx.moveTo(o.x+o.w*0.5, o.y+o.h*0.3);
-      ctx.lineTo(o.x+o.w*0.74, o.y+o.h*0.6);
+      ctx.moveTo(o.x+o.w*0.5, o.y+o.h*0.15);
+      ctx.lineTo(o.x+o.w*0.72, o.y+o.h*0.7);
       ctx.lineTo(o.x+o.w*0.5, o.y+o.h);
-      ctx.lineTo(o.x+o.w*0.26, o.y+o.h*0.6);
+      ctx.lineTo(o.x+o.w*0.28, o.y+o.h*0.7);
       ctx.closePath();
-      ctx.fillStyle = rgba(pal.obstacleEdge, 0.35);
+      ctx.fillStyle = 'rgba(0,0,0,0.22)';
       ctx.fill();
     } else if (o.type === 'wall'){
-      ctx.fillStyle = 'rgba(0,0,0,0.18)';
+      // tall hazard — red brick + yellow/black hazard stripe at top (HOLD jump)
+      ctx.fillStyle = 'rgba(0,0,0,0.22)';
       ctx.beginPath();
       ctx.ellipse(o.x+o.w*0.5, o.y+o.h+2, o.w*0.6, 4, 0, 0, Math.PI*2);
       ctx.fill();
 
       ctx.save();
-      ctx.shadowColor = 'rgba(0,0,0,0.35)';
-      ctx.shadowBlur = 8;
+      ctx.shadowColor = 'rgba(180,20,30,0.4)';
+      ctx.shadowBlur = 10;
       ctx.shadowOffsetY = 3;
-      ctx.fillStyle = rgb(pal.obstacle);
+      const grad = ctx.createLinearGradient(o.x, o.y, o.x+o.w, o.y);
+      grad.addColorStop(0, rgb(HAZARD_DARK));
+      grad.addColorStop(0.5, rgb(HAZARD_FILL));
+      grad.addColorStop(1, rgb(HAZARD_DARK));
+      ctx.fillStyle = grad;
       ctx.fillRect(o.x, o.y, o.w, o.h);
       ctx.restore();
 
-      ctx.strokeStyle = rgb(pal.obstacleEdge);
+      // hazard-tape band across top — "jump high"
+      const bandH = 12;
+      ctx.fillStyle = rgb(HAZARD_STRIPE);
+      ctx.fillRect(o.x, o.y, o.w, bandH);
+      ctx.fillStyle = '#1a1a1a';
+      for (let i=0; i<4; i++){
+        const bx = o.x + (i/4)*o.w;
+        ctx.beginPath();
+        ctx.moveTo(bx, o.y);
+        ctx.lineTo(bx + o.w*0.12, o.y);
+        ctx.lineTo(bx + o.w*0.22, o.y+bandH);
+        ctx.lineTo(bx + o.w*0.1, o.y+bandH);
+        ctx.closePath();
+        ctx.fill();
+      }
+
+      ctx.strokeStyle = rgb(HAZARD_EDGE);
       ctx.lineWidth = 2.5;
       ctx.strokeRect(o.x+1.25, o.y+1.25, o.w-2.5, o.h-2.5);
 
-      // brick courses for a "must-clear wall" read
-      ctx.strokeStyle = rgba(pal.obstacleEdge, 0.4);
-      ctx.lineWidth = 1.5;
-      for (let ly = o.y+14; ly < o.y+o.h; ly += 14){
+      // brick courses
+      ctx.strokeStyle = 'rgba(255,240,230,0.28)';
+      ctx.lineWidth = 1.2;
+      for (let ly = o.y+bandH+12; ly < o.y+o.h-4; ly += 14){
         ctx.beginPath();
-        ctx.moveTo(o.x+2, ly);
-        ctx.lineTo(o.x+o.w-2, ly);
+        ctx.moveTo(o.x+3, ly);
+        ctx.lineTo(o.x+o.w-3, ly);
         ctx.stroke();
       }
-      // warning chevron on top to signal "jump big"
-      ctx.fillStyle = rgba(pal.obstacleEdge, 0.9);
+
+      // upward chevron = hold to float
+      ctx.fillStyle = rgb(HAZARD_STRIPE);
       ctx.beginPath();
-      ctx.moveTo(o.x+o.w*0.5, o.y+6);
-      ctx.lineTo(o.x+o.w*0.5+7, o.y+16);
-      ctx.lineTo(o.x+o.w*0.5-7, o.y+16);
+      ctx.moveTo(o.x+o.w*0.5, o.y+bandH+6);
+      ctx.lineTo(o.x+o.w*0.5+8, o.y+bandH+18);
+      ctx.lineTo(o.x+o.w*0.5-8, o.y+bandH+18);
       ctx.closePath();
       ctx.fill();
-    } else {
-      const cx = o.x + o.w/2, cy = o.y + o.h/2;
+    } else if (o.type === 'saw'){
+      // spinning metal saw — dark steel + red teeth, never coin-colored
+      const cx = o.x + o.w/2, cy = o.y + o.h/2, r = o.w/2;
       ctx.save();
       ctx.translate(cx, cy);
       ctx.rotate(o.spin);
-      ctx.shadowColor = rgb(pal.accent);
-      ctx.shadowBlur = 18;
-      const s = o.w/2;
+      ctx.shadowColor = rgba(SAW_GLOW, 0.7);
+      ctx.shadowBlur = 16;
+
+      // teeth ring
       ctx.beginPath();
-      ctx.moveTo(0, -s-2);
-      ctx.lineTo(s+2, 0);
-      ctx.lineTo(0, s+2);
-      ctx.lineTo(-s-2, 0);
+      const teeth = 10;
+      for (let i=0;i<teeth;i++){
+        const a0 = (i/teeth)*Math.PI*2;
+        const a1 = ((i+0.5)/teeth)*Math.PI*2;
+        const a2 = ((i+1)/teeth)*Math.PI*2;
+        if (i===0) ctx.moveTo(Math.cos(a0)*r*0.72, Math.sin(a0)*r*0.72);
+        ctx.lineTo(Math.cos(a1)*r, Math.sin(a1)*r);
+        ctx.lineTo(Math.cos(a2)*r*0.72, Math.sin(a2)*r*0.72);
+      }
       ctx.closePath();
-      ctx.fillStyle = rgb(pal.obstacleEdge);
+      ctx.fillStyle = rgb(SAW_TEETH);
       ctx.fill();
+
+      // steel disc
       ctx.beginPath();
-      ctx.moveTo(0, -s);
-      ctx.lineTo(s, 0);
-      ctx.lineTo(0, s);
-      ctx.lineTo(-s, 0);
-      ctx.closePath();
-      ctx.fillStyle = rgb(pal.accent);
+      ctx.arc(0,0, r*0.62, 0, Math.PI*2);
+      ctx.fillStyle = rgb(SAW_BODY);
       ctx.fill();
+      ctx.strokeStyle = 'rgba(255,255,255,0.25)';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // hub
+      ctx.beginPath();
+      ctx.arc(0,0, r*0.18, 0, Math.PI*2);
+      ctx.fillStyle = rgb(HAZARD_FILL);
+      ctx.fill();
+      ctx.strokeStyle = rgb(HAZARD_EDGE);
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
       ctx.restore();
     }
     ctx.restore();
   }
 
   function drawCoin(c, pal){
+    // fixed gold token — high contrast on every biome, never red
     ctx.save();
     ctx.translate(c.x, c.y);
-    const wob = Math.sin(elapsed*6 + c.x*0.05) * 2;
+    const wob = Math.sin(elapsed*7 + c.x*0.05) * 2.2;
     ctx.translate(0, wob);
-    ctx.shadowColor = rgb(pal.accent);
-    ctx.shadowBlur = 10;
-    ctx.fillStyle = rgb(pal.accent);
+    const pulse = 1 + 0.04*Math.sin(elapsed*8 + c.x*0.1);
+    ctx.scale(pulse, pulse);
+
+    ctx.shadowColor = 'rgba(255,190,40,0.75)';
+    ctx.shadowBlur = 14;
+
+    // outer gold disc
+    const g = ctx.createRadialGradient(-c.r*0.3, -c.r*0.3, 1, 0, 0, c.r);
+    g.addColorStop(0, rgb(COIN_SHINE));
+    g.addColorStop(0.55, rgb(COIN_GOLD));
+    g.addColorStop(1, rgb(COIN_GOLD_DEEP));
+    ctx.fillStyle = g;
     ctx.beginPath();
     ctx.arc(0,0,c.r,0,Math.PI*2);
     ctx.fill();
-    ctx.strokeStyle = 'rgba(255,255,255,0.7)';
-    ctx.lineWidth = 1.5;
+
+    // rim
+    ctx.shadowBlur = 0;
+    ctx.strokeStyle = 'rgba(255,255,255,0.85)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(0,0,c.r-1,0,Math.PI*2);
+    ctx.stroke();
+
+    // inner ring + star mark so it can't be mistaken for a hazard
+    ctx.strokeStyle = 'rgba(160,100,10,0.55)';
+    ctx.lineWidth = 1.4;
     ctx.beginPath();
     ctx.arc(0,0,c.r*0.55,0,Math.PI*2);
     ctx.stroke();
+
+    ctx.fillStyle = 'rgba(160,100,10,0.65)';
+    ctx.font = 'bold ' + Math.max(9, c.r|0) + 'px Courier New';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('★', 0, 0.5);
     ctx.restore();
   }
 
   function drawGustOrb(b, pal){
+    // teal wind swirl — only boost color in the game
     ctx.save();
     ctx.translate(b.x, b.y);
     ctx.rotate(b.spin);
-    ctx.shadowColor = rgb(GUST_DAY);
-    ctx.shadowBlur = 20;
-    ctx.strokeStyle = rgb(GUST_DAY);
-    ctx.lineWidth = 3;
+    ctx.shadowColor = rgba(GUST_TEAL, 0.9);
+    ctx.shadowBlur = 22;
+
+    // soft halo
+    ctx.beginPath();
+    ctx.arc(0,0, b.r*1.15, 0, Math.PI*2);
+    ctx.fillStyle = rgba(GUST_TEAL, 0.18);
+    ctx.fill();
+
+    ctx.strokeStyle = rgb(GUST_TEAL);
+    ctx.lineWidth = 3.2;
     ctx.lineCap = 'round';
     ctx.beginPath();
     for (let i=0;i<3;i++){
       const a0 = i*Math.PI*2/3;
-      ctx.moveTo(0,0);
-      ctx.quadraticCurveTo(Math.cos(a0)*b.r*1.4, Math.sin(a0)*b.r*1.4, Math.cos(a0+1.4)*b.r*0.5, Math.sin(a0+1.4)*b.r*0.5);
+      ctx.moveTo(Math.cos(a0)*3, Math.sin(a0)*3);
+      ctx.quadraticCurveTo(
+        Math.cos(a0)*b.r*1.35, Math.sin(a0)*b.r*1.35,
+        Math.cos(a0+1.5)*b.r*0.55, Math.sin(a0+1.5)*b.r*0.55
+      );
     }
     ctx.stroke();
-    ctx.fillStyle = rgb(GUST_DAY);
+
+    ctx.fillStyle = rgb(GUST_TEAL);
     ctx.beginPath();
-    ctx.arc(0,0,4,0,Math.PI*2);
+    ctx.arc(0,0,5,0,Math.PI*2);
+    ctx.fill();
+    ctx.fillStyle = rgb(GUST_TEAL_DEEP);
+    ctx.beginPath();
+    ctx.arc(0,0,2.2,0,Math.PI*2);
     ctx.fill();
     ctx.restore();
   }
@@ -1313,14 +1524,14 @@
     const { x, y, w, h, grounded, vy } = player;
     ctx.save();
 
-    const fur = boosting ? rgb(GUST_DAY) : CAT_FUR;
-    const outline = boosting ? rgb(GUST_DAY) : rgb(pal.catOutline);
+    const fur = boosting ? rgb(GUST_TEAL) : CAT_FUR;
+    const outline = boosting ? rgb(GUST_TEAL_DEEP) : rgb(pal.catOutline);
 
-    // speed-blur trail while boosting
+    // speed-blur trail while boosting (teal)
     if (boosting){
       for (let i=1;i<=3;i++){
-        ctx.globalAlpha = 0.14 / i;
-        ctx.fillStyle = rgb(GUST_DAY);
+        ctx.globalAlpha = 0.16 / i;
+        ctx.fillStyle = rgb(GUST_TEAL);
         ctx.beginPath();
         ctx.ellipse(x + w*0.4 - i*9, y + h*0.6, w*0.55, h*0.38, 0, 0, Math.PI*2);
         ctx.fill();

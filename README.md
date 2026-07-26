@@ -27,8 +27,19 @@ mw_lab/
 │   └── NeonDistrict/
 │       └── index.html   # single-file GTA-lite
 └── knowledge/
-    └── itv.html
+    ├── itv.html
+    └── theorem-library/     # 定理图书馆（大白话 + 证明 + 交互图）
+        └── index.html
 ```
+
+---
+
+## 📚 Knowledge
+
+| Resource | Description | Link |
+|----------|-------------|------|
+| **ITV** | Interview / knowledge page | [knowledge/itv.html](./knowledge/itv.html) |
+| **定理图书馆** | Classic math theorems in plain language — stories, people, proofs, KaTeX formulas & interactive diagrams | [knowledge/theorem-library/](./knowledge/theorem-library/index.html) |
 
 ---
 
@@ -64,7 +75,7 @@ mw_lab/
 2. Browse by category:
    - [Tools](./tools/)
    - [Games](./games/) — Particell, Blitz, Catrun, Crimewave, Neon District
-   - [Knowledge](./knowledge/)
+   - [Knowledge](./knowledge/) — including [定理图书馆](./knowledge/theorem-library/index.html)
 3. Click any link to open the tool directly in your browser.
 4. All content runs **client-side** — no backend or installation needed.
 
