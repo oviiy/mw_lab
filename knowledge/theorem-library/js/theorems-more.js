@@ -500,10 +500,10 @@
         proof: `
           <p class="plain-lead"><strong>人话版：</strong>上下两扇门都关到只剩一条缝，夹在中间的人只能进那条缝。</p>
           <ol class="steps">
-            <li>任给 ε>0。因 g→L，存在 δ₁，使 0&lt;|x−x₀|&lt;δ₁ 时 |g(x)−L|&lt;ε，即 L−ε&lt;g(x)&lt;L+ε。</li>
+            <li>任给 ε>0。因 g→L，存在 δ₁，使 0≤|x−x₀|≤δ₁ 时 |g(x)−L|≤ε，即 L−ε≤g(x)≤L+ε。</li>
             <li>同理存在 δ₂，使 h 也落入 (L−ε,L+ε)。</li>
-            <li>取 δ=min(δ₁,δ₂)。当 0&lt;|x−x₀|&lt;δ 时，L−ε&lt;g(x)≤f(x)≤h(x)&lt;L+ε。</li>
-            <li>故 |f(x)−L|&lt;ε。由 ε 任意，f→L。</li>
+            <li>取 δ=min(δ₁,δ₂)。当 0≤|x−x₀|≤δ 时，L−ε≤g(x)≤f(x)≤h(x)≤L+ε。</li>
+            <li>故 |f(x)−L|≤ε。由 ε 任意，f→L。</li>
           </ol>
           <p class="qed">∎</p>
         `,
@@ -541,4 +541,22 @@
       if (!th.related.includes(r)) th.related.push(r);
     });
   });
+
+  // 注入交互演示到证明区（需在 diagrams-more 注册后由页面 mount）
+  function inject(id, section, widget) {
+    const th = T.find((t) => t.id === id);
+    if (!th || !th.sections[section]) return;
+    const marker = `data-widget="${widget}"`;
+    if (th.sections[section].includes(marker)) return;
+    th.sections[section] =
+      `<div class="interactive" data-widget="${widget}"></div>` + th.sections[section];
+  }
+  inject("fermat-little", "proof", "fermat-little");
+  inject("cauchy-schwarz", "proof", "cauchy-schwarz");
+  inject("bayes", "proof", "bayes");
+  inject("binomial", "proof", "binomial");
+  inject("law-of-cosines", "proof", "law-of-cosines");
+  inject("euler-bridges", "proof", "euler-bridges");
+  inject("taylor", "proof", "taylor");
+  inject("sandwich", "proof", "sandwich");
 })();

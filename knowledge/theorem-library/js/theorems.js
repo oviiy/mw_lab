@@ -156,7 +156,7 @@ window.THEOREMS = [
       proof: `
         <div class="proof-nav"><span>反证法</span><span>构造 N=P+1</span><span>新素因子</span></div>
         <ol class="steps">
-          <li><strong>反设：</strong>只有有限个素数，全部列出 p₁=2 &lt; p₂ &lt; … &lt; pₖ。</li>
+          <li><strong>反设：</strong>只有有限个素数，全部列出 p₁=2 \lt  p₂ \lt  … \lt  pₖ。</li>
           <li><strong>构造：</strong>令 P = p₁ p₂ ⋯ pₖ（有限个素数乘积），再令
             <div class="calc-line" data-latex="N = P + 1"></div>
             则 N ≥ 2+1 = 3 > 1。
@@ -249,7 +249,7 @@ window.THEOREMS = [
         <h3>第一部分：存在性</h3>
         <ol class="steps">
           <li>对 n 用强数学归纳法。n=2 已是素数，成立。</li>
-          <li>设对所有 2≤m&lt;n，m 可写成素数积。看 n：若 n 是素数，完毕；若 n 合数，则 n=ab，1&lt;a,b&lt;n。</li>
+          <li>设对所有 2≤m\lt n，m 可写成素数积。看 n：若 n 是素数，完毕；若 n 合数，则 n=ab，1\lt a,b\lt n。</li>
           <li>由归纳假设 a、b 皆为素数积，故 n 亦然。</li>
         </ol>
         <h3>第二部分：唯一性</h3>
@@ -474,12 +474,12 @@ window.THEOREMS = [
       lemmas: `
         <div class="lemma-box">
           <div class="lemma-title">引理（积分中值不等式）</div>
-          <p>若 <span data-latex="m\\le f(t)\\le M">m≤f(t)≤M</span> 在 <span data-latex="[x,x+h]">[x,x+h]</span> 上，则（<span data-latex="h>0">h>0</span>）</p>
+          <p>若 <span data-latex="m\\le f(t)\\le M">m≤f(t)≤M</span> 在 <span data-latex="[x,x+h]">[x,x+h]</span> 上，则（<span data-latex="h\\gt 0">h>0</span>）</p>
           <div class="calc-line" data-latex="mh \\le \\int_x^{x+h} f(t)\\,dt \\le Mh"></div>
         </div>
         <div class="lemma-box">
           <div class="lemma-title">引理（连续函数局部几乎常值）</div>
-          <p><span data-latex="f">f</span> 在 <span data-latex="x_0">x₀</span> 连续 <span data-latex="\\Rightarrow">⇒</span> 对任意 <span data-latex="\\varepsilon>0">ε>0</span>，存在 <span data-latex="\\delta>0">δ>0</span>，当 <span data-latex="|t-x_0|<\\delta">|t−x₀|&lt;δ</span> 时 <span data-latex="|f(t)-f(x_0)|<\\varepsilon">|f(t)−f(x₀)|&lt;ε</span>。</p>
+          <p><span data-latex="f">f</span> 在 <span data-latex="x_0">x₀</span> 连续 <span data-latex="\\Rightarrow">⇒</span> 对任意 <span data-latex="\\varepsilon\\gt 0">ε>0</span>，存在 <span data-latex="\\delta\\gt 0">δ>0</span>，当 <span data-latex="|t-x_0|\\lt \\delta">|t−x₀|\lt δ</span> 时 <span data-latex="|f(t)-f(x_0)|\\lt \\varepsilon">|f(t)−f(x₀)|\lt ε</span>。</p>
         </div>
       `,
       proof: `
@@ -492,10 +492,10 @@ window.THEOREMS = [
           <li>差商：
             <div class="calc-line" data-latex="\\dfrac{A(x+h)-A(x)}{h}=\\dfrac{1}{h}\\int_x^{x+h} f(t)\\,dt"></div>
           </li>
-          <li>由连续性：对 <span data-latex="\\varepsilon>0">ε>0</span>，取 <span data-latex="\\delta">δ</span> 使 <span data-latex="|t-x|<\\delta\\Rightarrow|f(t)-f(x)|<\\varepsilon">|t−x|&lt;δ⇒|f(t)−f(x)|&lt;ε</span>。当 <span data-latex="0&lt;|h|&lt;\\delta">0&lt;|h|&lt;δ</span> 时，在积分区间上
-            <div class="calc-line" data-latex="f(x)-\\varepsilon &lt; f(t) &lt; f(x)+\\varepsilon"></div>
-            用引理积分并除以 <span data-latex="h">h</span>（注意 <span data-latex="h&lt;0">h&lt;0</span> 时不等式方向与除法，最终同样得到）
-            <div class="calc-line" data-latex="f(x)-\\varepsilon &lt; \\dfrac{A(x+h)-A(x)}{h} &lt; f(x)+\\varepsilon"></div>
+          <li>由连续性：对 <span data-latex="\\varepsilon\\gt 0">ε>0</span>，取 <span data-latex="\\delta">δ</span> 使 <span data-latex="|t-x|\\lt \\delta\\Rightarrow|f(t)-f(x)|\\lt \\varepsilon">|t−x|\lt δ⇒|f(t)−f(x)|\lt ε</span>。当 <span data-latex="0\\lt |h|\\lt \\delta">0\lt |h|\lt δ</span> 时，在积分区间上
+            <div class="calc-line" data-latex="f(x)-\\varepsilon \\lt f(t) \\lt f(x)+\\varepsilon"></div>
+            用引理积分并除以 <span data-latex="h">h</span>（注意 <span data-latex="h\\lt 0">h\lt 0</span> 时不等式方向与除法，最终同样得到）
+            <div class="calc-line" data-latex="f(x)-\\varepsilon \\lt \\dfrac{A(x+h)-A(x)}{h} \\lt f(x)+\\varepsilon"></div>
           </li>
           <li>故差商当 <span data-latex="h\\to 0">h→0</span> 时趋于 <span data-latex="f(x)">f(x)</span>。即
             <div class="calc-line" data-latex="A'(x)=f(x)"></div>
@@ -513,7 +513,7 @@ window.THEOREMS = [
       `,
       deep: `
         <h3>为什么 F'=0 ⇒ F 常数？</h3>
-        <p>用中值定理：对 x₁&lt;x₂，存在 ξ 使 F(x₂)−F(x₁)=F'(ξ)(x₂−x₁)=0。无需中值定理时，可用「上确界论证」或直接从导数定义控制增量。</p>
+        <p>用中值定理：对 x₁\lt x₂，存在 ξ 使 F(x₂)−F(x₁)=F'(ξ)(x₂−x₁)=0。无需中值定理时，可用「上确界论证」或直接从导数定义控制增量。</p>
         <h3>不连续的情况</h3>
         <p>若 f 仅黎曼可积而不连续，A 仍几乎处处可导且 A'=f a.e.（勒贝格理论）。教学中连续已足够。</p>
         <h3>换元与分部的来源</h3>
@@ -556,7 +556,7 @@ window.THEOREMS = [
         <p>解方程 f(x)=0 不一定有求根公式，但若 f 连续且 f(a)、f(b) 异号，根一定存在。这是所有「二分法」数值求根的理论担保，也是许多存在性定理的母机。</p>
       `,
       statement: `
-        <p><strong>中间值定理（IVT）：</strong>f:[a,b]→ℝ 连续，f(a)&lt;0&lt;f(b)（或反过来），则存在 c∈(a,b) 使 f(c)=0。</p>
+        <p><strong>中间值定理（IVT）：</strong>f:[a,b]→ℝ 连续，f(a)\lt 0\lt f(b)（或反过来），则存在 c∈(a,b) 使 f(c)=0。</p>
         <p><strong>一般形式：</strong>f 连续，则 f 取到 f(a) 与 f(b) 之间一切值。</p>
       `,
       setup: `
@@ -568,20 +568,20 @@ window.THEOREMS = [
       lemmas: `
         <div class="lemma-box">
           <div class="lemma-title">引理：连续保持符号</div>
-          <p>若 f 在 c 连续且 f(c)>0，则存在邻域使 f 在该邻域内 >0。（对 &lt;0 类似。）</p>
+          <p>若 f 在 c 连续且 f(c)>0，则存在邻域使 f 在该邻域内 >0。（对 \lt 0 类似。）</p>
         </div>
       `,
       proof: `
         <div class="proof-nav"><span>集合 S</span><span>取上确界 c</span><span>排除 f(c)≠0</span></div>
         <ol class="steps">
-          <li>设 f(a)&lt;0&lt;f(b)，f 在 [a,b] 连续。定义
+          <li>设 f(a)\lt 0\lt f(b)，f 在 [a,b] 连续。定义
             <div class="calc-line" data-latex="S = { x\\in [a,b] : f \\text{在} [a,x] \\text{上处处} \\le 0 }"></div>
             更常用的经典定义：S={x∈[a,b]: f(x)≤0}。此处采用：
             <div class="calc-line" data-latex="S = { x\\in [a,b] : f(x) \\le 0 }"></div>
             则 a∈S，S 非空有上界 b，令 c = sup S ∈[a,b]。
           </li>
-          <li><strong>不能 f(c)&gt;0：</strong>若 f(c)>0，由连续，在 c 左侧小邻域 f 仍为正，与 c 是「f≤0 的点」的上确界矛盾（左侧应仍有 S 中的点逼近 c，那些点 f≤0）。更细：存在 δ 使 (c−δ,c+δ) 上 f>0，则 c−δ/2 已是比 c 小的上界，矛盾。</li>
-          <li><strong>不能 f(c)&lt;0：</strong>若 f(c)&lt;0，则邻域内 f&lt;0，于是 c 右侧仍有点属于 S，与上确界矛盾。</li>
+          <li><strong>不能 f(c)\gt 0：</strong>若 f(c)>0，由连续，在 c 左侧小邻域 f 仍为正，与 c 是「f≤0 的点」的上确界矛盾（左侧应仍有 S 中的点逼近 c，那些点 f≤0）。更细：存在 δ 使 (c−δ,c+δ) 上 f>0，则 c−δ/2 已是比 c 小的上界，矛盾。</li>
+          <li><strong>不能 f(c)\lt 0：</strong>若 f(c)\lt 0，则邻域内 f\lt 0，于是 c 右侧仍有点属于 S，与上确界矛盾。</li>
           <li>故 f(c)=0。又因 f(a)≠0、f(b)≠0（严格异号），有 c∈(a,b)。</li>
         </ol>
         <p class="qed">∎</p>
@@ -592,8 +592,8 @@ window.THEOREMS = [
         <p>要证 f 取到 f(a) 与 f(b) 之间的 γ，考虑 h(x)=f(x)−γ，化为过零点问题。</p>
         <h3>二分法算法</h3>
         <ol class="steps">
-          <li>若 f(a)f(b)&lt;0，取中点 m。(a+b)/2。</li>
-          <li>若 f(m)=0 结束；若 f(a)f(m)&lt;0 则改 b:=m，否则 a:=m。</li>
+          <li>若 f(a)f(b)\lt 0，取中点 m。(a+b)/2。</li>
+          <li>若 f(m)=0 结束；若 f(a)f(m)\lt 0 则改 b:=m，否则 a:=m。</li>
           <li>区间长度每次减半，由区间套/完备性，唯一极限点即为根（或一串趋于某根）。</li>
         </ol>
         <p>误差 ≤ (b−a)/2ⁿ，可明确给出步数。</p>
@@ -657,9 +657,9 @@ window.THEOREMS = [
           <li>若 M=m，则 f 常数，任意 ξ 都有 f'=0。</li>
           <li>若 M>m，因 f(a)=f(b)，最大值或最小值至少有一个在开区间 (a,b) 内达到（两端同值，若都只在端点取极值则函数常值）。更精确：M、m 不能同时仅在端点且不相等——若最大只在端点，则最大=f(a)=f(b)，若内部都严格小于它，最小在内部或端点；标准写法：
             <ul class="substeps">
-              <li>若 f 非常数，则 M&gt;f(a) 或 m&lt;f(a)；</li>
-              <li>若 M&gt;f(a)，最大点 c∈(a,b)，由引理 f'(c)=0；</li>
-              <li>若 m&lt;f(a)，最小点同理。</li>
+              <li>若 f 非常数，则 M\gt f(a) 或 m\lt f(a)；</li>
+              <li>若 M\gt f(a)，最大点 c∈(a,b)，由引理 f'(c)=0；</li>
+              <li>若 m\lt f(a)，最小点同理。</li>
             </ul>
           </li>
         </ol>
@@ -821,7 +821,7 @@ window.THEOREMS = [
         <h3>有理数可数（对比）</h3>
         <p>正有理数按 p+q 斜线枚举，跳过不既约者，可排成序列。整数 ℤ：0,1,−1,2,−2,… 可数。可数个可数集的并仍可数。</p>
         <h3>基数</h3>
-        <p>|ℕ|=ℵ₀，|(0,1)|=2^{ℵ₀}=𝔠。康托尔定理：对任何集合 A，|A| &lt; |P(A)|（幂集更大）——对角论证的抽象版。</p>
+        <p>|ℕ|=ℵ₀，|(0,1)|=2^{ℵ₀}=𝔠。康托尔定理：对任何集合 A，|A| \lt  |P(A)|（幂集更大）——对角论证的抽象版。</p>
         <h3>连续统假设 CH</h3>
         <p>是否存在基数严格介于 ℵ₀ 与 𝔠 之间？哥德尔与科恩证明 CH 相对 ZFC 独立——不可证也不可否。</p>
       `,
@@ -911,7 +911,7 @@ window.THEOREMS = [
       `,
       deep: `
         <h3>放电法一瞥</h3>
-        <p>初始电荷 σ(v)=deg(v)−6，则 ∑σ=∑(deg−6)=2E−6V≤−12&lt;0（由 E≤3V−6）。规定「从高电荷顶点向某些邻域输送电荷」的规则后，若每个可能的局部在输送后电荷 ≤0，则总电荷 ≤0 与 ∑=−12 的精细分析结合，迫使某些构型出现——这就是「不可避免」。</p>
+        <p>初始电荷 σ(v)=deg(v)−6，则 ∑σ=∑(deg−6)=2E−6V≤−12\lt 0（由 E≤3V−6）。规定「从高电荷顶点向某些邻域输送电荷」的规则后，若每个可能的局部在输送后电荷 ≤0，则总电荷 ≤0 与 ∑=−12 的精细分析结合，迫使某些构型出现——这就是「不可避免」。</p>
         <h3>为何四色比五色难</h3>
         <p>deg=5 时 4 色没有「备用色」，Kempe 在 1879 年的四色「证明」有漏洞；修补漏洞需要系统的构型表，人手难以穷尽。</p>
       `,
@@ -1056,7 +1056,7 @@ window.THEOREMS = [
             <div class="calc-line" data-latex="b_{k} e^{ik\\theta } / |b_{k}| = - p(z_{0})/|p(z_{0})|"></div>
             取 w = r e^{iθ}，r 充分小，则
             <div class="calc-line" data-latex="p(z_{0}+w) = p(z_{0}) ( 1 - c r^{k} + o(r^{k}) )"></div>
-            其中 c>0，从而 |p(z₀+w)| &lt; |p(z₀)|。
+            其中 c>0，从而 |p(z₀+w)| \lt  |p(z₀)|。
           </li>
           <li>与最小性矛盾。故 p(z₀)=0。</li>
           <li>用多项式除法提出 (z−z₀)，对次数归纳得完全分解。</li>
@@ -1118,15 +1118,15 @@ window.THEOREMS = [
         <h3>加强形式</h3>
         <ol class="steps">
           <li>反设每盒 ≤ ⌈m/n⌉ − 1 ≤ m/n 的某整数上界。更干净：设每盒 ≤ k−1，而 k=⌈m/n⌉，则总物 ≤ n(k−1)。</li>
-          <li>因 k−1 &lt; m/n，有 n(k−1) &lt; m，与总物 =m 矛盾。</li>
+          <li>因 k−1 \lt  m/n，有 n(k−1) \lt  m，与总物 =m 矛盾。</li>
           <li>故某盒 ≥k=⌈m/n⌉。</li>
         </ol>
         <p class="qed">∎</p>
         <h3>典型应用：狄利克雷逼近（细节）</h3>
         <ol class="steps">
           <li>设 α 实数。考虑 {0·α}, {1·α}, …, {n·α} 的小数部分，落入 n 个区间 [0,1/n),[1/n,2/n),…。</li>
-          <li>有 n+1 个数、n 个间隔 ⇒ 某两 j&gt;i 落入同一间隔，| (j−i)α − 整数 | &lt; 1/n。</li>
-          <li>令 q=j−i≤n，则存在 p 使 |α−p/q| &lt; 1/(q n) ≤ 1/q²。</li>
+          <li>有 n+1 个数、n 个间隔 ⇒ 某两 j\gt i 落入同一间隔，| (j−i)α − 整数 | \lt  1/n。</li>
+          <li>令 q=j−i≤n，则存在 p 使 |α−p/q| \lt  1/(q n) ≤ 1/q²。</li>
         </ol>
       `,
       deep: `
@@ -1437,16 +1437,16 @@ window.THEOREMS = [
         <ol class="steps">
           <li><strong>基本积木：</strong>一个三角形包含「一小撮」方向上的单位段（从顶点射出的线段方向落在对边所张的角度内）。</li>
           <li><strong>二分滑动：</strong>把底边二等分，得到两个窄三角形，方向各覆盖原角度的一半。将两者平移，使底侧重叠尽量多，而顶角方向仍保留。</li>
-          <li>面积：每次滑动后并集面积可严格小于原面积（重叠区只算一次）。对任意 ε>0，有限步后可构造「包含一个角度区间内所有方向的单位段」且面积 &lt;ε 的集合。</li>
+          <li>面积：每次滑动后并集面积可严格小于原面积（重叠区只算一次）。对任意 ε>0，有限步后可构造「包含一个角度区间内所有方向的单位段」且面积 \lt ε 的集合。</li>
           <li><strong>铺满圆周：</strong>把 [0,π) 方向分成许多小角度块，每块用上述构造，再把这些「刺」适当安放（可再重叠）。可使总面积任意小，同时每个方向都有单位段。</li>
-          <li><strong>取极限：</strong>取面积 &lt;1/n 的挂谷集 K_n 的合适对角线极限 / 闭包操作，得到测度 0 的挂谷集。（严格写法需注意极限仍含各方向段：常用「对每个有理方向保留，再闭包」或一致估计。）</li>
+          <li><strong>取极限：</strong>取面积 \lt 1/n 的挂谷集 K_n 的合适对角线极限 / 闭包操作，得到测度 0 的挂谷集。（严格写法需注意极限仍含各方向段：常用「对每个有理方向保留，再闭包」或一致估计。）</li>
         </ol>
         <div class="idea-box"><strong>要点：</strong>圆环装不下所有方向；真正机制是<strong>大量不同方向的细针高度重叠</strong>。</div>
 
         <h3>二、二维维数必须为 2（Davies / Córdoba 路线的可讲细节）</h3>
         <ol class="steps">
-          <li>设 K 为平面挂谷集。要证 dim_H K=2。等价地：对任意 s&lt;2，s 维 Hausdorff 测度在 K 上「不能太小」的否定形式——通常改证 Minkowski 维数 ≥2：δ-邻域面积不能比 δ^{2−s} 衰减得更快（s&lt;2）。</li>
-          <li><strong>离散化：</strong>取 δ&gt;0。在半圆周上取约 1/δ 个方向 ω_j，使相邻夹角约 δ。对每个方向取一根含于 K 的 δ-管 T_j（线段的 δ 邻域）。则 ⋃ T_j ⊂ K_δ（K 的 δ 邻域）。</li>
+          <li>设 K 为平面挂谷集。要证 dim_H K=2。等价地：对任意 s\lt 2，s 维 Hausdorff 测度在 K 上「不能太小」的否定形式——通常改证 Minkowski 维数 ≥2：δ-邻域面积不能比 δ^{2−s} 衰减得更快（s\lt 2）。</li>
+          <li><strong>离散化：</strong>取 δ\gt 0。在半圆周上取约 1/δ 个方向 ω_j，使相邻夹角约 δ。对每个方向取一根含于 K 的 δ-管 T_j（线段的 δ 邻域）。则 ⋃ T_j ⊂ K_δ（K 的 δ 邻域）。</li>
           <li><strong>目标：</strong>证明 |⋃ T_j| ≳ 1 / log(1/δ) 或至少 ≫ δ^ε（对任意 ε，当 δ→0）——经典结果是 |⋃ T_j| ≳ 1/log(1/δ)，已迫使 Minkowski 维数 =2。</li>
           <li><strong>L² 计算：</strong>令 f = ∑_j 1_{T_j}。则 ∫ f = ∑ |T_j| ≍ ∑ δ ·1 ≍ 1（约 1/δ 根管，每根面积 ≍δ）。</li>
           <li>∫ f² = ∑_j ∑_k |T_j ∩ T_k|。当 j=k，|T_j|≍δ；当 j≠k，夹角 θ_{jk}≳δ·|j−k|，由引理 A，|T_j∩T_k| ≲ δ² / θ_{jk}。</li>
@@ -1456,7 +1456,7 @@ window.THEOREMS = [
             于是得到
             <div class="calc-line" data-latex="\\bigl|K_{\\delta}\\bigr|\\ \\gtrsim\\ \\dfrac{1}{\\log(1/\\delta)}"></div>
           </li>
-          <li>若 dim_M K ≤ s &lt;2，则 |K_δ| ≲ δ^{2−s}，右边当 δ→0 比任何 1/log 更快趋于 0，矛盾。故 dim_M K=2，从而 dim_H K=2。</li>
+          <li>若 dim_M K ≤ s \lt 2，则 |K_δ| ≲ δ^{2−s}，右边当 δ→0 比任何 1/log 更快趋于 0，矛盾。故 dim_M K=2，从而 dim_H K=2。</li>
         </ol>
         <p class="qed">∎（二维维数部分的标准 L² 纲要）</p>
 

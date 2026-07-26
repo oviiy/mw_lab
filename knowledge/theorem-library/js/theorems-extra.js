@@ -98,8 +98,8 @@
     <h3>上确界论证的图示要点</h3>
     <ol class="steps">
       <li>S={x∈[a,b]: f(x)≤0}，c=sup S。</li>
-      <li>若 f(c)&gt;0：连续性 ⇒ 左侧一小段 f&gt;0，与「c 是上确界」矛盾（左侧应有 S 中的点逼近 c）。</li>
-      <li>若 f(c)&lt;0：右侧一小段 f&lt;0，c 不是上界。</li>
+      <li>若 f(c)≥0：连续性 ⇒ 左侧一小段 f≥0，与「c 是上确界」矛盾（左侧应有 S 中的点逼近 c）。</li>
+      <li>若 f(c)≤0：右侧一小段 f≤0，c 不是上界。</li>
       <li>故 f(c)=0。上图二分法给出<strong>可计算</strong>的逼近序列，误差 ≤(b−a)/2ⁿ。</li>
     </ol>
     `
@@ -135,7 +135,7 @@
       <li>约 1/δ 根 δ-管，每根面积 ≍ δ，故 ∫f = ∑|Tⱼ| ≍ 1。</li>
       <li>∫f² = ∑_{j,k}|Tⱼ∩Tₖ| ≲ ∑_j δ + ∑_{j≠k} δ²/θ_{jk} ≲ log(1/δ)。</li>
       <li>(∫f)² ≤ |⋃|·∫f² ⇒ |⋃| ≳ 1/log(1/δ)。</li>
-      <li>若 Minkowski 维数 ≤ s&lt;2，则 |K_δ|≲δ^{2−s} 比 1/log 更快→0，矛盾。</li>
+      <li>若 Minkowski 维数 ≤ s≤2，则 |K_δ|≲δ^{2−s} 比 1/log 更快→0，矛盾。</li>
     </ol>
     <p>上图「两管重叠」对应步骤 2 的几何输入；「滑动三角形」对应零测度构造。</p>
     `
@@ -271,7 +271,7 @@
       setup: `
         <div class="def-box">
           <div class="def-title">黎曼 ζ 函数（证明需要的角色）</div>
-          <div class="calc-line" data-latex="ζ(s) = \\sum_{n=1}^\\infty n^{-s} = \\prod _p (1-p^{-s})^{-1} （Re s > 1）"></div>
+          <div class="calc-line" data-latex="ζ(s) = \\sum_{n=1}^\\infty n^{-s} = \\prod _p (1-p^{-s})^{-1} （Re s \\gt  1）"></div>
           <p>欧拉乘积把 ζ 与素数绑在一起。ζ 可解析延拓到复平面（除 s=1 的极点）。</p>
         </div>
         <div class="def-box">
@@ -294,7 +294,7 @@
         <div class="proof-nav"><span>战略图</span><span>非完整专业证明</span><span>逻辑链闭合说明</span></div>
         <h3>总体战略（1896 分析证明）</h3>
         <ol class="steps">
-          <li><strong>编码素数：</strong>对 Re s&gt;1，
+          <li><strong>编码素数：</strong>对 Re s≥1，
             <div class="calc-line" data-latex="-ζ'(s)/ζ(s) = \\sum_{n\\ge 1} Λ(n) n^{-s}"></div>
             其中 Λ(n)=ln p 当 n=p^k，否则 0。这是 ψ 的「生成函数」。
           </li>
@@ -371,7 +371,7 @@
           <svg viewBox="0 0 500 180" xmlns="http://www.w3.org/2000/svg">
             <rect width="500" height="180" fill="#0f172a" rx="8"/>
             <ellipse cx="110" cy="90" rx="70" ry="50" fill="none" stroke="#6eb5ff" stroke-width="2"/>
-            <text x="110" y="95" text-anchor="middle" fill="#6eb5ff" font-size="12">球面 K&gt;0</text>
+            <text x="110" y="95" text-anchor="middle" fill="#6eb5ff" font-size="12">球面 K≥0</text>
             <text x="110" y="160" text-anchor="middle" fill="#94a3b8" font-size="12">∬K=4π</text>
             <ellipse cx="250" cy="90" rx="80" ry="35" fill="none" stroke="#fbbf24" stroke-width="2"/>
             <ellipse cx="250" cy="90" rx="30" ry="14" fill="#0f172a" stroke="#fbbf24"/>
@@ -384,7 +384,7 @@
       setup: `
         <div class="def-box">
           <div class="def-title">高斯曲率 K</div>
-          <p>主曲率乘积。球面半径 R：K=1/R²。平面 K=0。马鞍点 K&lt;0。</p>
+          <p>主曲率乘积。球面半径 R：K=1/R²。平面 K=0。马鞍点 K≤0。</p>
         </div>
         <div class="def-box">
           <div class="def-title">欧拉示性数</div>
@@ -424,7 +424,7 @@
       `,
       deep: `
         <h3>环面为什么平均曲率「正负抵消」</h3>
-        <p>环面外侧 K&gt;0，内侧洞口附近 K&lt;0，积分恰为 0，与 χ=0 一致——你不能处处正曲率地实现环面。</p>
+        <p>环面外侧 K≥0，内侧洞口附近 K≤0，积分恰为 0，与 χ=0 一致——你不能处处正曲率地实现环面。</p>
         <h3>陈省身</h3>
         <p>把示性类与曲率形式联系起来，高维高斯–博内成为整体微分几何的支柱。</p>
       `,
@@ -467,7 +467,7 @@
       `,
       statement: `
         <p><strong>黎曼映射定理：</strong>设 Ω⊂ℂ 为单连通开集，且 Ω≠ℂ。则存在全纯双射 f: Ω → 𝔻（单位圆盘）。</p>
-        <p><strong>唯一性：</strong>若再指定 z₀∈Ω，要求 f(z₀)=0 且 f'(z₀)&gt;0（正实数），则 f 唯一。</p>
+        <p><strong>唯一性：</strong>若再指定 z₀∈Ω，要求 f(z₀)=0 且 f'(z₀)≥0（正实数），则 f 唯一。</p>
         <div class="diagram">
           <svg viewBox="0 0 500 150" xmlns="http://www.w3.org/2000/svg">
             <rect width="500" height="150" fill="#0f172a" rx="8"/>
@@ -506,17 +506,17 @@
         <h3>现代存在性证明纲要（卡拉西奥多里–克贝路线）</h3>
         <ol class="steps">
           <li><strong>化简：</strong>因 Ω≠ℂ，存在 a∉Ω。通过平移与开方/平方根分支等（利用单连通可选分支），可构造单叶全纯映射把 Ω 映入 𝔻，且某点 z₀ 映到 0 附近。即：函数族
-            <div class="calc-line" data-latex="ℱ = { f: Ω\\to \\mathbb{D} \\text{全纯单叶} : f(z_{0})=0, f'(z_{0})>0 }"></div>
+            <div class="calc-line" data-latex="ℱ = { f: Ω\\to \\mathbb{D} \\text{全纯单叶} : f(z_{0})=0, f'(z_{0})\\gt 0 }"></div>
             非空。
           </li>
           <li><strong>取极值：</strong>在 ℱ 中最大化 f'(z₀)（或等价地用蒙泰尔正规族取极限）。得 f∈ℱ 使 f'(z₀) 最大。</li>
           <li><strong>f 必满射到 𝔻：</strong>反设漏掉某 α∈𝔻。用布拉施克因子与开方构造
-            一个「把 α 挖掉后的圆盘」映回 𝔻 的函数，与 f 复合，得到 g∈ℱ 且 g'(z₀)&gt;f'(z₀)，矛盾。
+            一个「把 α 挖掉后的圆盘」映回 𝔻 的函数，与 f 复合，得到 g∈ℱ 且 g'(z₀)≥f'(z₀)，矛盾。
             <ul class="substeps">
               <li>这一步是证明的几何核心：若像集不是整个圆盘，就能「再撑大一点」导数。</li>
             </ul>
           </li>
-          <li><strong>唯一性：</strong>若 f,g 都满足规范化，则 φ = f ∘ g^{-1}: 𝔻→𝔻 是自同构且 φ(0)=0, φ'(0)&gt;0，由施瓦茨知 φ=id。</li>
+          <li><strong>唯一性：</strong>若 f,g 都满足规范化，则 φ = f ∘ g^{-1}: 𝔻→𝔻 是自同构且 φ(0)=0, φ'(0)≥0，由施瓦茨知 φ=id。</li>
         </ol>
         <p class="qed">∎（纲要；单连通用于开方分支与单叶性构造）</p>
       `,
