@@ -1,0 +1,3227 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="AI 全产业链长文：从硅、电、网到模型与落地，冷静拆解约束与分工" />
+  <title>AI 全产业链 · 一份冷静的产业地图</title>
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <!-- Diagrams are pure HTML (stable sizing); no Mermaid dependency -->
+  <style>
+    /* ========== Design Tokens ========== */
+    :root {
+      --font-sans: "Inter", "Noto Sans SC", system-ui, -apple-system, sans-serif;
+      --font-mono: "JetBrains Mono", ui-monospace, monospace;
+      --radius: 10px;
+      --radius-sm: 6px;
+      --shadow: 0 1px 3px rgba(0,0,0,.12), 0 4px 16px rgba(0,0,0,.06);
+      --transition: 180ms ease;
+      --sidebar-w: 280px;
+      --header-h: 60px;
+      --max-content: 780px;
+      --accent: #3b82f6;
+      --accent-soft: rgba(59, 130, 246, .12);
+      --accent-hover: #2563eb;
+      --ok: #22c55e;
+      --warn: #f59e0b;
+      --danger: #ef4444;
+    }
+    [data-theme="dark"] {
+      --bg: #0b0f14;
+      --bg-elevated: #121820;
+      --bg-card: #161d27;
+      --bg-hover: #1c2533;
+      --border: #243041;
+      --border-soft: #1a2330;
+      --text: #e8edf4;
+      --text-secondary: #9aa8bc;
+      --text-muted: #6b7a90;
+      --code-bg: #0f141c;
+      --highlight: #fbbf24;
+      --highlight-bg: rgba(251, 191, 36, .22);
+      --mermaid-bg: #121820;
+      --toc-active: #60a5fa;
+      --scroll-thumb: #2a3648;
+    }
+    [data-theme="light"] {
+      --bg: #f6f7f9;
+      --bg-elevated: #ffffff;
+      --bg-card: #ffffff;
+      --bg-hover: #eef1f6;
+      --border: #d8dee8;
+      --border-soft: #e8ecf2;
+      --text: #1a2332;
+      --text-secondary: #4a5568;
+      --text-muted: #718096;
+      --code-bg: #f0f3f8;
+      --highlight: #b45309;
+      --highlight-bg: rgba(251, 191, 36, .35);
+      --mermaid-bg: #ffffff;
+      --toc-active: #2563eb;
+      --scroll-thumb: #c5cdd9;
+      --shadow: 0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.04);
+    }
+
+    /* ========== Reset & Base ========== */
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: calc(var(--header-h) + 16px); }
+    body {
+      margin: 0;
+      font-family: var(--font-sans);
+      font-size: 16px;
+      line-height: 1.75;
+      color: var(--text);
+      background: var(--bg);
+      -webkit-font-smoothing: antialiased;
+    }
+    h1, h2, h3, h4, h5 {
+      line-height: 1.3;
+      font-weight: 650;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      margin: 0 0 .6em;
+    }
+    h1 { font-size: 2rem; }
+    h2 { font-size: 1.55rem; margin-top: 2.5rem; padding-bottom: .45rem; border-bottom: 1px solid var(--border); }
+    h3 { font-size: 1.2rem; margin-top: 1.75rem; }
+    h4 { font-size: 1.05rem; margin-top: 1.25rem; color: var(--text-secondary); }
+    p { margin: 0 0 1em; color: var(--text-secondary); }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    ul, ol { margin: 0 0 1.1em; padding-left: 1.35em; color: var(--text-secondary); }
+    li { margin-bottom: .4em; }
+    li::marker { color: var(--text-muted); }
+    strong { color: var(--text); font-weight: 600; }
+    code {
+      font-family: var(--font-mono);
+      font-size: .875em;
+      background: var(--code-bg);
+      border: 1px solid var(--border-soft);
+      padding: .1em .4em;
+      border-radius: 4px;
+    }
+    mark.search-hit {
+      background: var(--highlight-bg);
+      color: var(--highlight);
+      padding: 0 .15em;
+      border-radius: 2px;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 2.5rem 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .92rem;
+      margin: 1rem 0 1.5rem;
+      display: block;
+      overflow-x: auto;
+    }
+    th, td {
+      text-align: left;
+      padding: .65rem .85rem;
+      border: 1px solid var(--border);
+      vertical-align: top;
+    }
+    th {
+      background: var(--bg-hover);
+      color: var(--text);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    td { color: var(--text-secondary); background: var(--bg-card); }
+    tr:hover td { background: var(--bg-hover); }
+
+    /* ========== Layout ========== */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: var(--header-h);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0 1.25rem;
+      background: color-mix(in srgb, var(--bg-elevated) 92%, transparent);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: .55rem;
+      font-weight: 700;
+      font-size: .95rem;
+      color: var(--text);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .brand-icon {
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      display: grid; place-items: center;
+      font-size: 1rem;
+    }
+    .brand-sub {
+      display: block;
+      font-size: .68rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      letter-spacing: 0;
+    }
+    .search-wrap {
+      flex: 1;
+      max-width: 420px;
+      position: relative;
+    }
+    .search-wrap input {
+      width: 100%;
+      height: 36px;
+      padding: 0 2.4rem 0 .9rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+      font-family: inherit;
+      font-size: .9rem;
+      outline: none;
+      transition: border-color var(--transition);
+    }
+    .search-wrap input:focus { border-color: var(--accent); }
+    .search-wrap input::placeholder { color: var(--text-muted); }
+    .search-icon {
+      position: absolute; right: .75rem; top: 50%; transform: translateY(-50%);
+      color: var(--text-muted); font-size: .85rem; pointer-events: none;
+    }
+    .search-count {
+      position: absolute; right: 2rem; top: 50%; transform: translateY(-50%);
+      font-size: .72rem; color: var(--text-muted); white-space: nowrap;
+    }
+    .header-actions {
+      display: flex; align-items: center; gap: .5rem; margin-left: auto;
+    }
+    .icon-btn {
+      height: 36px; min-width: 36px;
+      padding: 0 .7rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-family: inherit;
+      font-size: .82rem;
+      display: inline-flex; align-items: center; gap: .35rem;
+      transition: background var(--transition), color var(--transition);
+    }
+    .icon-btn:hover { background: var(--bg-hover); color: var(--text); }
+    .menu-btn { display: none; }
+
+    .layout {
+      display: flex;
+      min-height: calc(100vh - var(--header-h));
+    }
+    .sidebar {
+      position: sticky;
+      top: var(--header-h);
+      height: calc(100vh - var(--header-h));
+      width: var(--sidebar-w);
+      flex-shrink: 0;
+      overflow-y: auto;
+      border-right: 1px solid var(--border);
+      background: var(--bg-elevated);
+      padding: 1.1rem .75rem 2rem;
+      scrollbar-width: thin;
+      scrollbar-color: var(--scroll-thumb) transparent;
+    }
+    .sidebar-label {
+      font-size: .68rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--text-muted);
+      padding: .6rem .65rem .35rem;
+    }
+    .toc-list { list-style: none; margin: 0; padding: 0; }
+    .toc-list a {
+      display: block;
+      padding: .38rem .65rem;
+      border-radius: 6px;
+      color: var(--text-secondary);
+      font-size: .84rem;
+      line-height: 1.4;
+      text-decoration: none;
+      border-left: 2px solid transparent;
+      transition: background var(--transition), color var(--transition);
+    }
+    .toc-list a:hover { background: var(--bg-hover); color: var(--text); text-decoration: none; }
+    .toc-list a.active {
+      background: var(--accent-soft);
+      color: var(--toc-active);
+      border-left-color: var(--toc-active);
+      font-weight: 500;
+    }
+    .toc-list .toc-sub a { padding-left: 1.2rem; font-size: .8rem; color: var(--text-muted); }
+    .toc-list .toc-sub a:hover, .toc-list .toc-sub a.active { color: var(--toc-active); }
+
+    .main {
+      flex: 1;
+      min-width: 0;
+      padding: 2.25rem clamp(1.1rem, 3vw, 2.75rem) 6rem;
+    }
+    .content {
+      max-width: var(--max-content);
+      margin: 0 auto;
+    }
+    /* diagrams may use full content width comfortably */
+    .content .diagram-wrap {
+      max-width: 100%;
+    }
+
+    /* ========== Components ========== */
+    .hero {
+      padding: 1.5rem 0 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      font-size: .75rem;
+      font-weight: 600;
+      color: var(--accent);
+      background: var(--accent-soft);
+      padding: .25rem .65rem;
+      border-radius: 999px;
+      margin-bottom: 1rem;
+    }
+    .hero h1 { margin-bottom: .4rem; }
+    .hero-en {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      font-weight: 500;
+      margin-bottom: 1.1rem;
+    }
+    .lead {
+      font-size: 1.02rem;
+      color: var(--text-secondary);
+      max-width: 62ch;
+    }
+    .meta-row {
+      display: flex; flex-wrap: wrap; gap: .6rem;
+      margin-top: 1.25rem;
+    }
+    .chip {
+      font-size: .75rem;
+      color: var(--text-muted);
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: .25rem .6rem;
+      border-radius: 999px;
+    }
+
+    .callout {
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      background: var(--bg-card);
+      border-radius: var(--radius-sm);
+      padding: 1rem 1.15rem;
+      margin: 1.25rem 0;
+    }
+    .callout.warn { border-left-color: var(--warn); }
+    .callout.ok { border-left-color: var(--ok); }
+    .callout-title {
+      font-weight: 600;
+      font-size: .9rem;
+      color: var(--text);
+      margin-bottom: .35rem;
+    }
+    .callout p:last-child { margin-bottom: 0; }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: .85rem;
+      margin: 1.25rem 0;
+    }
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 1.1rem;
+      transition: border-color var(--transition), transform var(--transition);
+    }
+    .card:hover { border-color: color-mix(in srgb, var(--accent) 50%, var(--border)); }
+    .card-logo {
+      display: flex; align-items: center; gap: .5rem;
+      margin-bottom: .55rem;
+    }
+    .logo-badge {
+      width: 44px; height: 44px;
+      border-radius: 10px;
+      display: grid; place-items: center;
+      font-size: .85rem;
+      font-weight: 700;
+      background: #fff;
+      border: 1px solid var(--border);
+      flex-shrink: 0;
+      overflow: hidden;
+      color: #334;
+    }
+    .logo-badge img {
+      width: 100%; height: 100%;
+      object-fit: contain;
+      padding: 5px;
+      display: block;
+      background: #fff;
+    }
+    .logo-badge.fallback {
+      background: var(--bg-hover);
+      color: var(--text);
+      font-size: .72rem;
+      letter-spacing: -0.02em;
+    }
+    .card-name { font-weight: 600; font-size: .95rem; color: var(--text); line-height: 1.25; }
+    .card-en { font-size: .72rem; color: var(--text-muted); }
+    .card p { font-size: .85rem; margin: 0; }
+
+    /* Tabs */
+    .tabs { margin: 1.25rem 0 1.5rem; }
+    .tab-list {
+      display: flex; flex-wrap: wrap; gap: .35rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0;
+      margin-bottom: 0;
+    }
+    .tab-btn {
+      appearance: none;
+      border: 1px solid transparent;
+      border-bottom: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: .88rem;
+      font-weight: 500;
+      padding: .55rem 1rem;
+      border-radius: 8px 8px 0 0;
+      cursor: pointer;
+      margin-bottom: -1px;
+      transition: color var(--transition), background var(--transition);
+    }
+    .tab-btn:hover { color: var(--text); background: var(--bg-hover); }
+    .tab-btn.active {
+      color: var(--accent);
+      background: var(--bg-card);
+      border-color: var(--border);
+      border-bottom-color: var(--bg-card);
+    }
+    .tab-panel {
+      display: none;
+      border: 1px solid var(--border);
+      border-top: none;
+      background: var(--bg-card);
+      border-radius: 0 0 var(--radius) var(--radius);
+      padding: 1.25rem 1.35rem;
+    }
+    .tab-panel.active { display: block; }
+
+    /* Accordion */
+    .accordion { margin: 1rem 0 1.5rem; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+    .acc-item + .acc-item { border-top: 1px solid var(--border); }
+    .acc-trigger {
+      width: 100%;
+      display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+      padding: .9rem 1.15rem;
+      background: var(--bg-card);
+      border: none;
+      color: var(--text);
+      font-family: inherit;
+      font-size: .95rem;
+      font-weight: 560;
+      text-align: left;
+      cursor: pointer;
+      transition: background var(--transition);
+    }
+    .acc-trigger:hover { background: var(--bg-hover); }
+    .acc-trigger .chev {
+      flex-shrink: 0;
+      color: var(--text-muted);
+      transition: transform var(--transition);
+      font-size: .75rem;
+    }
+    .acc-item.open .acc-trigger .chev { transform: rotate(180deg); }
+    .acc-body {
+      display: none;
+      padding: 0 1.15rem 1.15rem;
+      background: var(--bg-card);
+      border-top: 1px solid var(--border-soft);
+    }
+    .acc-item.open .acc-body { display: block; padding-top: 1rem; }
+    .acc-en { font-weight: 400; color: var(--text-muted); font-size: .82rem; margin-left: .35rem; }
+
+    /* Glossary */
+    .glossary-grid {
+      display: grid;
+      gap: .75rem;
+      margin: 1rem 0;
+    }
+    .term-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 1.15rem;
+    }
+    .term-head {
+      display: flex; flex-wrap: wrap; align-items: baseline; gap: .4rem .75rem;
+      margin-bottom: .45rem;
+    }
+    .term-zh { font-weight: 650; color: var(--text); font-size: 1.02rem; }
+    .term-en { font-family: var(--font-mono); font-size: .82rem; color: var(--accent); }
+    .term-tag {
+      font-size: .68rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      color: var(--text-muted);
+      background: var(--bg-hover);
+      padding: .12rem .4rem;
+      border-radius: 4px;
+      margin-left: auto;
+    }
+    .term-card p { margin: 0; font-size: .9rem; }
+
+    /* Mermaid + zoomable diagrams */
+    .diagram-wrap {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.35rem 1.25rem 1.2rem;
+      margin: 1.5rem 0 2rem;
+      max-width: none;
+      width: 100%;
+      box-shadow: var(--shadow);
+    }
+    .diagram-wrap.wide {
+      width: 100%;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .diagram-caption {
+      font-size: .92rem;
+      color: var(--text);
+      text-align: left;
+      margin: 0 0 1rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+    .diagram-body {
+      display: block;
+      width: 100%;
+      font-size: 15px;
+      padding: 0.15rem 0 0.25rem;
+    }
+    .diagram-hint {
+      font-size: .8rem;
+      color: var(--text-muted);
+      text-align: left;
+      margin: 1rem 0 0;
+      line-height: 1.5;
+    }
+    .diagram-hint strong { color: var(--text-secondary); font-weight: 600; }
+
+    /* ========== HTML Flowcharts (replace Mermaid for stable sizing) ========== */
+    .flow {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.55em;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .flow-layer {
+      border: 1px solid var(--border);
+      border-radius: 0.65em;
+      padding: 0.75em;
+      background: color-mix(in srgb, var(--bg-card) 88%, transparent);
+    }
+    .flow-layer-title {
+      font-size: 0.78em;
+      font-weight: 700;
+      color: var(--accent);
+      margin: 0 0 0.55em;
+      letter-spacing: 0.02em;
+    }
+    .flow-layer-title .en {
+      font-weight: 500;
+      color: var(--text-muted);
+      margin-left: 0.35em;
+    }
+    .flow-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45em;
+      align-items: stretch;
+      justify-content: flex-start;
+    }
+    .flow-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.35em;
+    }
+    .flow-node {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 0.2em;
+      /* equal-ish cards across all diagrams */
+      flex: 1 1 10.5em;
+      min-width: 10.5em;
+      min-height: 5.25rem;
+      max-width: 100%;
+      padding: 0.65em 0.8em;
+      border: 1.5px solid color-mix(in srgb, var(--accent) 55%, var(--border));
+      border-radius: 0.5em;
+      background: var(--bg-card);
+      color: var(--text);
+      cursor: pointer;
+      text-align: center;
+      transition: border-color 120ms ease, box-shadow 120ms ease, background 120ms ease;
+      box-sizing: border-box;
+    }
+    .flow-node:hover,
+    .flow-node.is-hot,
+    .flow-node:focus-visible {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+      box-shadow: 0 0 0 3px var(--accent-soft);
+      outline: none;
+    }
+    .flow-node .fn-zh {
+      font-size: 0.95em;
+      font-weight: 650;
+      line-height: 1.35;
+      color: var(--text);
+      word-break: break-word;
+    }
+    .flow-node .fn-en {
+      font-size: 0.78em;
+      line-height: 1.3;
+      color: var(--text-muted);
+      word-break: break-word;
+    }
+    .flow-arrow {
+      color: var(--text-muted);
+      font-size: 0.95em;
+      line-height: 1;
+      text-align: center;
+      user-select: none;
+      flex: 0 0 auto;
+      align-self: center;
+      padding: 0.1em 0.2em;
+    }
+    .flow-arrow.down { width: 100%; }
+    .flow-arrow.right { padding: 0 0.15em; }
+    /* Equal card grids — same cell size on every diagram */
+    .flow-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(12.5rem, 1fr));
+      gap: 0.55em;
+      width: 100%;
+    }
+    .flow-grid .flow-node {
+      flex: none;
+      min-width: 0;
+      width: 100%;
+      min-height: 5.25rem;
+      height: 100%;
+    }
+    .flow-grid.cols-4 {
+      grid-template-columns: repeat(auto-fill, minmax(12.5rem, 1fr));
+    }
+    .flow-grid.cols-steps {
+      grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+    }
+    .flow-step-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 1.5em;
+      height: 1.5em;
+      border-radius: 999px;
+      background: var(--accent);
+      color: #fff;
+      font-size: 0.75em;
+      font-weight: 700;
+      margin-bottom: 0.1em;
+      flex-shrink: 0;
+    }
+    .flow-feedback {
+      font-size: 0.8em;
+      color: var(--text-muted);
+      border: 1px dashed var(--border);
+      border-radius: 0.4em;
+      padding: 0.5em 0.75em;
+      text-align: center;
+      width: 100%;
+      box-sizing: border-box;
+      margin-top: 0.35em;
+    }
+    .flow-process {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(12.5rem, 1fr));
+      gap: 0.55em;
+      width: 100%;
+    }
+    .flow-process .flow-node {
+      flex: none;
+      min-width: 0;
+      width: 100%;
+      min-height: 5.25rem;
+    }
+    .flow-process .flow-arrow { display: none; }
+    .flow-bridge {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.85em;
+      padding: 0.15em 0;
+    }
+
+    /* Floating chart tooltip */
+    #chartTip {
+      position: fixed;
+      z-index: 200;
+      max-width: min(360px, calc(100vw - 24px));
+      padding: .85rem 1rem;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg-elevated);
+      box-shadow: 0 8px 28px rgba(0,0,0,.28), 0 2px 8px rgba(0,0,0,.12);
+      color: var(--text-secondary);
+      font-size: .86rem;
+      line-height: 1.55;
+      pointer-events: none;
+      opacity: 0;
+      transform: translateY(4px);
+      transition: opacity 120ms ease, transform 120ms ease;
+      visibility: hidden;
+    }
+    #chartTip.visible {
+      opacity: 1;
+      transform: translateY(0);
+      visibility: visible;
+    }
+    #chartTip .tip-kicker {
+      font-size: .68rem;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: .25rem;
+    }
+    #chartTip .tip-title {
+      font-weight: 650;
+      color: var(--text);
+      font-size: .95rem;
+      margin-bottom: .15rem;
+    }
+    #chartTip .tip-en {
+      font-size: .78rem;
+      color: var(--text-muted);
+      margin-bottom: .45rem;
+      font-family: var(--font-mono);
+    }
+    #chartTip .tip-body { margin: 0; }
+    #chartTip .tip-meta {
+      margin-top: .55rem;
+      padding-top: .45rem;
+      border-top: 1px solid var(--border-soft);
+      font-size: .75rem;
+      color: var(--text-muted);
+    }
+
+    /* Layer section headers */
+    .layer-banner {
+      display: flex; align-items: center; gap: .85rem;
+      padding: 1.1rem 1.25rem;
+      border-radius: var(--radius);
+      margin: 1.75rem 0 1.25rem;
+      border: 1px solid var(--border);
+    }
+    .layer-banner.up { background: linear-gradient(90deg, rgba(59,130,246,.12), transparent); }
+    .layer-banner.mid { background: linear-gradient(90deg, rgba(139,92,246,.12), transparent); }
+    .layer-banner.down { background: linear-gradient(90deg, rgba(34,197,94,.12), transparent); }
+    .layer-num {
+      width: 42px; height: 42px;
+      border-radius: 10px;
+      display: grid; place-items: center;
+      font-weight: 700;
+      font-size: .95rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+    }
+    .layer-banner h3 { margin: 0; border: none; padding: 0; font-size: 1.15rem; }
+    .layer-banner .en { font-size: .8rem; color: var(--text-muted); margin: .15rem 0 0; }
+
+    .step-list { counter-reset: step; list-style: none; padding: 0; margin: 1rem 0; }
+    .step-list li {
+      counter-increment: step;
+      position: relative;
+      padding: 0 0 1.25rem 2.5rem;
+      border-left: 2px solid var(--border);
+      margin-left: .85rem;
+    }
+    .step-list li:last-child { border-left-color: transparent; padding-bottom: 0; }
+    .step-list li::before {
+      content: counter(step);
+      position: absolute;
+      left: -1.05rem;
+      top: 0;
+      width: 1.9rem; height: 1.9rem;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #fff;
+      font-size: .8rem;
+      font-weight: 700;
+      display: grid; place-items: center;
+    }
+    .step-title { font-weight: 600; color: var(--text); margin-bottom: .3rem; }
+    .step-meta {
+      display: flex; flex-wrap: wrap; gap: .4rem;
+      margin: .5rem 0;
+    }
+    .step-meta span {
+      font-size: .72rem;
+      background: var(--bg-hover);
+      border: 1px solid var(--border);
+      padding: .15rem .45rem;
+      border-radius: 4px;
+      color: var(--text-muted);
+    }
+
+    .myth {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.1rem 1.2rem;
+      margin: 0 0 .9rem;
+    }
+    .myth-wrong {
+      color: var(--danger);
+      font-weight: 600;
+      font-size: .9rem;
+      margin-bottom: .35rem;
+    }
+    .myth-right {
+      color: var(--ok);
+      font-weight: 600;
+      font-size: .9rem;
+      margin: .65rem 0 .3rem;
+    }
+    .myth p { margin: 0; font-size: .9rem; }
+
+    /* FAQ */
+    .qa-intro {
+      margin-bottom: 1.25rem;
+    }
+    .qa-list {
+      display: flex;
+      flex-direction: column;
+      gap: .75rem;
+      margin: 1rem 0 1.5rem;
+    }
+    .qa-item {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--bg-card);
+      overflow: hidden;
+    }
+    .qa-item summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 1rem 1.15rem;
+      font-weight: 600;
+      font-size: .95rem;
+      color: var(--text);
+      line-height: 1.45;
+      display: flex;
+      align-items: flex-start;
+      gap: .65rem;
+      transition: background var(--transition);
+    }
+    .qa-item summary::-webkit-details-marker { display: none; }
+    .qa-item summary::before {
+      content: "Q";
+      flex-shrink: 0;
+      width: 1.5rem;
+      height: 1.5rem;
+      border-radius: 6px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: .72rem;
+      font-weight: 700;
+      display: grid;
+      place-items: center;
+      margin-top: .1rem;
+    }
+    .qa-item summary:hover { background: var(--bg-hover); }
+    .qa-item[open] summary {
+      border-bottom: 1px solid var(--border-soft);
+      background: color-mix(in srgb, var(--accent-soft) 55%, transparent);
+    }
+    .qa-item .qa-a {
+      padding: 1rem 1.15rem 1.15rem;
+      border-top: none;
+    }
+    .qa-item .qa-a::before {
+      content: "A";
+      display: inline-grid;
+      place-items: center;
+      width: 1.35rem;
+      height: 1.35rem;
+      border-radius: 6px;
+      background: var(--bg-hover);
+      color: var(--text-muted);
+      font-size: .68rem;
+      font-weight: 700;
+      margin-right: .45rem;
+      vertical-align: middle;
+    }
+    .qa-item .qa-a p {
+      display: inline;
+      margin: 0;
+      font-size: .92rem;
+      color: var(--text-secondary);
+      line-height: 1.7;
+    }
+    .qa-item .qa-a p + p {
+      display: block;
+      margin-top: .75rem;
+    }
+    .qa-item .qa-en {
+      display: block;
+      font-size: .78rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      margin-top: .25rem;
+    }
+    .qa-tag {
+      display: inline-block;
+      font-size: .68rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: var(--bg-hover);
+      border: 1px solid var(--border-soft);
+      padding: .1rem .4rem;
+      border-radius: 4px;
+      margin-left: .35rem;
+      vertical-align: middle;
+    }
+
+    .path-card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.15rem 1.25rem;
+      background: var(--bg-card);
+      margin-bottom: .85rem;
+    }
+    .path-card h4 { margin: 0 0 .5rem; color: var(--text); }
+    .path-level {
+      font-size: .72rem;
+      font-weight: 600;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      margin-bottom: .35rem;
+    }
+
+    /* Footer */
+    .site-footer {
+      max-width: var(--max-content);
+      margin: 3rem auto 0;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+      font-size: .82rem;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    /* Back to top */
+    #backTop {
+      position: fixed;
+      right: 1.5rem;
+      bottom: 1.5rem;
+      z-index: 90;
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: var(--bg-elevated);
+      color: var(--text);
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      font-size: 1.1rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity var(--transition), transform var(--transition);
+      display: grid; place-items: center;
+    }
+    #backTop.visible { opacity: 1; pointer-events: auto; }
+    #backTop:hover { transform: translateY(-2px); background: var(--bg-hover); }
+
+    /* Mobile sidebar */
+    .sidebar-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.45);
+      z-index: 110;
+    }
+    .sidebar-overlay.open { display: block; }
+
+    @media (max-width: 960px) {
+      .menu-btn { display: inline-flex; }
+      .sidebar {
+        position: fixed;
+        left: 0; top: 0;
+        height: 100vh;
+        z-index: 120;
+        transform: translateX(-100%);
+        transition: transform 220ms ease;
+        box-shadow: var(--shadow);
+      }
+      .sidebar.open { transform: translateX(0); }
+      .main { padding: 1.25rem 1.15rem 5rem; }
+      .brand-text .brand-sub { display: none; }
+      h1 { font-size: 1.55rem; }
+      .search-wrap { max-width: none; }
+    }
+
+    @media print {
+      .site-header, .sidebar, #backTop, .header-actions { display: none !important; }
+      .main { padding: 0; }
+      body { background: #fff; color: #000; }
+    }
+  </style>
+</head>
+<body>
+  <!-- ========== Header ========== -->
+  <header class="site-header">
+    <button class="icon-btn menu-btn" id="menuBtn" aria-label="打开目录">☰</button>
+    <div class="brand">
+      <div class="brand-icon">◇</div>
+      <div class="brand-text">
+        AI 产业链百科
+        <span class="brand-sub">Industry Chain Guide</span>
+      </div>
+    </div>
+    <div class="search-wrap">
+      <input type="search" id="searchInput" placeholder="搜索关键词… Search keywords…" autocomplete="off" />
+      <span class="search-count" id="searchCount"></span>
+      <span class="search-icon">⌕</span>
+    </div>
+    <div class="header-actions">
+      <button class="icon-btn" id="themeBtn" title="切换主题 / Toggle theme" aria-label="切换主题">
+        <span id="themeIcon">☀</span>
+        <span class="theme-label">主题</span>
+      </button>
+    </div>
+  </header>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <div class="layout">
+    <!-- ========== Sidebar TOC ========== -->
+    <nav class="sidebar" id="sidebar" aria-label="目录导航">
+      <div class="sidebar-label">目录 · Contents</div>
+      <ul class="toc-list" id="tocList">
+        <li><a href="#intro">1. 引言 · Introduction</a></li>
+        <li><a href="#glossary">2. 术语表 · Glossary</a></li>
+        <li><a href="#panorama">3. 产业链全景 · Panorama</a></li>
+        <li class="toc-sub"><a href="#upstream">3.1 上游 · Upstream</a></li>
+        <li class="toc-sub"><a href="#midstream">3.2 中游 · Midstream</a></li>
+        <li class="toc-sub"><a href="#downstream">3.3 下游 · Downstream</a></li>
+        <li><a href="#training">4. 训练全流程 · Training</a></li>
+        <li><a href="#supply-chain">5. 支撑产业 · Supply Chain</a></li>
+        <li><a href="#players">6. 产业格局 · Players</a></li>
+        <li><a href="#myths">7. 常见误解 · Myths</a></li>
+        <li><a href="#faq">8. 读者问答 · FAQ</a></li>
+        <li><a href="#reading">9. 延伸阅读 · Further Reading</a></li>
+      </ul>
+      <div class="sidebar-label" style="margin-top:1.25rem">快速跳转 · Quick</div>
+      <ul class="toc-list">
+        <li><a href="#glossary">术语检索</a></li>
+        <li><a href="#diagram-chain">全景流程图</a></li>
+        <li><a href="#diagram-train">训练流程图</a></li>
+        <li><a href="#hbm-section">HBM 深度解析</a></li>
+        <li><a href="#power-section">电力瓶颈</a></li>
+        <li><a href="#faq">常见问答</a></li>
+      </ul>
+    </nav>
+
+    <!-- ========== Main Content ========== -->
+    <main class="main">
+      <article class="content" id="contentRoot">
+
+        <!-- 1. Intro -->
+        <section id="intro" class="hero">
+          <div class="hero-badge">技术长文 · 冷静拆解 · 2025–2026</div>
+          <h1>AI 全产业链深度百科</h1>
+          <p class="hero-en">A field guide to the AI industry stack</p>
+          <p class="lead">
+            很多人第一次接触 AI 产业时，会被两种声音夹在中间：一边是「一切都将被颠覆」，一边是一串听不懂的缩写——HBM、CoWoS、MFU、KV Cache。
+            这篇长文试图做一件更朴素的事：把链路摊开，让你看清<strong>硅从哪里来、电往哪里流、模型怎么被训出来、价值最终在哪个环节结算</strong>。
+          </p>
+          <p class="lead">
+            它更像一份给工程师、产品与研究者的<strong>地图</strong>，而不是新闻通稿。你不必一次读完；需要时回来查术语、对坐标、核对自己的判断是否站得住。
+          </p>
+          <div class="callout">
+            <div class="callout-title">怎么读更轻松</div>
+            <p>
+              先花十几分钟扫「全景图」，在脑子里钉住上—中—下游。然后只深挖你真正卡住的那一环：也许是 HBM 为何贵，也许是训练为何这么耗电。
+              侧栏可跳转，顶栏可搜索。文中公司角色来自公开产业共识，方便对照，不构成投资建议。
+            </p>
+          </div>
+          <div class="meta-row">
+            <span class="chip">单文件本地阅读</span>
+            <span class="chip">中英术语对照</span>
+            <span class="chip">可交互产业图</span>
+            <span class="chip">深色 / 浅色</span>
+            <span class="chip">2025–2026 视角</span>
+          </div>
+        </section>
+
+        <!-- 2. Glossary -->
+        <section id="glossary">
+          <h2>2. 核心概念术语表 · Core Glossary</h2>
+          <p>
+            产业讨论里，一半的误解来自「同一个词指不同层」。这里的术语表不求穷尽，只求<strong>够用、说清楚、可回查</strong>。
+            建议当字典用：后文遇到陌生缩写，回来对照一两分钟即可。
+          </p>
+
+          <div class="tabs" data-tabs>
+            <div class="tab-list" role="tablist">
+              <button class="tab-btn active" data-tab="g-fund">基础概念 · Fundamentals</button>
+              <button class="tab-btn" data-tab="g-model">模型与算法 · Models</button>
+              <button class="tab-btn" data-tab="g-hw">硬件与芯片 · Hardware</button>
+              <button class="tab-btn" data-tab="g-mem">内存与存储 · Memory</button>
+              <button class="tab-btn" data-tab="g-dc">数据中心 · Data Center</button>
+              <button class="tab-btn" data-tab="g-soft">软件与系统 · Software</button>
+            </div>
+
+            <!-- Fundamentals -->
+            <div class="tab-panel active" id="g-fund">
+              <div class="glossary-grid">
+                <div class="term-card">
+                  <div class="term-head">
+                    <span class="term-zh">人工智能</span>
+                    <span class="term-en">Artificial Intelligence (AI)</span>
+                    <span class="term-tag">基础</span>
+                  </div>
+                  <p>使机器执行通常需要人类智能的任务的技术集合，包括感知、推理、学习、决策与生成。当代产业语境下，AI 多特指基于机器学习、尤其是深度学习与大规模预训练模型的系统。</p>
+                </div>
+                <div class="term-card">
+                  <div class="term-head">
+                    <span class="term-zh">机器学习</span>
+                    <span class="term-en">Machine Learning (ML)</span>
+                    <span class="term-tag">基础</span>
+                  </div>
+                  <p>通过数据自动改进性能的算法范式。模型从样本中估计映射关系，而非完全由人工规则编写。监督学习、无监督、强化学习是常见分支。</p>
+                </div>
+                <div class="term-card">
+                  <div class="term-head">
+                    <span class="term-zh">深度学习</span>
+                    <span class="term-en">Deep Learning (DL)</span>
+                    <span class="term-tag">基础</span>
+                  </div>
+                  <p>使用多层神经网络进行表示学习的机器学习方法。深度网络可自动提取层级特征，是现代视觉、语音与大语言模型的核心技术基础。</p>
+                </div>
+                <div class="term-card">
+                  <div class="term-head">
+                    <span class="term-zh">生成式 AI</span>
+                    <span class="term-en">Generative AI (GenAI)</span>
+                    <span class="term-tag">基础</span>
+                  </div>
+                  <p>以生成新内容（文本、图像、音频、代码、视频等）为主要能力的 AI 系统。区别于仅做分类/检测的判别式模型。LLM、扩散模型等是代表架构。</p>
+                </div>
+                <div class="term-card">
+                  <div class="term-head">
+                    <span class="term-zh">判别式 AI</span>
+                    <span class="term-en">Discriminative AI</span>
+                    <span class="term-tag">基础</span>
+                  </div>
+                  <p>侧重判断与分类（如垃圾邮件检测、图像识别标签），建模条件分布 P(y|x)。与生成式建模 P(x) 或 P(x,y) 形成对照，在工业检测、风控中仍广泛使用。</p>
+                </div>
+                <div class="term-card">
+                  <div class="term-head">
+                    <span class="term-zh">神经网络</span>
+                    <span class="term-en">Neural Network (NN)</span>
+                    <span class="term-tag">基础</span>
+                  </div>
+                  <p>由相互连接的「神经元」层组成的可微计算图。通过反向传播与梯度下降更新权重。Transformer、CNN、RNN 均为其结构变体。</p>
+                </div>
+                <div class="term-card">
+                  <div class="term-head">
+                    <span class="term-zh">算力</span>
+                    <span class="term-en">Compute / Computing Power</span>
+                    <span class="term-tag">产业</span>
+                  </div>
+                  <p>完成 AI 训练与推理所需的计算资源总量，常以 FLOPS、GPU 小时、集群规模衡量。算力是当前 AI 产业化最硬的约束之一，与芯片、电力、互联直接耦合。</p>
+                </div>
+                <div class="term-card">
+                  <div class="term-head">
+                    <span class="term-zh">扩展律</span>
+                    <span class="term-en">Scaling Laws</span>
+                    <span class="term-tag">理论</span>
+                  </div>
+                  <p>描述模型性能随参数量、数据量、算力增加而可预测提升的经验规律。它解释了为何产业持续追求更大模型与更多数据，但也面临数据枯竭与回报递减讨论。</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Models -->
+            <div class="tab-panel" id="g-model">
+              <div class="glossary-grid">
+                <div class="term-card">
+                  <div class="term-head">
+                    <span class="term-zh">大语言模型</span>
+                    <span class="term-en">Large Language Model (LLM)</span>
+                    <span class="term-tag">模型</span>
+                  </div>
+                  <p>参数规模通常在数十亿以上、以自回归方式预测下一个 token 的语言模型。经大规模文本预训练后，可通过指令微调与对齐适配对话、推理、编码等任务。</p>
+                </div>
+                <div class="term-card">
+                  <div class="term-head">
+                    <span class="term-zh">基础模型</span>
+                    <span class="term-en">Foundation Model</span>
+                    <span class="term-tag">模型</span>
+                  </div>
+                  <p>在广域数据上预训练、可适配多种下游任务的通用模型。LLM、多模态模型均属此类。与「为单一任务训练的窄模型」相对。</p>
+                </div>
+                <div class="term-card">
+                  <div class="term-head">
+                    <span class="term-zh">Transformer</span>
+                    <span class="term-en">Transformer Architecture</span>
+                    <span class="term-tag">架构</span>
+                  </div>
+                  <p>2017 年提出的基于自注意力（Self-Attention）的序列建模架构。高度可并行，成为当代 LLM 与多数多模态模型的事实标准骨架。</p>
+                </div>
+                <div class="term-card">
+                  <div class="term-head">
+                    <span class="term-zh">参数</span>
+                    <span class="term-en">Parameter</span>
+                    <span class="term-tag">模型</span>
+                  </div>
+                  <p>模型中可学习的权重数量。参数量影响容量、显存占用与推理成本。例如「70B」表示约 700 亿参数；量化可降低存储与带宽需求。</p>
+                </div>
+                <div class="term-card">
+                  <div class="term-head">
+                    <span class="term-zh">词元 / 令牌</span>
+                    <span class="term-en">Token</span>
+                    <span class="term-tag">数据</span>
+                  </div>
+                  <p>模型处理文本的基本单位，通常是子词（subword）。计费、上下文长度、训练数据规模常以 token 计量。中文与英文的 token 切分效率不同。</p>
+                </div>
+                <div class="term-card">
+                  <div class="term-head">
+                    <span class="term-zh">上下文窗口</span>
+                    <span class="term-en">Context Window</span>
+                    <span class="term-tag">模型</span>
+                  </div>
+                  <p>模型一次可「看到」的最大 token 数。更长上下文利于文档分析与多轮对话，但注意力计算与 KV Cache 显存随长度显著上升。</p>
+                </div>
+                <div class="term-card">
+                  <div class="term-head">
+                    <span class="term-zh">预训练</span>
+                    <span class="term-en">Pre-training</span>
+                    <span class="term-tag">训练</span>
+                  </div>
+                  <p>在海量无标注或弱标注语料上学习通用表示，目标多为下一 token 预测。消耗绝大部分算力与数据，产出 foundation checkpoint。</p>
+                </div>
+                <div class="term-card">
+                  <div class="term-head">
+                    <span class="term-zh">微调</span>
+                    <span class="term-en">Fine-tuning</span>
+                    <span class="term-tag">训练</span>
+                  </div>
+                  <p>在预训练模型上用任务数据继续训练，适配特定领域或格式。含全参微调与参数高效方法（LoRA、QLoRA、Adapter 等）。</p>
+                </div>
+                <div class="term-card">
+                  <div class="term-head">
+                    <span class="term-zh">对齐</span>
+                    <span class="term-en">Alignment</span>
+                    <span class="term-tag">训练</span>
+                  </div>
+                  <p>使模型输出符合人类意图、价值观与安全约束的过程。常见技术：SFT（监督微调）、RLHF、DPO、Constitutional AI 等。</p>
+                </div>
+                <div class="term-card">
+                  <div class="term-head">
+                    <span class="term-zh">检索增强生成</span>
+                    <span class="term-en">Retrieval-Augmented Generation (RAG)</span>
+                    <span class="term-tag">系统</span>
+                  </div>
+                  <p>在生成前从外部知识库检索相关片段并注入上下文，以降低幻觉、更新知识、支持私有数据。向量数据库与 embedding 模型是配套组件。</p>
+                </div>
+                <div class="term-card">
+                  <div class="term-head">
+                    <span class="term-zh">智能体</span>
+                    <span class="term-en">Agent</span>
+                    <span class="term-tag">系统</span>
+                  </div>
+                  <p>能规划步骤、调用工具、与环境交互并迭代完成目标的系统。LLM 提供推理与语言接口；工具调用、记忆、工作流编排是关键工程模块。</p>
+                </div>
+                <div class="term-card">
+                  <div class="term-head">
+                    <span class="term-zh">多模态</span>
+                    <span class="term-en">Multimodal</span>
+                    <span class="term-tag">模型</span>
+                  </div>
+                  <p>同时处理或生成多种模态（文本、图像、音频、视频等）的模型与系统。典型如视觉-语言模型（VLM）。</p>
+                </div>
+                <div class="term-card">
+                  <div class="term-head">
+                    <span class="term-zh">幻觉</span>
+                    <span class="term-en">Hallucination</span>
+                    <span class="term-tag">风险</span>
+                  </div>
+                  <p>模型生成看似合理但事实错误或不存在的内容。在严肃决策场景中必须通过 RAG、工具校验、人工审核等缓解。</p>
+                </div>
+                <div class="term-card">
+                  <div class="term-head">
+                    <span class="term-zh">思维链</span>
+                    <span class="term-en">Chain-of-Thought (CoT)</span>
+                    <span class="term-tag">推理</span>
+                  </div>
+                  <p>引导模型分步写出中间推理过程，以提升复杂任务正确率。延伸包括树搜索、过程奖励模型（PRM）与测试时计算（test-time compute）。</p>
+                </div>
+                <div class="term-card">
+                  <div class="term-head">
+                    <span class="term-zh">蒸馏</span>
+                    <span class="term-en">Knowledge Distillation</span>
+                    <span class="term-tag">训练</span>
+                  </div>
+                  <p>用大模型（教师）的输出或表征训练较小模型（学生），在保持部分能力的同时降低部署成本。广泛用于端侧与高并发推理。</p>
+                </div>
+                <div class="term-card">
+                  <div class="term-head">
+                    <span class="term-zh">量化</span>
+                    <span class="term-en">Quantization</span>
+                    <span class="term-tag">推理</span>
+                  </div>
+                  <p>将权重/激活从高精度（FP16/BF16）压缩到低比特（INT8、INT4、FP8 等），以降低显存与提升吞吐，通常伴随可控的精度损失。</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Hardware -->
+            <div class="tab-panel" id="g-hw">
+              <div class="glossary-grid">
+                <div class="term-card">
+                  <div class="term-head">
+                    <span class="term-zh">图形处理器</span>
+                    <span class="term-en">GPU (Graphics Processing Unit)</span>
+                    <span class="term-tag">芯片</span>
+                  </div>
+                  <p>高度并行的处理器，原用于图形，现为 AI 训练与推理的主力通用加速器。NVIDIA CUDA 生态是当前最完整的软件栈之一。</p>
+                </div>
+                <div class="term-card">
+                  <div class="term-head">
+                    <span class="term-zh">张量处理单元</span>
+                    <span class="term-en">TPU (Tensor Processing Unit)</span>
+                    <span class="term-tag">芯片</span>
+                  </div>
+                  <p>Google 设计的专用 AI 加速器，针对张量运算优化，主要用于 Google 云与内部训练/推理。体现「云厂商自研 ASIC」路径。</p>
+                </div>
+                <div class="term-card">
+                  <div class="term-head">
+                    <span class="term-zh">专用集成电路</span>
+                    <span class="term-en">ASIC (Application-Specific Integrated Circuit)</span>
+                    <span class="term-tag">芯片</span>
+                  </div>
+                  <p>为特定算法/工作负载定制的芯片。相对 GPU 可在能效与成本上更优，但灵活性较低、设计周期长。推理 ASIC 与训练 ASIC 设计目标不同。</p>
+                </div>
+                <div class="term-card">
+                  <div class="term-head">
+                    <span class="term-zh">神经网络处理单元</span>
+                    <span class="term-en">NPU (Neural Processing Unit)</span>
+                    <span class="term-tag">芯片</span>
+                  </div>
+                  <p>面向神经网络加速的处理器，常见于手机 SoC、PC 与边缘设备。侧重能效与常开 AI 任务，算力通常远低于数据中心 GPU。</p>
+                </div>
+                <div class="term-card">
+                  <div class="term-head">
+                    <span class="term-zh">中央处理器</span>
+                    <span class="term-en">CPU (Central Processing Unit)</span>
+                    <span class="term-tag">芯片</span>
+                  </div>
+                  <p>通用控制与串行任务核心。在 AI 服务器中负责调度、数据预处理、网络栈与部分非 GPU 友好算子；训练集群仍需要强 CPU 与充足内存。</p>
+                </div>
+                <div class="term-card">
+                  <div class="term-head">
+                    <span class="term-zh">现场可编程门阵列</span>
+                    <span class="term-en">FPGA</span>
+                    <span class="term-tag">芯片</span>
+                  </div>
+                  <p>可重配置逻辑器件，适合定制流水线与低延迟场景。在 AI 中多用于特定推理、网络卸载或原型验证，份额低于 GPU/ASIC。</p>
+                </div>
+                <div class="term-card">
+                  <div class="term-head">
+                    <span class="term-zh">训练</span>
+                    <span class="term-en">Training</span>
+                    <span class="term-tag">工作负载</span>
+                  </div>
+                  <p>通过前向/反向传播更新模型参数的过程。特征：高算力、高通信带宽、高 HBM 需求、长周期作业、容错与检查点关键。</p>
+                </div>
+                <div class="term-card">
+                  <div class="term-head">
+                    <span class="term-zh">推理</span>
+                    <span class="term-en">Inference</span>
+                    <span class="term-tag">工作负载</span>
+                  </div>
+                  <p>使用已训练模型生成预测或输出。在线推理关注延迟与吞吐；离线批量推理关注成本。KV Cache、批处理、投机解码是优化重点。</p>
+                </div>
+                <div class="term-card">
+                  <div class="term-head">
+                    <span class="term-zh">CUDA</span>
+                    <span class="term-en">CUDA</span>
+                    <span class="term-tag">软件栈</span>
+                  </div>
+                  <p>NVIDIA 的并行计算平台与 API。配套 cuDNN、NCCL、TensorRT 等形成深度护城河。兼容性与生态粘性是 GPU 选型的重要因素。</p>
+                </div>
+                <div class="term-card">
+                  <div class="term-head">
+                    <span class="term-zh">张量核心</span>
+                    <span class="term-en">Tensor Core</span>
+                    <span class="term-tag">硬件</span>
+                  </div>
+                  <p>GPU 内针对矩阵乘加（MMA）优化的专用执行单元，支持混合精度（TF32、BF16、FP8 等），是现代 AI GPU 算力跃升的关键。</p>
+                </div>
+                <div class="term-card">
+                  <div class="term-head">
+                    <span class="term-zh">先进封装</span>
+                    <span class="term-en">Advanced Packaging</span>
+                    <span class="term-tag">制造</span>
+                  </div>
+                  <p>如 CoWoS、SoIC、EMIB 等技术，将逻辑芯片与 HBM 等高密度互连。先进封装产能已成为 AI 芯片交付的瓶颈环节之一。</p>
+                </div>
+                <div class="term-card">
+                  <div class="term-head">
+                    <span class="term-zh">制程节点</span>
+                    <span class="term-en">Process Node</span>
+                    <span class="term-tag">制造</span>
+                  </div>
+                  <p>半导体制造工艺尺度（如 5nm、3nm），影响晶体管密度、能效与成本。先进 AI GPU/CPU 依赖台积电等头部代工厂的领先节点。</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Memory -->
+            <div class="tab-panel" id="g-mem">
+              <div class="glossary-grid">
+                <div class="term-card">
+                  <div class="term-head">
+                    <span class="term-zh">高带宽内存</span>
+                    <span class="term-en">HBM (High Bandwidth Memory)</span>
+                    <span class="term-tag">内存</span>
+                  </div>
+                  <p>通过 3D 堆叠与硅通孔（TSV）实现的超高带宽 DRAM，贴装于 AI 加速器旁。训练与大模型推理对显存容量与带宽同时敏感，HBM 是最稀缺组件之一。</p>
+                </div>
+                <div class="term-card">
+                  <div class="term-head">
+                    <span class="term-zh">动态随机存取存储器</span>
+                    <span class="term-en">DRAM</span>
+                    <span class="term-tag">内存</span>
+                  </div>
+                  <p>需刷新的易失性内存，服务器主存（DDR）与 HBM 均属 DRAM 家族。AI 服务器通常配置大量 DDR 以支撑 CPU 侧数据管道与多租户。</p>
+                </div>
+                <div class="term-card">
+                  <div class="term-head">
+                    <span class="term-zh">固态硬盘</span>
+                    <span class="term-en">SSD (Solid-State Drive)</span>
+                    <span class="term-tag">存储</span>
+                  </div>
+                  <p>基于 NAND Flash 的存储设备。训练中用于检查点、数据集缓存、特征向量；企业级 NVMe SSD 对带宽与耐用性要求高。</p>
+                </div>
+                <div class="term-card">
+                  <div class="term-head">
+                    <span class="term-zh">机械硬盘</span>
+                    <span class="term-en">HDD (Hard Disk Drive)</span>
+                    <span class="term-tag">存储</span>
+                  </div>
+                  <p>基于磁性碟片的大容量低成本存储。仍广泛用于冷数据、归档、大规模原始语料库，成本远低于 SSD。</p>
+                </div>
+                <div class="term-card">
+                  <div class="term-head">
+                    <span class="term-zh">闪存</span>
+                    <span class="term-en">NAND Flash</span>
+                    <span class="term-tag">存储</span>
+                  </div>
+                  <p>SSD 与部分嵌入式存储的介质。按单元位数分 SLC/MLC/TLC/QLC，容量与寿命权衡不同。AI 数据湖推高了对高容量 NAND 的需求。</p>
+                </div>
+                <div class="term-card">
+                  <div class="term-head">
+                    <span class="term-zh">CXL</span>
+                    <span class="term-en">Compute Express Link</span>
+                    <span class="term-tag">互联</span>
+                  </div>
+                  <p>基于 PCIe 的高速互连标准，支持内存池化与缓存一致性扩展。有望缓解服务器内存墙，使 CPU/加速器共享更大内存资源池。</p>
+                </div>
+                <div class="term-card">
+                  <div class="term-head">
+                    <span class="term-zh">显存 / 设备内存</span>
+                    <span class="term-en">VRAM / Device Memory</span>
+                    <span class="term-tag">内存</span>
+                  </div>
+                  <p>加速器上的本地高速内存（AI GPU 上多为 HBM）。装载权重、激活、优化器状态、KV Cache。容量不足会迫使模型并行或卸载，显著降速。</p>
+                </div>
+                <div class="term-card">
+                  <div class="term-head">
+                    <span class="term-zh">KV 缓存</span>
+                    <span class="term-en">KV Cache</span>
+                    <span class="term-tag">推理</span>
+                  </div>
+                  <p>自回归解码时缓存已计算的 Key/Value，避免重复计算。长上下文与大 batch 时 KV Cache 可成为显存主占用，是推理系统核心工程问题。</p>
+                </div>
+                <div class="term-card">
+                  <div class="term-head">
+                    <span class="term-zh">带宽墙</span>
+                    <span class="term-en">Memory Bandwidth Wall</span>
+                    <span class="term-tag">瓶颈</span>
+                  </div>
+                  <p>算力增长速度超过内存带宽时，芯片算力无法吃满。LLM 推理（尤其是 decode 阶段）常为 memory-bound，故 HBM 带宽至关重要。</p>
+                </div>
+                <div class="term-card">
+                  <div class="term-head">
+                    <span class="term-zh">高带宽内存世代</span>
+                    <span class="term-en">HBM3 / HBM3E / HBM4</span>
+                    <span class="term-tag">内存</span>
+                  </div>
+                  <p>HBM 技术迭代：容量堆叠层数增加、单堆栈带宽提升。HBM3E 是 2024–2025 主流 AI GPU 标配；HBM4 指向更高带宽与更先进接口。</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Data Center -->
+            <div class="tab-panel" id="g-dc">
+              <div class="glossary-grid">
+                <div class="term-card">
+                  <div class="term-head">
+                    <span class="term-zh">数据中心</span>
+                    <span class="term-en">Data Center</span>
+                    <span class="term-tag">基础设施</span>
+                  </div>
+                  <p>集中托管计算、存储与网络设备的设施。AI 数据中心在功率密度、冷却、网络拓扑上与传统互联网数据中心显著不同。</p>
+                </div>
+                <div class="term-card">
+                  <div class="term-head">
+                    <span class="term-zh">超大规模云厂商</span>
+                    <span class="term-en">Hyperscaler</span>
+                    <span class="term-tag">参与方</span>
+                  </div>
+                  <p>以超大规模自建数据中心与云服务著称的厂商（如 AWS、Azure、Google Cloud、部分国内云）。是 AI 算力的主要采购方与运营方。</p>
+                </div>
+                <div class="term-card">
+                  <div class="term-head">
+                    <span class="term-zh">液冷</span>
+                    <span class="term-en">Liquid Cooling</span>
+                    <span class="term-tag">散热</span>
+                  </div>
+                  <p>用液体工质带走服务器热量的技术，包括冷板（cold plate）、浸没式（immersion）等。高功率 GPU 集群正从风冷向液冷迁移。</p>
+                </div>
+                <div class="term-card">
+                  <div class="term-head">
+                    <span class="term-zh">光模块</span>
+                    <span class="term-en">Optical Module / Transceiver</span>
+                    <span class="term-tag">光通信</span>
+                  </div>
+                  <p>实现电信号与光信号转换的可插拔模块（如 400G/800G/1.6T）。AI 集群东西向流量巨大，高速光模块需求激增。</p>
+                </div>
+                <div class="term-card">
+                  <div class="term-head">
+                    <span class="term-zh">共封装光学</span>
+                    <span class="term-en">CPO (Co-Packaged Optics)</span>
+                    <span class="term-tag">光通信</span>
+                  </div>
+                  <p>将光引擎与交换芯片封装在一起，缩短电通道、降低功耗与延迟。被视为下一代高带宽交换的重要方向，尚在产业化进程中。</p>
+                </div>
+                <div class="term-card">
+                  <div class="term-head">
+                    <span class="term-zh">InfiniBand</span>
+                    <span class="term-en">InfiniBand (IB)</span>
+                    <span class="term-tag">网络</span>
+                  </div>
+                  <p>低延迟、高带宽的高性能计算网络技术，NVIDIA（Mellanox）生态主导。广泛用于 GPU 集群训练互联（如 NDR 400G）。</p>
+                </div>
+                <div class="term-card">
+                  <div class="term-head">
+                    <span class="term-zh">以太网</span>
+                    <span class="term-en">Ethernet</span>
+                    <span class="term-tag">网络</span>
+                  </div>
+                  <p>数据中心主流网络协议。通过 RoCE、超以太网联盟（UEC）等增强，正与 IB 在 AI 集群中竞争。交换机 ASIC（Broadcom 等）是关键。</p>
+                </div>
+                <div class="term-card">
+                  <div class="term-head">
+                    <span class="term-zh">机柜功率密度</span>
+                    <span class="term-en">Rack Power Density</span>
+                    <span class="term-tag">电力</span>
+                  </div>
+                  <p>单机柜可供电功率（kW）。传统机柜约数 kW 至十余 kW；AI 机柜可达 40–120+ kW，迫使电力分配与冷却架构重构。</p>
+                </div>
+                <div class="term-card">
+                  <div class="term-head">
+                    <span class="term-zh">PUE</span>
+                    <span class="term-en">Power Usage Effectiveness</span>
+                    <span class="term-tag">能效</span>
+                  </div>
+                  <p>数据中心总用电 / IT 设备用电。越接近 1.0 越好。AI 负载提升后，冷却与配电效率对总拥有成本（TCO）影响更大。</p>
+                </div>
+                <div class="term-card">
+                  <div class="term-head">
+                    <span class="term-zh">NVLink / NVSwitch</span>
+                    <span class="term-en">NVLink / NVSwitch</span>
+                    <span class="term-tag">互联</span>
+                  </div>
+                  <p>NVIDIA 的 GPU 间高速互联与交换技术，使多 GPU 更接近统一内存域，对大模型张量并行与专家并行效率至关重要。</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Software -->
+            <div class="tab-panel" id="g-soft">
+              <div class="glossary-grid">
+                <div class="term-card">
+                  <div class="term-head">
+                    <span class="term-zh">训练框架</span>
+                    <span class="term-en">Training Framework</span>
+                    <span class="term-tag">软件</span>
+                  </div>
+                  <p>如 PyTorch、JAX、TensorFlow。提供自动微分、分布式训练抽象与生态工具。PyTorch 在研究与工业 LLM 训练中占主导。</p>
+                </div>
+                <div class="term-card">
+                  <div class="term-head">
+                    <span class="term-zh">推理引擎</span>
+                    <span class="term-en">Inference Engine</span>
+                    <span class="term-tag">软件</span>
+                  </div>
+                  <p>针对部署优化的运行时，如 vLLM、TensorRT-LLM、TGI、llama.cpp。聚焦批处理、分页注意力、量化与 kernel 融合。</p>
+                </div>
+                <div class="term-card">
+                  <div class="term-head">
+                    <span class="term-zh">MLOps</span>
+                    <span class="term-en">MLOps</span>
+                    <span class="term-tag">工程</span>
+                  </div>
+                  <p>机器学习系统的工程化实践：实验跟踪、数据版本、模型注册、CI/CD、监控与回滚。将「研究脚本」变为可维护生产系统。</p>
+                </div>
+                <div class="term-card">
+                  <div class="term-head">
+                    <span class="term-zh">向量数据库</span>
+                    <span class="term-en">Vector Database</span>
+                    <span class="term-tag">数据</span>
+                  </div>
+                  <p>存储与检索高维 embedding 向量的数据库（Milvus、Pinecone、Weaviate、pgvector 等），是 RAG 的基础设施组件。</p>
+                </div>
+                <div class="term-card">
+                  <div class="term-head">
+                    <span class="term-zh">编排 / 工作流</span>
+                    <span class="term-en">Orchestration</span>
+                    <span class="term-tag">系统</span>
+                  </div>
+                  <p>将多步 LLM 调用、工具与人工节点组织成流程。LangGraph、Temporal、各类 Agent 框架属于此层。可靠性与可观测性是难点。</p>
+                </div>
+                <div class="term-card">
+                  <div class="term-head">
+                    <span class="term-zh">模型并行</span>
+                    <span class="term-en">Model Parallelism</span>
+                    <span class="term-tag">分布式</span>
+                  </div>
+                  <p>将单一模型切分到多设备：张量并行（TP）、流水线并行（PP）、专家并行（EP）等。与数据并行（DP）组合构成 3D/4D 并行策略。</p>
+                </div>
+                <div class="term-card">
+                  <div class="term-head">
+                    <span class="term-zh">检查点</span>
+                    <span class="term-en">Checkpoint</span>
+                    <span class="term-tag">训练</span>
+                  </div>
+                  <p>训练过程中保存的模型与优化器状态快照。用于故障恢复与版本管理。超大模型检查点可达 TB 级，对存储吞吐压力巨大。</p>
+                </div>
+                <div class="term-card">
+                  <div class="term-head">
+                    <span class="term-zh">嵌入</span>
+                    <span class="term-en">Embedding</span>
+                    <span class="term-tag">表示</span>
+                  </div>
+                  <p>将离散对象（词、句、图）映射到连续向量空间的表示。语义相近对象向量距离更近。检索、聚类、推荐均依赖高质量 embedding。</p>
+                </div>
+                <div class="term-card">
+                  <div class="term-head">
+                    <span class="term-zh">提示工程</span>
+                    <span class="term-en">Prompt Engineering</span>
+                    <span class="term-tag">应用</span>
+                  </div>
+                  <p>通过设计输入提示引导模型行为。对封闭 API 模型是主要适配手段；与微调、工具调用组合使用效果更稳。</p>
+                </div>
+                <div class="term-card">
+                  <div class="term-head">
+                    <span class="term-zh">端侧 AI</span>
+                    <span class="term-en">On-device / Edge AI</span>
+                    <span class="term-tag">部署</span>
+                  </div>
+                  <p>在手机、PC、汽车、机器人等终端本地运行模型。优势：隐私、低延迟、离线可用；约束：算力、内存、功耗与散热。</p>
+                </div>
+                <div class="term-card">
+                  <div class="term-head">
+                    <span class="term-zh">具身智能</span>
+                    <span class="term-en">Embodied AI</span>
+                    <span class="term-tag">前沿</span>
+                  </div>
+                  <p>使 AI 具备物理世界感知与行动能力的方向，涵盖机器人、自动驾驶等。需要多模态感知、规划、控制与仿真数据闭环。</p>
+                </div>
+                <div class="term-card">
+                  <div class="term-head">
+                    <span class="term-zh">合成数据</span>
+                    <span class="term-en">Synthetic Data</span>
+                    <span class="term-tag">数据</span>
+                  </div>
+                  <p>由模型或仿真生成的训练数据。用于补充稀缺场景、降低隐私风险；质量把控与分布偏移是核心挑战。</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="callout ok">
+            <div class="callout-title">一个实用习惯</div>
+            <p>
+              听到「买算力」「上大模型」「缺产能」时，先问：对方说的是哪一层？
+              是 <strong>器件</strong>（一颗 HBM）、<strong>整机</strong>（八卡服务器）、<strong>集群</strong>（万卡训练池），还是 <strong>API 服务</strong>（按 token 计费）？
+              分清层级，后面的争论会少很多。
+            </p>
+          </div>
+        </section>
+
+        <!-- 3. Panorama -->
+        <section id="panorama">
+          <h2>3. AI 产业链全景 · Industry Chain Panorama</h2>
+          <p>
+            把 AI 想成「只卖软件」会很快迷路。更稳妥的切法是习惯上的<strong>上—中—下游</strong>：
+            上游解决「能不能跑起来」（硅、电、网、数据），中游解决「能不能变成可调用的能力」（模型与平台），下游解决「能不能嵌进真实工作」（产品与交付）。
+          </p>
+          <p>
+            三层的赚钱方式与节奏完全不同。上游吃制造周期与资本开支；中游吃研究密度与工程平台；下游吃场景理解与分发。
+            读产业新闻时，先判断它落在哪一层，结论才不容易飘。
+          </p>
+
+          <h3 id="diagram-chain">3.0 全景流程图 · End-to-End Map</h3>
+          <div class="diagram-wrap wide">
+            <p class="diagram-caption">图 1 · AI 产业链上中下游全景 · Industry Chain Panorama</p>
+            <div class="diagram-body">
+              <div class="flow" data-chart="1">
+                <div class="flow-layer">
+                  <div class="flow-layer-title">上游 Upstream<span class="en">Infrastructure & Hardware</span></div>
+                  <div class="flow-grid">
+                    <div class="flow-node" tabindex="0" data-tip="foundry"><span class="fn-zh">半导体制造</span><span class="fn-en">Semiconductor Foundry</span></div>
+                    <div class="flow-node" tabindex="0" data-tip="accel"><span class="fn-zh">加速芯片</span><span class="fn-en">GPU / ASIC / NPU</span></div>
+                    <div class="flow-node" tabindex="0" data-tip="memory"><span class="fn-zh">内存与存储</span><span class="fn-en">HBM / DRAM / NAND</span></div>
+                    <div class="flow-node" tabindex="0" data-tip="net"><span class="fn-zh">互联与网络</span><span class="fn-en">Optics / IB / Ethernet</span></div>
+                    <div class="flow-node" tabindex="0" data-tip="server"><span class="fn-zh">服务器与整机</span><span class="fn-en">Servers · OEM / ODM</span></div>
+                    <div class="flow-node" tabindex="0" data-tip="dc"><span class="fn-zh">数据中心</span><span class="fn-en">Power / Cooling / Rack</span></div>
+                    <div class="flow-node" tabindex="0" data-tip="datalabel"><span class="fn-zh">数据与标注</span><span class="fn-en">Data & Labeling</span></div>
+                  </div>
+                </div>
+                <div class="flow-bridge">↓ 物理资源变成可训练、可服务的能力</div>
+                <div class="flow-layer">
+                  <div class="flow-layer-title">中游 Midstream<span class="en">Models & Platforms</span></div>
+                  <div class="flow-grid cols-4">
+                    <div class="flow-node" tabindex="0" data-tip="framework"><span class="fn-zh">框架与引擎</span><span class="fn-en">PyTorch / vLLM</span></div>
+                    <div class="flow-node" tabindex="0" data-tip="fm"><span class="fn-zh">基础模型</span><span class="fn-en">Foundation Models</span></div>
+                    <div class="flow-node" tabindex="0" data-tip="tooling"><span class="fn-zh">工具链</span><span class="fn-en">MLOps / Vector / Agent</span></div>
+                    <div class="flow-node" tabindex="0" data-tip="cloud"><span class="fn-zh">AI 云与 MaaS</span><span class="fn-en">Train / Infer API</span></div>
+                  </div>
+                </div>
+                <div class="flow-bridge">↓ 能力进入真实场景，开始面对成本和责任</div>
+                <div class="flow-layer">
+                  <div class="flow-layer-title">下游 Downstream<span class="en">Applications</span></div>
+                  <div class="flow-grid cols-4">
+                    <div class="flow-node" tabindex="0" data-tip="toc"><span class="fn-zh">To C 应用</span><span class="fn-en">Consumer Apps</span></div>
+                    <div class="flow-node" tabindex="0" data-tip="tob"><span class="fn-zh">To B 行业</span><span class="fn-en">Enterprise Verticals</span></div>
+                    <div class="flow-node" tabindex="0" data-tip="edge"><span class="fn-zh">端侧 AI</span><span class="fn-en">On-device / Edge</span></div>
+                    <div class="flow-node" tabindex="0" data-tip="agent"><span class="fn-zh">Agent 与具身</span><span class="fn-en">Agent & Embodied</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <p class="diagram-hint">卡片大小相近，便于扫读；悬停可看一句补充</p>
+          </div>
+
+          <!-- ========== UPSTREAM ========== -->
+          <div id="upstream" class="layer-banner up">
+            <div class="layer-num">上</div>
+            <div>
+              <h3>上游 · Upstream — 基础设施与硬件</h3>
+              <p class="en">Infrastructure, Silicon, Memory, Networking, Data Centers</p>
+            </div>
+          </div>
+          <p>
+            上游很少上热搜，却决定了后面所有热闹的上限。没有先进制程与 HBM，再漂亮的模型论文也落不到硅上；
+            没有电与散热，机柜只是昂贵的暖气片；没有高速互联，万卡集群会把大量时间花在互相等待上。
+            读上游，是在读约束条件，而不是读口号。
+          </p>
+
+          <div class="tabs" data-tabs>
+            <div class="tab-list">
+              <button class="tab-btn active" data-tab="up-chip">芯片 · Chips</button>
+              <button class="tab-btn" data-tab="up-mem">内存存储 · Memory</button>
+              <button class="tab-btn" data-tab="up-net">互联 · Interconnect</button>
+              <button class="tab-btn" data-tab="up-srv">服务器 · Servers</button>
+              <button class="tab-btn" data-tab="up-dc">数据中心 · DC</button>
+              <button class="tab-btn" data-tab="up-data">数据 · Data</button>
+            </div>
+
+            <div class="tab-panel active" id="up-chip">
+              <h4>加速芯片与处理器 · Accelerators</h4>
+              <p>
+                今天训练与通用推理的默认答案仍是 <strong>GPU</strong>：它够灵活，软件栈成熟，模型结构一变也能跟得上。
+                当你的工作负载足够稳定、规模足够大时，<strong>ASIC / TPU</strong> 往往能把单位成本压得更漂亮——这也是大云厂坚持自研的原因。
+                <strong>CPU</strong> 仍在调度与数据管道里干活；<strong>FPGA</strong> 则更像特定场景的手术刀，而不是主力锤子。
+              </p>
+              <table>
+                <thead>
+                  <tr><th>类型 Type</th><th>优势 Strengths</th><th>代价 Trade-offs</th><th>典型用途</th></tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>GPU</strong></td>
+                    <td>生态完整、灵活、迭代快</td>
+                    <td>单价高、供货周期、功耗高</td>
+                    <td>训练、通用推理</td>
+                  </tr>
+                  <tr>
+                    <td><strong>TPU / 训练 ASIC</strong></td>
+                    <td>规模化能效、与内部栈深度优化</td>
+                    <td>生态封闭、通用性较弱</td>
+                    <td>超大规模训练</td>
+                  </tr>
+                  <tr>
+                    <td><strong>推理 ASIC / NPU</strong></td>
+                    <td>单位推理成本、功耗优势</td>
+                    <td>模型适配成本、工具链</td>
+                    <td>高并发推理、端侧</td>
+                  </tr>
+                  <tr>
+                    <td><strong>CPU</strong></td>
+                    <td>通用、兼容性、复杂控制</td>
+                    <td>矩阵吞吐远低于加速器</td>
+                    <td>调度、预处理、小模型</td>
+                  </tr>
+                </tbody>
+              </table>
+              <p>
+                芯片价值链还包括：<strong>EDA 工具</strong>（设计）、<strong>IP 核</strong>、<strong>晶圆代工</strong>、<strong>先进封装与测试</strong>。
+                一颗旗舰 AI GPU 从设计到量产涉及全球高度分工，任何一个环节（如 CoWoS 封装产能）都可能成为交付瓶颈。
+              </p>
+            </div>
+
+            <div class="tab-panel" id="up-mem">
+              <h4>内存与存储 · Memory & Storage Hierarchy</h4>
+              <p>
+                做 AI 系统，很多时候不是在「算」，而是在「搬数据」。层次很清楚：
+                设备旁的 <strong>HBM</strong> → 主机 <strong>DDR</strong> → 热数据 <strong>NVMe</strong> → 冷数据对象存储 / HDD。
+                越往下越便宜、越大，也越慢。训练会同时榨干 HBM 与并行文件系统；推理 decode 阶段则经常卡在 HBM 带宽上——芯片算得动，数据供不上。
+              </p>
+              <ul>
+                <li><strong>HBM</strong>：容量和带宽都稀缺，和逻辑芯片绑在一起封装，供应商高度集中。</li>
+                <li><strong>服务器 DRAM</strong>：多路 CPU + 大内存配置推高 DDR5；CXL 内存池化还在早期，但方向明确。</li>
+                <li><strong>SSD / NAND</strong>：检查点、数据加载、特征缓存会默默吃掉大量企业级盘。</li>
+                <li><strong>HDD</strong>：原始语料与冷归档仍然最划算，没有必要全上闪存。</li>
+              </ul>
+              <div class="callout warn">
+                <div class="callout-title">存储压力从哪来</div>
+                <p>
+                  人们常只看到一个权重文件，却忘了训练现场：多份数据副本、频繁检查点、实验分支、日志与评测集；
+                  上线后又是多版本模型、LoRA、向量索引。状态的生命周期，往往比「一个 .safetensors」大几个数量级。
+                </p>
+              </div>
+            </div>
+
+            <div class="tab-panel" id="up-net">
+              <h4>互联与网络 · Networking Fabric</h4>
+              <p>
+                单卡越强，扩展越依赖「卡与卡怎么说话」。机内靠 NVLink 一类高速互联，机间靠 InfiniBand 或增强以太。
+                训练里的 AllReduce、MoE 的 AllToAll、流水线气泡，都会把网络问题放大成有效算力（MFU）问题：线堵了，GPU 就在空转。
+              </p>
+              <ul>
+                <li><strong>光模块</strong>：400G → 800G → 1.6T 是清晰升级坡；AI 集群端口密，量与单价往往一起走高。</li>
+                <li><strong>交换机</strong>：叶脊拓扑仍是主流骨架；Broadcom 与 NVIDIA 网络方案是常见选项。</li>
+                <li><strong>IB vs Ethernet</strong>：IB 在延迟与拥塞控制上成熟；增强以太则更吃「运维统一、成本可控」的账。</li>
+                <li><strong>CPO / LPO</strong>：为下一代功耗与密度准备的方向，产业化仍在爬坡，不必当成已全面落地。</li>
+              </ul>
+            </div>
+
+            <div class="tab-panel" id="up-srv">
+              <h4>服务器与整机 · Servers & Systems</h4>
+              <p>
+                芯片买到了，只是故事的一半。整机要把加速器、CPU、内存、本地盘、网卡、电源和散热塞进可交付、可维护的盒子里——
+                常见是 8 卡训练机、4 卡推理机，或直接上液冷整机柜。OEM、ODM/白盒与云厂定制机并存，节奏与服务模型各不相同。
+              </p>
+              <p>
+                真正难的往往是工程细节：供电冗余、拓扑与线缆、固件安全、远程维护。
+                一句话值得反复记：<strong>有芯片，不等于有可上线的集群</strong>。
+              </p>
+            </div>
+
+            <div class="tab-panel" id="up-dc">
+              <h4>数据中心基础设施 · Data Center Infrastructure</h4>
+              <p>
+                AI 机房首先是电力与热力学问题，其次才是「放了多少 GPU」。机柜功率密度抬升后，配电、冷却、选址一起被改写——
+                电价、并网窗口、气候与政策，都会进入项目表。
+              </p>
+              <ul>
+                <li><strong>电力</strong>：高压接入、变电、UPS/HVDC、备用电源；很多项目真正排队的是并网，不是预算。</li>
+                <li><strong>散热</strong>：风冷触顶后，冷板液冷、浸没、后门热交换成为现实选项。</li>
+                <li><strong>基建</strong>：承重、线槽、漏水检测、消防与物理安全——枯燥，但决定能不能长期跑满。</li>
+              </ul>
+            </div>
+
+            <div class="tab-panel" id="up-data">
+              <h4>数据与标注 · Data Pipeline</h4>
+              <p>
+                数据是看不见的上游。模型会什么、不会什么，最终仍受语料质量、领域覆盖与反馈数据约束。
+                产业链从采集与授权，到清洗、去重、评分、合成、标注与合规，环环都费人。
+              </p>
+              <p>
+                预训练更像工业化流水线；对齐和领域适配则更吃专家数据与流程设计。
+                产品上线后，「使用—反馈—再训练」能否转起来，常常比多买一批卡更决定差距。
+              </p>
+            </div>
+          </div>
+
+          <h4>上游关键公司 · Key Upstream Players</h4>
+          <div class="card-grid">
+            <div class="card">
+              <div class="card-logo">
+                <div class="logo-badge" data-fallback="NV">
+                  <img src="https://logo.clearbit.com/nvidia.com" data-domain="nvidia.com" data-stage="0" alt="NVIDIA logo" loading="lazy" onerror="logoFallback(this)" />
+                </div>
+                <div><div class="card-name">英伟达</div><div class="card-en">NVIDIA</div></div>
+              </div>
+              <p>把加速器、软件栈与集群网络绑成一套默认答案的公司。生态本身就是壁垒。</p>
+            </div>
+            <div class="card">
+              <div class="card-logo">
+                <div class="logo-badge" data-fallback="AMD">
+                  <img src="https://logo.clearbit.com/amd.com" data-domain="amd.com" data-stage="0" alt="AMD logo" loading="lazy" onerror="logoFallback(this)" />
+                </div>
+                <div><div class="card-name">超威半导体</div><div class="card-en">AMD</div></div>
+              </div>
+              <p>在 GPU 与服务器 CPU 上同时施压，给市场多一条不完全同质的选择。</p>
+            </div>
+            <div class="card">
+              <div class="card-logo">
+                <div class="logo-badge" data-fallback="INTC">
+                  <img src="https://logo.clearbit.com/intel.com" data-domain="intel.com" data-stage="0" alt="Intel logo" loading="lazy" onerror="logoFallback(this)" />
+                </div>
+                <div><div class="card-name">英特尔</div><div class="card-en">Intel</div></div>
+              </div>
+              <p>服务器 CPU 装机深厚，同时在加速器与代工封装上寻找第二曲线。</p>
+            </div>
+            <div class="card">
+              <div class="card-logo">
+                <div class="logo-badge" data-fallback="TSMC">
+                  <img src="https://logo.clearbit.com/tsmc.com" data-domain="tsmc.com" data-stage="0" alt="TSMC logo" loading="lazy" onerror="logoFallback(this)" />
+                </div>
+                <div><div class="card-name">台积电</div><div class="card-en">TSMC</div></div>
+              </div>
+              <p>先进制程与先进封装的枢纽。很多「GPU 交付」故事，最终卡在这里的产能节奏。</p>
+            </div>
+            <div class="card">
+              <div class="card-logo">
+                <div class="logo-badge" data-fallback="SKH">
+                  <img src="https://logo.clearbit.com/skhynix.com" data-domain="skhynix.com" data-stage="0" alt="SK Hynix logo" loading="lazy" onerror="logoFallback(this)" />
+                </div>
+                <div><div class="card-name">SK 海力士</div><div class="card-en">SK Hynix</div></div>
+              </div>
+              <p>HBM 供应的关键玩家之一。旗舰加速器的内存方案，往往绕不开它。</p>
+            </div>
+            <div class="card">
+              <div class="card-logo">
+                <div class="logo-badge" data-fallback="SSN">
+                  <img src="https://logo.clearbit.com/samsung.com" data-domain="samsung.com" data-stage="0" alt="Samsung logo" loading="lazy" onerror="logoFallback(this)" />
+                </div>
+                <div><div class="card-name">三星电子</div><div class="card-en">Samsung</div></div>
+              </div>
+              <p>存储版图完整，HBM 到 NAND 都能做，同时还握有代工能力。</p>
+            </div>
+            <div class="card">
+              <div class="card-logo">
+                <div class="logo-badge" data-fallback="MU">
+                  <img src="https://logo.clearbit.com/micron.com" data-domain="micron.com" data-stage="0" alt="Micron logo" loading="lazy" onerror="logoFallback(this)" />
+                </div>
+                <div><div class="card-name">美光</div><div class="card-en">Micron</div></div>
+              </div>
+              <p>HBM/DRAM 的重要一极，正在把产能重心往 AI 侧挪。</p>
+            </div>
+            <div class="card">
+              <div class="card-logo">
+                <div class="logo-badge" data-fallback="AVGO">
+                  <img src="https://logo.clearbit.com/broadcom.com" data-domain="broadcom.com" data-stage="0" alt="Broadcom logo" loading="lazy" onerror="logoFallback(this)" />
+                </div>
+                <div><div class="card-name">博通</div><div class="card-en">Broadcom</div></div>
+              </div>
+              <p>交换芯片与定制 ASIC 的重要角色：网络侧与「为云厂定制硅」两侧都有位置。</p>
+            </div>
+            <div class="card">
+              <div class="card-logo">
+                <div class="logo-badge" data-fallback="ANET">
+                  <img src="https://logo.clearbit.com/arista.com" data-domain="arista.com" data-stage="0" alt="Arista logo" loading="lazy" onerror="logoFallback(this)" />
+                </div>
+                <div><div class="card-name">Arista</div><div class="card-en">Arista Networks</div></div>
+              </div>
+              <p>云与 AI 集群里常见的高速以太交换选择，偏运维友好的那条路。</p>
+            </div>
+            <div class="card">
+              <div class="card-logo">
+                <div class="logo-badge" data-fallback="DELL">
+                  <img src="https://logo.clearbit.com/dell.com" data-domain="dell.com" data-stage="0" alt="Dell logo" loading="lazy" onerror="logoFallback(this)" />
+                </div>
+                <div><div class="card-name">戴尔</div><div class="card-en">Dell Technologies</div></div>
+              </div>
+              <p>企业侧常见的 AI 服务器与方案交付方，强调可服务、可落地。</p>
+            </div>
+            <div class="card">
+              <div class="card-logo">
+                <div class="logo-badge" data-fallback="SMC">
+                  <img src="https://logo.clearbit.com/supermicro.com" data-domain="supermicro.com" data-stage="0" alt="Supermicro logo" loading="lazy" onerror="logoFallback(this)" />
+                </div>
+                <div><div class="card-name">超微</div><div class="card-en">Supermicro</div></div>
+              </div>
+              <p>以高密度与交付速度见长，液冷与定制机柜是其强项区间。</p>
+            </div>
+            <div class="card">
+              <div class="card-logo">
+                <div class="logo-badge" data-fallback="INSP">
+                  <img src="https://logo.clearbit.com/inspur.com" data-domain="inspur.com" data-stage="0" alt="Inspur logo" loading="lazy" onerror="logoFallback(this)" />
+                </div>
+                <div><div class="card-name">浪潮信息</div><div class="card-en">Inspur</div></div>
+              </div>
+              <p>国内 AI 服务器与液冷整机的重要供给方之一。</p>
+            </div>
+            <div class="card">
+              <div class="card-logo">
+                <div class="logo-badge" data-fallback="SGN">
+                  <img src="https://logo.clearbit.com/sugon.com" data-domain="sugon.com" data-stage="0" alt="Sugon logo" loading="lazy" onerror="logoFallback(this)" />
+                </div>
+                <div><div class="card-name">中科曙光</div><div class="card-en">Sugon</div></div>
+              </div>
+              <p>从超算到智算，服务国内高密度计算与行业客户。</p>
+            </div>
+          </div>
+
+          <!-- ========== MIDSTREAM ========== -->
+          <div id="midstream" class="layer-banner mid">
+            <div class="layer-num">中</div>
+            <div>
+              <h3>中游 · Midstream — 模型与平台</h3>
+              <p class="en">Foundation Models, Frameworks, Cloud Platforms, Tooling</p>
+            </div>
+          </div>
+          <p>
+            中游做的事情，可以一句话概括：把电和硅，变成别人愿意调用的能力。
+            壁垒并不神秘——研究判断、数据与实验体系、大规模训练工程、稳定的推理产品，以及开发者是否愿意跟你走。
+            商业上可以是闭源 API，也可以是开放权重 + 服务，或云上租用与私有化部署，路径不同，约束也不同。
+          </p>
+
+          <div class="accordion" id="midAcc">
+            <div class="acc-item open">
+              <button class="acc-trigger">基础大模型与开源生态 <span class="acc-en">Foundation Models & Open Source</span> <span class="chev">▼</span></button>
+              <div class="acc-body">
+                <p>
+                  闭源前沿模型通常由少数实验室/公司迭代，比拼的是能力边界、安全运营和产品完成度。
+                  开放权重路线则把门槛放低：本地部署、二次开发和垂直改造都更方便。两条路并不互斥，只是服务不同约束。
+                </p>
+                <p>
+                  真正选型时，很少有人只看「谁第一」。更常见的权衡是：推理与代码、多模态、长上下文、工具使用、延迟、稳定性，以及每一百万 token 花多少钱。
+                  「唯一最强」很少存在；场景匹配与总拥有成本，往往比排行榜诚实。
+                </p>
+                <ul>
+                  <li>预训练：大致划定世界知识与能力天花板</li>
+                  <li>后训练：决定听不听话、像不像你要的风格、会不会分步想</li>
+                  <li>系统层：工具、检索、记忆——决定产品能不能天天用</li>
+                </ul>
+              </div>
+            </div>
+            <div class="acc-item">
+              <button class="acc-trigger">训练框架与推理引擎 <span class="acc-en">Frameworks & Engines</span> <span class="chev">▼</span></button>
+              <div class="acc-body">
+                <p>
+                  训练侧，PyTorch 仍是多数团队的共同语言，外加 FSDP / Megatron / DeepSpeed 这类分布式组合拳；编译与图优化也在慢慢把「能跑」变成「跑得省」。
+                  推理侧更卷吞吐：vLLM 一类引擎靠分页注意力和连续批处理吃饭，TensorRT-LLM 追求极致 kernel，端侧则是另一套轻量工具链。
+                </p>
+                <p>这里有一条朴素真理：软件写得好，等于白捡算力。同样的卡，吞吐差一截，账单会诚实地反映出来。</p>
+              </div>
+            </div>
+            <div class="acc-item">
+              <button class="acc-trigger">云计算与 AI 云平台 <span class="acc-en">Cloud & AI Platforms</span> <span class="chev">▼</span></button>
+              <div class="acc-body">
+                <p>
+                  云把「买卡、建房、值守」打包成可租用的形态：实例、托管训练、模型 API、检索与合规网络。
+                  超大规模云厂同时是上游最大买家、中游平台提供商，有时还自研芯片与模型——纵向整合不是口号，是账户结构。
+                </p>
+                <p>企业选型时，价格只是一项。区域、配额、专线带宽、数据驻留、SLA 与账单曲线，往往更早成为真实痛点。</p>
+              </div>
+            </div>
+            <div class="acc-item">
+              <button class="acc-trigger">MLOps、向量库与工具链 <span class="acc-en">MLOps, Vector DB & Tooling</span> <span class="chev">▼</span></button>
+              <div class="acc-body">
+                <p>
+                  演示可以靠脚本，生产要靠体系：实验与数据版本、评测、提示与应用版本、延迟/成本/质量的可观测性，以及权限与护栏。
+                  向量库撑起检索增强；编排框架撑起多步工具调用。缺了这些，模型再强也只是「偶发惊喜」。
+                </p>
+                <p>这一层工具很多、换代也快。架构上预留可替换性，比押注单一「全家桶」更稳妥。</p>
+              </div>
+            </div>
+          </div>
+
+          <h4>中游代表实体 · Representative Midstream Entities</h4>
+          <table>
+            <thead>
+              <tr><th>类别</th><th>代表（中英）</th><th>角色简述</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>闭源模型实验室</td><td>OpenAI；Anthropic；Google DeepMind；xAI</td><td>前沿模型研发与产品化 API</td></tr>
+              <tr><td>科技巨头模型</td><td>Meta（Llama）；Microsoft；Amazon；百度；阿里；字节；腾讯；华为</td><td>开源/闭源并行，云与应用协同</td></tr>
+              <tr><td>开源与创业模型</td><td>Mistral；Cohere；AI2；众多开源社区项目</td><td>差异化能力、区域与垂直场景</td></tr>
+              <tr><td>框架与引擎</td><td>PyTorch（Meta）；vLLM；Hugging Face；NVIDIA TensorRT</td><td>训练/推理基础设施软件</td></tr>
+              <tr><td>云平台</td><td>AWS；Azure；GCP；阿里云；腾讯云；华为云</td><td>算力租用、托管服务、全球交付</td></tr>
+              <tr><td>数据与评测</td><td>Scale AI 等标注；各类基准与排行榜</td><td>数据供给与能力度量（需批判性使用榜单）</td></tr>
+            </tbody>
+          </table>
+
+          <!-- ========== DOWNSTREAM ========== -->
+          <div id="downstream" class="layer-banner down">
+            <div class="layer-num">下</div>
+            <div>
+              <h3>下游 · Downstream — 应用与落地</h3>
+              <p class="en">Consumer Apps, Enterprise Verticals, Edge AI, Agents & Embodied</p>
+            </div>
+          </div>
+          <p>
+            下游回答的是最后一个问题：钱和责任是否闭环。
+            很少有成功产品是「把模型裸挂出去」；更常见的是工作流嵌入、权限与数据接好、评测与人在回路、成本可控、合规说得清。
+            模型是引擎，交付才是车。
+          </p>
+
+          <div class="tabs" data-tabs>
+            <div class="tab-list">
+              <button class="tab-btn active" data-tab="dn-c">To C 应用</button>
+              <button class="tab-btn" data-tab="dn-b">To B 行业</button>
+              <button class="tab-btn" data-tab="dn-e">端侧 AI</button>
+              <button class="tab-btn" data-tab="dn-a">Agent 与具身</button>
+            </div>
+            <div class="tab-panel active" id="dn-c">
+              <h4>消费级应用 · Consumer</h4>
+              <ul>
+                <li><strong>通用助手 / 搜索增强</strong>：对话、问答、摘要、规划</li>
+                <li><strong>内容创作</strong>：文案、图像、视频、音乐、设计辅助</li>
+                <li><strong>效率工具</strong>：办公套件、邮件、笔记、编程助手</li>
+                <li><strong>教育与娱乐</strong>：个性化辅导、NPC、互动叙事</li>
+              </ul>
+              <p>
+                商业化可以是订阅、广告、内购或设备预装。真正决定生死的指标更朴素：
+                人会不会回来、任务能否完成、出事频率多高、每个活跃用户的推理成本能不能盖住。
+              </p>
+            </div>
+            <div class="tab-panel" id="dn-b">
+              <h4>企业与行业 · Enterprise Verticals</h4>
+              <table>
+                <thead><tr><th>行业</th><th>典型场景</th><th>特殊约束</th></tr></thead>
+                <tbody>
+                  <tr><td>金融 Finance</td><td>研报、风控辅助、客服、代码与运维</td><td>合规、可审计、幻觉零容忍场景</td></tr>
+                  <tr><td>医疗 Healthcare</td><td>病历草稿、影像辅助、药物研发文献</td><td>监管、隐私、临床验证</td></tr>
+                  <tr><td>工业 Industrial</td><td>质检、排产、知识库、设备诊断</td><td>现场数据、实时性、OT 安全</td></tr>
+                  <tr><td>法律 / 政务</td><td>合同审查、政策问答</td><td>责任归属、数据分级</td></tr>
+                  <tr><td>零售 / 供应链</td><td>导购、预测、客服</td><td>多语言、峰值流量、ROI</td></tr>
+                  <tr><td>自动驾驶</td><td>感知决策、仿真、座舱</td><td>功能安全、长尾场景</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="tab-panel" id="dn-e">
+              <h4>端侧 AI · On-device</h4>
+              <p>
+                手机 NPU、PC 本地小模型、座舱与智驾域控、XR 设备，都在把一部分推理拉回本地。
+                合理的分工通常是：小事本地做，重活上云。量化、蒸馏、投机解码、异构调度、本地私有索引，都是为这个分工服务的工程手段。
+              </p>
+            </div>
+            <div class="tab-panel" id="dn-a">
+              <h4>Agent 与具身智能 · Agents & Embodied AI</h4>
+              <p>
+                Agent 试图把「回答一次」变成「多步把事办完」。演示容易，稳定难：可靠性、成本与安全边界，至今仍是硬骨头。
+                具身智能则再往前一步，要求感知与行动进入物理世界——仿真、闭环控制、真实场景评测缺一不可。
+                两条线都提醒我们：AI 正在从纯软件，长回系统工程。
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- 4. Training -->
+        <section id="training">
+          <h2>4. 大模型是如何被训练出来的？ · How Models Are Trained</h2>
+          <p>
+            对外叙事常常把训练说成「丢进数据，等模型变强」。内部现实更像一条长流水线：
+            数据要洗，序列要打包，预训练要烧卡，对齐要调人，发布还要过安全与评测。
+            下面按阶段拆开，并点明每段真正吃掉什么——硬件、软件、人力、数据，还是电。
+            名称在不同实验室会略有出入，顺序与重叠也很常见，不必死记标签。
+          </p>
+
+          <h3 id="diagram-train">4.1 训练全流程 · Full Pipeline Diagram</h3>
+          <div class="diagram-wrap wide">
+            <p class="diagram-caption">图 2 · 大模型训练与部署主流程 · Training Pipeline</p>
+            <div class="diagram-body">
+              <div class="flow" data-chart="2">
+                <div class="flow-grid cols-steps">
+                  <div class="flow-node" tabindex="0" data-tip="s1"><span class="flow-step-num">1</span><span class="fn-zh">数据收集</span><span class="fn-en">Data Collection</span></div>
+                  <div class="flow-node" tabindex="0" data-tip="s2"><span class="flow-step-num">2</span><span class="fn-zh">清洗过滤</span><span class="fn-en">Cleaning / Filtering</span></div>
+                  <div class="flow-node" tabindex="0" data-tip="s3"><span class="flow-step-num">3</span><span class="fn-zh">分词与打包</span><span class="fn-en">Tokenize / Pack</span></div>
+                  <div class="flow-node" tabindex="0" data-tip="s4"><span class="flow-step-num">4</span><span class="fn-zh">预训练</span><span class="fn-en">Pre-training</span></div>
+                  <div class="flow-node" tabindex="0" data-tip="s5"><span class="flow-step-num">5</span><span class="fn-zh">退火 / 续训</span><span class="fn-en">Annealing / Mid-train</span></div>
+                  <div class="flow-node" tabindex="0" data-tip="s6"><span class="flow-step-num">6</span><span class="fn-zh">监督微调 SFT</span><span class="fn-en">Supervised Fine-Tuning</span></div>
+                  <div class="flow-node" tabindex="0" data-tip="s7"><span class="flow-step-num">7</span><span class="fn-zh">偏好对齐</span><span class="fn-en">RLHF / DPO</span></div>
+                  <div class="flow-node" tabindex="0" data-tip="s8"><span class="flow-step-num">8</span><span class="fn-zh">安全与红队</span><span class="fn-en">Safety / Red Team</span></div>
+                  <div class="flow-node" tabindex="0" data-tip="s9"><span class="flow-step-num">9</span><span class="fn-zh">评测发布</span><span class="fn-en">Eval / Release</span></div>
+                  <div class="flow-node" tabindex="0" data-tip="s10"><span class="flow-step-num">10</span><span class="fn-zh">推理部署</span><span class="fn-en">Inference Serving</span></div>
+                  <div class="flow-node" tabindex="0" data-tip="s11"><span class="flow-step-num">11</span><span class="fn-zh">反馈闭环</span><span class="fn-en">Feedback Loop</span></div>
+                </div>
+                <div class="flow-feedback">上线之后故事没结束：第 11 步的反馈，会回到第 2 步的清洗与后训练</div>
+              </div>
+            </div>
+            <p class="diagram-hint">按 1→11 顺着看即可；悬停卡片有一句补充</p>
+          </div>
+
+          <div class="diagram-wrap wide">
+            <p class="diagram-caption">图 3 · 预训练资源与计算视图 · Pre-training Resources</p>
+            <div class="diagram-body">
+              <div class="flow" data-chart="3">
+                <div class="flow-layer">
+                  <div class="flow-layer-title">① 投入 Inputs</div>
+                  <div class="flow-grid">
+                    <div class="flow-node" tabindex="0" data-tip="in-data"><span class="fn-zh">数据</span><span class="fn-en">Data / Tokens</span></div>
+                    <div class="flow-node" tabindex="0" data-tip="in-compute"><span class="fn-zh">算力</span><span class="fn-en">GPU / TPU</span></div>
+                    <div class="flow-node" tabindex="0" data-tip="in-net"><span class="fn-zh">网络</span><span class="fn-en">High BW Network</span></div>
+                    <div class="flow-node" tabindex="0" data-tip="in-store"><span class="fn-zh">存储</span><span class="fn-en">PFS / Object Store</span></div>
+                    <div class="flow-node" tabindex="0" data-tip="in-soft"><span class="fn-zh">软件</span><span class="fn-en">Distributed Stack</span></div>
+                    <div class="flow-node" tabindex="0" data-tip="in-people"><span class="fn-zh">团队</span><span class="fn-en">Research + SRE</span></div>
+                    <div class="flow-node" tabindex="0" data-tip="in-power"><span class="fn-zh">电力</span><span class="fn-en">Sustained Power</span></div>
+                  </div>
+                </div>
+                <div class="flow-bridge">↓ 进入训练迭代</div>
+                <div class="flow-layer">
+                  <div class="flow-layer-title">② 过程 Process</div>
+                  <div class="flow-process">
+                    <div class="flow-node" tabindex="0" data-tip="p-fwd"><span class="flow-step-num">A</span><span class="fn-zh">前向计算</span><span class="fn-en">Forward Pass</span></div>
+                    <div class="flow-node" tabindex="0" data-tip="p-bwd"><span class="flow-step-num">B</span><span class="fn-zh">反向传播</span><span class="fn-en">Backward Pass</span></div>
+                    <div class="flow-node" tabindex="0" data-tip="p-opt"><span class="flow-step-num">C</span><span class="fn-zh">优化器更新</span><span class="fn-en">Optimizer Update</span></div>
+                    <div class="flow-node" tabindex="0" data-tip="p-comm"><span class="flow-step-num">D</span><span class="fn-zh">通信</span><span class="fn-en">Grad / Act Comm</span></div>
+                    <div class="flow-node" tabindex="0" data-tip="p-ckpt"><span class="flow-step-num">E</span><span class="fn-zh">检查点写入</span><span class="fn-en">Checkpoint I/O</span></div>
+                  </div>
+                </div>
+                <div class="flow-bridge">↓ 产出</div>
+                <div class="flow-layer">
+                  <div class="flow-layer-title">③ 产出 Outputs</div>
+                  <div class="flow-grid cols-4">
+                    <div class="flow-node" tabindex="0" data-tip="o-ckpt"><span class="fn-zh">基础模型权重</span><span class="fn-en">Foundation Checkpoint</span></div>
+                    <div class="flow-node" tabindex="0" data-tip="o-logs"><span class="fn-zh">训练日志与指标</span><span class="fn-en">Logs & Metrics</span></div>
+                    <div class="flow-node" tabindex="0" data-tip="o-eval"><span class="fn-zh">损失曲线与评测</span><span class="fn-en">Loss / Eval Scores</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <p class="diagram-hint">先看投入，再看一步训练在干什么，最后看产出什么</p>
+          </div>
+
+          <h3>4.2 分阶段拆解 · Stage-by-Stage</h3>
+          <ol class="step-list">
+            <li>
+              <div class="step-title">数据收集 · Data Collection</div>
+              <p>从爬取、授权内容、代码与书籍，到多模态与合成数据。法律与版权不是附录，是开工条件。</p>
+              <div class="step-meta">
+                <span>🔧 硬件：爬虫集群、对象存储、带宽</span>
+                <span>💻 软件：采集管道、去重索引</span>
+                <span>👥 人力：数据工程、法务</span>
+                <span>⚡ 电力：中等</span>
+              </div>
+            </li>
+            <li>
+              <div class="step-title">清洗与过滤 · Cleaning & Filtering</div>
+              <p>质量打分、去毒、去重、PII、领域配比。这阶段无聊，却决定后面烧的电值不值。垃圾进，垃圾出。</p>
+              <div class="step-meta">
+                <span>🔧 CPU/GPU 小规模推理过滤</span>
+                <span>💻 数据湖仓、特征存储</span>
+                <span>👥 数据科学 + 标注抽检</span>
+              </div>
+            </li>
+            <li>
+              <div class="step-title">分词、混料与打包 · Tokenization & Packing</div>
+              <p>Tokenizer 训练/选用、文档打包成训练序列、curriculum 与混合比例设定。影响训练效率与模型行为。</p>
+              <div class="step-meta">
+                <span>🔧 CPU 为主，大规模磁盘吞吐</span>
+                <span>💾 产出：token 化二进制数据</span>
+              </div>
+            </li>
+            <li>
+              <div class="step-title">预训练 · Pre-training</div>
+              <p>真正烧钱的主舞台。万卡级集群上跑数周到数月：容错、重计算、混合精度、并行策略，哪一环不稳都会把账单拉长。</p>
+              <div class="step-meta">
+                <span>🔧 海量 GPU + HBM + IB/以太</span>
+                <span>💾 频繁 TB 级检查点</span>
+                <span>👥 研究科学家 + 训练工程 + SRE</span>
+                <span>⚡ 极高持续电力</span>
+              </div>
+            </li>
+            <li>
+              <div class="step-title">中期训练 / 退火 · Mid-training / Annealing</div>
+              <p>在更高质数据或特定配比上继续训练，或降低学习率收束。用于提升能力与稳定性。</p>
+              <div class="step-meta">
+                <span>🔧 仍需大规模加速器</span>
+                <span>📊 更密的评测循环</span>
+              </div>
+            </li>
+            <li>
+              <div class="step-title">监督微调 · SFT</div>
+              <p>指令-回答对、工具使用轨迹、领域任务示范。数据质量密度远高于预训练。</p>
+              <div class="step-meta">
+                <span>🔧 中小规模 GPU</span>
+                <span>👥 领域专家与标注</span>
+              </div>
+            </li>
+            <li>
+              <div class="step-title">偏好对齐 · Preference Alignment</div>
+              <p>RLHF（奖励模型 + RL）、DPO 等。优化「更有用、更无害、更诚实」等目标，超参数敏感。</p>
+              <div class="step-meta">
+                <span>🔧 中等 GPU + 采样算力</span>
+                <span>👥 偏好标注、红队</span>
+              </div>
+            </li>
+            <li>
+              <div class="step-title">安全、评测与发布 · Safety, Eval, Release</div>
+              <p>能力基准、对抗测试、回归评测、许可与发布决策。开放权重与 API 产品的发布流程不同。</p>
+            </li>
+            <li>
+              <div class="step-title">推理部署 · Inference Serving</div>
+              <p>量化、批处理、扩缩容、多区域、可观测与成本归因。用户真正摸到的价值，多半在这一层交付。</p>
+              <div class="step-meta">
+                <span>🔧 推理 GPU/ASIC 集群</span>
+                <span>⚡ 随 QPS 波动的电力</span>
+              </div>
+            </li>
+          </ol>
+
+          <h3>4.3 为何需要这么多 HBM？ · Why So Much HBM?</h3>
+          <div class="callout">
+            <div class="callout-title">训练时，内存在装什么</div>
+            <p>
+              不是只装权重。还要装梯度、优化器状态（Adam 一类可把状态扩到参数量数倍）、激活（或用重计算换空间）、通信缓冲。
+              模型一大、序列一长、batch 一上去，单卡瞬间装不下，只能切开并行；切开之后，每张卡仍需要足够快、足够大的 HBM，否则 Tensor Core 吃不饱。
+              HBM 贵，是因为它同时卖「容量」和「带宽」。
+            </p>
+          </div>
+          <div class="callout">
+            <div class="callout-title">推理时，瓶颈常在「搬」不在「算」</div>
+            <p>
+              权重要住在附近（或分层卸载）；更棘手的是 <strong>KV Cache</strong>——随 batch 与序列长度线性涨。
+              Decode 阶段经常是 memory-bound：算术单元闲着，总线在拼命搬数。这时 HBM 带宽直接决定延迟与吞吐。
+            </p>
+          </div>
+
+          <h3>4.4 为何存储也被疯狂消耗？ · Storage Pressure</h3>
+          <ul>
+            <li>原始数据湖与多个清洗版本长期并存</li>
+            <li>检查点频率 × 副本 × 实验分支，体积涨得很快</li>
+            <li>评测集、生成样本、日志与指标要可追溯</li>
+            <li>线上多版本模型、LoRA、缓存与向量索引</li>
+          </ul>
+          <p>所以 AI 集群旁边，几乎总有一套不便宜的并行文件系统与对象存储。GPU 采购单只是账单的一页。</p>
+
+          <h3 id="power-section">4.5 为何电力成了硬约束？ · Power as Bottleneck</h3>
+          <p>
+            单卡就能到数百瓦甚至更高，机柜一密，网络、存储、冷却再叠一层。限制常常不是「电费贵一点」，
+            而是<strong>变电站有没有容量、并网要排多久、地与水够不够、政策允不允许</strong>。
+            于是选址往电多的地方走，长协购电、核电与可再生讨论一起上台，芯片与算法也开始认真卷每瓦能吐多少 token。
+          </p>
+          <div class="callout warn">
+            <div class="callout-title">一句更准确的话</div>
+            <p>
+              「算力短缺」很少等于「世界上缺一种叫 GPU 的零件」。更准确地说：在某个时间窗口里，
+              <strong>先进加速器 + HBM + 封装 + 网络 + 电力与机房交付</strong> 组成的系统产能不够。
+              只打通一环，瓶颈会礼貌地挪到下一环。
+            </p>
+          </div>
+        </section>
+
+        <!-- 5. Supply chain -->
+        <section id="supply-chain">
+          <h2>5. 关键支撑产业与供应链 · Enabling Supply Chains</h2>
+          <p>
+            模型发布会聚光灯打在算法与产品上，供应链却在后台决定「能不能按期交货」。
+            下面几条线值得单独看一眼：它们不直接出现在 chat 窗口里，却决定窗口后面有没有电、有没有卡、有没有光。
+          </p>
+
+          <div class="accordion">
+            <div class="acc-item open">
+              <button class="acc-trigger">半导体制造：先进制程与先进封装 <span class="acc-en">Semiconductor Manufacturing</span> <span class="chev">▼</span></button>
+              <div class="acc-body">
+                <p>
+                  逻辑芯片靠 EUV 与先进节点良率；AI 加速器还多一道关键工序——<strong>先进封装</strong>（如 CoWoS 一类）把 SoC 和多层 HBM 严丝合缝地装在一起。
+                  过去几年，封装与测试产能多次成为比「设计完成」更真实的交付瓶颈。再往上游，是 ASML、应用材料、拉姆、东京电子这些设备商。
+                </p>
+                <ul>
+                  <li>设计：架构、电路、物理设计、验证</li>
+                  <li>制造：晶圆、光罩、良率爬坡</li>
+                  <li>封装：中介层、凸点、堆叠、测试</li>
+                  <li>系统：板级、整机、集群验证</li>
+                </ul>
+              </div>
+            </div>
+            <div class="acc-item" id="hbm-section">
+              <button class="acc-trigger">存储产业链：HBM 为何贵、产能为何紧 <span class="acc-en">HBM Economics</span> <span class="chev">▼</span></button>
+              <div class="acc-body">
+                <p><strong>为何贵：</strong></p>
+                <ul>
+                  <li>3D 堆叠与 TSV 工艺复杂，良率挑战高于普通 DRAM</li>
+                  <li>与逻辑芯片共封装，测试与匹配成本高</li>
+                  <li>需求侧高度集中于旗舰 AI 加速器，议价与长约锁定</li>
+                  <li>研发与产线转换需要大量资本开支</li>
+                </ul>
+                <p><strong>为何紧：</strong></p>
+                <ul>
+                  <li>供应商数量有限（SK Hynix、Samsung、Micron 等）</li>
+                  <li>扩产周期长，无法季度级弹性翻倍</li>
+                  <li>与消费类 DRAM/NAND 争夺部分制造资源与注意力</li>
+                  <li>每一代 HBM 与新 GPU 发布强绑定，爬坡窗口重叠</li>
+                </ul>
+              </div>
+            </div>
+            <div class="acc-item">
+              <button class="acc-trigger">电力与能源 <span class="acc-en">Power & Energy</span> <span class="chev">▼</span></button>
+              <div class="acc-body">
+                <p>
+                  并网、变电、备用电源、长协电价，已经是 AI 资本开支的平行主线。
+                  「有地有钱、没电」不是段子，是项目表上的真实状态。于是每瓦能吐多少 token，开始从口号变成设计指标。
+                </p>
+              </div>
+            </div>
+            <div class="acc-item">
+              <button class="acc-trigger">光通信 <span class="acc-en">Optical Communications</span> <span class="chev">▼</span></button>
+              <div class="acc-body">
+                <p>
+                  从 DSP、激光器到光纤、连接器、模块与交换机，光通信是一条完整链条。
+                  训练集群东西向流量大，800G / 1.6T 需求抬得很快。眼下可插拔模块仍是主角，CPO 还在试点与标准演进中——值得跟，但不宜写成「已经全面替代」。
+                </p>
+              </div>
+            </div>
+            <div class="acc-item">
+              <button class="acc-trigger">冷却技术 <span class="acc-en">Cooling Technologies</span> <span class="chev">▼</span></button>
+              <div class="acc-body">
+                <p>
+                  冷板、浸没、CDU、冷却塔、防漏与维护规程——选项不少，代价也不只是设备清单。
+                  冷却会改机柜布局、供电方式、运维技能，甚至整张 TCO 表。把它当成「多加风扇」，会在现场交学费。
+                </p>
+              </div>
+            </div>
+            <div class="acc-item">
+              <button class="acc-trigger">数据产业链 <span class="acc-en">Data Industry Chain</span> <span class="chev">▼</span></button>
+              <div class="acc-body">
+                <p>
+                  授权内容、标注、合成数据、隐私计算、区域化的数据流通安排，以及企业内部治理，共同构成「看不见的上游」。
+                  公网高质量文本的红利在变薄；专有数据、交互日志与真实世界多模态数据，反而越来越像护城河。
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="diagram-wrap wide">
+            <p class="diagram-caption">图 4 · 支撑产业与 AI 核心链条 · Supply Chain</p>
+            <div class="diagram-body">
+              <div class="flow" data-chart="4">
+                <div class="flow-layer">
+                  <div class="flow-layer-title">制造侧 Manufacturing</div>
+                  <div class="flow-grid">
+                    <div class="flow-node" tabindex="0" data-tip="litho"><span class="fn-zh">光刻与设备</span><span class="fn-en">Lithography & Tools</span></div>
+                    <div class="flow-node" tabindex="0" data-tip="wafer"><span class="fn-zh">晶圆代工</span><span class="fn-en">Wafer Foundry</span></div>
+                    <div class="flow-node" tabindex="0" data-tip="hbm"><span class="fn-zh">HBM 制造</span><span class="fn-en">HBM Manufacturing</span></div>
+                    <div class="flow-node" tabindex="0" data-tip="pkg"><span class="fn-zh">先进封装</span><span class="fn-en">Advanced Packaging</span></div>
+                    <div class="flow-node" tabindex="0" data-tip="gpu-fin"><span class="fn-zh">加速器成品</span><span class="fn-en">Finished Accelerators</span></div>
+                  </div>
+                </div>
+                <div class="flow-bridge">↓ 与基建汇合</div>
+                <div class="flow-layer">
+                  <div class="flow-layer-title">集群与负载 Cluster & Workloads</div>
+                  <div class="flow-grid">
+                    <div class="flow-node" tabindex="0" data-tip="optics"><span class="fn-zh">光模块与交换</span><span class="fn-en">Optics & Switching</span></div>
+                    <div class="flow-node" tabindex="0" data-tip="powergrid"><span class="fn-zh">电力与电网</span><span class="fn-en">Power & Grid</span></div>
+                    <div class="flow-node" tabindex="0" data-tip="cooling"><span class="fn-zh">液冷与暖通</span><span class="fn-en">Liquid Cooling / HVAC</span></div>
+                    <div class="flow-node" tabindex="0" data-tip="cluster"><span class="fn-zh">AI 集群</span><span class="fn-en">AI Cluster</span></div>
+                    <div class="flow-node" tabindex="0" data-tip="traininfer"><span class="fn-zh">模型训练 / 推理</span><span class="fn-en">Train / Infer</span></div>
+                    <div class="flow-node" tabindex="0" data-tip="datapipeline"><span class="fn-zh">数据与标注</span><span class="fn-en">Data & Labeling</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <p class="diagram-hint">先制造与封装，再和电、光、冷却一起汇入集群</p>
+          </div>
+        </section>
+
+        <!-- 6. Players -->
+        <section id="players">
+          <h2>6. 当前产业格局与主要玩家地图（2025–2026）· Landscape</h2>
+          <p>
+            下面按环节列一些代表性名字，目的是<strong>认角色</strong>，不是做排行榜。
+            地图会动：新模型、新芯片、出口管制与资本开支周期，都可能在一两年内改写位置。把它当坐标轴用，而不是当终点站公告。
+          </p>
+
+          <div class="tabs" data-tabs>
+            <div class="tab-list">
+              <button class="tab-btn active" data-tab="pl-hw">硬件与制造</button>
+              <button class="tab-btn" data-tab="pl-cloud">云与模型</button>
+              <button class="tab-btn" data-tab="pl-app">应用与工具</button>
+              <button class="tab-btn" data-tab="pl-cn">中国相关环节（示意）</button>
+            </div>
+            <div class="tab-panel active" id="pl-hw">
+              <table>
+                <thead><tr><th>环节</th><th>公司（中英）</th><th>主要贡献</th></tr></thead>
+                <tbody>
+                  <tr><td>AI GPU</td><td>英伟达 NVIDIA</td><td>训练/推理 GPU、软件栈、系统网络</td></tr>
+                  <tr><td>AI GPU / CPU</td><td>超威 AMD</td><td>Instinct 加速器、EPYC CPU</td></tr>
+                  <tr><td>CPU / 加速</td><td>英特尔 Intel</td><td>至强、Gaudi、代工与封装</td></tr>
+                  <tr><td>代工</td><td>台积电 TSMC；三星 Samsung Foundry</td><td>先进制程与封装</td></tr>
+                  <tr><td>HBM / DRAM</td><td>SK 海力士；三星；美光 Micron</td><td>高带宽与服务器内存</td></tr>
+                  <tr><td>NAND / SSD</td><td>三星；铠侠 Kioxia；西部数据；美光等</td><td>企业级存储介质与盘片</td></tr>
+                  <tr><td>交换 ASIC</td><td>博通 Broadcom</td><td>以太网交换芯片、定制 ASIC</td></tr>
+                  <tr><td>网络设备</td><td>Arista；英伟达网络；思科 Cisco 等</td><td>数据中心交换与路由</td></tr>
+                  <tr><td>光模块</td><td>中际旭创、Coherent、其他光通信厂商等</td><td>高速光收发模块</td></tr>
+                  <tr><td>服务器</td><td>Dell；Supermicro；HPE；浪潮；曙光；联想等</td><td>AI 整机与液冷系统</td></tr>
+                  <tr><td>设备</td><td>ASML；应用材料 Applied；拉姆 Lam；东京电子 TEL</td><td>半导体制造设备</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="tab-panel" id="pl-cloud">
+              <table>
+                <thead><tr><th>环节</th><th>实体（中英）</th><th>主要贡献</th></tr></thead>
+                <tbody>
+                  <tr><td>超大规模云</td><td>AWS；Microsoft Azure；Google Cloud</td><td>算力、托管 AI、全球基础设施</td></tr>
+                  <tr><td>云与自研芯</td><td>Google TPU；AWS Trainium/Inferentia；Azure Maia 等</td><td>降低对单一 GPU 路径依赖</td></tr>
+                  <tr><td>前沿模型</td><td>OpenAI；Anthropic；Google DeepMind；xAI；Meta</td><td>基础模型与产品形态定义</td></tr>
+                  <tr><td>中国云与模型</td><td>阿里云通义；字节；百度文心；腾讯；华为盘古；智谱；月之暗面；DeepSeek 等</td><td>区域市场模型与应用生态</td></tr>
+                  <tr><td>开源枢纽</td><td>Hugging Face；PyTorch 生态；各类模型社区</td><td>权重分发、工具与标准实践</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="tab-panel" id="pl-app">
+              <table>
+                <thead><tr><th>环节</th><th>类型 / 代表</th><th>主要贡献</th></tr></thead>
+                <tbody>
+                  <tr><td>应用层巨头</td><td>Microsoft 365 Copilot；Google 系；Adobe；各类超级应用</td><td>把模型嵌入高频工作流</td></tr>
+                  <tr><td>开发者工具</td><td>GitHub Copilot；Cursor 等 IDE 助手</td><td>代码生成与工程效率</td></tr>
+                  <tr><td>数据与标注</td><td>Scale AI 等</td><td>训练与对齐数据供给</td></tr>
+                  <tr><td>向量与搜索</td><td>Pinecone；Elastic；各类开源向量库</td><td>RAG 基础设施</td></tr>
+                  <tr><td>垂直行业</td><td>大量 ISV 与系统集成商</td><td>合规、集成、行业 know-how</td></tr>
+                  <tr><td>端侧平台</td><td>Apple；高通 Qualcomm；联发科；英特尔；AMD；手机与汽车 OEM</td><td>NPU/SoC 与端侧分发</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="tab-panel" id="pl-cn">
+              <p>
+                在服务器整机、光模块、互联网应用与部分开源模型上，国内链条很有活力；
+                在最先进逻辑节点、部分 EDA/设备与顶级 HBM 上，则仍嵌在全球分工与管制约束里。
+                看中国 AI 产业链，建议同时盯三件事：<strong>可替代路径是否真实、成熟节点产能是否够用、软件与场景是否够深</strong>。
+              </p>
+              <ul>
+                <li>算力侧：运营商与地方智算、互联网云、服务器厂商一起铺底座</li>
+                <li>模型侧：大厂与创业公司并行，节奏和约束并不相同</li>
+                <li>应用侧：C 端分发强，B 端更吃集成、合规与国产化交付</li>
+                <li>硬件侧：加速芯片创业与整机优化都在走，生态兼容是长期作业</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- 7. Myths -->
+        <section id="myths">
+          <h2>7. 常见误解与冷静观察 · Myths & Calibrated Takes</h2>
+          <p>下面这些话在饭局和社交媒体上很常见。不是要抬杠，只是帮你把判断校准回可检验的地面。</p>
+
+          <div class="myth">
+            <div class="myth-wrong">误解 1：「参数越大一定越强」</div>
+            <p>参数只是故事的一章。数据质量、训练配方、后训练、推理时算力、工具使用，都会改结局。小而精、配上好策略与好系统的模型，完全可能在特定任务上打赢更大但欠训的对手。</p>
+            <div class="myth-right">更稳妥的说法</div>
+            <p>在配方相近时，规模往往有用；跨配方只比参数量，意义不大。</p>
+          </div>
+
+          <div class="myth">
+            <div class="myth-wrong">误解 2：「AI 只是软件问题，卡买够就行」</div>
+            <p>HBM、封装、网络、电力、冷却、软件效率与人，都会卡脖子。卡到了仓库却上不了架、上了架却跑不满，这种故事并不罕见。</p>
+            <div class="myth-right">更稳妥的说法</div>
+            <p>算力必要，但从不是充分条件。这是系统工程。</p>
+          </div>
+
+          <div class="myth">
+            <div class="myth-wrong">误解 3：「开源一出，闭源就没价值了」</div>
+            <p>开源降低门槛、加快扩散；闭源仍可在前沿能力、产品体验、安全运营与持续迭代上形成闭环。它们服务不同预算与风险偏好。</p>
+            <div class="myth-right">更稳妥的说法</div>
+            <p>并行生态，不是零和消灭。</p>
+          </div>
+
+          <div class="myth">
+            <div class="myth-wrong">误解 4：「上了 RAG 就没有幻觉」</div>
+            <p>RAG 能减少「凭空编」。但检索错了、上下文脏了、模型不看证据、索引过时了，错误照样来。关键场景仍需要引用、校验与权限。</p>
+            <div class="myth-right">更稳妥的说法</div>
+            <p>RAG 是安全带，不是永动机。</p>
+          </div>
+
+          <div class="myth">
+            <div class="myth-wrong">误解 5：「Agent 很快会全面取代员工」</div>
+            <p>Agent 擅长可工具化、可验证的子任务。责任归属、例外处理、组织协调与真实世界的脏乱差，仍大量需要人。更可能发生的是分工重构，而不是一键清空工位。</p>
+            <div class="myth-right">更稳妥的说法</div>
+            <p>看任务自动化率与监督成本，比看替代叙事有用。</p>
+          </div>
+
+          <div class="myth">
+            <div class="myth-wrong">误解 6：「芯片一年能效暴涨，电的问题自然消失」</div>
+            <p>能效在变好，这是事实。但上下文更长、用户更多、模态更多、测试时计算更重——需求也在涨。电网与机房建设以年计，不是季度更新日志。</p>
+            <div class="myth-right">更稳妥的说法</div>
+            <p>效率与需求在赛跑；基础设施要按多年规划。</p>
+          </div>
+
+          <div class="myth">
+            <div class="myth-wrong">误解 7：「榜一 = 可以上生产」</div>
+            <p>公开榜可能被污染、被过拟合、与你的场景错配。生产关心的是业务指标、延迟、成本、稳定性、安全与能不能运维。</p>
+            <div class="myth-right">更稳妥的说法</div>
+            <p>私有评测集和线上 A/B，比追榜踏实。</p>
+          </div>
+        </section>
+
+        <!-- 8. FAQ -->
+        <section id="faq">
+          <h2>8. 读者常见问答 · FAQ for Readers</h2>
+          <p class="qa-intro">
+            下面这些问题，来自第一次认真拆产业时几乎人人会问的那一批。
+            答案不求「标准答案」，只求<strong>帮你问到点子上</strong>——能继续往下想，比记住口号有用。
+          </p>
+
+          <h3>产业与结构 · Industry structure</h3>
+          <div class="qa-list">
+            <details class="qa-item" open>
+              <summary>为什么不能把 AI 产业简单理解成「卖软件」？<span class="qa-en">Why isn’t AI “just software”?</span></summary>
+              <div class="qa-a">
+                <p>
+                  因为软件只坐在最上面一层。下面还有硅、封装、HBM、光模块、机房、电力与数据。
+                  模型能力再强，也要落在可交付的算力与可负担的推理成本上。把 AI 当纯软件看，会系统性低估交付周期与资本开支。
+                </p>
+              </div>
+            </details>
+            <details class="qa-item">
+              <summary>上中下游里，钱通常积在哪里？<span class="qa-en">Where does profit pool tend to sit?</span></summary>
+              <div class="qa-a">
+                <p>
+                  没有永恒答案，但有常见规律：稀缺且难复制的环节更容易定价。
+                  近几轮周期里，先进加速器、HBM、先进封装与部分光通信，利润与议价权都偏硬；
+                  中游要靠差异化模型与平台黏性；下游要靠场景与分发。利润会随瓶颈迁移——瓶颈挪到哪，钱往往跟到哪。
+                </p>
+              </div>
+            </details>
+            <details class="qa-item">
+              <summary>读 AI 新闻时，怎么快速判断「它在说哪一层」？<span class="qa-en">How do I map a headline to the stack?</span></summary>
+              <div class="qa-a">
+                <p>
+                  用四个词过滤：器件（HBM/GPU）、整机（服务器）、集群（万卡/电力）、服务（API/应用）。
+                  标题写「算力短缺」，可能是卡，也可能是封装或电。先钉层级，再讨论涨跌，争论会少一半。
+                </p>
+              </div>
+            </details>
+            <details class="qa-item">
+              <summary>云厂又买卡、又做模型、又卖 API，算不算「既当裁判又当运动员」？<span class="qa-en">Are hyperscalers vertically integrated on purpose?</span></summary>
+              <div class="qa-a">
+                <p>
+                  更准确的说法是纵向整合：上游大买家、中游平台、下游应用入口可以叠在同一家。
+                  这不自动等于不公平，但意味着你在选供应商时，也在选一套生态与议价结构。
+                  关注点应是：可迁移性、配额、价格曲线与锁定成本，而不是道德叙事。
+                </p>
+              </div>
+            </details>
+          </div>
+
+          <h3>算力、HBM 与电力 · Compute, HBM, power</h3>
+          <div class="qa-list">
+            <details class="qa-item">
+              <summary>为什么 GPU「到货」不等于「能训练」？<span class="qa-en">Why isn’t GPU delivery the finish line?</span></summary>
+              <div class="qa-a">
+                <p>
+                  卡只是零件。还要有匹配的 HBM 与封装、机内/机间网络、电力与冷却、机房位、调度软件与会运维的人。
+                  任一环滞后，GPU 就可能在仓库里当固定资产，而不是在产 token。
+                </p>
+              </div>
+            </details>
+            <details class="qa-item">
+              <summary>HBM 为什么又贵又紧？是炒作吗？<span class="qa-en">Is HBM scarcity just hype?</span></summary>
+              <div class="qa-a">
+                <p>
+                  不完全是。HBM 工艺（堆叠、TSV、与逻辑芯片共封装）难，良率与测试成本高，供应商集中，扩产以年计。
+                  需求又被旗舰加速器强绑定。贵，反映的是难度与匹配；紧，反映的是扩产跟不上订单窗口。当然价格会波动，但「难」不是虚构的。
+                </p>
+              </div>
+            </details>
+            <details class="qa-item">
+              <summary>推理为什么经常「吃带宽」而不是「吃算力」？<span class="qa-en">Why is inference often memory-bound?</span></summary>
+              <div class="qa-a">
+                <p>
+                  生成下一个 token 时，大量工作是反复搬运权重与 KV Cache。算术单元可能闲着，总线却很忙——这叫 memory-bound。
+                  所以长上下文、大 batch、高并发时，HBM 带宽与缓存策略，往往比峰值 FLOPS 更决定体感延迟。
+                </p>
+              </div>
+            </details>
+            <details class="qa-item">
+              <summary>电力真的会成为长期瓶颈吗？芯片不是越来越省电吗？<span class="qa-en">Won’t efficiency solve the power problem?</span></summary>
+              <div class="qa-a">
+                <p>
+                  能效在变好，但需求也在涨：更长上下文、更多用户、更多模态、测试时计算。两边在赛跑。
+                  电网与机房建设以年计，并网窗口不可「云扩容」。所以电力会是多年约束，不是一句「明年更省电」就能消掉的。
+                </p>
+              </div>
+            </details>
+            <details class="qa-item">
+              <summary>训练和推理，资源画像差在哪？<span class="qa-en">Training vs inference resource profile?</span></summary>
+              <div class="qa-a">
+                <p>
+                  训练像一场长跑会战：要通信密集、容错、检查点、高持续功耗，目标是在可接受时间内吃完数据。
+                  推理像昼夜营业的门店：要延迟、吞吐、成本、多租户与版本管理。同一张卡可以两边用，但集群设计与软件栈通常要分开想。
+                </p>
+              </div>
+            </details>
+          </div>
+
+          <h3>模型、开源与产品 · Models, open source, products</h3>
+          <div class="qa-list">
+            <details class="qa-item">
+              <summary>该选开源模型还是闭源 API？<span class="qa-en">Open weights or closed API?</span></summary>
+              <div class="qa-a">
+                <p>
+                  看约束，不看站队。要最强通用能力、少运维，闭源 API 往往省心；要数据私有、可定制、可控成本曲线，开放权重更合适。
+                  很多认真的团队是混合：主路径用一种，边缘与备份用另一种。真正的问题是 TCO、合规与失败时的退路。
+                </p>
+              </div>
+            </details>
+            <details class="qa-item">
+              <summary>参数量、榜单、demo，哪个更值得信？<span class="qa-en">Params, leaderboards, or demos?</span></summary>
+              <div class="qa-a">
+                <p>
+                  单独拿出来都不够。参数是容量暗示，不是能力证明；榜单可能被过拟合；demo 可以精心挑选。
+                  生产更信：你自己的任务集、延迟与成本曲线、线上事故率、以及有没有可回滚的版本。
+                </p>
+              </div>
+            </details>
+            <details class="qa-item">
+              <summary>RAG 解决了幻觉吗？什么时候还不够？<span class="qa-en">Does RAG “fix” hallucination?</span></summary>
+              <div class="qa-a">
+                <p>
+                  RAG 减少的是「模型对未知世界的自信编造」，前提是检索对、上下文干净、模型愿意依据证据。
+                  检索错、索引旧、权限乱、或模型无视引用时，错误照样发生。关键业务要引用、校验、人工闸门——安全带不是永动机。
+                </p>
+              </div>
+            </details>
+            <details class="qa-item">
+              <summary>Agent 什么时候值得做，什么时候是热闹？<span class="qa-en">When is an agent worth building?</span></summary>
+              <div class="qa-a">
+                <p>
+                  当任务可拆步、可调用工具、结果可验证、失败可回滚时，Agent 有真实 ROI。
+                  当责任重大、例外极多、环境脏乱、监督成本高于人工时，硬上 Agent 会把复杂度藏进黑箱。
+                  先算「监督成本 + 失败代价」，再谈「自主程度」。
+                </p>
+              </div>
+            </details>
+            <details class="qa-item">
+              <summary>端侧 AI 会不会取代云端大模型？<span class="qa-en">Will on-device AI replace the cloud?</span></summary>
+              <div class="qa-a">
+                <p>
+                  更可能是分工：小事本地做（隐私、低延迟、离线），重活上云（大模型、多模态、峰值算力）。
+                  端侧受功耗与内存约束，云端受成本与网络约束。问「谁取代谁」，不如问「哪类请求该停在哪一层」。
+                </p>
+              </div>
+            </details>
+          </div>
+
+          <h3>商业、投资与组织 · Business & org</h3>
+          <div class="qa-list">
+            <details class="qa-item">
+              <summary>「算力即权力」这句话成立吗？<span class="qa-en">Is “compute is power” true?</span></summary>
+              <div class="qa-a">
+                <p>
+                  在训练前沿与大规模推理上，算力确实接近硬通货。但它不是唯一通货：数据、算法效率、产品分发、品牌信任同样能改写结果。
+                  小团队用更好的数据与系统，有时能在特定战场赢过大集群。算力是必要约束，不是全部故事。
+                </p>
+              </div>
+            </details>
+            <details class="qa-item">
+              <summary>如果推理成本再降 10 倍，世界会怎样？<span class="qa-en">What if inference is 10× cheaper?</span></summary>
+              <div class="qa-a">
+                <p>
+                  许多「演示级」功能会变成默认开关：更长上下文、更勤的代理、更细的个性化、更多后台静默调用。
+                  同时，用量会反弹（杰文斯悖论那一类逻辑），电力与产品滥用风险也可能一起上来。
+                  成本下降释放需求，不自动等于问题消失。
+                </p>
+              </div>
+            </details>
+            <details class="qa-item">
+              <summary>企业落地最常死在哪一步？<span class="qa-en">Where do enterprise projects die?</span></summary>
+              <div class="qa-a">
+                <p>
+                  很少死在「模型不够聪明」这一句上。更常见的是：数据权限接不通、工作流嵌不进、评测说不清、成本不可控、合规过不了、没有人愿意为结果负责。
+                  技术选型重要，组织与流程往往更致命。
+                </p>
+              </div>
+            </details>
+            <details class="qa-item">
+              <summary>个人或小团队，怎样参与这条产业链才现实？<span class="qa-en">What’s realistic for small teams?</span></summary>
+              <div class="qa-a">
+                <p>
+                  不必从造卡或训万亿参数开始。更现实的切口：垂直数据、工作流产品、评测与安全、推理优化、行业集成、开发者工具。
+                  产业链很长，利润不全在聚光灯下。找一个你比巨头更懂的窄场景，往往比正面硬刚基础模型更理性。
+                </p>
+              </div>
+            </details>
+            <details class="qa-item">
+              <summary>如何判断一则 AI 产业新闻是否「过热」？<span class="qa-en">How to spot overheated AI news?</span></summary>
+              <div class="qa-a">
+                <p>
+                  看四样：评测能否复现、单位成本是否公开、产能/交付是否可核验、失败模式有没有被提起。
+                  只有愿景、没有约束，通常是营销。陡峭进步存在，但很少以魔法形式出现。
+                </p>
+              </div>
+            </details>
+          </div>
+
+          <h3>学习与判断 · Learning & judgment</h3>
+          <div class="qa-list">
+            <details class="qa-item">
+              <summary>我不是硬件背景，也需要懂 HBM 和液冷吗？<span class="qa-en">Do non-hardware people need HBM & cooling?</span></summary>
+              <div class="qa-a">
+                <p>
+                  不必会画封装截面，但最好知道：它们如何变成延迟、成本与交付时间。
+                  产品经理若不懂「为什么贵、为什么慢」，容易向客户承诺物理上做不到的东西。懂约束，是专业的一部分。
+                </p>
+              </div>
+            </details>
+            <details class="qa-item">
+              <summary>信息更新这么快，这份长文会不会很快过时？<span class="qa-en">Won’t this guide go stale quickly?</span></summary>
+              <div class="qa-a">
+                <p>
+                  具体型号与价格会过时；层级结构与约束逻辑慢得多。
+                  上中下游的分工、训练/推理的资源画像、HBM/电力/网络作为瓶颈的机制——这些比某一季的旗舰名号耐用。
+                  把本文当地图，把新闻当天气。
+                </p>
+              </div>
+            </details>
+            <details class="qa-item">
+              <summary>读完之后，最小可行的下一步是什么？<span class="qa-en">What’s a good next step after reading?</span></summary>
+              <div class="qa-a">
+                <p>
+                  选一个你真实关心的产品或项目，画一张半页纸的依赖图：模型、推理成本、数据、合规、最可能卡你的物理约束。
+                  能画清楚，说明坐标立住了；画不清的地方，就是下一周该补的阅读。
+                </p>
+              </div>
+            </details>
+          </div>
+
+          <div class="callout">
+            <div class="callout-title">问答之外</div>
+            <p>
+              好问题往往比好答案更稀缺。若你读完只记住一句话，不妨是：
+              <strong>先认清自己站在哪一层、受什么约束，再决定相信哪一种叙事。</strong>
+            </p>
+          </div>
+        </section>
+
+        <!-- 9. Reading -->
+        <section id="reading">
+          <h2>9. 延伸阅读与学习路径 · Further Reading</h2>
+          <p>
+            不必按顺序把世界上所有材料读完。选一条与你目标最近的路，用一个真实问题拖着走，效率通常最高。
+          </p>
+
+          <div class="path-card">
+            <div class="path-level">路径 A · 先建立产业坐标</div>
+            <h4>适合：想听懂新闻、看懂约束的人</h4>
+            <ul>
+              <li>把本页全景、术语表与「误解」章读薄、读熟</li>
+              <li>跟踪云厂资本开支、GPU 路线、机房与电力新闻——并学会区分「宣传」与「交付」</li>
+              <li>挑一份公开产业报告或半导体/光通信综述，训练自己抓主线的能力</li>
+              <li>练习：选一个你常用的 AI 产品，倒推它依赖的模型、成本、数据与合规</li>
+            </ul>
+          </div>
+
+          <div class="path-card">
+            <div class="path-level">路径 B · 训练与推理工程</div>
+            <h4>适合：要动手把系统跑稳的人</h4>
+            <ul>
+              <li>补齐：线性代数直觉、概率、深度学习基础、Python</li>
+              <li>框架：PyTorch 教程 → 自己搭一个小 Transformer</li>
+              <li>系统：混合精度、FSDP/ZeRO、通信原语、MFU 从何而来</li>
+              <li>推理：KV Cache、量化、vLLM 一类引擎、性能剖析</li>
+              <li>数据：清洗、评测设计、SFT/偏好对齐在做什么</li>
+            </ul>
+          </div>
+
+          <div class="path-card">
+            <div class="path-level">路径 C · 硬件与基础设施</div>
+            <h4>适合：想看懂卡、网、电、房的人</h4>
+            <ul>
+              <li>体系结构：存储层次、并行、互连</li>
+              <li>公开 GPU 架构材料与 CUDA 编程模型概览</li>
+              <li>HBM、封装、光模块：先建立正确层级，再读行业细节</li>
+              <li>数据中心：PUE、液冷、叶脊网络——把「机房」当成产品来理解</li>
+            </ul>
+          </div>
+
+          <div class="path-card">
+            <div class="path-level">路径 D · 产品与落地</div>
+            <h4>适合：要把模型变成可靠服务的人</h4>
+            <ul>
+              <li>RAG：切分、检索、重排、引用、评测</li>
+              <li>Agent：工具调用、状态、权限、人工审核节点</li>
+              <li>质量：离线集 + 线上监控 + 红队，而不是只靠感觉</li>
+              <li>成本：缓存、大小模型路由、批处理、端云分工</li>
+            </ul>
+          </div>
+
+          <div class="callout">
+            <div class="callout-title">读产业新闻时的滤镜</div>
+            <p>
+              遇到「颠覆」「一夜之间」「全面领先」这类词，停一秒，问四件事：
+              <strong>评测能否复现、单位成本是多少、产能能否交付、能源与失败案例是否被提起</strong>。
+              真实进步通常陡峭，但很少魔法。
+            </p>
+          </div>
+
+          <h3>9.1 合上页面前，可以自问</h3>
+          <ul>
+            <li>训练与推理吃资源的方式差在哪？为什么 decode 常常吃带宽？</li>
+            <li>在你所在地区，更可能先卡在 HBM、封装、光模块，还是电？</li>
+            <li>若推理成本降一个数量级，哪些演示会突然变成默认功能？</li>
+            <li>开放权重 + 私有数据 + RAG，是否已够用？还是必须上前沿闭源 API？</li>
+            <li>你的系统如何度量幻觉、延迟、成本与安全——而不是只度量「感觉聪明」？</li>
+          </ul>
+        </section>
+
+        <hr />
+        <footer class="site-footer">
+          <p>
+            <strong>AI 全产业链深度百科</strong> · a calm field guide to the stack<br />
+            单文件本地长文 · 用于学习与讨论 · 不构成投资或采购建议<br />
+            深浅色切换 · 目录与搜索 · 卡片悬停补充
+          </p>
+          <p style="margin-top:.75rem">可自由修改与扩展 · 地图比口号耐用</p>
+        </footer>
+      </article>
+    </main>
+  </div>
+
+  <button id="backTop" title="返回顶部 / Back to top" aria-label="返回顶部">↑</button>
+  <div id="chartTip" role="tooltip" aria-hidden="true"></div>
+
+  <script>
+    /* ========== Theme ========== */
+    (function initTheme() {
+      const root = document.documentElement;
+      const btn = document.getElementById("themeBtn");
+      const icon = document.getElementById("themeIcon");
+      const saved = localStorage.getItem("ai-wiki-theme");
+      const preferLight = window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches;
+      const initial = saved || (preferLight ? "light" : "dark");
+      setTheme(initial);
+
+      btn.addEventListener("click", () => {
+        const next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+        setTheme(next);
+        localStorage.setItem("ai-wiki-theme", next);
+      });
+
+      function setTheme(t) {
+        root.setAttribute("data-theme", t);
+        icon.textContent = t === "dark" ? "☀" : "☾";
+      }
+    })();
+
+    /* ========== Company logo fallback (Clearbit → Google favicon → text) ========== */
+    function logoFallback(img) {
+      const domain = img.getAttribute("data-domain");
+      const stage = img.getAttribute("data-stage") || "0";
+      if (stage === "0" && domain) {
+        img.setAttribute("data-stage", "1");
+        img.src = "https://www.google.com/s2/favicons?domain=" + encodeURIComponent(domain) + "&sz=128";
+        return;
+      }
+      const wrap = img.parentElement;
+      if (!wrap) return;
+      const text = wrap.getAttribute("data-fallback") || "?";
+      img.remove();
+      wrap.classList.add("fallback");
+      wrap.textContent = text;
+    }
+
+    /* ========== HTML flowchart tips + zoom (no Mermaid) ========== */
+    const TIPS = {
+      foundry: { layer: "上游 · Upstream", title: "半导体制造", en: "Semiconductor Foundry", body: "把设计变成硅片的地方。先进节点与良率，决定后面所有旗舰芯片能不能按期量产。", meta: "TSMC / Samsung Foundry 等" },
+      accel: { layer: "上游 · Upstream", title: "加速芯片", en: "Accelerators", body: "矩阵与张量运算的主力。训练默认 GPU；负载稳定时 ASIC 更省；端侧则常见 NPU。", meta: "算力 · 能效 · 软件生态" },
+      memory: { layer: "上游 · Upstream", title: "内存与存储", en: "Memory & Storage", body: "HBM 贴在加速器旁卖带宽；DRAM 撑主机；SSD/HDD 装数据与检查点。很多瓶颈其实是「搬不动」。", meta: "HBM 尤其稀缺" },
+      net: { layer: "上游 · Upstream", title: "互联与网络", en: "Interconnect", body: "机内 NVLink 与机间 IB/以太网决定万卡训练扩展效率。光模块与交换机是关键。", meta: "400G → 800G → 1.6T" },
+      server: { layer: "上游 · Upstream", title: "服务器与整机", en: "Servers", body: "把 GPU、CPU、内存、网卡、电源与散热集成为可交付整机或液冷机柜。", meta: "OEM/ODM 交付" },
+      dc: { layer: "上游 · Upstream", title: "数据中心", en: "Data Center", body: "AI 机柜功率密度高，推动液冷、高压配电与电力选址。", meta: "电力 + PUE + 建设周期" },
+      datalabel: { layer: "上游 · Upstream", title: "数据与标注", en: "Data & Labeling", body: "语料采集、清洗、授权与人工标注/偏好数据，决定模型知识与对齐质量。", meta: "无形上游" },
+      framework: { layer: "中游 · Midstream", title: "框架与引擎", en: "Frameworks & Engines", body: "PyTorch 等负责训练；vLLM 等负责高吞吐推理。", meta: "软件效率 ≈ 等效算力" },
+      fm: { layer: "中游 · Midstream", title: "基础模型", en: "Foundation Models", body: "广域预训练的通用模型，闭源 API 与开放权重并行。", meta: "能力 × 成本 × 安全" },
+      tooling: { layer: "中游 · Midstream", title: "工具链", en: "MLOps / Vector / Agent", body: "实验管理、向量检索、编排与可观测性，支撑生产系统。", meta: "RAG 与 Agent 底座" },
+      cloud: { layer: "中游 · Midstream", title: "AI 云与 MaaS", en: "AI Cloud & MaaS", body: "按需租用训练/推理算力与托管 API。", meta: "配额、区域、SLA、单价" },
+      toc: { layer: "下游 · Downstream", title: "To C 应用", en: "Consumer", body: "助手、创作、搜索等个人场景。", meta: "留存与单位推理成本" },
+      tob: { layer: "下游 · Downstream", title: "To B 行业", en: "Enterprise", body: "金融、医疗、工业等，重合规与集成。", meta: "模型 + 流程 + 评测" },
+      edge: { layer: "下游 · Downstream", title: "端侧 AI", en: "On-device / Edge", body: "手机/PC/汽车本地推理：隐私与低延迟，受功耗约束。", meta: "量化、蒸馏、端云协同" },
+      agent: { layer: "下游 · Downstream", title: "Agent 与具身", en: "Agent & Embodied", body: "多步工具调用与物理交互，可靠性仍是工程前沿。", meta: "从回答到行动" },
+      s1: { layer: "训练流程", title: "① 数据收集", en: "Data Collection", body: "爬取、授权、代码/书籍、多模态与合成数据。合规是前提。", meta: "爬虫 · 对象存储 · 法务" },
+      s2: { layer: "训练流程", title: "② 清洗过滤", en: "Cleaning", body: "质量打分、去毒、去重、PII 与领域配比。", meta: "垃圾进则垃圾出" },
+      s3: { layer: "训练流程", title: "③ 分词与打包", en: "Tokenize / Pack", body: "切成 token 并打包训练序列，设定混合比例。", meta: "影响吞吐与行为" },
+      s4: { layer: "训练流程", title: "④ 预训练", en: "Pre-training", body: "在海量 token 上做下一词预测。算力与电力的大头通常砸在这里。", meta: "万卡 · 数周至数月" },
+      s5: { layer: "训练流程", title: "⑤ 退火 / 续训", en: "Annealing", body: "高质数据续训或降学习率收束，提升稳定性。", meta: "仍需大规模加速器" },
+      s6: { layer: "训练流程", title: "⑥ 监督微调 SFT", en: "SFT", body: "指令-回答与工具轨迹示范，教会完成任务。", meta: "数据质量密度高" },
+      s7: { layer: "训练流程", title: "⑦ 偏好对齐", en: "RLHF / DPO", body: "按人类/AI 偏好优化有用、无害与风格。", meta: "超参数敏感" },
+      s8: { layer: "训练流程", title: "⑧ 安全与红队", en: "Safety", body: "对抗测试与缓解措施，降低有害输出。", meta: "发布前闸门" },
+      s9: { layer: "训练流程", title: "⑨ 评测发布", en: "Eval / Release", body: "能力基准、回归与许可决策。", meta: "勿只追公开榜" },
+      s10: { layer: "训练流程", title: "⑩ 推理部署", en: "Serving", body: "量化、批处理、扩缩容与成本控制。用户体感主要在这里成形。", meta: "KV Cache · 延迟 · 账单" },
+      s11: { layer: "训练流程", title: "⑪ 反馈闭环", en: "Feedback Loop", body: "线上反馈回流清洗与后训练，形成飞轮。", meta: "产品数据闭环" },
+      "in-data": { layer: "投入", title: "数据", en: "Data / Tokens", body: "训练直接消耗 token；质量与配比比单纯堆量更重要。", meta: "文本/代码/多模态" },
+      "in-compute": { layer: "投入", title: "算力", en: "GPU / TPU", body: "前向与反向矩阵算力；MFU 决定有效进度。", meta: "通常最大单项成本" },
+      "in-net": { layer: "投入", title: "网络", en: "High BW Network", body: "AllReduce / AllToAll 通信；网络慢则 GPU 空等。", meta: "IB 或增强以太" },
+      "in-store": { layer: "投入", title: "存储", en: "PFS / Object", body: "装载数据与写出 TB 级检查点。", meta: "吞吐是瓶颈" },
+      "in-soft": { layer: "投入", title: "软件", en: "Distributed Stack", body: "框架、并行、容错与混合精度，决定硬件利用率。", meta: "PyTorch 等" },
+      "in-people": { layer: "投入", title: "团队", en: "Research + SRE", body: "算法、训练工程与运维协作排障调参。", meta: "缺工程=浪费算力" },
+      "in-power": { layer: "投入", title: "电力", en: "Sustained Power", body: "训练是持续高功率负载。并网窗口与电价，常常比「有没有卡」更早成为硬约束。", meta: "选址与并网" },
+      "p-fwd": { layer: "过程", title: "前向计算", en: "Forward", body: "输入到损失；长序列推高激活显存。", meta: "可与重计算权衡" },
+      "p-bwd": { layer: "过程", title: "反向传播", en: "Backward", body: "求梯度；常是训练步主要耗时。", meta: "自动微分" },
+      "p-opt": { layer: "过程", title: "优化器更新", en: "Optimizer", body: "Adam 等更新权重；优化器状态再吃 HBM。", meta: "ZeRO 可切分" },
+      "p-comm": { layer: "过程", title: "通信", en: "Comm", body: "多卡同步梯度/激活；与计算重叠是关键。", meta: "依赖网络" },
+      "p-ckpt": { layer: "过程", title: "检查点写入", en: "Checkpoint I/O", body: "周期性落盘，用于故障恢复。", meta: "频率 vs 风险" },
+      "o-ckpt": { layer: "产出", title: "基础模型权重", en: "Foundation Checkpoint", body: "预训练主产物，后续 SFT/对齐基于它。", meta: "数十至数百 GB+" },
+      "o-logs": { layer: "产出", title: "日志与指标", en: "Logs & Metrics", body: "loss、吞吐、MFU 等监控训练健康度。", meta: "可观测性" },
+      "o-eval": { layer: "产出", title: "评测", en: "Loss / Eval", body: "曲线与基准，判断欠训或数据问题。", meta: "需私有评测集" },
+      litho: { layer: "供应链", title: "光刻与设备", en: "Lithography", body: "EUV 等是先进制程前提。", meta: "ASML 等" },
+      wafer: { layer: "供应链", title: "晶圆代工", en: "Wafer Foundry", body: "制造逻辑晶体管；先进节点爬坡慢。", meta: "TSMC 等" },
+      pkg: { layer: "供应链", title: "先进封装", en: "Packaging", body: "SoC 与 HBM 高密度互连；常成交付瓶颈。", meta: "CoWoS 类" },
+      hbm: { layer: "供应链", title: "HBM 制造", en: "HBM", body: "3D 堆叠 DRAM，工艺难、扩产慢、供应集中。", meta: "SK Hynix / Samsung / Micron" },
+      "gpu-fin": { layer: "供应链", title: "加速器成品", en: "Finished Accelerators", body: "封装测试后的 GPU/ASIC，进入整机集成。", meta: "有芯片≠有集群" },
+      optics: { layer: "供应链", title: "光模块与交换", en: "Optics", body: "集群东西向流量驱动高速光模块需求。", meta: "800G / 1.6T" },
+      powergrid: { layer: "供应链", title: "电力与电网", en: "Power & Grid", body: "并网排队与购电协议；常卡在「没电」。", meta: "选址第一约束" },
+      cooling: { layer: "供应链", title: "液冷与暖通", en: "Cooling", body: "高功率密度下冷板/浸没液冷成标配方向。", meta: "影响机柜与运维" },
+      cluster: { layer: "供应链", title: "AI 集群", en: "AI Cluster", body: "加速器+网络+存储+电力冷却的可调度池。", meta: "系统工程产物" },
+      traininfer: { layer: "供应链", title: "训练 / 推理", en: "Train / Infer", body: "训练吃通信与 HBM；推理吃并发与 KV Cache。", meta: "资源画像不同" },
+      datapipeline: { layer: "供应链", title: "数据与标注", en: "Data & Labeling", body: "为训练与对齐提供语料与标注服务。", meta: "与上游数据对应" }
+    };
+
+    const chartTipEl = document.getElementById("chartTip");
+
+    function showChartTip(tip, x, y) {
+      chartTipEl.innerHTML =
+        '<div class="tip-kicker">' + tip.layer + '</div>' +
+        '<div class="tip-title">' + tip.title + '</div>' +
+        '<div class="tip-en">' + tip.en + '</div>' +
+        '<p class="tip-body">' + tip.body + '</p>' +
+        (tip.meta ? '<div class="tip-meta">' + tip.meta + '</div>' : '');
+      chartTipEl.classList.add("visible");
+      chartTipEl.setAttribute("aria-hidden", "false");
+      positionChartTip(x, y);
+    }
+
+    function hideChartTip() {
+      chartTipEl.classList.remove("visible");
+      chartTipEl.setAttribute("aria-hidden", "true");
+      document.querySelectorAll(".flow-node.is-hot").forEach((n) => n.classList.remove("is-hot"));
+    }
+
+    function positionChartTip(x, y) {
+      const pad = 14;
+      const rect = chartTipEl.getBoundingClientRect();
+      let left = x + 16;
+      let top = y + 16;
+      if (left + rect.width > window.innerWidth - pad) left = x - rect.width - 12;
+      if (top + rect.height > window.innerHeight - pad) top = y - rect.height - 12;
+      if (left < pad) left = pad;
+      if (top < pad) top = pad;
+      chartTipEl.style.left = left + "px";
+      chartTipEl.style.top = top + "px";
+    }
+
+    function bindFlowInteractivity() {
+      document.querySelectorAll(".flow-node[data-tip]").forEach((node) => {
+        if (node.dataset.tipBound === "1") return;
+        node.dataset.tipBound = "1";
+        const tip = TIPS[node.getAttribute("data-tip")];
+        if (!tip) return;
+        node.setAttribute("role", "button");
+        node.setAttribute("aria-label", tip.title + " — " + tip.en);
+
+        const onEnter = (evt) => {
+          document.querySelectorAll(".flow-node.is-hot").forEach((n) => n.classList.remove("is-hot"));
+          node.classList.add("is-hot");
+          showChartTip(tip, evt.clientX || node.getBoundingClientRect().left, evt.clientY || node.getBoundingClientRect().top);
+        };
+        node.addEventListener("mouseenter", onEnter);
+        node.addEventListener("mousemove", (e) => {
+          if (chartTipEl.classList.contains("visible")) positionChartTip(e.clientX, e.clientY);
+        });
+        node.addEventListener("mouseleave", hideChartTip);
+        node.addEventListener("focus", () => {
+          const r = node.getBoundingClientRect();
+          onEnter({ clientX: r.left + r.width / 2, clientY: r.top });
+        });
+        node.addEventListener("blur", hideChartTip);
+      });
+    }
+
+    bindFlowInteractivity();
+
+    window.addEventListener("scroll", hideChartTip, { passive: true });
+    window.addEventListener("resize", hideChartTip);
+
+    /* ========== Tabs ========== */
+    document.querySelectorAll("[data-tabs]").forEach((tabs) => {
+      const buttons = tabs.querySelectorAll(".tab-btn");
+      buttons.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const id = btn.getAttribute("data-tab");
+          buttons.forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+          tabs.querySelectorAll(".tab-panel").forEach((p) => {
+            p.classList.toggle("active", p.id === id);
+          });
+        });
+      });
+    });
+
+    /* ========== Accordion ========== */
+    document.querySelectorAll(".acc-trigger").forEach((trigger) => {
+      trigger.addEventListener("click", () => {
+        const item = trigger.closest(".acc-item");
+        const parent = item.parentElement;
+        // optional: close siblings for cleaner reading — keep multi-open for deep reading
+        item.classList.toggle("open");
+      });
+    });
+
+    /* ========== Mobile sidebar ========== */
+    const sidebar = document.getElementById("sidebar");
+    const overlay = document.getElementById("sidebarOverlay");
+    const menuBtn = document.getElementById("menuBtn");
+    function closeSidebar() {
+      sidebar.classList.remove("open");
+      overlay.classList.remove("open");
+    }
+    menuBtn.addEventListener("click", () => {
+      sidebar.classList.toggle("open");
+      overlay.classList.toggle("open");
+    });
+    overlay.addEventListener("click", closeSidebar);
+    sidebar.querySelectorAll("a").forEach((a) => a.addEventListener("click", closeSidebar));
+
+    /* ========== TOC active state ========== */
+    const tocLinks = document.querySelectorAll("#tocList a");
+    const sections = [...tocLinks].map((a) => document.querySelector(a.getAttribute("href"))).filter(Boolean);
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          const id = entry.target.id;
+          tocLinks.forEach((l) => l.classList.toggle("active", l.getAttribute("href") === "#" + id));
+        });
+      },
+      { rootMargin: "-20% 0px -70% 0px", threshold: 0 }
+    );
+    sections.forEach((s) => observer.observe(s));
+
+    /* ========== Search highlight ========== */
+    const searchInput = document.getElementById("searchInput");
+    const searchCount = document.getElementById("searchCount");
+    const contentRoot = document.getElementById("contentRoot");
+    let searchTimer = null;
+
+    function clearHighlights() {
+      contentRoot.querySelectorAll("mark.search-hit").forEach((m) => {
+        const t = document.createTextNode(m.textContent);
+        m.parentNode.replaceChild(t, m);
+      });
+      // normalize split text nodes lightly
+      contentRoot.normalize();
+    }
+
+    function highlightTerm(term) {
+      clearHighlights();
+      if (!term || term.length < 2) {
+        searchCount.textContent = "";
+        return;
+      }
+      const re = new RegExp(term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "gi");
+      let count = 0;
+      const walker = document.createTreeWalker(contentRoot, NodeFilter.SHOW_TEXT, {
+        acceptNode(node) {
+          if (!node.parentElement) return NodeFilter.FILTER_REJECT;
+          const tag = node.parentElement.tagName;
+          if (["SCRIPT", "STYLE", "MARK", "TEXTAREA"].includes(tag)) return NodeFilter.FILTER_REJECT;
+          if (node.parentElement.closest(".mermaid")) return NodeFilter.FILTER_REJECT;
+          if (!node.nodeValue || !node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+          return NodeFilter.FILTER_ACCEPT;
+        }
+      });
+      const nodes = [];
+      while (walker.nextNode()) nodes.push(walker.currentNode);
+      nodes.forEach((textNode) => {
+        const text = textNode.nodeValue;
+        if (!re.test(text)) return;
+        re.lastIndex = 0;
+        const frag = document.createDocumentFragment();
+        let last = 0;
+        let m;
+        while ((m = re.exec(text)) !== null) {
+          if (m.index > last) frag.appendChild(document.createTextNode(text.slice(last, m.index)));
+          const mark = document.createElement("mark");
+          mark.className = "search-hit";
+          mark.textContent = m[0];
+          frag.appendChild(mark);
+          count++;
+          last = m.index + m[0].length;
+        }
+        if (last < text.length) frag.appendChild(document.createTextNode(text.slice(last)));
+        textNode.parentNode.replaceChild(frag, textNode);
+      });
+      searchCount.textContent = count ? count + " 处" : "无匹配";
+      const first = contentRoot.querySelector("mark.search-hit");
+      if (first) first.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+
+    searchInput.addEventListener("input", () => {
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(() => highlightTerm(searchInput.value.trim()), 280);
+    });
+    searchInput.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        searchInput.value = "";
+        clearHighlights();
+        searchCount.textContent = "";
+      }
+    });
+
+    /* ========== Back to top ========== */
+    const backTop = document.getElementById("backTop");
+    window.addEventListener("scroll", () => {
+      backTop.classList.toggle("visible", window.scrollY > 500);
+    }, { passive: true });
+    backTop.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
+  </script>
+</body>
+</html>
