@@ -29,6 +29,7 @@ mw_lab/
 │       └── index.html   # single-file GTA-lite
 └── knowledge/
     ├── itv.html
+    ├── ai-industry-chain-encyclopedia.html
     └── theorem-library/
         └── index.html
 ```
@@ -40,6 +41,7 @@ mw_lab/
 | Resource | Description | Link |
 |----------|-------------|------|
 | **ITV** | Interview / knowledge page | [knowledge/itv.html](./knowledge/itv.html) |
+| **AI Industry Encyclopedia** | Full AI industry-chain field guide — silicon, power, networks, models, training, supply chain & myths (2025–2026) | [knowledge/ai-industry-chain-encyclopedia.html](./knowledge/ai-industry-chain-encyclopedia.html) |
 | **Theorm** | Math **and physics** theorems in plain language — Newton, thermo, Maxwell, relativity, quantum, plus classic math; KaTeX & interactive demos | [knowledge/theorem-library/](./knowledge/theorem-library/index.html) |
 
 ---
@@ -77,7 +79,7 @@ mw_lab/
 2. Browse by category:
    - [Tools](./tools/)
    - [Games](./games/) — Particell, Blitz, Catrun, Crimewave, Neon District, 三体
-   - [Knowledge](./knowledge/) — including [Theorm](./knowledge/theorem-library/index.html)
+   - [Knowledge](./knowledge/) — including [AI Industry Encyclopedia](./knowledge/ai-industry-chain-encyclopedia.html) and [Theorm](./knowledge/theorem-library/index.html)
 3. Click any link to open the tool directly in your browser.
 4. All content runs **client-side** — no backend or installation needed.
 
