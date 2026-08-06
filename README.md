@@ -29,7 +29,7 @@ mw_lab/
 │       └── index.html   # single-file GTA-lite
 └── knowledge/
     ├── itv.html
-    └── theorem-library/     # 定理图书馆（大白话 + 证明 + 交互图）
+    └── theorem-library/
         └── index.html
 ```
 
@@ -40,7 +40,7 @@ mw_lab/
 | Resource | Description | Link |
 |----------|-------------|------|
 | **ITV** | Interview / knowledge page | [knowledge/itv.html](./knowledge/itv.html) |
-| **定理图书馆** | Math **and physics** theorems in plain language — Newton, thermo, Maxwell, relativity, quantum, plus classic math; KaTeX & interactive demos | [knowledge/theorem-library/](./knowledge/theorem-library/index.html) |
+| **Theorm** | Math **and physics** theorems in plain language — Newton, thermo, Maxwell, relativity, quantum, plus classic math; KaTeX & interactive demos | [knowledge/theorem-library/](./knowledge/theorem-library/index.html) |
 
 ---
 
@@ -66,7 +66,7 @@ mw_lab/
 | **Catrun**      | One-button dash runner (Dash Runner) — hop/float through biomes, coins & gust boosts | [games/Catrun.html](./games/Catrun.html) |
 | **Crimewave**   | Isometric crime sandbox — open world, wanted stars, cash & garage, no missions | [games/Crimewave.html](./games/Crimewave.html) |
 | **Neon District** | Top-down GTA-lite (single HTML) — districts, driving physics, story, police | [games/NeonDistrict/index.html](./games/NeonDistrict/index.html) |
-| **三体 · 天体模拟** | Three-body gravitational sim — figure-8, Lagrange, chaotic presets, trails & energy | [games/ThreeBody.html](./games/ThreeBody.html) |
+| **3 Body** | Three-body gravitational sim — figure-8, Lagrange, chaotic presets, trails & energy | [games/ThreeBody.html](./games/ThreeBody.html) |
 
 ---
 
@@ -77,7 +77,7 @@ mw_lab/
 2. Browse by category:
    - [Tools](./tools/)
    - [Games](./games/) — Particell, Blitz, Catrun, Crimewave, Neon District, 三体
-   - [Knowledge](./knowledge/) — including [定理图书馆](./knowledge/theorem-library/index.html)
+   - [Knowledge](./knowledge/) — including [Theorm](./knowledge/theorem-library/index.html)
 3. Click any link to open the tool directly in your browser.
 4. All content runs **client-side** — no backend or installation needed.
 
