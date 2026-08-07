@@ -1,0 +1,3443 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Arbitrage-Free Surface Lab</title>
+<style>
+:root { --bg:#0b0f14; --panel:#111823; --ink:#dce6f2; --dim:#7c8ea6;
+        --line:#1e2937; --bad:#ff4d5e; --good:#3ddc97; --accent:#5b9dff;
+        --warn:#ffc857; }
+* { box-sizing:border-box; }
+html,body { margin:0; }
+body { background:var(--bg); color:var(--ink);
+       font:13px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace; }
+header { padding:18px 22px 12px; border-bottom:1px solid var(--line); }
+h1 { margin:0 0 5px; font-size:17px; letter-spacing:.02em; font-weight:600; }
+header p { margin:0; color:var(--dim); max-width:150ch; }
+.controls { display:flex; flex-wrap:wrap; gap:14px; align-items:center;
+            padding:12px 22px; border-bottom:1px solid var(--line); }
+.controls label { color:var(--dim); margin-right:6px; }
+select,button { background:var(--panel); color:var(--ink);
+                border:1px solid var(--line); border-radius:5px;
+                padding:5px 9px; font:inherit; cursor:pointer; }
+button:hover:not(:disabled),select:hover { border-color:var(--accent); }
+button:disabled { opacity:.42; cursor:default; }
+#blurb { padding:12px 22px 0; color:var(--dim); max-width:150ch; min-height:2.4em; }
+.lede { margin:14px 22px 0; padding:11px 16px; max-width:140ch;
+        border-left:2px solid var(--accent); background:rgba(91,157,255,.06);
+        border-radius:0 6px 6px 0; color:var(--ink); }
+.lede b { color:var(--accent); font-weight:600; }
+.lede .q { color:var(--dim); display:block; margin-top:6px; }
+@media (min-width:1180px) {
+  .lede { columns:2; column-gap:30px; max-width:none; }
+  .lede .q { break-before:column; margin-top:0; }
+}
+details.gloss { margin:4px 22px 30px; max-width:none; }
+details.gloss > summary { cursor:pointer; color:var(--accent); padding:6px 0;
+                          list-style:none; }
+details.gloss > summary::-webkit-details-marker { display:none; }
+details.gloss > summary::before { content:'▸ '; }
+details.gloss[open] > summary::before { content:'▾ '; }
+details.gloss dl { display:grid; grid-template-columns:max-content minmax(0,1fr);
+                   gap:5px 14px; margin:8px 0 0; }
+@media (min-width:1180px) {
+  details.gloss dl { grid-template-columns:max-content minmax(0,1fr)
+                                           max-content minmax(0,1fr);
+                     column-gap:34px; }
+}
+details.gloss dt { color:var(--warn); white-space:nowrap; }
+details.gloss dd { margin:0; color:var(--dim); }
+.key { display:flex; flex-wrap:wrap; gap:14px; margin:8px 0 0; color:var(--dim); }
+.key span { display:flex; align-items:center; gap:6px; }
+.key i { width:16px; height:10px; display:inline-block; border-radius:2px; }
+#badges { display:flex; flex-wrap:wrap; gap:8px; padding:12px 22px; }
+.badge { display:flex; gap:7px; align-items:baseline; padding:5px 10px;
+         border-radius:5px; border:1px solid var(--line); background:var(--panel); }
+.badge b { font-weight:600; white-space:nowrap; }
+.badge.ok    { border-color:#1d5f45; } .badge.ok b    { color:var(--good); }
+.badge.fail  { border-color:#6b2230; } .badge.fail b  { color:var(--bad); }
+.badge span { color:var(--dim); }
+.grid { display:grid; gap:14px; padding:8px 22px 26px;
+        grid-template-columns:1.25fr 1fr; }
+@media (max-width:1000px) { .grid { grid-template-columns:1fr; } }
+.grid .wide { grid-column:1 / -1; }
+
+/* tabs */
+nav.tabs { display:flex; gap:2px; padding:0 22px; border-bottom:1px solid var(--line);
+           flex-wrap:wrap; }
+nav.tabs button { border:1px solid var(--line); border-bottom:none;
+                  border-radius:6px 6px 0 0; margin-bottom:-1px;
+                  background:transparent; color:var(--dim); padding:7px 14px; }
+nav.tabs button.on { background:var(--panel); color:var(--ink);
+                     border-color:var(--line); border-bottom:1px solid var(--panel); }
+nav.tabs button:hover { color:var(--ink); }
+
+/* tables */
+.tbl { width:100%; border-collapse:collapse; font-size:12px; }
+.tbl th,.tbl td { text-align:right; padding:5px 9px; border-bottom:1px solid var(--line);
+                  white-space:nowrap; }
+.tbl th { color:var(--dim); font-weight:600; text-align:right;
+          text-transform:uppercase; letter-spacing:.05em; font-size:10px; }
+.tbl th:first-child,.tbl td:first-child { text-align:left; }
+.tbl tr:last-child td { border-bottom:none; }
+.tbl td.neg { color:var(--bad); } .tbl td.pos { color:var(--good); }
+.tbl td.dim { color:var(--dim); }
+.tbl tr.bad td { background:rgba(255,77,94,.08); }
+.scroll { overflow-x:auto; }
+
+/* import controls */
+textarea { width:100%; height:150px; background:var(--bg); color:var(--ink);
+           border:1px solid var(--line); border-radius:6px; padding:8px;
+           font:12px/1.45 ui-monospace,Menlo,monospace; resize:vertical; }
+textarea.drop { border-color:var(--accent); }
+.row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:9px; }
+.row label { color:var(--dim); }
+input[type=number] { width:92px; background:var(--bg); color:var(--ink);
+                     border:1px solid var(--line); border-radius:5px; padding:4px 6px;
+                     font:inherit; }
+.msg { margin-top:9px; font-size:12px; }
+.msg .err { color:var(--bad); } .msg .good { color:var(--good); }
+.msg ul { margin:4px 0 0; padding-left:18px; }
+.card { background:var(--panel); border:1px solid var(--line);
+        border-radius:8px; padding:12px 14px 10px; }
+.card h2 { margin:0 0 3px; font-size:12px; letter-spacing:.08em;
+           text-transform:uppercase; color:var(--dim); font-weight:600; }
+.card .note { margin:0 0 8px; color:var(--dim); font-size:12px;
+              min-height:2.6em; max-width:none; }
+canvas { display:block; width:100%; height:262px; touch-action:none; }
+#cv-smile { height:330px; }
+@media (min-width:1400px) {
+  canvas { height:300px; }
+  #cv-smile { height:380px; }
+}
+#selftest { padding:0 22px 26px; }
+#selftest h2 { font-size:12px; letter-spacing:.08em; text-transform:uppercase;
+               color:var(--dim); margin:0; }
+#selftest ol { margin:8px 0 0; padding-left:24px; color:var(--dim); }
+#selftest li { margin:2px 0; }
+#selftest li.pass::marker { color:var(--good); }
+#selftest li.fail { color:var(--bad); }
+footer { padding:0 22px 46px; color:var(--dim); max-width:150ch; }
+footer h2 { font-size:12px; letter-spacing:.08em; text-transform:uppercase; }
+code { color:var(--ink); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Arbitrage-Free Surface Lab</h1>
+  <p>An option price surface is a probability distribution in disguise. Drag the
+     smile until the disguise slips: the risk-neutral density goes negative, and
+     Dupire local volatility stops existing &mdash; in exactly the same place,
+     because <code>&sigma;&sup2;<sub>loc</sub> = (&part;w/&part;T) / g(k)</code>.
+     The numerator is the calendar condition, the denominator is the butterfly
+     condition, and local volatility exists if and only if both hold.</p>
+</header>
+
+<div class="controls">
+  <span><label for="presets">Surface</label><select id="presets"></select></span>
+  <span><label for="interp">Interpolation</label><select id="interp">
+    <option value="spline">Natural cubic spline (C&sup2;)</option>
+    <option value="svi">SVI through knots</option>
+  </select></span>
+  <span><label for="maturities">Maturity</label><select id="maturities"></select></span>
+  <button id="btn-repair">Repair &rarr; nearest arbitrage-free</button>
+  <button id="btn-reset">Reset surface</button>
+  <button id="btn-selftest">Run self-tests</button>
+</div>
+
+<p id="blurb"></p>
+<div id="badges"></div>
+
+<nav class="tabs" id="tabs">
+  <button data-tab="surface" class="on">Surface</button>
+  <button data-tab="quotes">Quotes &amp; conventions</button>
+  <button data-tab="greeks">Greeks</button>
+  <button data-tab="variance">Variance &amp; moments</button>
+</nav>
+
+<section class="tabpane" id="tab-surface">
+  <p class="lede">
+    <b>What this tab is for:</b> proving that an option surface and a probability
+    distribution are the same object. Pick a maturity, drag a white knot on the
+    smile, and watch three things move together — the smile turns red where it has
+    become impossible, the density below it dips under zero, and the local-vol
+    heatmap loses cells. They are the same failure seen three ways.
+    <span class="q">Try this: load <em>Already broken</em>, look at the red band,
+    then press Repair and watch every badge turn green and the report tell you how
+    many basis points it had to move.</span>
+  </p>
+  <div class="grid">
+    <div class="card">
+      <h2>Total implied variance &mdash; drag the knots</h2>
+      <p class="note" id="note-smile"></p>
+      <canvas id="cv-smile"></canvas>
+    </div>
+    <div class="card">
+      <h2>Risk-neutral density and g(k)</h2>
+      <p class="note" id="note-density"></p>
+      <canvas id="cv-density"></canvas>
+    </div>
+    <div class="card">
+      <h2>Term structure &mdash; crossings are calendar arbitrage</h2>
+      <p class="note" id="note-term"></p>
+      <canvas id="cv-term"></canvas>
+    </div>
+    <div class="card">
+      <h2>Dupire local volatility</h2>
+      <p class="note" id="note-localvol"></p>
+      <canvas id="cv-localvol"></canvas>
+    </div>
+  </div>
+</section>
+
+<section class="tabpane" id="tab-quotes" hidden>
+  <p class="lede">
+    <b>What this tab is for:</b> getting your own market in, and reading the surface
+    the way a desk quotes it. Nobody says "k = &minus;0.11"; they say "25-delta risk
+    reversal". The table below converts one into the other.
+    <span class="q">The <em>SPX 2026-08-06 (real market)</em> entry in the Surface
+    dropdown loads a genuine CBOE snapshot — 119 two-sided quotes across six
+    expiries, forwards backed out by put-call parity, median market width 0.08 vol
+    points. Real data is lumpy: strikes are unevenly spaced, the call side stops
+    dead around 7% out of the money on the front month, and the fit cannot be
+    perfect because the market itself is a range, not a number.</span>
+  </p>
+  <div class="grid">
+    <div class="card">
+      <h2>Import quotes</h2>
+      <p class="note">CSV, TSV or whitespace, with a header row. Needs an expiry
+        (<code>expiry</code>/<code>T</code>, in years) and a <code>strike</code>,
+        plus either <code>vol</code> or <code>price</code>&nbsp;+&nbsp;<code>type</code>.
+        A <code>forward</code> column is used if present. Drag a file onto the box.</p>
+      <textarea id="quote-text" spellcheck="false"
+        placeholder="expiry,strike,vol,forward&#10;0.25,90,0.28,100&#10;0.25,100,0.23,100&#10;0.25,110,0.215,100"></textarea>
+      <div class="row">
+        <label for="quote-fwd">Forward if no column</label>
+        <input id="quote-fwd" type="number" value="100" step="any" min="0.0001">
+        <button id="btn-import">Load quotes</button>
+        <button id="btn-sample">Load real SPX snapshot</button>
+      </div>
+      <div class="msg" id="import-report"></div>
+    </div>
+    <div class="card">
+      <h2>SVI fit residuals</h2>
+      <p class="note" id="note-resid"></p>
+      <canvas id="cv-resid"></canvas>
+    </div>
+    <div class="card wide">
+      <h2>Market conventions by expiry</h2>
+      <p class="note">The surface in the language a desk quotes it in. RR is the
+        risk reversal (call vol &minus; put vol at that delta) and BF the butterfly
+        (wing average &minus; ATM). Rows that fail a no-arbitrage check are tinted.</p>
+      <div class="scroll"><table class="tbl" id="conv-table"></table></div>
+    </div>
+  </div>
+</section>
+
+<section class="tabpane" id="tab-greeks" hidden>
+  <p class="lede">
+    <b>What this tab is for:</b> the risk you actually carry, and one trap. Because
+    the surface is held in <em>moneyness</em>, moving the underlying slides an option
+    along the smile, so its vol changes even though the surface has not. That makes
+    two different deltas for the same option, and the second panel shows the gap.
+    <span class="q">On a skewed book the gap is not a rounding error — hedge on the
+    wrong convention and your delta is wrong by the amount printed under that
+    chart.</span>
+  </p>
+  <div class="grid">
+    <div class="card">
+      <h2>Greeks across the smile &mdash; selected maturity</h2>
+      <p class="note" id="note-greeks"></p>
+      <canvas id="cv-greeks"></canvas>
+    </div>
+    <div class="card">
+      <h2>Sticky-strike vs sticky-moneyness delta</h2>
+      <p class="note" id="note-delta"></p>
+      <canvas id="cv-delta"></canvas>
+    </div>
+    <div class="card">
+      <h2>Vega across strike and maturity</h2>
+      <p class="note" id="note-vegasurf"></p>
+      <canvas id="cv-vegasurf"></canvas>
+    </div>
+    <div class="card">
+      <h2>Greeks at the quoted deltas</h2>
+      <p class="note" id="note-greektable"></p>
+      <div class="scroll"><table class="tbl" id="greek-table"></table></div>
+    </div>
+  </div>
+</section>
+
+<section class="tabpane" id="tab-variance" hidden>
+  <p class="lede">
+    <b>What this tab is for:</b> what the whole surface is worth, not just the
+    at-the-money point. A variance swap pays for the <em>entire</em> smile, so its
+    fair vol sits above at-the-money implied whenever there is skew or convexity —
+    and the gap is the price of the wings.
+    <span class="q">This tab also closes the loop with the Surface tab: forward
+    variance between two expiries going negative <em>is</em> the calendar-spread
+    arbitrage, expressed as money instead of as a sign condition.</span>
+  </p>
+  <div class="grid">
+    <div class="card">
+      <h2>Variance term structure</h2>
+      <p class="note" id="note-varterm"></p>
+      <canvas id="cv-varterm"></canvas>
+    </div>
+    <div class="card">
+      <h2>Distribution of S<sub>T</sub>/F</h2>
+      <p class="note" id="note-pctl"></p>
+      <canvas id="cv-pctl"></canvas>
+    </div>
+    <div class="card wide">
+      <h2>Variance swaps, forward variance and moments</h2>
+      <p class="note">Variance-swap strike is the log contract,
+        <code>2&middot;E[&minus;ln(S<sub>T</sub>/F)]</code>, integrated over a wide
+        grid. The premium over ATM vol is what skew and convexity are worth. A
+        negative forward variance between two expiries <em>is</em> calendar
+        arbitrage. <code>E[S]/F</code> and tail mass are truncation diagnostics:
+        if they drift from 1 and 0, distrust the row.</p>
+      <div class="scroll"><table class="tbl" id="var-table"></table></div>
+    </div>
+  </div>
+</section>
+
+<details class="gloss">
+  <summary>Notation, colours and conventions</summary>
+  <div class="key">
+    <span><i style="background:#5b9dff"></i> the fitted surface</span>
+    <span><i style="background:rgba(255,77,94,.45)"></i> arbitrage: g(k) &lt; 0, or a
+      calendar crossing</span>
+    <span><i style="background:#ffc857"></i> your quotes, bar = bid/ask</span>
+    <span><i style="background:rgba(124,142,166,.25)"></i> extrapolated: nobody quoted
+      here</span>
+  </div>
+  <dl>
+    <dt>k = ln(K/F)</dt>
+      <dd>Log-moneyness. 0 is at-the-money-forward; &minus;0.10 is roughly 10% below
+        the forward. Using the forward rather than spot is what removes rates and
+        dividends from every formula on this page.</dd>
+    <dt>w(k) = &sigma;&sup2;T</dt>
+      <dd>Total implied variance — implied vol squared, times time. The whole page
+        works in this because both no-arbitrage conditions become simple in it.</dd>
+    <dt>g(k)</dt>
+      <dd>The butterfly quantity. Its <em>sign is the sign of the risk-neutral
+        density</em>, so g &lt; 0 means the surface implies negative probability.
+        This is Breeden&ndash;Litzenberger (density &prop; &part;&sup2;C/&part;K&sup2;)
+        rewritten in the coordinates above.</dd>
+    <dt>&part;w/&part;T</dt>
+      <dd>The calendar quantity. Total variance must never fall as maturity rises, or
+        you could buy the cheap long-dated option and sell the dear short-dated one.</dd>
+    <dt>&sigma;&sup2;<sub>loc</sub> = (&part;w/&part;T)/g</dt>
+      <dd>Dupire local variance. Numerator is the calendar condition, denominator the
+        butterfly one — so local volatility exists <em>if and only if</em> the surface
+        is arbitrage-free. That single fraction is the point of this page.</dd>
+    <dt>RR (risk reversal)</dt>
+      <dd>Call vol minus put vol at the same delta. Negative for equities: crash
+        protection is dearer than upside. It <em>is</em> the skew, in tradeable form.</dd>
+    <dt>BF (butterfly)</dt>
+      <dd>Average of the two wings minus at-the-money vol. The convexity of the
+        smile — what you pay for tails in either direction.</dd>
+    <dt>Delta strike</dt>
+      <dd>A strike named by its option's delta rather than its price. "25-delta put"
+        moves with the market, which is why desks quote in it.</dd>
+    <dt>Vanna, volga</dt>
+      <dd>How delta moves when vol moves, and how vega moves when vol moves. The two
+        sensitivities that make wings expensive to hedge.</dd>
+    <dt>Variance swap vol</dt>
+      <dd>The fair volatility of a contract paying realised variance:
+        2&middot;E[&minus;ln(S<sub>T</sub>/F)], which depends on every strike. VIX is
+        computed this way.</dd>
+    <dt>Lee's wing bound</dt>
+      <dd>Total variance may not grow faster than 2|k| in the wings. Break it and
+        E[S<sub>T</sub>] becomes infinite — the surface implies an asset with no
+        expected value.</dd>
+    <dt>SVI</dt>
+      <dd>A five-parameter smile shape. Cannot oscillate, and its wings are
+        straight lines, which is why the repair fits one.</dd>
+  </dl>
+</details>
+
+<section id="selftest"></section>
+
+<footer>
+  <h2>What this models, and what it does not</h2>
+  <p>Forward measure throughout, so prices are undiscounted and rates never appear
+     in a formula. Forwards are either given or recovered from put-call parity,
+     never derived from spot and a dividend forecast. European exercise only, a
+     single underlying, no discrete dividends.</p>
+  <p>Repair fits the closest arbitrage-free <em>SVI</em> slice under a
+     vega-weighted vol norm, so it returns the nearest admissible member of that
+     five-parameter family rather than the projection onto the full admissible
+     set &mdash; and a different norm would choose a different slice. The wing
+     bound is enforced on the fitted parameters as
+     <code>b(1+|&rho;|) &lt; 1.9</code>, which is Lee's asymptotic condition, but
+     the pass/fail badge still reads <code>w/|k|</code> at the grid edges rather
+     than in the limit.</p>
+  <p>Tail-sensitive figures inherit the limits of the chain they came from. The
+     log contract needs the whole strip, so where the quotes stop close to the
+     money no variance swap is reported. Moments are integrated on a narrower
+     window than the variance swap, because a fourth moment weights the density by
+     <code>k&#8308;</code> and would otherwise describe the extrapolation instead
+     of the market. <code>E[S]/F</code>, missing tail mass, and how far the quotes
+     reach in standard deviations are all printed per expiry so you can see which
+     rows to distrust.</p>
+</footer>
+
+<script type="module" id="afsl-math">
+// ===========================================================================
+// Pure mathematics. No DOM. Imported directly by arb-free-surface-lab.test.mjs,
+// which extracts this block out of the page and runs it under node --test.
+//
+// Coordinates throughout: k = ln(K/F_T) log-moneyness, w = sigma^2 * T total
+// implied variance. Prices are undiscounted, in the forward measure.
+// ===========================================================================
+
+// ---- 1. Gaussian ----------------------------------------------------------
+const SQRT_2PI = 2.5066282746310002;
+
+export function normPdf(x) {
+  return Math.exp(-0.5 * x * x) / SQRT_2PI;
+}
+
+// West (2005) double-precision cumulative normal, ~1e-15 absolute. Accuracy
+// matters more than usual here: the density panel is a second-derivative
+// display, so a 1e-7 approximation would show up as visible noise.
+export function normCdf(x) {
+  const a = Math.abs(x);
+  let c;
+  if (a > 37) {
+    c = 0;
+  } else {
+    const e = Math.exp(-a * a / 2);
+    if (a < 7.07106781186547) {
+      let n = 3.52624965998911e-02 * a + 0.700383064443688;
+      n = n * a + 6.37396220353165;
+      n = n * a + 33.912866078383;
+      n = n * a + 112.079291497871;
+      n = n * a + 221.213596169931;
+      n = n * a + 220.206867912376;
+      let d = 8.83883476483184e-02 * a + 1.75566716318264;
+      d = d * a + 16.064177579207;
+      d = d * a + 86.7807322029461;
+      d = d * a + 296.564248779674;
+      d = d * a + 637.333633378831;
+      d = d * a + 793.826512519948;
+      d = d * a + 440.413735824752;
+      c = e * n / d;
+    } else {
+      let b = a + 0.65;
+      b = a + 4 / b;
+      b = a + 3 / b;
+      b = a + 2 / b;
+      b = a + 1 / b;
+      c = e / (b * SQRT_2PI);
+    }
+  }
+  return x > 0 ? 1 - c : c;
+}
+
+// N(x)/phi(x). Both underflow around x = -38, so the far-wing branch reuses the
+// continued fraction already inside normCdf, where N(x) = phi(x)/b exactly.
+// This ratio is what makes the call-spread condition checkable in the wings at
+// all: comparing option prices there compares numbers that have underflowed.
+export function millsRatio(x) {
+  const a = -x;
+  if (a >= 7.07106781186547) {
+    let b = a + 0.65;
+    b = a + 4 / b; b = a + 3 / b; b = a + 2 / b; b = a + 1 / b;
+    return 1 / b;
+  }
+  const p = normPdf(x);
+  return p > 0 ? normCdf(x) / p : Infinity;
+}
+
+// ---- 2. Black-76 in total-variance form -----------------------------------
+export function callPrice(F, K, w) {
+  if (!(w > 0)) return Math.max(F - K, 0);
+  const sw = Math.sqrt(w);
+  const k = Math.log(K / F);
+  const dp = -k / sw + sw / 2;
+  const dm = -k / sw - sw / 2;
+  return F * normCdf(dp) - K * normCdf(dm);
+}
+
+// Computed directly rather than by parity from the call: for K well below F the
+// put is many orders of magnitude smaller than F - K, so `call - F + K` would
+// cancel the entire answer away.
+export function putPrice(F, K, w) {
+  if (!(w > 0)) return Math.max(K - F, 0);
+  const sw = Math.sqrt(w);
+  const k = Math.log(K / F);
+  const dp = -k / sw + sw / 2;
+  const dm = -k / sw - sw / 2;
+  return K * normCdf(-dm) - F * normCdf(-dp);
+}
+
+export function dCallDw(F, K, w) {
+  if (!(w > 0)) return 0;
+  const sw = Math.sqrt(w);
+  const dp = -Math.log(K / F) / sw + sw / 2;
+  return F * normPdf(dp) / (2 * sw);
+}
+
+// The OTM option is the numerically meaningful quote. A deep-ITM call price is
+// intrinsic plus a value smaller than the last bit of the intrinsic part, so it
+// carries NO recoverable volatility in double precision — invert the OTM side.
+export function otmPrice(F, K, w) {
+  return K >= F ? callPrice(F, K, w) : putPrice(F, K, w);
+}
+
+// Shared inverter. `price(w)` must be strictly increasing in w, so Newton is
+// well behaved; bisection catches the deep wings where vega underflows.
+// The tolerance is RELATIVE: in the far wing the price itself is ~1e-12, and an
+// absolute 1e-14 test would accept a percent-level error in w.
+function invertMonotone(price, dprice, target, hi0) {
+  // Purely relative — an absolute floor would let Newton stop early on a
+  // far-wing quote of 1e-55 and return a fabricated volatility.
+  const tol = 1e-14 * Math.abs(target);
+
+  let w = 0.05;
+  for (let i = 0; i < 100; i++) {
+    const diff = price(w) - target;
+    if (Math.abs(diff) <= tol) return w;
+    const v = dprice(w);
+    if (!(v > 0) || !Number.isFinite(v)) break;
+    const next = w - diff / v;
+    if (!(next > 0) || !Number.isFinite(next)) break;
+    if (Math.abs(next - w) < 1e-16 * next) return next;
+    w = next;
+  }
+
+  let a = 1e-16, b = hi0;
+  for (let i = 0; i < 300 && price(b) < target; i++) b *= 2;
+  for (let i = 0; i < 200; i++) {
+    const mid = 0.5 * (a + b);
+    if (price(mid) < target) a = mid; else b = mid;
+    if (b - a <= 1e-16 * b) break;
+  }
+  return 0.5 * (a + b);
+}
+
+// Invert an OTM quote. Exact across the whole strike range.
+export function impliedTotalVarOtm(F, K, price) {
+  if (!(price > 0)) return price === 0 ? 0 : NaN;
+  if (price > (K >= F ? F : K) + 1e-12) return NaN;
+  return invertMonotone(
+    w => otmPrice(F, K, w),
+    w => dCallDw(F, K, w),          // put and call share vega
+    price, 0.05);
+}
+
+// Invert a CALL quote. Well conditioned for K >= F and for moderately ITM
+// strikes; for deep-ITM strikes the input itself has lost the information, and
+// this returns 0 rather than pretending otherwise.
+export function impliedTotalVar(F, K, C) {
+  const lo = Math.max(F - K, 0);
+  if (!(C > lo - 1e-12) || C > F + 1e-12) return NaN;
+  if (C <= lo) return 0;
+  return invertMonotone(
+    w => callPrice(F, K, w),
+    w => dCallDw(F, K, w),
+    C, 0.05);
+}
+
+export function impliedVol(F, K, C, T) {
+  const w = impliedTotalVar(F, K, C);
+  return Number.isNaN(w) ? NaN : Math.sqrt(w / T);
+}
+
+export function impliedVolOtm(F, K, price, T) {
+  const w = impliedTotalVarOtm(F, K, price);
+  return Number.isNaN(w) ? NaN : Math.sqrt(w / T);
+}
+
+// ---- 3. Interpolators -----------------------------------------------------
+// A C1-only interpolant such as PCHIP is deliberately not offered: its w''
+// is discontinuous, which makes g jump and the density panel meaningless.
+export function makeSpline(ks, ws) {
+  const n = ks.length;
+  const h = new Array(n - 1);
+  for (let i = 0; i < n - 1; i++) h[i] = ks[i + 1] - ks[i];
+
+  // Natural cubic spline: solve for second derivatives m, with m[0]=m[n-1]=0.
+  const m = new Float64Array(n);
+  if (n > 2) {
+    const al = new Float64Array(n), be = new Float64Array(n),
+          ga = new Float64Array(n), rh = new Float64Array(n);
+    for (let i = 1; i < n - 1; i++) {
+      al[i] = h[i - 1];
+      be[i] = 2 * (h[i - 1] + h[i]);
+      ga[i] = h[i];
+      rh[i] = 6 * ((ws[i + 1] - ws[i]) / h[i] - (ws[i] - ws[i - 1]) / h[i - 1]);
+    }
+    for (let i = 2; i < n - 1; i++) {            // Thomas elimination
+      const f = al[i] / be[i - 1];
+      be[i] -= f * ga[i - 1];
+      rh[i] -= f * rh[i - 1];
+    }
+    for (let i = n - 2; i >= 1; i--) {
+      m[i] = (rh[i] - ga[i] * m[i + 1]) / be[i];
+    }
+  }
+
+  // Cubic on segment i, local coordinate t in [0, h[i]].
+  function evalSeg(i, t) {
+    const hi = h[i], mi = m[i], mj = m[i + 1];
+    const B = (ws[i + 1] - ws[i]) / hi - hi * (2 * mi + mj) / 6;
+    const C = mi / 2;
+    const D = (mj - mi) / (6 * hi);
+    return {
+      w: ws[i] + B * t + C * t * t + D * t * t * t,
+      wp: B + 2 * C * t + 3 * D * t * t,
+      wpp: 2 * C + 6 * D * t,
+    };
+  }
+
+  function at(k) {
+    const lo = ks[0], hi = ks[n - 1];
+    if (k <= lo) {
+      const d = evalSeg(0, 0);
+      return { w: d.w + d.wp * (k - lo), wp: d.wp, wpp: 0 };
+    }
+    if (k >= hi) {
+      const d = evalSeg(n - 2, h[n - 2]);
+      return { w: d.w + d.wp * (k - hi), wp: d.wp, wpp: 0 };
+    }
+    let i = 0, j = n - 1;
+    while (j - i > 1) { const c = (i + j) >> 1; if (ks[c] <= k) i = c; else j = c; }
+    return evalSeg(i, k - ks[i]);
+  }
+
+  return { at };
+}
+
+// Shape bounds, shared by the plain fit and the constrained one.
+//
+// SIGMA_MIN: sigma is SVI's smile width. Letting it reach 0 collapses the slice
+// into a kink at k = m — two straight lines whose w'' is a near-delta spike.
+// That satisfies g >= 0 while making w' jump and the call price rise in K.
+// WING_CAP: b(1+|rho|) is the asymptotic wing slope of w in |k|, and Lee's bound
+// requires it below 2. It is also exactly the condition for E[S_T] to be finite.
+const SIGMA_MIN = 0.02;
+const WING_CAP = 1.9;
+
+export function sviRawW(p, k) {
+  const x = k - p.m;
+  return p.a + p.b * (p.rho * x + Math.sqrt(x * x + p.sigma * p.sigma));
+}
+
+export function makeSVI(p) {
+  return {
+    at(k) {
+      const x = k - p.m, s2 = p.sigma * p.sigma;
+      const r = Math.sqrt(x * x + s2);
+      return {
+        w: p.a + p.b * (p.rho * x + r),
+        wp: p.b * (p.rho + x / r),
+        wpp: p.b * s2 / (r * r * r),
+      };
+    },
+  };
+}
+
+// Zeliade quasi-explicit fit. With y = (k-m)/sigma, raw SVI is
+//   w = a + d*y + c*sqrt(y^2+1),   d = rho*b*sigma,  c = b*sigma
+// which is LINEAR in (a, d, c). So the fit is a 3x3 normal-equation solve
+// inside a 2-D search over (m, sigma) — far more reliable than a naive
+// 5-parameter optimisation.
+function sviInner(ks, ws, m, sigma) {
+  const n = ks.length;
+  const Y = new Float64Array(n), Z = new Float64Array(n);
+  for (let i = 0; i < n; i++) {
+    const y = (ks[i] - m) / sigma;
+    Y[i] = y;
+    Z[i] = Math.sqrt(y * y + 1);
+  }
+  const A = [[0, 0, 0], [0, 0, 0], [0, 0, 0]], r = [0, 0, 0];
+  for (let i = 0; i < n; i++) {
+    const bs = [1, Y[i], Z[i]];
+    for (let p = 0; p < 3; p++) {
+      r[p] += bs[p] * ws[i];
+      for (let q = 0; q < 3; q++) A[p][q] += bs[p] * bs[q];
+    }
+  }
+  for (let p = 0; p < 3; p++) A[p][p] += 1e-12;        // ridge for conditioning
+  let [a, d, c] = solve3(A, r);
+  c = Math.max(c, 0);                                  // b >= 0
+  d = Math.max(-c, Math.min(c, d));                    // |rho| <= 1
+  let sse = 0;
+  for (let i = 0; i < n; i++) {
+    const e = a + d * Y[i] + c * Z[i] - ws[i];
+    sse += e * e;
+  }
+  return { a, d, c, sse };
+}
+
+function solve3(A, r) {
+  const G = [[A[0][0], A[0][1], A[0][2], r[0]],
+             [A[1][0], A[1][1], A[1][2], r[1]],
+             [A[2][0], A[2][1], A[2][2], r[2]]];
+  for (let col = 0; col < 3; col++) {
+    let piv = col;
+    for (let i = col + 1; i < 3; i++) {
+      if (Math.abs(G[i][col]) > Math.abs(G[piv][col])) piv = i;
+    }
+    const t = G[col]; G[col] = G[piv]; G[piv] = t;
+    const dv = G[col][col] || 1e-300;
+    for (let j = col; j < 4; j++) G[col][j] /= dv;
+    for (let i = 0; i < 3; i++) {
+      if (i === col) continue;
+      const f = G[i][col];
+      for (let j = col; j < 4; j++) G[i][j] -= f * G[col][j];
+    }
+  }
+  return [G[0][3], G[1][3], G[2][3]];
+}
+
+// Plain least-squares fit, but with the degenerate corner penalised. Left
+// unpenalised, real data drives this straight into it: on a 2026-08-06 SPX chain
+// three of six expiries fitted to b ~ 8000, rho = 1.000, sigma ~ 0.003 — a
+// piecewise-linear hockey stick with RMS of only 0.06 vol points and a wing slope
+// of 16733. Beautiful fit, wildly inadmissible, and useless as a starting point
+// for the constrained fit, which cannot climb down four orders of magnitude and
+// collapses to a flat smile instead.
+export function fitSVI(ks, ws) {
+  const obj = v => {
+    const sigma = Math.max(v[1], SIGMA_MIN);
+    const r = sviInner(ks, ws, v[0], sigma);
+    // c = b*sigma and |rho| <= 1, so the wing slope b(1+|rho|) is at most 2c/sigma.
+    const wing = 2 * r.c / sigma - WING_CAP;
+    return r.sse + (wing > 0 ? 1e3 * ks.length * wing * wing : 0);
+  };
+  let best = null, bestF = Infinity;
+  const span = Math.max(...ks) - Math.min(...ks);
+  for (const m0 of [0, -0.1, 0.1]) {
+    for (const s0 of [0.1, 0.3, Math.max(span, 0.2)]) {
+      const v = nelderMead2(obj, [m0, s0]);
+      const f = obj(v);
+      if (f < bestF) { bestF = f; best = v; }
+    }
+  }
+  const m = best[0], sigma = Math.max(best[1], SIGMA_MIN);
+  const { a, d, c } = sviInner(ks, ws, m, sigma);
+  const b = c / sigma;
+  const rho = c > 1e-14 ? d / c : 0;
+  return { a, b, rho: Math.max(-1, Math.min(1, rho)), m, sigma };
+}
+
+// Minimal 2-D Nelder-Mead; deterministic, no dependencies.
+function nelderMead2(f, x0) {
+  let S = [x0.slice(), [x0[0] + 0.1, x0[1]], [x0[0], x0[1] + 0.1]];
+  let F = S.map(f);
+  const ord = () => {
+    const idx = [0, 1, 2].sort((p, q) => F[p] - F[q]);
+    S = idx.map(i => S[i]); F = idx.map(i => F[i]);
+  };
+  const away = (p, q, t) => [p[0] + t * (p[0] - q[0]), p[1] + t * (p[1] - q[1])];
+  for (let it = 0; it < 600; it++) {
+    ord();
+    if (Math.abs(F[2] - F[0]) < 1e-18) break;
+    const cen = [(S[0][0] + S[1][0]) / 2, (S[0][1] + S[1][1]) / 2];
+    const ref = away(cen, S[2], 1), fr = f(ref);
+    if (fr < F[0]) {
+      const exp = away(cen, S[2], 2), fe = f(exp);
+      if (fe < fr) { S[2] = exp; F[2] = fe; } else { S[2] = ref; F[2] = fr; }
+    } else if (fr < F[1]) {
+      S[2] = ref; F[2] = fr;
+    } else {
+      const con = away(cen, S[2], -0.5), fc = f(con);
+      if (fc < F[2]) {
+        S[2] = con; F[2] = fc;
+      } else {
+        S[1] = [(S[0][0] + S[1][0]) / 2, (S[0][1] + S[1][1]) / 2]; F[1] = f(S[1]);
+        S[2] = [(S[0][0] + S[2][0]) / 2, (S[0][1] + S[2][1]) / 2]; F[2] = f(S[2]);
+      }
+    }
+  }
+  ord();
+  return S[0];
+}
+
+// ---- 4. g function, density, per-slice checks -----------------------------
+// Gatheral-Jacquier g. Its sign IS the sign of the risk-neutral density, so
+// g >= 0 is Breeden-Litzenberger written in total-variance coordinates.
+export function gFunction(w, wp, wpp, k) {
+  const t1 = 1 - k * wp / (2 * w);
+  return t1 * t1 - (wp * wp / 4) * (0.25 + 1 / w) + wpp / 2;
+}
+
+export function densityAt(interp, k) {
+  const { w, wp, wpp } = interp.at(k);
+  if (!(w > 0)) return 0;
+  const g = gFunction(w, wp, wpp, k);
+  const dm = -k / Math.sqrt(w) - Math.sqrt(w) / 2;
+  return g * Math.exp(-0.5 * dm * dm) / Math.sqrt(2 * Math.PI * w);
+}
+
+export function sliceGrid(interp, kMin, kMax, n) {
+  const k = new Float64Array(n), w = new Float64Array(n),
+        wp = new Float64Array(n), wpp = new Float64Array(n),
+        g = new Float64Array(n), p = new Float64Array(n);
+  const h = (kMax - kMin) / (n - 1);
+  for (let i = 0; i < n; i++) {
+    const ki = kMin + i * h;
+    const d = interp.at(ki);
+    k[i] = ki; w[i] = d.w; wp[i] = d.wp; wpp[i] = d.wpp;
+    if (d.w > 0) {
+      g[i] = gFunction(d.w, d.wp, d.wpp, ki);
+      const dm = -ki / Math.sqrt(d.w) - Math.sqrt(d.w) / 2;
+      p[i] = g[i] * Math.exp(-0.5 * dm * dm) / Math.sqrt(2 * Math.PI * d.w);
+    } else {
+      g[i] = NaN; p[i] = NaN;
+    }
+  }
+  return { k, w, wp, wpp, g, p, h };
+}
+
+export function sliceChecks(grid, F) {
+  const n = grid.k.length;
+  let worstG = Infinity, worstGk = 0, negMass = 0;
+  for (let i = 0; i < n; i++) {
+    const gi = grid.g[i];
+    if (Number.isFinite(gi) && gi < worstG) { worstG = gi; worstGk = grid.k[i]; }
+    if (Number.isFinite(grid.p[i]) && grid.p[i] < 0) negMass += -grid.p[i] * grid.h;
+  }
+
+  // Call spread: dC/dK <= 0. Differentiating C(K) = F N(d+) - K N(d-) along the
+  // smile and using F phi(d+) = K phi(d-) turns this into the exact condition
+  //   w'(k) / (2 sqrt(w))  <=  N(d-) / phi(d-)
+  // which stays meaningful in the wings, where the prices themselves underflow.
+  let csOk = true, csDetail = 'dC/dK stays in [-1,0]';
+  let worstSlack = Infinity, csK = 0;
+  for (let i = 0; i < n; i++) {
+    const w = grid.w[i];
+    if (!(w > 0)) { csOk = false; csDetail = 'non-positive total variance'; break; }
+    const sw = Math.sqrt(w);
+    const dm = -grid.k[i] / sw - sw / 2;
+    const slack = millsRatio(dm) - grid.wp[i] / (2 * sw);
+    if (slack < worstSlack) { worstSlack = slack; csK = grid.k[i]; }
+  }
+  if (csOk && worstSlack < -1e-12) {
+    csOk = false;
+    csDetail = `call price rising in K at k = ${csK.toFixed(3)}`;
+  } else if (csOk) {
+    csDetail = `slack ${worstSlack.toExponential(2)} at k = ${csK.toFixed(3)}`;
+  }
+
+  // Lee's moment formula: w(k)/|k| < 2 in the wings.
+  const wingL = grid.w[0] / Math.abs(grid.k[0]);
+  const wingR = grid.w[n - 1] / Math.abs(grid.k[n - 1]);
+  const wingsOk = wingL < 2 && wingR < 2;
+
+  return {
+    butterfly: {
+      ok: worstG >= -1e-12,
+      detail: worstG >= -1e-12
+        ? `min g = ${worstG.toFixed(4)}`
+        : `g = ${worstG.toFixed(4)} < 0 at k = ${worstGk.toFixed(3)}`,
+    },
+    callSpread: { ok: csOk, detail: csDetail },
+    wings: {
+      ok: wingsOk,
+      detail: `w/|k| = ${wingL.toFixed(2)} left, ${wingR.toFixed(2)} right; bound 2`,
+    },
+    worstG, worstGk, negMass,
+  };
+}
+
+// ---- 5. Surface level: calendar and Dupire --------------------------------
+export function buildInterp(slice, interpKind) {
+  // A slice that carries a verified closed-form fit is displayed as that fit.
+  // Splining the fit back through its own knots is close but not exact, and at
+  // the edge of the quoted range the difference is enough to break the very
+  // call-spread condition the fit was constrained to satisfy.
+  if (slice.fitParams) return makeSVI(slice.fitParams);
+  return interpKind === 'svi'
+    ? makeSVI(fitSVI(slice.knotsK, slice.knotsW))
+    : makeSpline(slice.knotsK, slice.knotsW);
+}
+
+export function surfaceGrids(surface, kMin, kMax, nK) {
+  return surface.maturities.map(sl => {
+    const interp = buildInterp(sl, surface.interpKind);
+    return { T: sl.T, F: sl.F, interp, grid: sliceGrid(interp, kMin, kMax, nK) };
+  });
+}
+
+function dwdTColumn(slices, i, j) {
+  const nT = slices.length;
+  if (nT < 2) return NaN;
+  const w = t => slices[t].grid.w[j];
+  if (i === 0) return (w(1) - w(0)) / (slices[1].T - slices[0].T);
+  if (i === nT - 1) {
+    return (w(nT - 1) - w(nT - 2)) / (slices[nT - 1].T - slices[nT - 2].T);
+  }
+  return (w(i + 1) - w(i - 1)) / (slices[i + 1].T - slices[i - 1].T);
+}
+
+// The identity the whole page is built on: local variance is dw/dT over g.
+// Numerator is the calendar condition, denominator the butterfly condition,
+// so local vol exists if and only if both hold.
+export function localVarianceGrid(slices) {
+  const nT = slices.length, nK = slices[0].grid.k.length;
+  const lv = new Float64Array(nT * nK);
+  for (let i = 0; i < nT; i++) {
+    for (let j = 0; j < nK; j++) {
+      const num = dwdTColumn(slices, i, j);
+      const den = slices[i].grid.g[j];
+      const v = num / den;
+      lv[i * nK + j] = (Number.isFinite(v) && v > 0 && den > 0 && num >= 0) ? v : NaN;
+    }
+  }
+  return { T: Float64Array.from(slices.map(s => s.T)), k: slices[0].grid.k, lv, nT, nK };
+}
+
+export function calendarCheck(slices) {
+  if (slices.length < 2) {
+    return { ok: true, detail: 'single maturity', worstDwdT: NaN, worstT: 0, worstK: 0 };
+  }
+  let worst = Infinity, worstT = 0, worstK = 0;
+  const nK = slices[0].grid.k.length;
+  for (let i = 0; i + 1 < slices.length; i++) {
+    const dT = slices[i + 1].T - slices[i].T;
+    for (let j = 0; j < nK; j++) {
+      const d = (slices[i + 1].grid.w[j] - slices[i].grid.w[j]) / dT;
+      if (d < worst) { worst = d; worstT = slices[i + 1].T; worstK = slices[i].grid.k[j]; }
+    }
+  }
+  const ok = worst >= -1e-12;
+  return {
+    ok,
+    detail: ok
+      ? `min dw/dT = ${worst.toFixed(4)}`
+      : `dw/dT = ${worst.toFixed(4)} < 0 at T = ${worstT}, k = ${worstK.toFixed(3)}`,
+    worstDwdT: worst, worstT, worstK,
+  };
+}
+
+// ---- 6. Repair ------------------------------------------------------------
+// Pool-adjacent-violators: exact L2 projection onto non-decreasing sequences.
+export function pava(y) {
+  const n = y.length;
+  const val = new Float64Array(n), wt = new Float64Array(n);
+  let top = -1;
+  for (let i = 0; i < n; i++) {
+    top++; val[top] = y[i]; wt[top] = 1;
+    while (top > 0 && val[top - 1] > val[top]) {
+      const w = wt[top - 1] + wt[top];
+      val[top - 1] = (val[top - 1] * wt[top - 1] + val[top] * wt[top]) / w;
+      wt[top - 1] = w;
+      top--;
+    }
+  }
+  const out = new Float64Array(n);
+  let i = 0;
+  for (let b = 0; b <= top; b++) {
+    for (let c = 0; c < wt[b]; c++) out[i++] = val[b];
+  }
+  return out;
+}
+
+// Repair happens in PRICE space, where all three constraints are linear;
+// in vol space g >= 0 is non-convex in w.
+//
+// Dykstra's algorithm over elementary half-spaces. Unlike plain cyclic
+// projection (POCS), the per-constraint correction vectors make the limit the
+// true L2 projection onto the intersection, not merely some point in it.
+// Repair is a CONSTRAINED SVI FIT: find the SVI slice closest to the user's
+// smile subject to g >= 0 across the grid.
+//
+// The obvious alternative — L2 projection of the call-price curve onto
+// {convex} n {slope in [-1,0]} n {bounds} by Dykstra over elementary
+// half-spaces — is mathematically right but useless in practice here. Those
+// second-difference constraints form a long coupled chain, so information
+// propagates about one grid point per sweep and convergence needs O(n^2)
+// sweeps: at n = 401, 100k sweeps still leave a second difference of -7.6e-3.
+//
+// Fitting SVI instead is fast, and it buys two structural guarantees a price
+// projection does not. SVI has w'' = b*sigma^2/r^3 > 0 identically, so the
+// repaired smile cannot oscillate; and its wings are asymptotically linear in
+// |k| with slope b(1+|rho|), so Lee's bound becomes one explicit constraint
+// rather than an asymptotic hope. g is available in closed form from the five
+// parameters, so no finite differencing enters the repair at all.
+const G_MARGIN = 1e-3;      // aim strictly inside the admissible set
+const CS_MARGIN = 1e-3;     // ...and strictly inside the call-spread condition
+
+// Unconstrained coordinates. b > 0, |rho| < 1, sigma > SIGMA_MIN, and the fifth
+// coordinate is log of the smile's minimum total variance, which pins
+// min_k w = exp(u4) > 0 exactly (the minimum of raw SVI is a + b*sigma*
+// sqrt(1-rho^2), attained at k = m - rho*sigma/sqrt(1-rho^2)).
+function sviFromU(u) {
+  const b = Math.exp(u[0]);
+  const rho = Math.tanh(u[1]);
+  const sigma = SIGMA_MIN + Math.exp(u[2]);
+  const m = u[3];
+  const wMin = Math.exp(u[4]);
+  return { a: wMin - b * sigma * Math.sqrt(1 - rho * rho), b, rho, m, sigma };
+}
+
+function uFromSvi(p) {
+  const b = Math.max(p.b, 1e-6);
+  const sigma = Math.max(p.sigma, SIGMA_MIN + 1e-4);
+  const rho = Math.max(-0.999, Math.min(0.999, p.rho));
+  const wMin = Math.max(p.a + b * sigma * Math.sqrt(1 - rho * rho), 1e-8);
+  return [Math.log(b), Math.atanh(rho), Math.log(sigma - SIGMA_MIN),
+          p.m, Math.log(wMin)];
+}
+
+// Worst g and worst call-spread slack over the grid. Both must be non-negative;
+// g >= 0 alone is NOT sufficient, which the kink degeneracy demonstrates.
+export function sviMinG(params, ks) {
+  const s = makeSVI(params);
+  let worst = Infinity;
+  for (let i = 0; i < ks.length; i++) {
+    const d = s.at(ks[i]);
+    worst = Math.min(worst, gFunction(d.w, d.wp, d.wpp, ks[i]));
+  }
+  return worst;
+}
+
+export function sviMinCallSpreadSlack(params, ks) {
+  const s = makeSVI(params);
+  let worst = Infinity;
+  for (let i = 0; i < ks.length; i++) {
+    const d = s.at(ks[i]);
+    const sw = Math.sqrt(d.w);
+    const dm = -ks[i] / sw - sw / 2;
+    worst = Math.min(worst, millsRatio(dm) - d.wp / (2 * sw));
+  }
+  return worst;
+}
+
+// Vega-weighted least squares on implied volatility. Plain L2 on total variance
+// treats a basis point in the far wing as worth a basis point at the money,
+// which no desk believes: the same price error is a vastly larger vol error out
+// there. Weighting by vega = F*phi(d1)*sqrt(T) fixes that, and once the weights
+// are normalised both F and sqrt(T) cancel, leaving phi(d1) as the whole story.
+function vegaWeights(ks, wTarget) {
+  const n = ks.length;
+  const wt = new Float64Array(n);
+  let sum = 0;
+  for (let i = 0; i < n; i++) {
+    const sw = Math.sqrt(wTarget[i]);
+    const d1 = -ks[i] / sw + sw / 2;
+    wt[i] = normPdf(d1);
+    sum += wt[i] * wt[i];
+  }
+  return { wt, norm: sum > 0 ? sum : 1 };
+}
+
+function repairObjective(u, ks, wTarget, weights, pen) {
+  const p = sviFromU(u);
+  if (!Number.isFinite(p.a) || !Number.isFinite(p.b)) return 1e30;
+  const s = makeSVI(p);
+  const n = ks.length;
+  let sse = 0, viol = 0;
+  for (let i = 0; i < n; i++) {
+    const d = s.at(ks[i]);
+    if (!(d.w > 0)) return 1e30;
+    // Residual in vol space (up to the constant 1/sqrt(T)), vega-weighted.
+    const e = weights.wt[i] * (Math.sqrt(d.w) - Math.sqrt(wTarget[i]));
+    sse += e * e;
+
+    const g = gFunction(d.w, d.wp, d.wpp, ks[i]);
+    if (g < G_MARGIN) viol += (G_MARGIN - g) * (G_MARGIN - g);
+
+    const sw = Math.sqrt(d.w);
+    const dm = -ks[i] / sw - sw / 2;
+    const slack = millsRatio(dm) - d.wp / (2 * sw);
+    if (slack < CS_MARGIN) viol += (CS_MARGIN - slack) * (CS_MARGIN - slack);
+  }
+  const wing = p.b * (1 + Math.abs(p.rho)) - WING_CAP;
+  if (wing > 0) viol += n * wing * wing;
+  return sse / weights.norm + pen * viol / n;
+}
+
+// Generic Nelder-Mead. Deterministic; no derivatives, which matters because the
+// penalty term is only piecewise smooth.
+function nelderMead(f, x0, step, iters) {
+  const n = x0.length;
+  let S = [x0.slice()];
+  for (let i = 0; i < n; i++) {
+    const p = x0.slice();
+    p[i] += step * (Math.abs(p[i]) > 1 ? Math.abs(p[i]) : 1);
+    S.push(p);
+  }
+  let F = S.map(f);
+  const order = () => {
+    const idx = S.map((_, i) => i).sort((p, q) => F[p] - F[q]);
+    S = idx.map(i => S[i]); F = idx.map(i => F[i]);
+  };
+  for (let it = 0; it < iters; it++) {
+    order();
+    if (Math.abs(F[n] - F[0]) <= 1e-16 * (Math.abs(F[0]) + 1e-300)) break;
+    const cen = new Array(n).fill(0);
+    for (let i = 0; i < n; i++) {
+      for (let j = 0; j < n; j++) cen[j] += S[i][j] / n;
+    }
+    const move = t => cen.map((c, j) => c + t * (c - S[n][j]));
+    const ref = move(1), fr = f(ref);
+    if (fr < F[0]) {
+      const exp = move(2), fe = f(exp);
+      if (fe < fr) { S[n] = exp; F[n] = fe; } else { S[n] = ref; F[n] = fr; }
+    } else if (fr < F[n - 1]) {
+      S[n] = ref; F[n] = fr;
+    } else {
+      const con = move(-0.5), fc = f(con);
+      if (fc < F[n]) {
+        S[n] = con; F[n] = fc;
+      } else {
+        for (let i = 1; i <= n; i++) {
+          S[i] = S[i].map((v, j) => (v + S[0][j]) / 2);
+          F[i] = f(S[i]);
+        }
+      }
+    }
+  }
+  order();
+  return S[0];
+}
+
+// Fit the closest admissible SVI slice to (ks, wTarget), verifying the result on
+// kCheck rather than assuming it. Shared by the Repair button and by quote
+// import: an unconstrained least-squares SVI fitted to a real chain that stops
+// at k = +0.24 will happily extrapolate a right wing that violates Lee's bound,
+// and Lee's bound is exactly the condition for E[S_T] to be finite — so without
+// this the variance and moment panels diverge on real data.
+export function fitSVIAdmissible(ks, wTarget, kCheck) {
+  const weights = vegaWeights(ks, wTarget);
+  let u = uFromSvi(fitSVI(ks, wTarget));
+  let params = sviFromU(u), pen = 1e3;
+  for (let round = 0; round < 9; round++) {
+    u = nelderMead(v => repairObjective(v, ks, wTarget, weights, pen), u, 0.2, 1200);
+    params = sviFromU(u);
+    if (sviMinG(params, kCheck) >= 0 &&
+        sviMinCallSpreadSlack(params, kCheck) >= 0 &&
+        params.b * (1 + Math.abs(params.rho)) < 2) break;
+    pen *= 20;
+  }
+  return params;
+}
+
+export function repairSlice(interp, F, T, kMin, kMax, nK) {
+  const grid = sliceGrid(interp, kMin, kMax, nK);
+
+  // Coarse grid for the objective; the verification uses the full grid.
+  const stride = Math.max(1, Math.floor((nK - 1) / 120));
+  const ks = [], wT = [];
+  for (let i = 0; i < nK; i += stride) { ks.push(grid.k[i]); wT.push(grid.w[i]); }
+  if (ks[ks.length - 1] !== grid.k[nK - 1]) {
+    ks.push(grid.k[nK - 1]); wT.push(grid.w[nK - 1]);
+  }
+
+  const params = fitSVIAdmissible(ks, wT, grid.k);
+  const s = makeSVI(params);
+  const wFixed = new Float64Array(nK);
+  const full = vegaWeights(grid.k, grid.w);
+  let maxVolBps = 0, wsum = 0, l2price = 0, atmVolBps = 0, atmDist = Infinity;
+  for (let i = 0; i < nK; i++) {
+    const w = s.at(grid.k[i]).w;
+    wFixed[i] = w;
+    const dVol = Math.sqrt(w / T) - Math.sqrt(grid.w[i] / T);
+    // Weighted the same way the objective is, so the number quoted back to the
+    // user measures the thing that was actually minimised.
+    wsum += (full.wt[i] * dVol) ** 2;
+    const K = F * Math.exp(grid.k[i]);
+    l2price += (otmPrice(F, K, w) - otmPrice(F, K, grid.w[i])) ** 2;
+    maxVolBps = Math.max(maxVolBps, Math.abs(dVol) * 1e4);
+    if (Math.abs(grid.k[i]) < atmDist) {
+      atmDist = Math.abs(grid.k[i]);
+      atmVolBps = Math.abs(dVol) * 1e4;
+    }
+  }
+  return {
+    k: grid.k, wOrig: grid.w, wFixed, params,
+    minG: sviMinG(params, grid.k),
+    minCallSpreadSlack: sviMinCallSpreadSlack(params, grid.k),
+    maxVolBps, atmVolBps,
+    l2Vol: Math.sqrt(wsum / full.norm) * 1e4,   // vega-weighted rms vol move, bps
+    l2Price: Math.sqrt(l2price),
+  };
+}
+
+export function repairCalendar(slices) {
+  const nT = slices.length, nK = slices[0].grid.k.length;
+  const out = Array.from({ length: nT }, () => new Float64Array(nK));
+  const col = new Float64Array(nT);
+  for (let j = 0; j < nK; j++) {
+    for (let i = 0; i < nT; i++) col[i] = slices[i].grid.w[j];
+    const fixed = pava(col);
+    for (let i = 0; i < nT; i++) out[i][j] = fixed[i];
+  }
+  return out;
+}
+
+// ---- 7. Market conventions -------------------------------------------------
+// Desks do not quote in log-moneyness; they quote at delta. Everything below
+// converts the surface into the language a trader actually uses.
+
+// Forward (undiscounted) call delta = N(d+). Strictly decreasing in k, so a
+// bisection on k is safe and needs no derivative of the smile.
+export function deltaAtK(interp, k) {
+  const { w } = interp.at(k);
+  if (!(w > 0)) return NaN;
+  const sw = Math.sqrt(w);
+  return normCdf(-k / sw + sw / 2);
+}
+
+// Solve for the log-moneyness whose call delta is `target`.
+//
+// The bracket has to be found, not assumed. On a steep wing the total variance
+// grows fast enough in |k| that d+ stays high, so call delta can still be above
+// 0.25 out at k = 6 — a fixed [-6, 6] bracket then silently fails and every
+// risk reversal on the slice comes back NaN.
+export function kAtCallDelta(interp, target, kLo = -6, kHi = 6) {
+  if (!(target > 0 && target < 1)) return NaN;
+  let lo = kLo, hi = kHi;
+  for (let i = 0; i < 40 && deltaAtK(interp, lo) < target; i++) lo *= 1.6;
+  for (let i = 0; i < 40 && deltaAtK(interp, hi) > target; i++) hi *= 1.6;
+  if (deltaAtK(interp, lo) < target || deltaAtK(interp, hi) > target) return NaN;
+  for (let i = 0; i < 200; i++) {
+    const mid = 0.5 * (lo + hi);
+    if (deltaAtK(interp, mid) > target) lo = mid; else hi = mid;
+    if (hi - lo < 1e-13) break;
+  }
+  return 0.5 * (lo + hi);
+}
+
+export function volAtK(interp, k, T) {
+  const { w } = interp.at(k);
+  return w > 0 ? Math.sqrt(w / T) : NaN;
+}
+
+// Risk reversal and butterfly at a given delta, in vol points.
+//   RR(d)  = vol(d-delta call) - vol(d-delta put)      -> the skew a desk trades
+//   BF(d)  = mean of the two wings - ATM vol           -> the convexity
+// The d-delta put is the (1-d)-delta call, so one solver covers both.
+// `range` optionally gives the log-moneyness span that was actually quoted. A
+// delta-based quote whose strike falls outside it is not reported, because there
+// is no market there to quote: on a two-week SPX chain the fitted wing puts the
+// 25-delta strike far beyond the last traded option, and reading a vol off the
+// extrapolation there produced a "risk reversal" of 119 vol points.
+export function smileQuotes(interp, T, deltas = [0.25, 0.10], range = null) {
+  const atmVol = volAtK(interp, 0, T);
+  const out = { atmVol, byDelta: {} };
+  const inRange = k => !range || (k >= range.kMin && k <= range.kMax);
+  for (const d of deltas) {
+    let kC = kAtCallDelta(interp, d);
+    let kP = kAtCallDelta(interp, 1 - d);
+    if (!inRange(kC)) kC = NaN;
+    if (!inRange(kP)) kP = NaN;
+    const vC = Number.isNaN(kC) ? NaN : volAtK(interp, kC, T);
+    const vP = Number.isNaN(kP) ? NaN : volAtK(interp, kP, T);
+    out.byDelta[d] = {
+      kCall: kC, kPut: kP, volCall: vC, volPut: vP,
+      rr: vC - vP,
+      bf: (vC + vP) / 2 - atmVol,
+    };
+  }
+  // Local slope and curvature of the smile in vol terms at the money.
+  const d0 = interp.at(0);
+  out.atmSkew = d0.wp / (2 * Math.sqrt(d0.w * T));            // dSigma/dk at k=0
+  out.atmCurv = (d0.wpp / (2 * Math.sqrt(d0.w * T)))
+              - (d0.wp * d0.wp) / (4 * Math.pow(d0.w, 1.5) * Math.sqrt(T));
+  return out;
+}
+
+// ---- 8. Greeks -------------------------------------------------------------
+// Forward-measure, undiscounted, evaluated at the local implied vol. `vega` and
+// `volga` are per 1.00 of vol (divide by 100 for "per vol point").
+export function greeksAtK(interp, F, T, k) {
+  const { w, wp } = interp.at(k);
+  if (!(w > 0)) return null;
+  const sw = Math.sqrt(w), sig = sw / Math.sqrt(T);
+  const dp = -k / sw + sw / 2, dm = -k / sw - sw / 2;
+  const K = F * Math.exp(k);
+  const ph = normPdf(dp);
+
+  const vega = F * ph * Math.sqrt(T);
+  const gamma = ph / (F * sw);
+  const vanna = -ph * dm / sig;              // = (vega/F)(1 - d+/sqrt(w))
+  const volga = vega * dp * dm / sig;
+  const theta = -F * ph * sig / (2 * Math.sqrt(T));
+  const deltaBS = normCdf(dp);
+
+  // Sticky-moneyness delta. The surface is parameterised in k = ln(K/F), so
+  // moving F at fixed K slides the option along the smile: dSigma/dF =
+  // (dSigma/dk)(-1/F). Traders know this as the difference between
+  // sticky-strike and sticky-delta delta, and on a skewed book it is not small.
+  const dSigDk = wp / (2 * sw * Math.sqrt(T));
+  const deltaSticky = deltaBS - vega * dSigDk / F;
+
+  return {
+    k, K, vol: sig, deltaBS, deltaSticky, skewDelta: deltaSticky - deltaBS,
+    vega, gamma, vanna, volga, theta,
+  };
+}
+
+// ---- 9. Variance swaps and distribution moments ---------------------------
+// Integrated on a WIDE grid: these are tail-sensitive, and the display grid of
+// [-0.6, 0.6] is nowhere near enough. `tailMass` reports how much probability
+// the truncation still misses, so the numbers are never quoted blind.
+export function distributionStats(interp, T, kMin, kMax, n = 24001) {
+  // The integration domain is ASYMMETRIC, because the two tails have opposite
+  // requirements and real data makes that unmissable.
+  //
+  //  * Downside: the log contract is E[-ln(S_T/F)], which diverges as S -> 0, so
+  //    it is dominated by the left tail. Truncating there understates the
+  //    variance-swap strike badly — on a 2026-08-06 SPX chain a symmetric
+  //    10-sigma window put it BELOW at-the-money implied, which is impossible
+  //    when there is skew. Integrate the downside far out.
+  //  * Upside: E[S] weights the density by e^k, so an extrapolated right wing
+  //    sitting near Lee's bound contributes spurious mass. On the same chain, a
+  //    symmetric +/-8 window pushed E[S]/F to 1.08 and made the front expiry's
+  //    variance-swap strike negative. Cut the upside at ten standard deviations,
+  //    which is near the last strike anyone actually quotes.
+  if (kMin === undefined || kMax === undefined) {
+    const sd = Math.sqrt(Math.max(interp.at(0).w, 1e-12));   // = sigma * sqrt(T)
+    kMin = -8;
+    kMax = Math.min(8, Math.max(0.4, 10 * sd));
+  }
+  const h = (kMax - kMin) / (n - 1);
+  let m0 = 0, m1 = 0, m2 = 0, m3 = 0, m4 = 0, eS = 0;
+  const ks = new Float64Array(n), ps = new Float64Array(n);
+  for (let i = 0; i < n; i++) {
+    const k = kMin + i * h;
+    const p = Math.max(densityAt(interp, k), 0);
+    ks[i] = k; ps[i] = p;
+    m0 += p * h;
+    m1 += k * p * h;
+    eS += Math.exp(k) * p * h;
+  }
+  const mean = m0 > 0 ? m1 / m0 : NaN;
+
+  // Central moments are computed on a NARROWER domain than the variance swap,
+  // because their tail sensitivity is completely different. The log contract
+  // weights the density by k, so it needs the far downside. A fourth moment
+  // weights it by k^4, so integrating an extrapolated linear wing out to k = -8
+  // reports an excess kurtosis of 80 that is a property of the extrapolation and
+  // not of the market. Six standard deviations covers the distribution while
+  // staying inside the region a real chain informs.
+  const sdScale = Math.sqrt(Math.max(interp.at(0).w, 1e-12));
+  const mLo = Math.max(kMin, -6 * sdScale), mHi = Math.min(kMax, 6 * sdScale);
+  let mm0 = 0;
+  for (let i = 0; i < n; i++) {
+    if (ks[i] < mLo || ks[i] > mHi) continue;
+    const p = ps[i] * h;
+    mm0 += p;
+  }
+  let mMean = 0;
+  for (let i = 0; i < n; i++) {
+    if (ks[i] < mLo || ks[i] > mHi) continue;
+    mMean += ks[i] * ps[i] * h;
+  }
+  mMean = mm0 > 0 ? mMean / mm0 : NaN;
+  for (let i = 0; i < n; i++) {
+    if (ks[i] < mLo || ks[i] > mHi) continue;
+    const d = ks[i] - mMean, p = ps[i] * h;
+    m2 += d * d * p; m3 += d * d * d * p; m4 += d * d * d * d * p;
+  }
+  const varK = mm0 > 0 ? m2 / mm0 : NaN;
+  const sd = Math.sqrt(varK);
+
+  // Fair variance strike of a variance swap = 2 * E[-ln(S_T/F)] (log contract).
+  const totalVarSwap = -2 * mean;
+
+  // Percentiles of S_T / F.
+  const want = [0.01, 0.05, 0.25, 0.5, 0.75, 0.95, 0.99];
+  const pct = {};
+  let cum = 0, wi = 0;
+  for (let i = 0; i < n && wi < want.length; i++) {
+    cum += ps[i] * h / (m0 || 1);
+    while (wi < want.length && cum >= want[wi]) { pct[want[wi]] = Math.exp(ks[i]); wi++; }
+  }
+
+  return {
+    kMin, kMax,
+    totalMass: m0,
+    tailMass: Math.abs(1 - m0),
+    forwardCheck: eS,          // E[S_T]/F must be 1 under Q
+    momentKMin: mLo, momentKMax: mHi,
+    meanLogReturn: mean,
+    sdLogReturn: sd,
+    skew: mm0 > 0 ? (m3 / mm0) / Math.pow(varK, 1.5) : NaN,
+    excessKurt: mm0 > 0 ? (m4 / mm0) / (varK * varK) - 3 : NaN,
+    totalVarSwap,
+    varSwapVol: totalVarSwap > 0 ? Math.sqrt(totalVarSwap / T) : NaN,
+    percentiles: pct,
+  };
+}
+
+// Term structure of variance-swap vol, plus the forward variance between
+// consecutive maturities. A negative forward variance IS calendar arbitrage,
+// which ties this panel back to the surface tab.
+export function varianceTermStructure(slices) {
+  const rows = slices.map(sl => {
+    const st = distributionStats(sl.interp, sl.T);
+    // How far the quotes reach, measured in standard deviations of log-return.
+    // This is the number that says whether a tail-sensitive figure on this row is
+    // worth reading: a two-week chain quoted 26% down and 7% up covers -11 sigma
+    // but only +2.8 sigma, so its upside tail is an extrapolation, not a market.
+    const sd = Math.sqrt(Math.max(sl.interp.at(0).w, 1e-12));
+    const covLo = sl.qMin != null ? sl.qMin / sd : null;
+    const covHi = sl.qMax != null ? sl.qMax / sd : null;
+    return {
+      T: sl.T, covLo, covHi, intKMin: st.kMin, intKMax: st.kMax,
+      atmVol: volAtK(sl.interp, 0, sl.T),
+      varSwapVol: st.varSwapVol,
+      totalVarSwap: st.totalVarSwap,
+      convexityPremium: st.varSwapVol - volAtK(sl.interp, 0, sl.T),
+      skew: st.skew,
+      excessKurt: st.excessKurt,
+      tailMass: st.tailMass,
+      forwardCheck: st.forwardCheck,
+      percentiles: st.percentiles,
+    };
+  });
+  for (let i = 0; i < rows.length; i++) {
+    if (i === 0) {
+      // Nothing to compare the first expiry against, so there is no calendar
+      // claim to make about it. A non-positive log contract here means its own
+      // variance swap is not computable from the strikes available, which is a
+      // coverage problem, not an arbitrage.
+      rows[i].fwdVol = rows[i].varSwapVol;
+      rows[i].fwdVarOk = true;
+    } else {
+      const dV = rows[i].totalVarSwap - rows[i - 1].totalVarSwap;
+      const dT = rows[i].T - rows[i - 1].T;
+      rows[i].fwdVarOk = dV >= 0;
+      rows[i].fwdVol = dV >= 0 ? Math.sqrt(dV / dT) : NaN;
+    }
+  }
+  return rows;
+}
+
+// ---- 10. Quote import ------------------------------------------------------
+// Accepts CSV/TSV/whitespace text with a header row. Recognised columns:
+//   expiry | T | tenor      years to expiry (or a yyyy-mm-dd date, if asOf given)
+//   strike | K
+//   vol | iv | sigma        implied vol, as 0.23 or 23 (auto-detected)
+//   price | premium         option price, with `type` = c/p, inverted to a vol
+//   forward | F             forward for that expiry (optional)
+// No network, no dependency: this is the whole data path.
+const COLS = {
+  expiry: ['expiry', 't', 'tenor', 'maturity', 'expiration', 'texp'],
+  strike: ['strike', 'k'],
+  vol: ['vol', 'iv', 'sigma', 'impliedvol', 'impliedvolatility'],
+  price: ['price', 'premium', 'mid', 'mark'],
+  type: ['type', 'cp', 'putcall', 'side', 'optiontype'],
+  forward: ['forward', 'f', 'fwd'],
+  bidVol: ['bidvol', 'bidiv', 'ivbid', 'volbid'],
+  askVol: ['askvol', 'askiv', 'ivask', 'volask'],
+  oi: ['oi', 'openinterest'],
+};
+
+function normHeader(h) {
+  return h.trim().toLowerCase().replace(/[^a-z]/g, '');
+}
+
+function splitRow(line) {
+  return line.includes(',') ? line.split(',')
+       : line.includes('\t') ? line.split('\t')
+       : line.trim().split(/\s+/);
+}
+
+export function parseQuotes(text, opts = {}) {
+  const lines = text.split(/\r?\n/).map(l => l.trim())
+    .filter(l => l && !l.startsWith('#'));
+  if (lines.length < 2) {
+    return { quotes: [], errors: ['need a header row and at least one data row'] };
+  }
+
+  const head = splitRow(lines[0]).map(normHeader);
+  const idx = {};
+  for (const [field, names] of Object.entries(COLS)) {
+    idx[field] = head.findIndex(h => names.includes(h));
+  }
+  const errors = [];
+  if (idx.expiry < 0) errors.push('no expiry/T column found');
+  if (idx.strike < 0) errors.push('no strike/K column found');
+  if (idx.vol < 0 && idx.price < 0) errors.push('need a vol column or a price column');
+  if (idx.vol < 0 && idx.price >= 0 && idx.type < 0) {
+    errors.push('price column needs a type column (c/p) to invert');
+  }
+  if (errors.length) return { quotes: [], errors };
+
+  const defaultF = opts.forward ?? 100;
+  const raw = [];
+  for (let li = 1; li < lines.length; li++) {
+    const c = splitRow(lines[li]);
+    const num = j => (j >= 0 && j < c.length ? Number(c[j]) : NaN);
+    const T = num(idx.expiry), K = num(idx.strike);
+    if (!(T > 0) || !(K > 0)) { errors.push(`row ${li + 1}: bad expiry or strike`); continue; }
+    const F = idx.forward >= 0 && Number.isFinite(num(idx.forward))
+      ? num(idx.forward) : defaultF;
+    const rec = { T, K, F, source: li + 1 };
+
+    if (idx.vol >= 0 && Number.isFinite(num(idx.vol))) {
+      rec.vol = num(idx.vol);
+    } else if (idx.price >= 0) {
+      const px = num(idx.price);
+      const ty = String(c[idx.type] ?? '').trim().toLowerCase()[0];
+      if (!(px > 0) || (ty !== 'c' && ty !== 'p')) {
+        errors.push(`row ${li + 1}: unusable price/type`); continue;
+      }
+      // Invert on the quoted side, converting to the OTM side by parity when the
+      // quote is in-the-money (an ITM quote loses the vol in its intrinsic part).
+      const isCall = ty === 'c';
+      let otm = isCall ? px : px;
+      if (isCall && K < F) otm = px - F + K;        // ITM call -> put
+      if (!isCall && K >= F) otm = px + F - K;      // ITM put  -> call
+      const w = impliedTotalVarOtm(F, K, otm);
+      if (!Number.isFinite(w) || w <= 0) {
+        errors.push(`row ${li + 1}: price ${px} not invertible`); continue;
+      }
+      rec.vol = Math.sqrt(w / T);
+    } else {
+      errors.push(`row ${li + 1}: no vol and no price`); continue;
+    }
+    // Optional, and worth having: a real chain has a two-sided market, and the
+    // width of it is the honest error bar on any fitted surface.
+    if (idx.bidVol >= 0 && Number.isFinite(num(idx.bidVol))) rec.bidVol = num(idx.bidVol);
+    if (idx.askVol >= 0 && Number.isFinite(num(idx.askVol))) rec.askVol = num(idx.askVol);
+    if (idx.oi >= 0 && Number.isFinite(num(idx.oi))) rec.oi = num(idx.oi);
+    raw.push(rec);
+  }
+
+  // Vols quoted in percent (23 rather than 0.23)? Decide once, from the median.
+  const vs = raw.map(r => r.vol).filter(Number.isFinite).sort((a, b) => a - b);
+  const median = vs.length ? vs[vs.length >> 1] : 0;
+  const scale = median > 1.5 ? 0.01 : 1;
+  for (const r of raw) {
+    r.vol *= scale;
+    if (r.bidVol !== undefined) r.bidVol *= scale;
+    if (r.askVol !== undefined) r.askVol *= scale;
+    r.k = Math.log(r.K / r.F);
+    r.w = r.vol * r.vol * r.T;
+  }
+
+  return {
+    quotes: raw.filter(r => r.w > 0),
+    errors,
+    volsWerePercent: scale !== 1,
+    forwardWasDefaulted: idx.forward < 0,
+  };
+}
+
+// Turn imported quotes into the page's surface shape: group by expiry, fit an
+// SVI slice to each group, then read that slice off at the standard knots so the
+// rest of the page (and the spline/SVI toggle) keeps working unchanged.
+export function surfaceFromQuotes(quotes, knotsK) {
+  const byT = new Map();
+  for (const q of quotes) {
+    if (!byT.has(q.T)) byT.set(q.T, []);
+    byT.get(q.T).push(q);
+  }
+  const maturities = [];
+  const perExpiry = [];
+  let kLo = Infinity, kHi = -Infinity;
+  for (const q of quotes) { kLo = Math.min(kLo, q.k); kHi = Math.max(kHi, q.k); }
+
+  for (const T of [...byT.keys()].sort((a, b) => a - b)) {
+    const g = byT.get(T);
+    if (g.length < 3) { perExpiry.push({ T, n: g.length, skipped: true }); continue; }
+    g.sort((a, b) => a.k - b.k);
+    const ks = g.map(q => q.k), ws = g.map(q => q.w);
+    // Admissibility is enforced over THIS expiry's own quoted span, not the
+    // union across expiries. A front-month chain may stop at k = +0.06 while a
+    // two-year one reaches +0.22; demanding the front fit be admissible out at
+    // +0.22 — where nobody quotes it — makes the optimiser abandon the skew and
+    // return a flat smile, which is worse than useless.
+    // Dense enough that the constraints cannot be satisfied at the sample points
+    // while failing between them — the fit must verify on the grid it will later
+    // be judged on, not a coarser one.
+    const nChk = 241, kA = ks[0], kB = ks[ks.length - 1];
+    const own = Array.from({ length: nChk }, (_, i) => kA + (kB - kA) * i / (nChk - 1));
+    const params = fitSVIAdmissible(ks, ws, own);
+    const s = makeSVI(params);
+    let rms = 0, worst = 0;
+    for (const q of g) {
+      const fit = Math.sqrt(Math.max(s.at(q.k).w, 0) / T);
+      const e = fit - q.vol;
+      rms += e * e;
+      if (Math.abs(e) > Math.abs(worst)) worst = e;
+    }
+    maturities.push({
+      T, F: g[0].F, knotsK: knotsK.slice(),
+      knotsW: knotsK.map(k => Math.max(s.at(k).w, 1e-6)),
+      // The verified fit travels with the slice. Re-approximating it with a
+      // spline through the knots is close but not exact, and at the edge of the
+      // quoted range the difference is enough to break the call-spread condition
+      // the fit was specifically constrained to satisfy.
+      fitParams: params,
+    });
+    perExpiry.push({
+      T, n: g.length, params, skipped: false,
+      rmsVol: Math.sqrt(rms / g.length), worstVol: worst,
+      kMin: ks[0], kMax: ks[ks.length - 1],
+    });
+  }
+  // The range the quotes actually cover. Anything outside it is extrapolation,
+  // and the caller should say so rather than pretend the surface is known there.
+  return {
+    surface: { interpKind: 'spline', maturities }, perExpiry,
+    quoteKMin: kLo, quoteKMax: kHi,
+  };
+}
+
+// A REAL market snapshot, not a smooth curve: S&P 500 index options
+// (SPX) from the CBOE delayed-quote feed, captured 2026-08-06 16:14 ET with
+// the index at 7709.96.
+//
+// Built as follows, and every step is visible in the numbers:
+//  * Each expiry's forward and discount factor come from regressing the
+//    call-minus-put mid on strike, since C - P = DF*(F - K). The fitted
+//    forwards rise 7720 -> 8117 and the discount factors fall 0.9982 ->
+//    0.9384 across the curve, implying r ~ 4.5% and a ~0.8% dividend yield.
+//    Nothing was assumed.
+//  * Only the out-of-the-money side is kept, which is how the market quotes,
+//    and vols are re-implied from the bid, mid and ask with this page's own
+//    inverter. They agree with CBOE's published IV to a few basis points.
+//  * Filtered to two-sided markets with open interest and spreads under 30%.
+//
+// The result behaves like real data rather than a model: a steep put wing
+// (44% at 23% out of the money against 11% at the money on the front expiry),
+// a genuinely kinked call wing, uneven strike spacing, and a call side that
+// simply stops around k = +0.07 on the front month.
+export const REAL_SPX = [
+  'expiry,strike,vol,bid_vol,ask_vol,forward,oi',
+  // T = 0.0411
+  '0.0411,5950,44.561,43.942,45.116,7720.49,372',
+  '0.0411,6100,41.143,40.631,41.610,7720.49,757',
+  '0.0411,6350,35.629,35.082,36.119,7720.49,203',
+  '0.0411,6580,30.741,30.377,31.078,7720.49,121',
+  '0.0411,6780,26.659,26.503,26.811,7720.49,212',
+  '0.0411,6950,23.415,23.265,23.560,7720.49,1346',
+  '0.0411,7125,20.158,20.071,20.243,7720.49,407',
+  '0.0411,7285,17.431,17.335,17.526,7720.49,97',
+  '0.0411,7435,15.053,15.000,15.105,7720.49,186',
+  '0.0411,7570,13.188,13.146,13.231,7720.49,188',
+  '0.0411,7720,11.511,11.479,11.543,7720.49,50',
+  '0.0411,7875,10.311,10.273,10.348,7720.49,726',
+  '0.0411,8050,10.398,10.313,10.481,7720.49,1370',
+  '0.0411,8230,12.989,12.755,13.200,7720.49,19',
+  '0.0411,8250,13.420,13.180,13.637,7720.49,403',
+  // T = 0.1178
+  '0.1178,4500,55.119,54.525,55.665,7738.22,1006',
+  '0.1178,4875,49.479,48.842,50.060,7738.22,1212',
+  '0.1178,5250,44.615,44.470,44.756,7738.22,1486',
+  '0.1178,5575,39.952,39.754,40.145,7738.22,1971',
+  '0.1178,5850,36.466,36.332,36.597,7738.22,903',
+  '0.1178,6120,32.653,32.508,32.795,7738.22,146',
+  '0.1178,6370,29.343,29.241,29.444,7738.22,539',
+  '0.1178,6590,26.553,26.480,26.625,7738.22,36',
+  '0.1178,6790,23.934,23.880,23.988,7738.22,115',
+  '0.1178,6970,21.651,21.597,21.705,7738.22,83',
+  '0.1178,7145,19.460,19.429,19.490,7738.22,74',
+  '0.1178,7300,17.592,17.553,17.631,7738.22,2767',
+  '0.1178,7450,15.857,15.832,15.882,7738.22,693',
+  '0.1178,7585,14.424,14.398,14.450,7738.22,71',
+  '0.1178,7740,12.996,12.972,13.020,7738.22,155',
+  '0.1178,7895,12.021,11.994,12.047,7738.22,11',
+  '0.1178,8070,11.471,11.439,11.504,7738.22,124',
+  '0.1178,8250,11.408,11.355,11.460,7738.22,383',
+  '0.1178,8500,12.295,12.185,12.401,7738.22,513',
+  '0.1178,8750,13.918,13.726,14.093,7738.22,4',
+  // T = 0.1945
+  '0.1945,4500,49.269,49.097,49.437,7761.16,171',
+  '0.1945,4900,44.273,44.122,44.421,7761.16,439',
+  '0.1945,5250,40.103,39.999,40.206,7761.16,419',
+  '0.1945,5575,36.234,36.084,36.382,7761.16,641',
+  '0.1945,5875,32.843,32.734,32.950,7761.16,887',
+  '0.1945,6140,29.905,29.804,30.005,7761.16,759',
+  '0.1945,6380,27.385,27.340,27.431,7761.16,5',
+  '0.1945,6610,24.925,24.878,24.971,7761.16,23',
+  '0.1945,6810,22.806,22.769,22.842,7761.16,8',
+  '0.1945,6990,20.939,20.910,20.969,7761.16,4',
+  '0.1945,7165,19.144,19.120,19.168,7761.16,14',
+  '0.1945,7325,17.540,17.515,17.566,7761.16,57',
+  '0.1945,7470,16.157,16.135,16.179,7761.16,28',
+  '0.1945,7605,14.970,14.950,14.989,7761.16,21',
+  '0.1945,7760,13.773,13.751,13.795,7761.16,28',
+  '0.1945,7920,12.789,12.770,12.809,7761.16,23',
+  '0.1945,8090,12.113,12.088,12.137,7761.16,2',
+  '0.1945,8300,11.723,11.689,11.756,7761.16,364',
+  '0.1945,8525,11.733,11.640,11.823,7761.16,610',
+  '0.1945,8900,12.991,12.900,13.079,7761.16,179',
+  '0.1945,9300,14.992,14.766,15.195,7761.16,17',
+  // T = 0.3671
+  '0.3671,4500,42.844,42.741,42.945,7806.63,2',
+  '0.3671,4925,38.494,38.422,38.566,7806.63,572',
+  '0.3671,5275,35.131,35.059,35.203,7806.63,1718',
+  '0.3671,5600,32.246,32.205,32.286,7806.63,89',
+  '0.3671,5900,29.622,29.580,29.664,7806.63,4',
+  '0.3671,6175,27.253,27.203,27.303,7806.63,6321',
+  '0.3671,6425,25.292,25.265,25.318,7806.63,3',
+  '0.3671,6650,23.488,23.460,23.515,7806.63,150',
+  '0.3671,6850,21.893,21.869,21.916,7806.63,21',
+  '0.3671,7030,20.392,20.360,20.425,7806.63,14',
+  '0.3671,7210,18.969,18.937,19.001,7806.63,33',
+  '0.3671,7370,17.750,17.721,17.778,7806.63,48',
+  '0.3671,7520,16.660,16.634,16.687,7806.63,264',
+  '0.3671,7650,15.845,15.829,15.862,7806.63,28',
+  '0.3671,7810,14.828,14.796,14.860,7806.63,17',
+  '0.3671,7960,14.105,14.072,14.138,7806.63,5',
+  '0.3671,8150,13.455,13.437,13.473,7806.63,54',
+  '0.3671,8325,12.980,12.944,13.017,7806.63,1149',
+  '0.3671,8575,12.608,12.564,12.652,7806.63,496',
+  '0.3671,9000,12.571,12.528,12.614,7806.63,214',
+  '0.3671,9600,13.800,13.694,13.901,7806.63,2',
+  // T = 0.6164
+  '0.6164,4550,37.786,37.709,37.863,7885.32,1267',
+  '0.6164,4975,34.323,34.266,34.380,7885.32,240',
+  '0.6164,5350,31.480,31.436,31.524,7885.32,235',
+  '0.6164,5675,29.175,29.133,29.216,7885.32,579',
+  '0.6164,5950,27.329,27.295,27.364,7885.32,2483',
+  '0.6164,6225,25.549,25.511,25.587,7885.32,1275',
+  '0.6164,6500,23.816,23.780,23.851,7885.32,10443',
+  '0.6164,6725,22.421,22.393,22.448,7885.32,4309',
+  '0.6164,6925,21.196,21.169,21.223,7885.32,768',
+  '0.6164,7100,20.134,20.109,20.159,7885.32,4595',
+  '0.6164,7275,19.090,19.065,19.115,7885.32,422',
+  '0.6164,7450,18.067,18.042,18.093,7885.32,2025',
+  '0.6164,7600,17.220,17.196,17.244,7885.32,5803',
+  '0.6164,7725,16.553,16.527,16.578,7885.32,1309',
+  '0.6164,7875,15.809,15.784,15.834,7885.32,586',
+  '0.6164,8050,15.054,15.023,15.086,7885.32,2548',
+  '0.6164,8225,14.422,14.393,14.450,7885.32,223',
+  '0.6164,8425,13.869,13.838,13.901,7885.32,298',
+  '0.6164,8675,13.396,13.366,13.426,7885.32,9',
+  '0.6164,9100,12.917,12.880,12.954,7885.32,1234',
+  '0.6164,9600,12.847,12.783,12.910,7885.32,493',
+  // T = 1.3644
+  '1.3644,4700,31.660,31.592,31.727,8117.00,2266',
+  '1.3644,5100,29.598,29.531,29.664,8117.00,1538',
+  '1.3644,5500,27.733,27.683,27.782,8117.00,7897',
+  '1.3644,5850,26.197,26.146,26.247,8117.00,555',
+  '1.3644,6150,24.939,24.892,24.985,8117.00,859',
+  '1.3644,6400,23.925,23.879,23.971,8117.00,2999',
+  '1.3644,6700,22.738,22.695,22.780,8117.00,3434',
+  '1.3644,6900,21.960,21.920,21.999,8117.00,5190',
+  '1.3644,7150,20.995,20.959,21.032,8117.00,259',
+  '1.3644,7300,20.420,20.384,20.456,8117.00,4535',
+  '1.3644,7500,19.655,19.621,19.690,8117.00,7891',
+  '1.3644,7650,19.089,19.054,19.124,8117.00,120',
+  '1.3644,7800,18.534,18.497,18.570,8117.00,2675',
+  '1.3644,7950,17.999,17.957,18.040,8117.00,436',
+  '1.3644,8100,17.473,17.438,17.508,8117.00,316',
+  '1.3644,8300,16.831,16.789,16.873,8117.00,2055',
+  '1.3644,8450,16.376,16.335,16.417,8117.00,40',
+  '1.3644,8650,15.821,15.779,15.863,8117.00,986',
+  '1.3644,8900,15.222,15.179,15.265,8117.00,796',
+  '1.3644,9300,14.509,14.464,14.555,8117.00,1338',
+  '1.3644,10000,13.843,13.790,13.895,8117.00,8441',
+].join('\n');
+
+// ---- 11. Presets ----------------------------------------------------------
+const KG = [-0.6, -0.4, -0.2, 0, 0.2, 0.4, 0.6];
+
+function sliceFromVols(T, vols) {
+  return { T, F: 100, knotsK: KG.slice(), knotsW: vols.map(v => v * v * T) };
+}
+
+export const PRESETS = [
+  {
+    id: 'equity',
+    name: 'Equity index (stylised)',
+    blurb: 'Monotone downside skew that flattens with maturity — the shape a ' +
+           'listed index actually trades. Everything passes. Start here, then ' +
+           'grab a knot and break it.',
+    surface: {
+      interpKind: 'spline',
+      maturities: [
+        sliceFromVols(0.083, [0.34, 0.30, 0.26, 0.23, 0.21, 0.205, 0.21]),
+        sliceFromVols(0.25,  [0.32, 0.285, 0.255, 0.229, 0.212, 0.207, 0.212]),
+        sliceFromVols(0.5,   [0.305, 0.275, 0.25, 0.228, 0.214, 0.21, 0.215]),
+        sliceFromVols(1.0,   [0.29, 0.267, 0.247, 0.228, 0.217, 0.214, 0.219]),
+        sliceFromVols(2.0,   [0.275, 0.258, 0.243, 0.229, 0.221, 0.219, 0.223]),
+      ],
+    },
+  },
+  {
+    id: 'fx',
+    name: 'FX smile (stylised)',
+    blurb: 'Near-symmetric smile with a mild risk reversal. The wings matter ' +
+           'more than the skew here, so Lee’s bound is the one to watch.',
+    surface: {
+      interpKind: 'spline',
+      maturities: [
+        sliceFromVols(0.083, [0.135, 0.118, 0.107, 0.103, 0.106, 0.115, 0.130]),
+        sliceFromVols(0.25,  [0.133, 0.118, 0.108, 0.104, 0.107, 0.115, 0.129]),
+        sliceFromVols(0.5,   [0.131, 0.117, 0.108, 0.105, 0.108, 0.115, 0.128]),
+        sliceFromVols(1.0,   [0.129, 0.117, 0.109, 0.106, 0.109, 0.116, 0.127]),
+        sliceFromVols(2.0,   [0.127, 0.117, 0.110, 0.108, 0.110, 0.117, 0.126]),
+      ],
+    },
+  },
+  {
+    id: 'earnings',
+    name: 'Post-earnings kink (stylised)',
+    blurb: 'A front slice pushed up by an event. Total variance is only just ' +
+           'monotone in T — nudge the front smile up and the calendar snaps.',
+    surface: {
+      interpKind: 'spline',
+      maturities: [
+        sliceFromVols(0.04,  [0.62, 0.56, 0.52, 0.50, 0.51, 0.55, 0.60]),
+        sliceFromVols(0.083, [0.46, 0.42, 0.39, 0.375, 0.38, 0.41, 0.44]),
+        sliceFromVols(0.25,  [0.33, 0.30, 0.275, 0.263, 0.267, 0.285, 0.305]),
+        sliceFromVols(0.5,   [0.30, 0.278, 0.259, 0.249, 0.253, 0.268, 0.284]),
+        sliceFromVols(1.0,   [0.285, 0.268, 0.253, 0.245, 0.249, 0.261, 0.274]),
+      ],
+    },
+  },
+  {
+    id: 'broken',
+    name: 'Already broken (stylised)',
+    blurb: 'Ships inadmissible: the mid-strike smile is gouged into a W, so the ' +
+           'density is negative and local vol is undefined over a wide band. ' +
+           'Hit Repair and watch how far it has to move.',
+    surface: {
+      interpKind: 'spline',
+      maturities: [
+        { T: 0.25, F: 100, knotsK: KG.slice(),
+          knotsW: [0.0180, 0.0075, 0.0260, 0.0080, 0.0255, 0.0078, 0.0175] },
+        { T: 0.5, F: 100, knotsK: KG.slice(),
+          knotsW: [0.0360, 0.0155, 0.0520, 0.0165, 0.0510, 0.0158, 0.0350] },
+        { T: 1.0, F: 100, knotsK: KG.slice(),
+          knotsW: [0.0720, 0.0315, 0.1040, 0.0335, 0.1020, 0.0320, 0.0700] },
+      ],
+    },
+  },
+];
+
+if (typeof window !== 'undefined') {
+  window.AFSL = {
+    normPdf, normCdf, callPrice, putPrice, dCallDw, otmPrice,
+    impliedTotalVar, impliedVol, impliedTotalVarOtm, impliedVolOtm,
+    makeSpline, sviRawW, makeSVI, fitSVI, gFunction, densityAt, sliceGrid,
+    sliceChecks, buildInterp, surfaceGrids, localVarianceGrid, calendarCheck,
+    pava, sviMinG, sviMinCallSpreadSlack, millsRatio,
+    fitSVIAdmissible, repairSlice, repairCalendar, PRESETS,
+    deltaAtK, kAtCallDelta, volAtK, smileQuotes, greeksAtK,
+    distributionStats, varianceTermStructure, parseQuotes, surfaceFromQuotes,
+    REAL_SPX,
+  };
+}
+</script>
+
+<script type="module">
+// ===========================================================================
+// State, canvas rendering, interaction. Consumes window.AFSL.
+// ===========================================================================
+const A = window.AFSL;
+const N_K = 481;
+
+// The displayed log-moneyness window. Mutable, because it must follow the data:
+// a real SPX chain has quotes down to k = -0.6 but stops near +0.24, and both
+// claiming to know the surface at +0.6 and demanding it be admissible there are
+// wrong. Requiring admissibility over a range twice as wide as the quotes makes
+// the constrained fit give up and collapse to a flat smile.
+let K_MIN = -0.6, K_MAX = 0.6;
+
+function setKRange(lo, hi) {
+  K_MIN = lo; K_MAX = hi;
+}
+
+// 13 knots across whatever the current window is.
+function knotGrid(n = 13) {
+  return Array.from({ length: n }, (_, i) => K_MIN + (K_MAX - K_MIN) * i / (n - 1));
+}
+
+const S = {
+  tab: 'surface',
+  presetId: 'equity',
+  quotes: null,          // {quotes, perExpiry} after an import
+  interpKind: 'spline',
+  activeIdx: 2,
+  surface: null,
+  slices: [],
+  repair: null,
+  drag: null,
+};
+
+function clone(surface) {
+  return {
+    interpKind: surface.interpKind,
+    maturities: surface.maturities.map(m => ({
+      T: m.T, F: m.F, knotsK: m.knotsK.slice(), knotsW: m.knotsW.slice(),
+    })),
+  };
+}
+
+function loadPreset(id) {
+  const p = A.PRESETS.find(x => x.id === id);
+  if (!p) return false;
+  S.presetId = id;
+  S.quotes = null;              // imported quotes no longer describe this surface
+  const allK = p.surface.maturities.flatMap(m => m.knotsK);
+  setKRange(Math.min(...allK), Math.max(...allK));
+  S.surface = clone(p.surface);
+  S.interpKind = p.surface.interpKind;
+  S.activeIdx = Math.min(S.activeIdx, p.surface.maturities.length - 1);
+  S.repair = null;
+  document.getElementById('presets').value = id;
+  document.getElementById('interp').value = S.interpKind;
+  document.getElementById('blurb').textContent = p.blurb;
+  syncMaturitySelect();
+  return true;
+}
+
+function recompute() {
+  S.surface.interpKind = S.interpKind;
+  // Whenever a slice carries a verified closed-form fit — from Repair, or from a
+  // quote import — display THAT, not a spline re-approximation of it. Reading a
+  // constrained fit onto knots and splining them back is close but not exact, and
+  // near the edge of the quoted range the difference is enough to break the very
+  // condition the fit was constrained to satisfy.
+  S.slices = S.surface.maturities.map((m, i) => {
+    const interp = S.repair ? A.makeSVI(S.repair.params[i])
+                            : A.buildInterp(m, S.interpKind);
+    return { T: m.T, F: m.F, interp, grid: A.sliceGrid(interp, K_MIN, K_MAX, N_K),
+             fitted: !!(S.repair || m.fitParams) };
+  });
+  // Remember, per slice, the strike range that was actually quoted. Everything
+  // outside it is extrapolation, and must not be presented as if a market
+  // existed there.
+  for (const sl of S.slices) {
+    const e = S.quotes && S.quotes.perExpiry
+      ? S.quotes.perExpiry.find(x => Math.abs(x.T - sl.T) < 1e-12 && !x.skipped)
+      : null;
+    sl.qMin = e ? e.kMin : null;
+    sl.qMax = e ? e.kMax : null;
+  }
+}
+
+// Arbitrage checks run over the quoted span, not the display window: a front
+// month quoted only over k in [-0.26, +0.07] cannot be arbitraged at k = -0.57,
+// and flagging it there reports the extrapolation, not the market.
+function checkGrid(sl) {
+  if (sl.qMin === null) return sl.grid;
+  return A.sliceGrid(sl.interp, sl.qMin, sl.qMax, 241);
+}
+
+function checksFor(sl) {
+  return A.sliceChecks(checkGrid(sl), sl.F);
+}
+
+// The quoted span, in the shape smileQuotes wants, or null for a preset (where
+// the whole displayed window is the model and there are no quotes to respect).
+function rangeOf(sl) {
+  return sl.qMin === null ? null : { kMin: sl.qMin, kMax: sl.qMax };
+}
+
+// Calendar needs a k where every expiry has a market, so use the intersection.
+function calendarResult() {
+  let lo = -Infinity, hi = Infinity, restricted = false;
+  for (const sl of S.slices) {
+    if (sl.qMin === null) continue;
+    lo = Math.max(lo, sl.qMin); hi = Math.min(hi, sl.qMax); restricted = true;
+  }
+  if (!restricted || !(lo < hi)) return { res: A.calendarCheck(S.slices), lo: K_MIN, hi: K_MAX };
+  const sub = S.slices.map(sl => ({ ...sl, grid: A.sliceGrid(sl.interp, lo, hi, 241) }));
+  return { res: A.calendarCheck(sub), lo, hi };
+}
+
+// ---- canvas plumbing ------------------------------------------------------
+function hidpi(cv) {
+  const dpr = window.devicePixelRatio || 1;
+  const w = cv.clientWidth, h = cv.clientHeight;
+  cv.width = Math.round(w * dpr);
+  cv.height = Math.round(h * dpr);
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, w, h);
+  return ctx;
+}
+
+function makeScale(d0, d1, r0, r1) {
+  const span = (d1 - d0) || 1;
+  return {
+    d0, d1, r0, r1,
+    to: v => r0 + (v - d0) / span * (r1 - r0),
+    from: px => d0 + (px - r0) / ((r1 - r0) || 1) * span,
+  };
+}
+
+const CSSCACHE = new Map();
+function css(name) {
+  if (!CSSCACHE.has(name)) {
+    CSSCACHE.set(name,
+      getComputedStyle(document.documentElement).getPropertyValue(name).trim());
+  }
+  return CSSCACHE.get(name);
+}
+
+function ticks(d0, d1, count) {
+  const raw = (d1 - d0) / count;
+  const mag = Math.pow(10, Math.floor(Math.log10(Math.abs(raw) || 1)));
+  const step = [1, 2, 2.5, 5, 10].map(m => m * mag).find(s => s >= raw) || mag * 10;
+  const out = [];
+  for (let v = Math.ceil(d0 / step) * step; v <= d1 + 1e-9; v += step) out.push(v);
+  return out;
+}
+
+function axes(ctx, box, sx, sy, opts = {}) {
+  const fmtX = opts.fmtX || (v => v.toFixed(2));
+  const fmtY = opts.fmtY || (v => v.toFixed(3));
+  ctx.save();
+  ctx.strokeStyle = css('--line');
+  ctx.fillStyle = css('--dim');
+  ctx.lineWidth = 1;
+  ctx.font = '11px ui-monospace,Menlo,monospace';
+  ctx.strokeRect(box.x, box.y, box.w, box.h);
+
+  ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  for (const v of ticks(sx.d0, sx.d1, 6)) {
+    const px = Math.round(sx.to(v)) + 0.5;
+    ctx.globalAlpha = 0.5;
+    ctx.beginPath(); ctx.moveTo(px, box.y); ctx.lineTo(px, box.y + box.h); ctx.stroke();
+    ctx.globalAlpha = 1;
+    if (opts.noXLabels !== true) ctx.fillText(fmtX(v), px, box.y + box.h + 5);
+  }
+  ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+  for (const v of ticks(sy.d0, sy.d1, 5)) {
+    const py = Math.round(sy.to(v)) + 0.5;
+    if (py < box.y - 1 || py > box.y + box.h + 1) continue;
+    ctx.globalAlpha = 0.5;
+    ctx.beginPath(); ctx.moveTo(box.x, py); ctx.lineTo(box.x + box.w, py); ctx.stroke();
+    ctx.globalAlpha = 1;
+    ctx.fillText(fmtY(v), box.x - 6, py);
+  }
+  if (opts.zeroY && sy.d0 < 0 && sy.d1 > 0) {
+    ctx.strokeStyle = css('--dim');
+    const py = Math.round(sy.to(0)) + 0.5;
+    ctx.beginPath(); ctx.moveTo(box.x, py); ctx.lineTo(box.x + box.w, py); ctx.stroke();
+  }
+  if (opts.xLabel) {
+    // Below the tick row. Drawn inside the plot it collided with the curve on
+    // any smile that rises towards the right edge.
+    ctx.fillStyle = css('--dim'); ctx.textAlign = 'right'; ctx.textBaseline = 'top';
+    ctx.fillText(opts.xLabel, box.x + box.w, box.y + box.h + 20);
+  }
+  ctx.restore();
+}
+
+function polyline(ctx, box, sx, sy, xs, ys, style = {}) {
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(box.x, box.y, box.w, box.h);
+  ctx.clip();
+  ctx.strokeStyle = style.color || css('--accent');
+  ctx.lineWidth = style.width || 1.75;
+  if (style.dash) ctx.setLineDash(style.dash);
+  ctx.beginPath();
+  let started = false;
+  for (let i = 0; i < xs.length; i++) {
+    if (!Number.isFinite(ys[i])) { started = false; continue; }
+    const px = sx.to(xs[i]), py = sy.to(ys[i]);
+    if (!started) { ctx.moveTo(px, py); started = true; } else { ctx.lineTo(px, py); }
+  }
+  ctx.stroke();
+  ctx.restore();
+}
+
+function label(ctx, x, y, text, color) {
+  ctx.save();
+  ctx.fillStyle = color || css('--dim');
+  ctx.font = '11px ui-monospace,Menlo,monospace';
+  ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+  ctx.fillText(text, x, y);
+  ctx.restore();
+}
+
+const PAD = { l: 54, r: 34, t: 10, b: 40 };
+function plotBox(cv) {
+  return { x: PAD.l, y: PAD.t,
+           w: cv.clientWidth - PAD.l - PAD.r,
+           h: cv.clientHeight - PAD.t - PAD.b };
+}
+
+const PANELS = [];
+const TABLES = [];
+const DELTAS = [0.25, 0.10];
+
+// Only the visible tab is drawn. That is not just tidiness: the variance tab
+// integrates the density over a wide grid for every maturity, which is far too
+// heavy to run on every frame of a knot drag.
+function render() {
+  recompute();
+  for (const p of PANELS) {
+    if (p.tab !== S.tab) continue;
+    const cv = document.getElementById(p.id);
+    if (!cv || cv.clientWidth === 0) continue;
+    p.draw(hidpi(cv), plotBox(cv), cv);
+  }
+  for (const t of TABLES) {
+    if (t.tab === S.tab) t.fill();
+  }
+  drawBadges();
+}
+
+function setTab(name) {
+  S.tab = name;
+  for (const b of document.querySelectorAll('#tabs button')) {
+    b.classList.toggle('on', b.dataset.tab === name);
+  }
+  for (const p of document.querySelectorAll('.tabpane')) {
+    p.hidden = p.id !== 'tab-' + name;
+  }
+  render();
+}
+
+// ---- small table helper ---------------------------------------------------
+function fillTable(el, cols, rows) {
+  el.textContent = '';
+  const thead = document.createElement('thead');
+  const hr = document.createElement('tr');
+  for (const c of cols) {
+    const th = document.createElement('th');
+    th.textContent = c.label;
+    if (c.title) th.title = c.title;
+    hr.appendChild(th);
+  }
+  thead.appendChild(hr);
+  el.appendChild(thead);
+  const tb = document.createElement('tbody');
+  for (const r of rows) {
+    const tr = document.createElement('tr');
+    if (r.__bad) tr.className = 'bad';
+    for (const c of cols) {
+      const td = document.createElement('td');
+      const v = r[c.key];
+      td.textContent = c.fmt ? c.fmt(v, r) : (v ?? '—');
+      const cls = c.cls ? c.cls(v, r) : '';
+      if (cls) td.className = cls;
+      tr.appendChild(td);
+    }
+    tb.appendChild(tr);
+  }
+  el.appendChild(tb);
+}
+
+const f2 = v => (Number.isFinite(v) ? v.toFixed(2) : '—');
+const f3 = v => (Number.isFinite(v) ? v.toFixed(3) : '—');
+const f4 = v => (Number.isFinite(v) ? v.toFixed(4) : '—');
+const pct2 = v => (Number.isFinite(v) ? (v * 100).toFixed(2) + '%' : '—');
+const vp2 = v => (Number.isFinite(v) ? (v * 100).toFixed(2) : '—');
+const signCls = v => (!Number.isFinite(v) ? 'dim' : v < 0 ? 'neg' : 'pos');
+
+// ---- smile panel ---------------------------------------------------------
+function smileScales(cv) {
+  const box = plotBox(cv);
+  const sl = S.slices[S.activeIdx];
+  let lo = Infinity, hi = -Infinity;
+  for (let i = 0; i < sl.grid.w.length; i++) {
+    lo = Math.min(lo, sl.grid.w[i]); hi = Math.max(hi, sl.grid.w[i]);
+  }
+  for (const w of S.surface.maturities[S.activeIdx].knotsW) {
+    lo = Math.min(lo, w); hi = Math.max(hi, w);
+  }
+  const pad = Math.max((hi - lo) * 0.18, 1e-4);
+  return {
+    box,
+    sx: makeScale(K_MIN, K_MAX, box.x, box.x + box.w),
+    sy: makeScale(Math.max(0, lo - pad), hi + pad, box.y + box.h, box.y),
+  };
+}
+
+function shadeBadBands(ctx, box, sx, karr, flags) {
+  ctx.save();
+  ctx.fillStyle = css('--bad'); ctx.globalAlpha = 0.16;
+  let start = null;
+  for (let i = 0; i < karr.length; i++) {
+    if (flags(i) && start === null) start = karr[i];
+    if ((!flags(i) || i === karr.length - 1) && start !== null) {
+      const x0 = sx.to(start), x1 = sx.to(karr[i]);
+      ctx.fillRect(x0, box.y, Math.max(x1 - x0, 1.5), box.h);
+      start = null;
+    }
+  }
+  ctx.restore();
+}
+
+PANELS.push({
+  tab: 'surface',
+  id: 'cv-smile',
+  draw(ctx, _box, cv) {
+    const { box, sx, sy } = smileScales(cv);
+    const sl = S.slices[S.activeIdx];
+    const g = sl.grid;
+
+    // Extrapolation zone first, so the arbitrage shading sits on top of it.
+    if (sl.qMin !== null) {
+      ctx.save();
+      ctx.fillStyle = css('--dim'); ctx.globalAlpha = 0.10;
+      if (sl.qMin > K_MIN) ctx.fillRect(box.x, box.y, sx.to(sl.qMin) - box.x, box.h);
+      if (sl.qMax < K_MAX) {
+        ctx.fillRect(sx.to(sl.qMax), box.y, box.x + box.w - sx.to(sl.qMax), box.h);
+      }
+      ctx.restore();
+    }
+    shadeBadBands(ctx, box, sx, g.k, i => !(g.g[i] >= 0));
+    axes(ctx, box, sx, sy, { fmtY: v => v.toFixed(3), xLabel: 'k = ln(K/F)' });
+
+    // Real quotes, with the bid/ask width drawn as the vertical bar it is. This
+    // is the honest error bar on the fit: no surface can be "wrong" by less than
+    // the width of the market it is fitted to.
+    if (S.quotes) {
+      const qs = S.quotes.quotes.filter(q => Math.abs(q.T - sl.T) < 1e-12);
+      ctx.save();
+      ctx.beginPath(); ctx.rect(box.x, box.y, box.w, box.h); ctx.clip();
+      for (const q of qs) {
+        const px = sx.to(q.k);
+        if (q.bidVol !== undefined && q.askVol !== undefined) {
+          ctx.strokeStyle = css('--warn'); ctx.globalAlpha = 0.75; ctx.lineWidth = 1.4;
+          ctx.beginPath();
+          ctx.moveTo(px, sy.to(q.bidVol * q.bidVol * sl.T));
+          ctx.lineTo(px, sy.to(q.askVol * q.askVol * sl.T));
+          ctx.stroke();
+        }
+        ctx.globalAlpha = 1;
+        ctx.fillStyle = css('--warn');
+        ctx.beginPath(); ctx.arc(px, sy.to(q.w), 2.2, 0, Math.PI * 2); ctx.fill();
+      }
+      ctx.restore();
+    }
+
+    polyline(ctx, box, sx, sy, g.k, g.w, { color: css('--accent') });
+
+    if (S.repair) {
+      // The solid line already IS the repaired slice, so only the original is
+      // worth overlaying.
+      const r = S.repair.perSlice[S.activeIdx];
+      polyline(ctx, box, sx, sy, r.k, r.wOrig,
+        { color: css('--bad'), width: 1.2, dash: [3, 3] });
+      label(ctx, box.x + 8, box.y + 6,
+        'dotted red = the inadmissible smile you started from', css('--dim'));
+    }
+
+    const m = S.surface.maturities[S.activeIdx];
+    ctx.save();
+    for (let i = 0; i < m.knotsK.length; i++) {
+      const px = sx.to(m.knotsK[i]), py = sy.to(m.knotsW[i]);
+      ctx.beginPath();
+      ctx.arc(px, py, S.drag && S.drag.knot === i ? 6 : 4.5, 0, Math.PI * 2);
+      ctx.fillStyle = S.drag && S.drag.knot === i ? css('--warn') : css('--ink');
+      ctx.fill();
+      ctx.lineWidth = 1.5; ctx.strokeStyle = css('--panel'); ctx.stroke();
+    }
+    ctx.restore();
+
+    const vol = k => Math.sqrt(sl.interp.at(k).w / sl.T);
+    const q = A.smileQuotes(sl.interp, sl.T, DELTAS, rangeOf(sl));
+    let txt = `T = ${sl.T.toFixed(3)}y · F = ${sl.F.toFixed(2)} · ATM ` +
+      `${(q.atmVol * 100).toFixed(2)}% · RR25 ${(q.byDelta[0.25].rr * 100).toFixed(2)} · ` +
+      `BF25 ${(q.byDelta[0.25].bf * 100).toFixed(2)} vol pts`;
+    if (sl.qMin !== null) {
+      txt += ` · quoted k ∈ [${sl.qMin.toFixed(3)}, ${sl.qMax.toFixed(3)}]; ` +
+        `grey = extrapolated, amber bars = bid/ask`;
+    } else {
+      txt += ' · red bands are where g(k) < 0';
+    }
+    if (S.repair) {
+      txt += ` · repair moved this slice up to ` +
+        `${S.repair.perSlice[S.activeIdx].maxVolBps.toFixed(1)} bps`;
+    }
+    void vol;
+    document.getElementById('note-smile').textContent = txt;
+  },
+});
+
+// ---- knot dragging -------------------------------------------------------
+{
+  const cv = document.getElementById('cv-smile');
+  const pick = ev => {
+    const rect = cv.getBoundingClientRect();
+    const mx = ev.clientX - rect.left, my = ev.clientY - rect.top;
+    const { sx, sy } = smileScales(cv);
+    const m = S.surface.maturities[S.activeIdx];
+    let best = -1, bestD = 12;
+    for (let i = 0; i < m.knotsK.length; i++) {
+      const d = Math.hypot(sx.to(m.knotsK[i]) - mx, sy.to(m.knotsW[i]) - my);
+      if (d < bestD) { bestD = d; best = i; }
+    }
+    return { knot: best, my, sy };
+  };
+
+  cv.addEventListener('pointerdown', ev => {
+    const { knot } = pick(ev);
+    if (knot < 0) return;
+    S.drag = { knot };
+    S.repair = null;
+    // From here the knots are the model, so the imported fit no longer applies.
+    for (const m of S.surface.maturities) delete m.fitParams;
+    cv.setPointerCapture(ev.pointerId);
+    cv.style.cursor = 'grabbing';
+    render();
+  });
+
+  cv.addEventListener('pointermove', ev => {
+    if (!S.drag) {
+      cv.style.cursor = pick(ev).knot >= 0 ? 'grab' : 'default';
+      return;
+    }
+    const { my, sy } = pick(ev);
+    S.surface.maturities[S.activeIdx].knotsW[S.drag.knot] =
+      Math.max(1e-4, sy.from(my));
+    render();
+  });
+
+  const end = ev => {
+    if (!S.drag) return;
+    S.drag = null;
+    cv.style.cursor = 'grab';
+    if (ev.pointerId !== undefined && cv.hasPointerCapture &&
+        cv.hasPointerCapture(ev.pointerId)) {
+      cv.releasePointerCapture(ev.pointerId);
+    }
+    render();
+  };
+  cv.addEventListener('pointerup', end);
+  cv.addEventListener('pointercancel', end);
+}
+
+// ---- density + g panel --------------------------------------------------
+function fillBelowZero(ctx, box, sx, sy, xs, ys) {
+  ctx.save();
+  ctx.beginPath(); ctx.rect(box.x, box.y, box.w, box.h); ctx.clip();
+  ctx.fillStyle = css('--bad'); ctx.globalAlpha = 0.6;
+  const y0 = sy.to(0);
+  ctx.beginPath();
+  let open = false;
+  for (let i = 0; i < xs.length; i++) {
+    const v = ys[i];
+    if (Number.isFinite(v) && v < 0) {
+      const px = sx.to(xs[i]);
+      if (!open) { ctx.moveTo(px, y0); open = true; }
+      ctx.lineTo(px, sy.to(v));
+    } else if (open) {
+      ctx.lineTo(sx.to(xs[i]), y0); ctx.closePath(); ctx.fill();
+      ctx.beginPath(); open = false;
+    }
+  }
+  if (open) { ctx.lineTo(sx.to(xs[xs.length - 1]), y0); ctx.closePath(); ctx.fill(); }
+  ctx.restore();
+}
+
+PANELS.push({
+  tab: 'surface',
+  id: 'cv-density',
+  draw(ctx, box) {
+    const sl = S.slices[S.activeIdx];
+    const g = sl.grid;
+    const gap = 18;
+    const hTop = Math.round((box.h - gap) * 0.62);
+    const boxP = { x: box.x, y: box.y, w: box.w, h: hTop };
+    const boxG = { x: box.x, y: box.y + hTop + gap, w: box.w, h: box.h - hTop - gap };
+    const sx = makeScale(K_MIN, K_MAX, box.x, box.x + box.w);
+
+    const finite = arr => Array.from(arr).filter(Number.isFinite);
+    const pv = finite(g.p), gv = finite(g.g);
+    const pHi = Math.max(1e-6, ...pv), pLo = Math.min(0, ...pv);
+    const gHi = Math.max(1.2, ...gv), gLo = Math.min(-0.2, ...gv);
+    const syP = makeScale(pLo - (pHi - pLo) * 0.08, pHi * 1.08, boxP.y + boxP.h, boxP.y);
+    const syG = makeScale(gLo, gHi, boxG.y + boxG.h, boxG.y);
+
+    axes(ctx, boxP, sx, syP, { fmtY: v => v.toFixed(2), zeroY: true, noXLabels: true });
+    fillBelowZero(ctx, boxP, sx, syP, g.k, g.p);
+    polyline(ctx, boxP, sx, syP, g.k, g.p, { color: css('--accent') });
+    label(ctx, boxP.x + 7, boxP.y + 5, 'p(k) — risk-neutral density');
+
+    axes(ctx, boxG, sx, syG, { fmtY: v => v.toFixed(1), zeroY: true, xLabel: 'k = ln(K/F)' });
+    fillBelowZero(ctx, boxG, sx, syG, g.k, g.g);
+    polyline(ctx, boxG, sx, syG, g.k, g.g, { color: css('--warn'), width: 1.4 });
+    label(ctx, boxG.x + 7, boxG.y + 5, 'g(k) — sign is the density’s sign');
+
+    const c = checksFor(sl);
+    let mass = 0;
+    for (let i = 0; i < g.p.length; i++) if (Number.isFinite(g.p[i])) mass += g.p[i] * g.h;
+    document.getElementById('note-density').textContent =
+      `mass on k ∈ [${K_MIN.toFixed(2)}, ${K_MAX.toFixed(2)}] = ${mass.toFixed(4)} · ` +
+      `negative mass ` +
+      `${c.negMass.toExponential(2)} · min g = ${c.worstG.toFixed(4)}` +
+      (c.negMass > 1e-9
+        ? ' — the red area is probability that does not exist'
+        : ' — admissible');
+  },
+});
+
+// ---- term structure strip ----------------------------------------------
+PANELS.push({
+  tab: 'surface',
+  id: 'cv-term',
+  draw(ctx, box) {
+    const sx = makeScale(K_MIN, K_MAX, box.x, box.x + box.w);
+    let hi = 0;
+    for (const sl of S.slices) {
+      for (let i = 0; i < sl.grid.w.length; i++) hi = Math.max(hi, sl.grid.w[i]);
+    }
+    const sy = makeScale(0, hi * 1.06, box.y + box.h, box.y);
+    const nK = S.slices[0].grid.k.length;
+
+    // Only inside the range every expiry quotes. Outside it these curves are
+    // extrapolations that can cross without anyone being able to trade it, and
+    // flagging that here contradicted the Calendar badge, which is restricted the
+    // same way.
+    const cal = calendarResult();
+    ctx.save();
+    ctx.fillStyle = css('--dim'); ctx.globalAlpha = 0.10;
+    if (cal.lo > K_MIN) ctx.fillRect(box.x, box.y, sx.to(cal.lo) - box.x, box.h);
+    if (cal.hi < K_MAX) {
+      ctx.fillRect(sx.to(cal.hi), box.y, box.x + box.w - sx.to(cal.hi), box.h);
+    }
+    ctx.restore();
+    shadeBadBands(ctx, box, sx, S.slices[0].grid.k, j => {
+      const kk = S.slices[0].grid.k[j];
+      if (kk < cal.lo || kk > cal.hi) return false;
+      for (let i = 0; i + 1 < S.slices.length; i++) {
+        if (S.slices[i + 1].grid.w[j] < S.slices[i].grid.w[j] - 1e-14) return true;
+      }
+      return false;
+    });
+    void nK;
+
+    axes(ctx, box, sx, sy, { fmtY: v => v.toFixed(3), xLabel: 'k = ln(K/F)' });
+
+    S.slices.forEach((sl, i) => {
+      const active = i === S.activeIdx;
+      ctx.save();
+      ctx.globalAlpha = active ? 1 : 0.4;
+      polyline(ctx, box, sx, sy, sl.grid.k, sl.grid.w,
+        { color: active ? css('--accent') : css('--ink'), width: active ? 2 : 1.1 });
+      ctx.restore();
+    });
+
+    // The curves converge at the short end, so end-of-line labels have to be
+    // pushed apart or they pile into an illegible stack.
+    const lab = S.slices.map((sl, i) => ({
+      active: i === S.activeIdx,
+      text: `${sl.T}y`,
+      y: sy.to(sl.grid.w[sl.grid.w.length - 1]),
+    })).sort((a, b) => a.y - b.y);
+    const GAP = 11;
+    for (let n = 1; n < lab.length; n++) {
+      if (lab[n].y - lab[n - 1].y < GAP) lab[n].y = lab[n - 1].y + GAP;
+    }
+    for (let n = lab.length - 1; n > 0; n--) {
+      lab[n].y = Math.min(lab[n].y, box.y + box.h - 4);
+      if (lab[n].y - lab[n - 1].y < GAP) lab[n - 1].y = lab[n].y - GAP;
+    }
+    ctx.save();
+    ctx.font = '10px ui-monospace,Menlo,monospace';
+    ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+    for (const l of lab) {
+      ctx.fillStyle = l.active ? css('--accent') : css('--dim');
+      ctx.fillText(l.text, box.x + box.w + 5,
+        Math.max(box.y + 5, Math.min(box.y + box.h - 4, l.y)));
+    }
+    ctx.restore();
+
+    const c = cal.res;
+    const scope = (cal.lo > K_MIN || cal.hi < K_MAX)
+      ? ` Checked over k ∈ [${cal.lo.toFixed(3)}, ${cal.hi.toFixed(3)}], the strikes ` +
+        `every expiry quotes; grey is outside it.`
+      : '';
+    document.getElementById('note-term').textContent =
+      (c.ok ? 'No crossings. ' : 'CROSSING. ') + c.detail +
+      '. Total implied variance must never fall as maturity rises, at any k.' + scope;
+  },
+});
+
+// ---- local vol heatmap --------------------------------------------------
+PANELS.push({
+  tab: 'surface',
+  id: 'cv-localvol',
+  draw(ctx, box) {
+    const lvg = A.localVarianceGrid(S.slices);
+    const sx = makeScale(K_MIN, K_MAX, box.x, box.x + box.w);
+
+    // Cells outside a slice's quoted strikes are not a local-vol result, they are
+    // an extrapolation, and letting them into the colour scale stretched the
+    // reported range to 185% off strikes nobody trades.
+    const quoted = (i, j) => {
+      const sl = S.slices[i];
+      return sl.qMin === null || (lvg.k[j] >= sl.qMin && lvg.k[j] <= sl.qMax);
+    };
+    let lo = Infinity, hi = -Infinity, nBad = 0, nOut = 0;
+    for (let i = 0; i < lvg.nT; i++) {
+      for (let j = 0; j < lvg.nK; j++) {
+        if (!quoted(i, j)) { nOut++; continue; }
+        const v = lvg.lv[i * lvg.nK + j];
+        if (Number.isFinite(v)) {
+          const sv = Math.sqrt(v);
+          lo = Math.min(lo, sv); hi = Math.max(hi, sv);
+        } else nBad++;
+      }
+    }
+    if (!Number.isFinite(lo)) { lo = 0; hi = 1; }
+    if (hi - lo < 1e-6) hi = lo + 1e-6;
+
+    const rowH = box.h / lvg.nT;
+    const colW = box.w / lvg.nK;
+
+    ctx.save();
+    ctx.beginPath(); ctx.rect(box.x, box.y, box.w, box.h); ctx.clip();
+    for (let i = 0; i < lvg.nT; i++) {
+      const y = box.y + box.h - (i + 1) * rowH;   // shortest maturity at the bottom
+      for (let j = 0; j < lvg.nK; j++) {
+        const v = lvg.lv[i * lvg.nK + j];
+        const x = box.x + j * colW;
+        if (!quoted(i, j)) {
+          ctx.fillStyle = '#161c26';                 // no market here
+        } else if (Number.isFinite(v)) {
+          const t = (Math.sqrt(v) - lo) / (hi - lo);
+          ctx.fillStyle = `hsl(215 78% ${(15 + 58 * t).toFixed(1)}%)`;
+        } else {
+          ctx.fillStyle = '#2a0d13';
+        }
+        ctx.fillRect(x, y, colW + 0.8, rowH);
+      }
+    }
+    // Hatch the inadmissible cells in one pass so the stripes line up.
+    ctx.strokeStyle = css('--bad'); ctx.lineWidth = 1; ctx.globalAlpha = 0.8;
+    for (let i = 0; i < lvg.nT; i++) {
+      const y = box.y + box.h - (i + 1) * rowH;
+      for (let j = 0; j < lvg.nK; j += 2) {
+        if (!quoted(i, j)) continue;
+        if (Number.isFinite(lvg.lv[i * lvg.nK + j])) continue;
+        const x = box.x + j * colW;
+        ctx.beginPath();
+        ctx.moveTo(x, y + rowH); ctx.lineTo(x + Math.max(colW * 2, 4), y);
+        ctx.stroke();
+      }
+    }
+    ctx.restore();
+
+    ctx.save();
+    ctx.strokeStyle = css('--line'); ctx.strokeRect(box.x, box.y, box.w, box.h);
+    ctx.fillStyle = css('--dim'); ctx.font = '10px ui-monospace,Menlo,monospace';
+    ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+    for (let i = 0; i < lvg.nT; i++) {
+      ctx.fillText(`${lvg.T[i]}y`, box.x - 6, box.y + box.h - (i + 0.5) * rowH);
+    }
+    ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    for (const v of ticks(K_MIN, K_MAX, 6)) {
+      ctx.fillText(v.toFixed(2), sx.to(v), box.y + box.h + 5);
+    }
+    ctx.textAlign = 'right'; ctx.textBaseline = 'top';
+    ctx.fillText('k = ln(K/F)', box.x + box.w, box.y + box.h + 20);
+    ctx.restore();
+
+    // Colour ramp legend.
+    ctx.save();
+    const lw = 10, lh = Math.min(70, box.h * 0.5);
+    const lx = box.x + box.w + 8, ly = box.y + 4;
+    for (let i = 0; i < lh; i++) {
+      const t = 1 - i / (lh - 1);
+      ctx.fillStyle = `hsl(215 78% ${(15 + 58 * t).toFixed(1)}%)`;
+      ctx.fillRect(lx, ly + i, lw, 1);
+    }
+    ctx.fillStyle = css('--dim'); ctx.font = '9px ui-monospace,Menlo,monospace';
+    ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+    ctx.fillText(`${(hi * 100).toFixed(0)}%`, lx + lw + 2, ly + 3);
+    ctx.fillText(`${(lo * 100).toFixed(0)}%`, lx + lw + 2, ly + lh - 3);
+    ctx.restore();
+
+    const nQuoted = lvg.lv.length - nOut;
+    const pct = (100 * nBad / Math.max(1, nQuoted)).toFixed(1);
+    const scope = nOut > 0 ? ' Dark cells are strikes that expiry does not quote.' : '';
+    document.getElementById('note-localvol').textContent =
+      (nBad === 0
+        ? `Local vol ${(lo * 100).toFixed(1)}%–${(hi * 100).toFixed(1)}%, defined ` +
+          `everywhere a market exists.`
+        : `${pct}% of the quoted grid has no local volatility (hatched) — dw/dT over g ` +
+          `is negative or undefined there, the same k range as the red band on the ` +
+          `smile.`) + scope;
+  },
+});
+
+// ---- reusable heatmap ----------------------------------------------------
+function drawHeatmap(ctx, box, { nT, nK, value, rowLabel, hue = 215 }) {
+  let lo = Infinity, hi = -Infinity, nBad = 0;
+  for (let i = 0; i < nT; i++) {
+    for (let j = 0; j < nK; j++) {
+      const v = value(i, j);
+      if (Number.isFinite(v)) { lo = Math.min(lo, v); hi = Math.max(hi, v); } else nBad++;
+    }
+  }
+  if (!Number.isFinite(lo)) { lo = 0; hi = 1; }
+  if (hi - lo < 1e-12) hi = lo + 1e-12;
+
+  const rowH = box.h / nT, colW = box.w / nK;
+  ctx.save();
+  ctx.beginPath(); ctx.rect(box.x, box.y, box.w, box.h); ctx.clip();
+  for (let i = 0; i < nT; i++) {
+    const y = box.y + box.h - (i + 1) * rowH;
+    for (let j = 0; j < nK; j++) {
+      const v = value(i, j);
+      if (Number.isFinite(v)) {
+        const t = (v - lo) / (hi - lo);
+        ctx.fillStyle = `hsl(${hue} 78% ${(15 + 58 * t).toFixed(1)}%)`;
+      } else {
+        ctx.fillStyle = '#2a0d13';
+      }
+      ctx.fillRect(box.x + j * colW, y, colW + 0.8, rowH);
+    }
+  }
+  ctx.restore();
+
+  ctx.save();
+  ctx.strokeStyle = css('--line'); ctx.strokeRect(box.x, box.y, box.w, box.h);
+  ctx.fillStyle = css('--dim'); ctx.font = '10px ui-monospace,Menlo,monospace';
+  ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+  for (let i = 0; i < nT; i++) {
+    ctx.fillText(rowLabel(i), box.x - 6, box.y + box.h - (i + 0.5) * rowH);
+  }
+  const sx = makeScale(K_MIN, K_MAX, box.x, box.x + box.w);
+  ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  for (const v of ticks(K_MIN, K_MAX, 6)) {
+    ctx.fillText(v.toFixed(2), sx.to(v), box.y + box.h + 5);
+  }
+  ctx.textAlign = 'right'; ctx.textBaseline = 'top';
+  ctx.fillText('k = ln(K/F)', box.x + box.w, box.y + box.h + 20);
+
+  const lw = 10, lh = Math.min(70, box.h * 0.5);
+  const lx = box.x + box.w + 8, ly = box.y + 4;
+  for (let i = 0; i < lh; i++) {
+    const t = 1 - i / (lh - 1);
+    ctx.fillStyle = `hsl(${hue} 78% ${(15 + 58 * t).toFixed(1)}%)`;
+    ctx.fillRect(lx, ly + i, lw, 1);
+  }
+  ctx.fillStyle = css('--dim'); ctx.font = '9px ui-monospace,Menlo,monospace';
+  ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+  ctx.fillText(fmtSmall(hi), lx + lw + 2, ly + 3);
+  ctx.fillText(fmtSmall(lo), lx + lw + 2, ly + lh - 3);
+  ctx.restore();
+  return { lo, hi, nBad };
+}
+
+function fmtSmall(v) {
+  if (!Number.isFinite(v)) return '—';
+  const a = Math.abs(v);
+  if (a === 0) return '0';
+  if (a >= 1000 || a < 0.01) return v.toExponential(0);
+  return v.toFixed(a < 1 ? 2 : 1);
+}
+
+// `align` picks the corner. A legend pinned to the top left sits on top of any
+// series that starts high — the delta curve begins at 1.0 — so panels choose the
+// corner their data leaves empty.
+function legend(ctx, box, entries, align = 'left') {
+  ctx.save();
+  ctx.font = '10px ui-monospace,Menlo,monospace';
+  ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+  let width = 0;
+  for (const e of entries) width += 18 + ctx.measureText(e.label).width + 14;
+  let x = align === 'right' ? box.x + box.w - width + 6 : box.x + 8;
+  const y = box.y + 9;
+  for (const e of entries) {
+    ctx.strokeStyle = e.color; ctx.lineWidth = 2;
+    if (e.dash) ctx.setLineDash(e.dash); else ctx.setLineDash([]);
+    ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + 14, y); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = css('--dim');
+    ctx.fillText(e.label, x + 18, y);
+    x += 18 + ctx.measureText(e.label).width + 14;
+  }
+  ctx.restore();
+}
+
+// ---- quotes tab ----------------------------------------------------------
+PANELS.push({
+  tab: 'quotes',
+  id: 'cv-resid',
+  draw(ctx, box) {
+    const note = document.getElementById('note-resid');
+    if (!S.quotes || !S.quotes.quotes.length) {
+      axes(ctx, box, makeScale(K_MIN, K_MAX, box.x, box.x + box.w),
+        makeScale(-1, 1, box.y + box.h, box.y), { zeroY: true, xLabel: 'k = ln(K/F)' });
+      label(ctx, box.x + 10, box.y + 8, 'no quotes loaded');
+      note.textContent = 'Load quotes to see how well the displayed surface reprices them.';
+      return;
+    }
+    // Residual = displayed-surface vol minus quoted vol, in vol points.
+    const pts = [];
+    for (const q of S.quotes.quotes) {
+      const sl = S.slices.find(x => Math.abs(x.T - q.T) < 1e-12);
+      if (!sl) continue;
+      const w = sl.interp.at(q.k).w;
+      if (!(w > 0)) continue;
+      pts.push({ k: q.k, r: (Math.sqrt(w / q.T) - q.vol) * 100, T: q.T });
+    }
+    const rs = pts.map(p => p.r);
+    const m = Math.max(0.25, ...rs.map(Math.abs)) * 1.15;
+    const sx = makeScale(K_MIN, K_MAX, box.x, box.x + box.w);
+    const sy = makeScale(-m, m, box.y + box.h, box.y);
+    axes(ctx, box, sx, sy, { fmtY: v => v.toFixed(2), zeroY: true, xLabel: 'k = ln(K/F)' });
+
+    const Ts = [...new Set(pts.map(p => p.T))].sort((a, b) => a - b);
+    ctx.save();
+    ctx.beginPath(); ctx.rect(box.x, box.y, box.w, box.h); ctx.clip();
+    for (const p of pts) {
+      const hue = 200 + 140 * (Ts.indexOf(p.T) / Math.max(1, Ts.length - 1));
+      ctx.fillStyle = `hsl(${hue} 70% 62%)`;
+      ctx.beginPath();
+      ctx.arc(sx.to(p.k), sy.to(p.r), 3, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+    label(ctx, box.x + 8, box.y + 6, 'vol points, surface minus quote');
+
+    const rms = Math.sqrt(rs.reduce((a, b) => a + b * b, 0) / (rs.length || 1));
+    const worst = rs.reduce((a, b) => (Math.abs(b) > Math.abs(a) ? b : a), 0);
+    note.textContent = `${pts.length} quotes on ${Ts.length} expiries · RMS ` +
+      `${rms.toFixed(3)} vol pts · worst ${worst.toFixed(3)} · this is the SVI fit error ` +
+      `plus the knot-interpolation error, so it is the honest distance between your ` +
+      `quotes and the surface actually being displayed.`;
+  },
+});
+
+TABLES.push({
+  tab: 'quotes',
+  fill() {
+    const rows = S.slices.map((sl, i) => {
+      const q = A.smileQuotes(sl.interp, sl.T, DELTAS, rangeOf(sl));
+      const c = checksFor(sl);
+      const fit = S.quotes && S.quotes.perExpiry
+        ? S.quotes.perExpiry.find(e => Math.abs(e.T - sl.T) < 1e-12) : null;
+      return {
+        T: sl.T, F: sl.F,
+        atm: q.atmVol,
+        rr25: q.byDelta[0.25].rr, bf25: q.byDelta[0.25].bf,
+        rr10: q.byDelta[0.10].rr, bf10: q.byDelta[0.10].bf,
+        skew: q.atmSkew, curv: q.atmCurv,
+        k25p: q.byDelta[0.25].kPut, k25c: q.byDelta[0.25].kCall,
+        fitRms: fit && !fit.skipped ? fit.rmsVol * 100 : NaN,
+        active: i === S.activeIdx,
+        __bad: !(c.butterfly.ok && c.callSpread.ok && c.wings.ok),
+      };
+    });
+    fillTable(document.getElementById('conv-table'), [
+      { label: 'Expiry', key: 'T',
+        fmt: (v, r) => (r.active ? '▸ ' : '') + v.toFixed(3) + 'y' },
+      { label: 'ATM vol', key: 'atm', fmt: pct2 },
+      { label: 'RR 25d', key: 'rr25', fmt: vp2, cls: signCls,
+        title: '25-delta call vol minus 25-delta put vol, in vol points' },
+      { label: 'BF 25d', key: 'bf25', fmt: vp2, cls: signCls,
+        title: 'Average of the 25-delta wings minus ATM vol' },
+      { label: 'RR 10d', key: 'rr10', fmt: vp2, cls: signCls },
+      { label: 'BF 10d', key: 'bf10', fmt: vp2, cls: signCls },
+      { label: 'k 25dP', key: 'k25p', fmt: f3 },
+      { label: 'k 25dC', key: 'k25c', fmt: f3 },
+      { label: 'dσ/dk ATM', key: 'skew', fmt: f3, cls: signCls },
+      { label: 'd²σ/dk² ATM', key: 'curv', fmt: f3 },
+      { label: 'Fit RMS', key: 'fitRms',
+        fmt: v => (Number.isFinite(v) ? v.toFixed(3) : '—'),
+        title: 'RMS of the SVI fit against imported quotes, in vol points' },
+    ], rows);
+  },
+});
+
+// ---- greeks tab ----------------------------------------------------------
+// Each series is normalised to its own peak before plotting. Their natural
+// magnitudes differ by four orders (vega ~28, volga ~107, vanna ~1, gamma ~0.02),
+// so a shared axis renders three of the four invisible. The shapes are what this
+// panel is for; the absolute numbers live in the table below it.
+const GREEK_LINES = [
+  { key: 'vega', label: 'vega', color: '#5b9dff' },
+  { key: 'gamma', label: 'gamma', color: '#3ddc97' },
+  { key: 'vanna', label: 'vanna', color: '#ffc857' },
+  { key: 'volga', label: 'volga', color: '#c792ea' },
+];
+
+function greekSeries(sl) {
+  const n = 241;
+  const ks = new Float64Array(n);
+  const series = {};
+  for (const g of GREEK_LINES) series[g.key] = new Float64Array(n);
+  const extra = { deltaBS: new Float64Array(n), deltaSticky: new Float64Array(n) };
+  for (let i = 0; i < n; i++) {
+    const k = K_MIN + (K_MAX - K_MIN) * i / (n - 1);
+    ks[i] = k;
+    const g = A.greeksAtK(sl.interp, sl.F, sl.T, k);
+    for (const spec of GREEK_LINES) series[spec.key][i] = g ? g[spec.key] : NaN;
+    extra.deltaBS[i] = g ? g.deltaBS : NaN;
+    extra.deltaSticky[i] = g ? g.deltaSticky : NaN;
+  }
+  // Peak absolute magnitude per series, for normalisation and for the legend.
+  const peak = {};
+  for (const spec of GREEK_LINES) {
+    let m = 0;
+    for (const v of series[spec.key]) if (Number.isFinite(v)) m = Math.max(m, Math.abs(v));
+    peak[spec.key] = m || 1;
+  }
+  return { ks, series, extra, peak };
+}
+
+PANELS.push({
+  tab: 'greeks',
+  id: 'cv-greeks',
+  draw(ctx, box) {
+    const sl = S.slices[S.activeIdx];
+    const { ks, series, peak } = greekSeries(sl);
+    const sx = makeScale(K_MIN, K_MAX, box.x, box.x + box.w);
+    const sy = makeScale(-1.12, 1.12, box.y + box.h, box.y);
+    axes(ctx, box, sx, sy, { fmtY: f2, zeroY: true, xLabel: 'k = ln(K/F)' });
+    for (const g of GREEK_LINES) {
+      const scaled = Float64Array.from(series[g.key], v => v / peak[g.key]);
+      polyline(ctx, box, sx, sy, ks, scaled, { color: g.color, width: 1.6 });
+    }
+    legend(ctx, box, GREEK_LINES.map(g => ({
+      label: `${g.label} (peak ${fmtSmall(peak[g.key])})`, color: g.color,
+    })));
+    document.getElementById('note-greeks').textContent =
+      `T = ${sl.T.toFixed(3)}y, F = ${sl.F}. Each series is scaled to its own peak — ` +
+      `their true magnitudes differ by four orders, so a shared axis would hide three ` +
+      `of the four. Vanna is the delta's sensitivity to vol and volga the vega's: the ` +
+      `two the wings are actually priced off. Absolute values in the table below.`;
+  },
+});
+
+PANELS.push({
+  tab: 'greeks',
+  id: 'cv-delta',
+  draw(ctx, box) {
+    const sl = S.slices[S.activeIdx];
+    const { ks, extra } = greekSeries(sl);
+    const sx = makeScale(K_MIN, K_MAX, box.x, box.x + box.w);
+    const sy = makeScale(0, 1.05, box.y + box.h, box.y);
+    axes(ctx, box, sx, sy, { fmtY: f2, xLabel: 'k = ln(K/F)' });
+    polyline(ctx, box, sx, sy, ks, extra.deltaBS, { color: css('--accent'), width: 1.7 });
+    polyline(ctx, box, sx, sy, ks, extra.deltaSticky,
+      { color: css('--warn'), width: 1.5, dash: [6, 4] });
+    // Delta runs from 1 on the left to 0 on the right, so the top right is the
+    // only empty corner.
+    legend(ctx, box, [
+      { label: 'sticky strike  N(d+)', color: css('--accent') },
+      { label: 'sticky moneyness', color: css('--warn'), dash: [6, 4] },
+    ], 'right');
+    const g0 = A.greeksAtK(sl.interp, sl.F, sl.T, 0);
+    document.getElementById('note-delta').textContent =
+      `The gap is vega·(dσ/dk)/F — hedging a skewed book on the wrong convention ` +
+      `misstates ATM delta by ${(g0 ? g0.skewDelta : 0).toFixed(4)} per unit here, ` +
+      `and more in the wings.`;
+  },
+});
+
+PANELS.push({
+  tab: 'greeks',
+  id: 'cv-vegasurf',
+  draw(ctx, box) {
+    const nK = 121;
+    const rows = S.slices.map(sl => {
+      const arr = new Float64Array(nK);
+      for (let j = 0; j < nK; j++) {
+        const k = K_MIN + (K_MAX - K_MIN) * j / (nK - 1);
+        const g = A.greeksAtK(sl.interp, sl.F, sl.T, k);
+        arr[j] = g ? g.vega : NaN;
+      }
+      return arr;
+    });
+    const r = drawHeatmap(ctx, box, {
+      nT: S.slices.length, nK,
+      value: (i, j) => rows[i][j],
+      rowLabel: i => `${S.slices[i].T}y`,
+    });
+    document.getElementById('note-vegasurf').textContent =
+      `Vega ${fmtSmall(r.lo)} to ${fmtSmall(r.hi)} per unit forward per 1.00 vol. ` +
+      `Long maturities dominate — which is why the repair is vega-weighted rather ` +
+      `than treating every basis point on the grid as equal.`;
+  },
+});
+
+TABLES.push({
+  tab: 'greeks',
+  fill() {
+    const sl = S.slices[S.activeIdx];
+    const q = A.smileQuotes(sl.interp, sl.T, DELTAS, rangeOf(sl));
+    const picks = [
+      { name: '10d put', k: A.kAtCallDelta(sl.interp, 0.90) },
+      { name: '25d put', k: q.byDelta[0.25].kPut },
+      { name: 'ATM (k=0)', k: 0 },
+      { name: '25d call', k: q.byDelta[0.25].kCall },
+      { name: '10d call', k: A.kAtCallDelta(sl.interp, 0.10) },
+    ];
+    const rows = picks.map(p => {
+      const g = Number.isFinite(p.k) ? A.greeksAtK(sl.interp, sl.F, sl.T, p.k) : null;
+      return {
+        name: p.name, k: p.k, K: g ? g.K : NaN, vol: g ? g.vol : NaN,
+        deltaBS: g ? g.deltaBS : NaN, skewDelta: g ? g.skewDelta : NaN,
+        vega: g ? g.vega : NaN, gamma: g ? g.gamma : NaN,
+        vanna: g ? g.vanna : NaN, volga: g ? g.volga : NaN,
+        theta: g ? g.theta : NaN,
+      };
+    });
+    document.getElementById('note-greektable').textContent =
+      `T = ${sl.T.toFixed(3)}y. Theta is per year, in forward units.`;
+    fillTable(document.getElementById('greek-table'), [
+      { label: 'Strike', key: 'name' },
+      { label: 'k', key: 'k', fmt: f3 },
+      { label: 'K', key: 'K', fmt: f2 },
+      { label: 'Vol', key: 'vol', fmt: pct2 },
+      { label: 'Δ', key: 'deltaBS', fmt: f4 },
+      { label: 'Δ skew adj', key: 'skewDelta', fmt: f4, cls: signCls },
+      { label: 'Vega', key: 'vega', fmt: f3 },
+      { label: 'Gamma', key: 'gamma', fmt: v => (Number.isFinite(v) ? v.toExponential(2) : '—') },
+      { label: 'Vanna', key: 'vanna', fmt: f3, cls: signCls },
+      { label: 'Volga', key: 'volga', fmt: f2 },
+      { label: 'Theta', key: 'theta', fmt: f3, cls: signCls },
+    ], rows);
+  },
+});
+
+// ---- variance tab --------------------------------------------------------
+let VAR_CACHE = { key: null, rows: null };
+function varianceRows() {
+  // Keyed cache: the wide-grid integrals are expensive and the table, the chart
+  // and the percentile panel all want the same numbers.
+  const key = JSON.stringify(S.surface.maturities.map(m => [m.T, m.knotsW])) +
+              S.interpKind + (S.repair ? 'r' : '');
+  if (VAR_CACHE.key !== key) {
+    VAR_CACHE = { key, rows: A.varianceTermStructure(S.slices) };
+  }
+  return VAR_CACHE.rows;
+}
+
+PANELS.push({
+  tab: 'variance',
+  id: 'cv-varterm',
+  draw(ctx, box) {
+    const rows = varianceRows();
+    const Ts = rows.map(r => r.T);
+    const all = rows.flatMap(r => [r.atmVol, r.varSwapVol, r.fwdVol].filter(Number.isFinite));
+    const lo = Math.min(...all), hi = Math.max(...all);
+    const pad = (hi - lo) * 0.18 || 0.01;
+    const sx = makeScale(Math.min(...Ts), Math.max(...Ts), box.x, box.x + box.w);
+    const sy = makeScale(Math.max(0, lo - pad), hi + pad, box.y + box.h, box.y);
+    axes(ctx, box, sx, sy, { fmtX: f2, fmtY: v => (v * 100).toFixed(1), xLabel: 'T (years)' });
+
+    const series = [
+      { key: 'atmVol', color: css('--accent'), label: 'ATM implied' },
+      { key: 'varSwapVol', color: css('--good'), label: 'variance swap' },
+      { key: 'fwdVol', color: css('--warn'), label: 'forward vol', dash: [6, 4] },
+    ];
+    for (const s of series) {
+      polyline(ctx, box, sx, sy, Ts, rows.map(r => r[s.key]),
+        { color: s.color, width: 1.8, dash: s.dash });
+      ctx.save();
+      for (const r of rows) {
+        if (!Number.isFinite(r[s.key])) continue;
+        ctx.fillStyle = s.color;
+        ctx.beginPath(); ctx.arc(sx.to(r.T), sy.to(r[s.key]), 3, 0, Math.PI * 2); ctx.fill();
+      }
+      ctx.restore();
+    }
+    // Mark expiries whose forward variance is negative.
+    ctx.save();
+    for (const r of rows) {
+      if (r.fwdVarOk) continue;
+      ctx.strokeStyle = css('--bad'); ctx.lineWidth = 1.5; ctx.setLineDash([3, 3]);
+      ctx.beginPath();
+      ctx.moveTo(sx.to(r.T), box.y); ctx.lineTo(sx.to(r.T), box.y + box.h); ctx.stroke();
+    }
+    ctx.restore();
+    legend(ctx, box, series.map(s => ({ label: s.label, color: s.color, dash: s.dash })));
+
+    const bad = rows.filter(r => !r.fwdVarOk);
+    const undef = rows.filter(r => !Number.isFinite(r.varSwapVol));
+    let msg = 'Vol points, annualised. ';
+    if (bad.length) {
+      msg += `Forward variance is NEGATIVE into T = ${bad.map(r => r.T).join(', ')} — ` +
+        `that is calendar arbitrage, priced. `;
+    } else {
+      msg += 'The variance-swap curve sits above ATM whenever there is skew; the gap ' +
+        'is what the wings are worth. ';
+    }
+    if (undef.length) {
+      msg += `No variance swap is shown for T = ${undef.map(r => r.T).join(', ')}: ` +
+        `the log contract needs the whole strip, and that expiry is not quoted far ` +
+        `enough out to price one. Not an arbitrage — just missing market.`;
+    }
+    document.getElementById('note-varterm').textContent = msg;
+  },
+});
+
+PANELS.push({
+  tab: 'variance',
+  id: 'cv-pctl',
+  draw(ctx, box) {
+    const sl = S.slices[S.activeIdx];
+    const st = A.distributionStats(sl.interp, sl.T);
+    const P = [0.01, 0.05, 0.25, 0.5, 0.75, 0.95, 0.99];
+    const vals = P.map(p => st.percentiles[p]);
+    const finite = vals.filter(Number.isFinite);
+    if (!finite.length) { label(ctx, box.x + 10, box.y + 10, 'no distribution'); return; }
+
+    // Density in S_T/F space over the useful range, with percentile markers.
+    const xLo = Math.max(0.01, Math.min(...finite) * 0.9);
+    const xHi = Math.max(...finite) * 1.1;
+    const n = 401;
+    const xs = new Float64Array(n), ys = new Float64Array(n);
+    for (let i = 0; i < n; i++) {
+      const x = xLo + (xHi - xLo) * i / (n - 1);
+      xs[i] = x;
+      ys[i] = Math.max(A.densityAt(sl.interp, Math.log(x)), 0) / x;   // density in S/F
+    }
+    const hiY = Math.max(...ys) * 1.12;
+    const sx = makeScale(xLo, xHi, box.x, box.x + box.w);
+    const sy = makeScale(0, hiY, box.y + box.h, box.y);
+    axes(ctx, box, sx, sy, { fmtX: f2, fmtY: f2, xLabel: 'S_T / F' });
+
+    ctx.save();
+    ctx.beginPath(); ctx.rect(box.x, box.y, box.w, box.h); ctx.clip();
+    // Shade the 5–95 band.
+    const lo5 = st.percentiles[0.05], hi95 = st.percentiles[0.95];
+    if (Number.isFinite(lo5) && Number.isFinite(hi95)) {
+      ctx.fillStyle = css('--accent'); ctx.globalAlpha = 0.13;
+      ctx.fillRect(sx.to(lo5), box.y, sx.to(hi95) - sx.to(lo5), box.h);
+    }
+    ctx.restore();
+    polyline(ctx, box, sx, sy, xs, ys, { color: css('--accent'), width: 1.8 });
+
+    ctx.save();
+    ctx.strokeStyle = css('--dim'); ctx.setLineDash([2, 3]); ctx.lineWidth = 1;
+    ctx.fillStyle = css('--dim'); ctx.font = '9px ui-monospace,Menlo,monospace';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    for (const p of P) {
+      const v = st.percentiles[p];
+      if (!Number.isFinite(v)) continue;
+      const x = sx.to(v);
+      ctx.beginPath(); ctx.moveTo(x, box.y); ctx.lineTo(x, box.y + box.h); ctx.stroke();
+      ctx.fillText(`${(p * 100).toFixed(0)}`, x, box.y + 2);
+    }
+    ctx.restore();
+
+    document.getElementById('note-pctl').textContent =
+      `T = ${sl.T.toFixed(3)}y · median ${f3(st.percentiles[0.5])} · 5–95 band ` +
+      `${f3(lo5)}–${f3(hi95)} · skew ${f2(st.skew)} · excess kurtosis ` +
+      `${f2(st.excessKurt)} · shaded band is 5th to 95th percentile of S_T/F.`;
+  },
+});
+
+TABLES.push({
+  tab: 'variance',
+  fill() {
+    const rows = varianceRows().map((r, i) => ({
+      ...r,
+      active: i === S.activeIdx,
+      __bad: !r.fwdVarOk || Math.abs(r.forwardCheck - 1) > 6e-3 ||
+             !Number.isFinite(r.varSwapVol) ||
+             (r.covLo != null && Math.min(-r.covLo, r.covHi) < 1.2),
+    }));
+    fillTable(document.getElementById('var-table'), [
+      { label: 'Expiry', key: 'T',
+        fmt: (v, r) => (r.active ? '▸ ' : '') + v.toFixed(3) + 'y' },
+      { label: 'ATM vol', key: 'atmVol', fmt: pct2 },
+      { label: 'Var swap vol', key: 'varSwapVol', fmt: pct2,
+        title: 'sqrt of the log-contract fair variance, annualised' },
+      { label: 'Premium', key: 'convexityPremium', fmt: vp2, cls: signCls,
+        title: 'Variance swap vol minus ATM vol, in vol points' },
+      { label: 'Total var', key: 'totalVarSwap', fmt: f4 },
+      { label: 'Fwd vol', key: 'fwdVol', fmt: pct2,
+        title: 'Forward volatility from this expiry back to the previous one' },
+      { label: 'Skew', key: 'skew', fmt: f3, cls: signCls },
+      { label: 'Exc. kurt', key: 'excessKurt', fmt: f3 },
+      { label: 'E[S]/F', key: 'forwardCheck', fmt: f4,
+        title: 'Must be 1 under Q; drift means the tails are being truncated' },
+      { label: 'Tail mass', key: 'tailMass',
+        fmt: v => (Number.isFinite(v) ? v.toExponential(1) : '—'),
+        title: 'Probability the integration grid misses' },
+      { label: 'Quoted ±σ', key: 'covLo',
+        fmt: (v, r) => (v == null ? 'all' :
+          `${v.toFixed(1)} / +${(r.covHi ?? 0).toFixed(1)}`),
+        cls: (v, r) => (v == null ? 'dim'
+          : (Math.min(-v, r.covHi ?? 0) < 1.2 ? 'neg' : '')),
+        title: 'How far the quotes reach either side, in standard deviations of ' +
+               'log-return. Index call wings genuinely thin out around 1-3 sigma, ' +
+               'so this is context rather than an error — but a side under ~1.2 ' +
+               'sigma means that tail is essentially all extrapolation.' },
+    ], rows);
+  },
+});
+
+// ---- diagnostics badges -------------------------------------------------
+function badge(name, ok, detail) {
+  const el = document.createElement('div');
+  el.className = 'badge ' + (ok ? 'ok' : 'fail');
+  const b = document.createElement('b');
+  b.textContent = `${ok ? '✓' : '✗'} ${name}`;
+  const s = document.createElement('span');
+  s.textContent = detail;
+  el.appendChild(b); el.appendChild(s);
+  return el;
+}
+
+function drawBadges() {
+  const host = document.getElementById('badges');
+  host.textContent = '';
+  const sl = S.slices[S.activeIdx];
+  const c = checksFor(sl);
+  const cal = calendarResult().res;
+  host.appendChild(badge('Butterfly', c.butterfly.ok, c.butterfly.detail));
+  host.appendChild(badge('Calendar', cal.ok, cal.detail));
+  host.appendChild(badge('Call spread', c.callSpread.ok, c.callSpread.detail));
+  host.appendChild(badge('Wings', c.wings.ok, c.wings.detail));
+
+  const lvg = A.localVarianceGrid(S.slices);
+  let bad = 0, seen = 0;
+  for (let i = 0; i < lvg.nT; i++) {
+    const s0 = S.slices[i];
+    for (let j = 0; j < lvg.nK; j++) {
+      const k = lvg.k[j];
+      if (s0.qMin !== null && (k < s0.qMin || k > s0.qMax)) continue;
+      seen++;
+      if (!Number.isFinite(lvg.lv[i * lvg.nK + j])) bad++;
+    }
+  }
+  host.appendChild(badge('Local vol', bad === 0,
+    bad === 0 ? `defined everywhere quoted (${seen} cells)`
+              : `${bad} of ${seen} quoted cells undefined`));
+
+  const allOk = c.butterfly.ok && cal.ok && c.callSpread.ok && c.wings.ok && bad === 0;
+  document.getElementById('btn-repair').disabled = allOk;
+}
+
+// ---- repair -------------------------------------------------------------
+document.getElementById('btn-repair').addEventListener('click', () => {
+  const perSlice = S.slices.map(sl =>
+    A.repairSlice(sl.interp, sl.F, sl.T, K_MIN, K_MAX, N_K));
+  const params = perSlice.map(r => ({ ...r.params }));
+
+  // Calendar fix, applied as a pure level shift of each slice so the slices stay
+  // SVI: run isotonic regression on the at-the-money total variances and move
+  // each slice's `a` by the difference. Raising w can only help g (it shrinks
+  // the -(w')^2/4 (1/w + 1/4) term); lowering it might not, so the badges below
+  // re-verify the result rather than assuming it.
+  const atm = Float64Array.from(params, p => A.sviRawW(p, 0));
+  const target = A.pava(atm);
+  params.forEach((p, i) => {
+    const minW = p.a + p.b * p.sigma * Math.sqrt(1 - p.rho * p.rho);
+    const shift = Math.max(target[i] - atm[i], 1e-6 - minW);
+    p.a += shift;
+  });
+
+  // Park the knots on the repaired curve so dragging resumes from what is shown.
+  S.surface.maturities.forEach((m, i) => {
+    const s = A.makeSVI(params[i]);
+    m.knotsW = m.knotsK.map(k => s.at(k).w);
+  });
+
+  S.repair = { perSlice, params };
+  render();
+
+  const worst = Math.max(...perSlice.map(r => r.maxVolBps));
+  const rms = Math.max(...perSlice.map(r => r.l2Vol));
+  document.getElementById('blurb').textContent =
+    `Fitted the closest arbitrage-free SVI surface. Largest implied-vol move ` +
+    `${worst.toFixed(1)} bps, worst slice RMS ${rms.toFixed(1)} bps. That number ` +
+    `is the point: a surface a few bps outside the admissible set is a very ` +
+    `different animal from one that is grossly broken, and a pass/fail badge ` +
+    `cannot tell them apart. Drag any knot to start over.`;
+});
+
+// ---- in-page self-tests -------------------------------------------------
+function runSelfTests() {
+  const out = [];
+  const ok = (name, cond, extra = '') => out.push({ name, pass: !!cond, extra });
+  const near = (a, b, tol) => Math.abs(a - b) <= tol;
+
+  {
+    const w0 = 0.09, interp = { at: () => ({ w: w0, wp: 0, wpp: 0 }) };
+    let worst = 0;
+    for (const k of [-0.8, -0.2, 0, 0.25, 0.7]) {
+      const want = Math.exp(-((k + w0 / 2) ** 2) / (2 * w0)) / Math.sqrt(2 * Math.PI * w0);
+      worst = Math.max(worst, Math.abs(A.densityAt(interp, k) - want));
+    }
+    ok('Flat surface reproduces the analytic lognormal density', worst < 1e-14,
+       `max err ${worst.toExponential(1)}`);
+
+    const g = A.sliceGrid(interp, -8, 8, 20001);
+    let mass = 0;
+    for (let i = 0; i < g.p.length; i++) mass += g.p[i] * g.h;
+    ok('Density integrates to 1', near(mass, 1, 1e-6), `mass ${mass.toFixed(9)}`);
+  }
+
+  {
+    const ks = [-0.6, -0.3, 0, 0.3, 0.6];
+    const flat = { interpKind: 'spline', maturities: [0.25, 0.5, 1, 2].map(T => ({
+      T, F: 100, knotsK: ks, knotsW: ks.map(() => 0.25 * 0.25 * T) })) };
+    const lvg = A.localVarianceGrid(A.surfaceGrids(flat, -1, 1, 201));
+    let worst = 0, allFinite = true;
+    for (let i = 0; i < lvg.lv.length; i++) {
+      if (!Number.isFinite(lvg.lv[i])) { allFinite = false; continue; }
+      worst = Math.max(worst, Math.abs(Math.sqrt(lvg.lv[i]) - 0.25));
+    }
+    ok('Dupire returns constant sigma on a flat surface', allFinite && worst < 1e-6,
+       `max err ${worst.toExponential(1)}`);
+  }
+
+  {
+    // Round-trip the OTM quote: a deep-ITM call is intrinsic to the last bit, so
+    // its volatility is destroyed by the representation, not by the algorithm.
+    let worst = 0;
+    for (const K of [50, 80, 100, 120, 200]) {
+      for (const sig of [0.05, 0.15, 0.4, 1.2]) {
+        const q = A.otmPrice(100, K, sig * sig * 0.75);
+        worst = Math.max(worst, Math.abs(A.impliedVolOtm(100, K, q, 0.75) - sig));
+      }
+    }
+    ok('Implied vol round-trips from OTM quotes', worst < 1e-9,
+       `max err ${worst.toExponential(1)}`);
+
+    let par = 0;
+    for (const K of [70, 95, 100, 130]) {
+      par = Math.max(par,
+        Math.abs(A.callPrice(100, K, 0.09) - A.putPrice(100, K, 0.09) - (100 - K)));
+    }
+    ok('Put-call parity holds', par < 1e-10, `max err ${par.toExponential(1)}`);
+  }
+
+  {
+    const y = Float64Array.from([4, 1, 3, 2, 8, 5]);
+    const a = A.pava(y), b = A.pava(a);
+    let idem = 0, mono = true;
+    for (let i = 0; i < a.length; i++) idem = Math.max(idem, Math.abs(a[i] - b[i]));
+    for (let i = 1; i < a.length; i++) if (a[i] < a[i - 1] - 1e-12) mono = false;
+    ok('PAVA is idempotent and returns an isotonic sequence', idem < 1e-14 && mono);
+  }
+
+  {
+    // A W-shaped total variance is badly inadmissible; the constrained fit must
+    // return a slice whose analytic g is non-negative and whose wings obey Lee.
+    const ks = [-0.6, -0.4, -0.2, 0, 0.2, 0.4, 0.6];
+    const bad = A.makeSpline(ks, [0.05, 0.02, 0.08, 0.02, 0.08, 0.02, 0.05]);
+    const before = A.sliceChecks(A.sliceGrid(bad, K_MIN, K_MAX, N_K), 100);
+    const r = A.repairSlice(bad, 100, 1.0, K_MIN, K_MAX, N_K);
+    const wingOk = r.params.b * (1 + Math.abs(r.params.rho)) < 2;
+    ok('Constrained SVI fit repairs a W-shaped smile', !before.butterfly.ok &&
+       r.minG >= 0 && wingOk,
+       `min g ${before.worstG.toFixed(3)} → ${r.minG.toFixed(4)}, ` +
+       `wing slope ${(r.params.b * (1 + Math.abs(r.params.rho))).toFixed(3)}`);
+  }
+
+  {
+    let allFixed = true, detail = '';
+    for (const p of A.PRESETS) {
+      for (const s of A.surfaceGrids(p.surface, K_MIN, K_MAX, N_K)) {
+        const r = A.repairSlice(s.interp, s.F, s.T, K_MIN, K_MAX, N_K);
+        const c = A.sliceChecks(
+          A.sliceGrid(A.makeSVI(r.params), K_MIN, K_MAX, N_K), s.F);
+        if (!(r.minG >= 0) || !c.butterfly.ok || !c.callSpread.ok || !c.wings.ok) {
+          allFixed = false;
+          detail = `${p.id} T=${s.T}: min g = ${r.minG.toFixed(5)}`;
+        }
+      }
+    }
+    ok('Repair makes every preset admissible', allFixed, detail);
+  }
+
+  const host = document.getElementById('selftest');
+  host.textContent = '';
+  const nPass = out.filter(t => t.pass).length;
+  const h2 = document.createElement('h2');
+  h2.textContent = `Self-tests — ${nPass}/${out.length} passing`;
+  host.appendChild(h2);
+  const olEl = document.createElement('ol');
+  for (const t of out) {
+    const li = document.createElement('li');
+    li.className = t.pass ? 'pass' : 'fail';
+    li.textContent = `${t.pass ? 'PASS' : 'FAIL'} — ${t.name}` +
+      (t.extra ? ` (${t.extra})` : '');
+    olEl.appendChild(li);
+  }
+  host.appendChild(olEl);
+}
+
+// ---- controls -------------------------------------------------------------
+function syncMaturitySelect() {
+  const sel = document.getElementById('maturities');
+  sel.textContent = '';
+  S.surface.maturities.forEach((m, i) => {
+    const o = document.createElement('option');
+    o.value = String(i);
+    o.textContent = `T = ${m.T.toFixed(3)}y`;
+    sel.appendChild(o);
+  });
+  sel.value = String(S.activeIdx);
+}
+
+// ---- quote import --------------------------------------------------------
+// Imports use 13 knots rather than the presets' 7. An imported surface is read
+// off an SVI fit, and a 7-knot spline re-approximating that fit costs ~0.22 vol
+// points of RMS against the original quotes purely as interpolation error; 13
+// brings it to ~0.08, close to the SVI fit's own ~0.06 floor.
+
+function reportImport(parsed, built) {
+  const host = document.getElementById('import-report');
+  host.textContent = '';
+  const add = (cls, text) => {
+    const d = document.createElement('div');
+    if (cls) d.className = cls;
+    d.textContent = text;
+    host.appendChild(d);
+  };
+  if (!parsed) return;
+
+  if (parsed.errors.length && !parsed.quotes.length) {
+    add('err', 'Could not read the input:');
+    const ul = document.createElement('ul');
+    for (const e of parsed.errors.slice(0, 8)) {
+      const li = document.createElement('li'); li.textContent = e; ul.appendChild(li);
+    }
+    host.appendChild(ul);
+    return;
+  }
+
+  const usable = built ? built.perExpiry.filter(e => !e.skipped) : [];
+  add('good', `Loaded ${parsed.quotes.length} quotes across ${usable.length} usable ` +
+    `expiries; an arbitrage-constrained SVI fitted per expiry, then read onto 13 knots.`);
+  if (parsed.volsWerePercent) {
+    add('', 'Vols looked like percentages (median above 1.5), so they were divided by 100.');
+  }
+  if (parsed.forwardWasDefaulted) {
+    add('err', `No forward column found — F = ${document.getElementById('quote-fwd').value} ` +
+      `was assumed for every expiry. Log-moneyness is only as good as that number.`);
+  }
+  const skipped = built ? built.perExpiry.filter(e => e.skipped) : [];
+  if (skipped.length) {
+    add('', `Skipped ${skipped.length} expiry(ies) with fewer than 3 quotes: ` +
+      skipped.map(e => e.T).join(', '));
+  }
+  if (parsed.errors.length) {
+    add('err', `${parsed.errors.length} row(s) rejected:`);
+    const ul = document.createElement('ul');
+    for (const e of parsed.errors.slice(0, 6)) {
+      const li = document.createElement('li'); li.textContent = e; ul.appendChild(li);
+    }
+    host.appendChild(ul);
+  }
+}
+
+function loadQuotes(text, id) {
+  const fwd = Number(document.getElementById('quote-fwd').value) || 100;
+  const parsed = A.parseQuotes(text, { forward: fwd });
+  if (!parsed.quotes.length) { reportImport(parsed, null); return; }
+  // Window follows the quotes, so the fit is never asked about strikes nobody
+  // quoted. Widen a hair so the outermost quotes are not exactly on the edge.
+  let lo = Infinity, hi = -Infinity;
+  for (const q of parsed.quotes) { lo = Math.min(lo, q.k); hi = Math.max(hi, q.k); }
+  const padK = 0.02 * (hi - lo);
+  setKRange(lo - padK, hi + padK);
+  const built = A.surfaceFromQuotes(parsed.quotes, knotGrid());
+  if (!built.surface.maturities.length) {
+    reportImport(parsed, built);
+    return;
+  }
+  S.surface = built.surface;
+  S.interpKind = 'spline';
+  S.repair = null;
+  S.activeIdx = Math.min(S.activeIdx, built.surface.maturities.length - 1);
+  S.quotes = { quotes: parsed.quotes, perExpiry: built.perExpiry };
+  S.presetId = id || '(imported)';
+  document.getElementById('interp').value = 'spline';
+  document.getElementById('blurb').textContent =
+    `Imported surface: ${built.surface.maturities.length} expiries from ` +
+    `${parsed.quotes.length} quotes. The badges above now describe your data — an ` +
+    `SVI fit per expiry is admissible far more often than raw quotes are, so if a ` +
+    `check still fails, the quotes themselves are inconsistent. The strike window ` +
+    `has been set to k in [${(lo).toFixed(3)}, ${(hi).toFixed(3)}], the range your ` +
+    `quotes actually cover.`;
+  syncMaturitySelect();
+  reportImport(parsed, built);
+  render();
+}
+
+const SAMPLE = A.REAL_SPX;
+
+document.getElementById('btn-import').addEventListener('click', () => {
+  loadQuotes(document.getElementById('quote-text').value);
+});
+document.getElementById('btn-sample').addEventListener('click', () => {
+  loadRealSpx();
+});
+{
+  const ta = document.getElementById('quote-text');
+  ta.addEventListener('dragover', e => { e.preventDefault(); ta.classList.add('drop'); });
+  ta.addEventListener('dragleave', () => ta.classList.remove('drop'));
+  ta.addEventListener('drop', e => {
+    e.preventDefault();
+    ta.classList.remove('drop');
+    const f = e.dataTransfer.files && e.dataTransfer.files[0];
+    if (!f) return;
+    const fr = new FileReader();
+    fr.onload = () => { ta.value = String(fr.result); loadQuotes(ta.value); };
+    fr.readAsText(f);
+  });
+}
+
+for (const b of document.querySelectorAll('#tabs button')) {
+  b.addEventListener('click', () => setTab(b.dataset.tab));
+}
+
+const REAL_ID = 'spx-real';
+
+function loadRealSpx() {
+  document.getElementById('quote-text').value = A.REAL_SPX;
+  loadQuotes(A.REAL_SPX, REAL_ID);
+  document.getElementById('presets').value = REAL_ID;
+}
+
+const presetSel = document.getElementById('presets');
+{
+  const gReal = document.createElement('optgroup');
+  gReal.label = 'Real market data';
+  const oReal = document.createElement('option');
+  oReal.value = REAL_ID;
+  oReal.textContent = 'SPX 2026-08-06 (real market)';
+  gReal.appendChild(oReal);
+  presetSel.appendChild(gReal);
+
+  const gSyn = document.createElement('optgroup');
+  gSyn.label = 'Stylised, for breaking';
+  A.PRESETS.forEach(p => {
+    const o = document.createElement('option');
+    o.value = p.id; o.textContent = p.name;
+    gSyn.appendChild(o);
+  });
+  presetSel.appendChild(gSyn);
+}
+presetSel.addEventListener('change', () => {
+  if (presetSel.value === REAL_ID) { loadRealSpx(); return; }
+  loadPreset(presetSel.value);
+  render();
+});
+document.getElementById('interp').addEventListener('change', e => {
+  S.interpKind = e.target.value;
+  S.repair = null;
+  // The toggle is a request to see the knot interpolation, so stop showing the
+  // fitted closed form.
+  for (const m of S.surface.maturities) delete m.fitParams;
+  render();
+});
+document.getElementById('maturities').addEventListener('change', e => {
+  S.activeIdx = Number(e.target.value); render();
+});
+document.getElementById('btn-reset').addEventListener('click', () => {
+  if (!loadPreset(S.presetId)) {
+    // Current surface came from quotes, so reset means re-reading them.
+    loadQuotes(document.getElementById('quote-text').value, S.presetId);
+    return;
+  }
+  render();
+});
+document.getElementById('btn-selftest').addEventListener('click', runSelfTests);
+window.addEventListener('resize', render);
+
+// Open on real data rather than a model. A smooth synthetic curve invites the
+// assumption that surfaces look like that; the SPX snapshot does not.
+loadRealSpx();
+</script>
+</body>
+</html>
