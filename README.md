@@ -57,7 +57,7 @@ mw_lab/
 |------|-------------|------|
 | **Sleeve Research** | Single-file HTML/JS tool for sleeve-based strategy signals, interactive backtesting, parameter sweeps, Monte Carlo, walk-forward, universe exploration | [tools/sleeve_research.html](./tools/sleeve_research.html) |
 | **Arbitrage-Free Surface Lab** | Interactive lab for arbitrage-free surfaces — explore no-arb constraints and surface constructions in the browser | [tools/arb-free-surface-lab.html](./tools/arb-free-surface-lab.html) |
-| **US Rotation** | US equity style rotation research dashboard (single-file HTML) | [tools/us_rotation.html](./tools/us_rotation.html) |
+| **US Style Analysis** | US equity style analysis research dashboard (single-file HTML) | [tools/us_rotation.html](./tools/us_rotation.html) |
 | **Video Downloader** | Browser tool to download short-form videos (e.g. Douyin / Xiaohongshu) without watermark | [tools/video_downloader.html](./tools/video_downloader.html) |
 | **Japanese Tools** | Japanese learning and utility helpers | [tools/jp.html](./tools/jp.html) |
 | **Quick Pull** | Hearthstone Battlegrounds one-click disconnect utility | [tools/Quick_Pull.bat](./tools/Quick_Pull.bat) |
@@ -83,7 +83,7 @@ mw_lab/
 1. Enable **GitHub Pages** for this repository  
    (Settings → Pages → Source: Deploy from `main` branch / GitHub Actions).
 2. Browse by category:
-   - [Tools](./tools/) — including Sleeve Research, Arbitrage-Free Surface Lab, US Rotation
+   - [Tools](./tools/) — including Sleeve Research, Arbitrage-Free Surface Lab, US Style Analysis
    - [Games](./games/) — Particell, Blitz, Catrun, Crimewave, Neon District, Three Body
    - [Knowledge](./knowledge/) — Interview prep, Mathematical Finance Map, AI Industry Encyclopedia, Theorem Library
 3. Open any link in your browser.
