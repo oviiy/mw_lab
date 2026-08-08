@@ -49,6 +49,8 @@ mw_lab/
 | **AI Industry Encyclopedia** | Full AI industry-chain field guide — silicon, power, networks, models, training, supply chain, and myths (2025–2026) | [knowledge/ai-industry-chain-encyclopedia.html](./knowledge/ai-industry-chain-encyclopedia.html) |
 | **Theorem Library** | Math and physics theorems in plain language — Newton, thermo, Maxwell, relativity, quantum, plus classic math; KaTeX and interactive demos | [knowledge/theorem-library/](./knowledge/theorem-library/index.html) |
 
+Some files under `knowledge/` are **unlisted** (not in the table above) and are shared only by direct URL.
+
 ---
 
 ## Tools

@@ -1,0 +1,1322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="description" content="Unlisted working note — not linked from the public mw_lab index." />
+<title>Candidate Research Collaborations: Faculty Mapping and Project Designs</title>
+<style>
+  :root{
+    --paper:#f7f4ee;
+    --ink:#1e2228;
+    --ink2:#454b54;
+    --muted:#7a8088;
+    --rule:#e0dbd1;
+    --rule-dark:#c8c2b6;
+    --accent:#6b3f2a;
+    --accent-soft:rgba(107,63,42,.22);
+    --aside-bg:#f0ebe2;
+    --table-top:#efe8db;
+    --toggle-bg:rgba(30,34,40,.06);
+    --toggle-hover:rgba(30,34,40,.1);
+    --serif: "Iowan Old Style","Palatino Linotype",Palatino,Georgia,"Times New Roman",serif;
+    --sans: "Inter",-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",sans-serif;
+    --mono: ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+    color-scheme: light;
+  }
+  html[data-theme="dark"]{
+    --paper:#14171c;
+    --ink:#e6e9ee;
+    --ink2:#b0b7c1;
+    --muted:#8a929e;
+    --rule:#2a3039;
+    --rule-dark:#3a4250;
+    --accent:#d4a07a;
+    --accent-soft:rgba(212,160,122,.22);
+    --aside-bg:#1c222b;
+    --table-top:#1e2630;
+    --toggle-bg:rgba(255,255,255,.08);
+    --toggle-hover:rgba(255,255,255,.14);
+    color-scheme: dark;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth;font-size:17px}
+  body{
+    margin:0;background:var(--paper);color:var(--ink);
+    font-family:var(--serif);font-size:1.125rem;line-height:1.72;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+    transition:background .2s ease,color .2s ease;
+  }
+  a{color:var(--accent);text-decoration:none;border-bottom:1px solid var(--accent-soft)}
+  a:hover{border-bottom-color:var(--accent)}
+
+  .topbar{
+    position:sticky;top:0;z-index:20;
+    display:flex;justify-content:flex-end;align-items:center;
+    padding:.55rem 1.5rem;
+    background:color-mix(in srgb,var(--paper) 88%,transparent);
+    backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--rule);
+  }
+  .theme-toggle{
+    width:38px;height:38px;border-radius:50%;
+    border:1px solid var(--rule);background:var(--toggle-bg);color:var(--ink2);
+    cursor:pointer;display:inline-flex;align-items:center;justify-content:center;
+    transition:background .15s ease,color .15s ease;
+  }
+  .theme-toggle:hover{background:var(--toggle-hover);color:var(--ink)}
+  .theme-toggle svg{width:17px;height:17px}
+  .theme-toggle .icon-sun{display:none}
+  html[data-theme="dark"] .theme-toggle .icon-sun{display:block}
+  html[data-theme="dark"] .theme-toggle .icon-moon{display:none}
+
+  .layout{
+    display:grid;
+    grid-template-columns:250px minmax(0,920px);
+    gap:0 3.5rem;
+    justify-content:center;
+    max-width:1240px;
+    margin:0 auto;
+    padding:0 2rem 7rem;
+    width:100%;
+  }
+  @media(max-width:1100px){
+    .layout{grid-template-columns:minmax(0,920px);justify-content:center;padding:0 1.5rem 5rem}
+    .rail{display:none}
+  }
+
+  .rail{position:sticky;top:3.2rem;align-self:start;max-height:calc(100vh - 3.2rem);overflow-y:auto;padding:2.5rem 0 3rem;scrollbar-width:none}
+  .rail::-webkit-scrollbar{display:none}
+  .rail h6{
+    font-family:var(--sans);font-size:.8rem;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--muted);margin:0 0 1rem;font-weight:600;
+  }
+  .rail a{
+    display:block;font-family:var(--sans);font-size:1rem;line-height:1.5;
+    color:var(--ink2);border:none;padding:.42rem 0 .42rem .8rem;
+    border-left:2px solid var(--rule);
+  }
+  .rail a:hover{color:var(--ink);border-left-color:var(--rule-dark)}
+  .rail a.sub{padding-left:1.6rem;font-size:.94rem;color:var(--muted)}
+  .rail a.current{color:var(--accent);border-left-color:var(--accent);font-weight:600}
+  .rail .gap{height:1rem}
+
+  article{padding-top:2.4rem;min-width:0}
+
+  .unlisted-note{
+    font-family:var(--sans);font-size:.88rem;line-height:1.55;color:var(--muted);
+    background:var(--aside-bg);border:1px solid var(--rule);border-radius:6px;
+    padding:.75rem 1rem;margin:0 0 1.5rem;
+  }
+  .doc-title{font-size:2.45rem;font-weight:600;letter-spacing:-.025em;line-height:1.15;margin:0 0 .65rem}
+  .doc-meta{
+    font-family:var(--sans);font-size:.9rem;color:var(--muted);line-height:1.65;
+    margin:0 0 2rem;padding-bottom:1.5rem;border-bottom:1px solid var(--rule);
+  }
+
+  h2{
+    font-size:1.65rem;font-weight:600;letter-spacing:-.015em;line-height:1.28;
+    margin:3.2rem 0 1rem;padding-top:1.5rem;border-top:1px solid var(--rule);
+  }
+  h2 .cn{font-weight:500}
+  h2 + .standfirst{font-family:var(--sans);font-size:.95rem;color:var(--muted);margin:-.4rem 0 1.5rem;line-height:1.55}
+  h3{font-size:1.28rem;font-weight:600;margin:2.1rem 0 .7rem;letter-spacing:-.01em;line-height:1.3}
+  h4{
+    font-family:var(--sans);font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--muted);font-weight:600;margin:1.55rem 0 .4rem;
+  }
+  p{margin:0 0 1.15rem}
+  ul,ol{margin:0 0 1.2rem;padding-left:1.35rem}
+  li{margin:.45rem 0;line-height:1.7}
+  strong{font-weight:650}
+
+  .lede{font-size:1.18rem;color:var(--ink2);line-height:1.7}
+
+  .facts{
+    font-family:var(--sans);font-size:.95rem;line-height:1.65;color:var(--ink2);
+    border-left:2px solid var(--rule-dark);padding:.2rem 0 .2rem 1.15rem;margin:0 0 1.7rem;
+  }
+  .facts p{margin:0 0 .5rem}
+  .facts p:last-child{margin-bottom:0}
+  .facts b{color:var(--ink);font-weight:600}
+
+  table{width:100%;border-collapse:collapse;font-family:var(--sans);font-size:.92rem;line-height:1.55;margin:1rem 0 1.5rem}
+  th,td{text-align:left;vertical-align:top;padding:.55rem .75rem .55rem 0;border-bottom:1px solid var(--rule)}
+  th{font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600;border-bottom:1px solid var(--rule-dark);padding-bottom:.4rem}
+  td:last-child,th:last-child{padding-right:0}
+  .yr{white-space:nowrap;color:var(--muted);width:56px}
+
+  .legend{
+    font-family:var(--sans);font-size:.9rem;line-height:1.65;color:var(--ink2);
+    border-left:2px solid var(--rule-dark);padding:.15rem 0 .15rem 1.05rem;margin:1.25rem 0 1.5rem;
+  }
+  .legend p{margin:0}
+  .legend b{color:var(--ink);font-weight:600}
+
+  table.scored{font-size:.9rem;table-layout:fixed}
+  table.scored th,table.scored td{padding:.5rem .35rem}
+  table.scored th:first-child,table.scored td:first-child{padding-left:0}
+  table.scored .rk{width:26px;color:var(--muted);text-align:right;padding-right:.55rem}
+  table.scored .id{width:36px;color:var(--muted);font-variant-numeric:tabular-nums}
+  table.scored .m{width:38px;text-align:center;color:var(--ink2);font-variant-numeric:tabular-nums}
+  table.scored .sc{width:42px;text-align:center;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
+  table.scored .mo{width:48px;text-align:right;color:var(--muted);padding-right:0}
+  table.scored th.m,table.scored th.sc,table.scored th.mo,table.scored th.rk{text-align:inherit}
+  table.scored th.m,table.scored th.sc{text-align:center}
+  table.scored th.mo{text-align:right}
+  table.scored .con{display:block;font-size:.82rem;color:var(--muted);margin-top:.12rem}
+  table.scored tr.top td{background:var(--table-top)}
+  table.scored tr.top .rk,table.scored tr.top .sc{color:var(--accent)}
+
+  .proposal{
+    margin:3rem 0 3.2rem;padding:1.5rem 1.5rem 1.5rem 1.6rem;
+    border-left:3px solid var(--accent);
+    background:color-mix(in srgb,var(--aside-bg) 55%,transparent);
+    border-radius:0 8px 8px 0;
+  }
+  .proposal .num{
+    font-family:var(--sans);font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--accent);font-weight:650;display:block;margin-bottom:.4rem;
+  }
+  .proposal h3{margin:0 0 1.25rem;font-size:1.35rem;line-height:1.35}
+  .proposal p{margin:0 0 1rem;line-height:1.75}
+  .ps-block{margin:0 0 1.35rem}
+  .ps-block:last-of-type{margin-bottom:0}
+  .ps-label{
+    font-family:var(--sans);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--accent);font-weight:650;margin:0 0 .45rem;display:block;
+  }
+  .proposal .hl{
+    font-family:var(--sans);font-size:1.02rem;line-height:1.65;color:var(--ink);
+    background:color-mix(in srgb,var(--accent) 9%,transparent);
+    border-left:3px solid var(--accent);
+    padding:.75rem 1rem;margin:.85rem 0 1.1rem;border-radius:0 6px 6px 0;
+  }
+  .proposal .hl strong{color:var(--ink);font-weight:650}
+  .spec{
+    font-family:var(--sans);font-size:.92rem;line-height:1.7;color:var(--ink2);
+    border-top:1px solid var(--rule);margin-top:1.35rem;padding-top:.85rem;
+  }
+  .spec b{color:var(--muted);font-weight:600;font-size:.76rem;letter-spacing:.08em;text-transform:uppercase}
+
+  .aside{
+    font-family:var(--sans);font-size:.98rem;line-height:1.65;color:var(--ink2);
+    background:var(--aside-bg);border-radius:6px;padding:1rem 1.2rem;margin:1.5rem 0;
+  }
+  .aside p{margin:0}
+  .aside b{color:var(--ink)}
+
+  .linklist{font-family:var(--sans);font-size:.95rem;line-height:1.6}
+  .linklist p{margin:0 0 .55rem;padding-left:1.15rem;text-indent:-1.15rem}
+
+  footer{
+    margin-top:3.5rem;padding-top:1.25rem;border-top:1px solid var(--rule);
+    font-family:var(--sans);font-size:.85rem;color:var(--muted);line-height:1.65;
+  }
+
+  @media print{
+    .rail,.topbar{display:none}
+    .layout{display:block;padding:0;max-width:none}
+    article{padding-top:0;max-width:none}
+    body{background:#fff;font-size:11pt}
+    h2{page-break-after:avoid}
+    .proposal{page-break-inside:avoid}
+  }
+</style>
+<script>
+  (function () {
+    try {
+      if (localStorage.getItem("rcp-theme") === "dark")
+        document.documentElement.setAttribute("data-theme", "dark");
+    } catch (e) {}
+  })();
+</script>
+</head>
+<body>
+
+<div class="topbar">
+  <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Toggle color theme" title="Dark mode">
+    <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M21 14.5A8.5 8.5 0 1 1 9.5 3a7 7 0 0 0 11.5 11.5z"/>
+    </svg>
+    <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+    </svg>
+  </button>
+</div>
+
+<div class="layout">
+
+  <nav class="rail" aria-label="Contents">
+    <h6>Contents</h6>
+    <a href="#purpose">Motivation and scope</a>
+    <a href="#position">Background and comparative advantage</a>
+    <div class="gap"></div>
+    <a href="#shu">1. Haibing Shu</a>
+    <a href="#s1" class="sub">1.1 Trade-policy shocks and credit spreads</a>
+    <a href="#s2" class="sub">1.2 Implicit state support in bond markets</a>
+    <a href="#s3" class="sub">1.3 Political risk as a credit factor</a>
+    <div class="gap"></div>
+    <a href="#qian">2. Junhui Qian</a>
+    <a href="#q1" class="sub">2.1 Structural breaks in the Treasury curve</a>
+    <a href="#q2" class="sub">2.2 Distributional dynamics of credit spreads</a>
+    <a href="#q3" class="sub">2.3 Common breaks in dollar funding bases</a>
+    <div class="gap"></div>
+    <a href="#chen">3. Baizhu Chen</a>
+    <a href="#c1" class="sub">3.1 Systemic risk with credit-market nodes</a>
+    <a href="#c2" class="sub">3.2 Capital costs of investment restrictions</a>
+    <a href="#c3" class="sub">3.3 Pricing of fiscal and political risk</a>
+    <div class="gap"></div>
+    <a href="#zhou">4. Weihuan Zhou</a>
+    <a href="#z1" class="sub">4.1 Market effects of export controls</a>
+    <a href="#z2" class="sub">4.2 A legally coded trade-action panel</a>
+    <a href="#z3" class="sub">4.3 Credit valuation of state-attributable support</a>
+    <div class="gap"></div>
+    <a href="#comparison">Comparative evaluation</a>
+    <a href="#approach">Engagement strategy and constraints</a>
+    <a href="#sources">References</a>
+  </nav>
+
+  <article>
+
+    <p class="unlisted-note" role="note">
+      Unlisted document — not linked from the public
+      <a href="https://oviiy.github.io/mw_lab/" style="border:none">mw_lab</a> README or index.
+      Share the direct URL only; treat as private working material.
+    </p>
+    <h1 class="doc-title">Candidate Research Collaborations:<br>Faculty Mapping and Project Designs</h1>
+    <p class="doc-meta">
+      Working paper · August 2026 · direct-link only
+    </p>
+
+    <!-- ============ PURPOSE ============ -->
+    <section id="purpose">
+      <h2 style="border-top:none;padding-top:0;margin-top:0">Motivation and scope</h2>
+      <p class="lede">
+        This note maps concrete empirical projects to faculty whose agendas already create a natural
+        opening for collaboration — not a wish list, but a set of problems where credit-market
+        measurement is the missing half of the work.
+      </p>
+      <p>
+        For each person: what they work on, then three candidate projects. Each project is written so a
+        reader can see immediately what is broken, why existing work does not fix it, and what would be
+        built.
+      </p>
+      <p>
+        One rule runs through all of it: <strong>the contribution is the measurement half, never the theory half.</strong>
+        Each project is chosen so the piece owned on the industry side is something the professor cannot
+        easily do alone — usually construction of a credit or curve object that needs market conventions
+        known from the inside. Where that is not true, the project is not worth either side's time.
+        Second rule: public data only, evenings and weekends, nothing touching employer systems.
+      </p>
+    </section>
+
+    <!-- ============ POSITION ============ -->
+    <section id="position">
+      <h2>Background and comparative advantage</h2>
+      <p>
+        Four years at MSCI on credit derivatives pricing — CDS, indices, index options, tranches — including
+        a bespoke tranche and significant-risk-transfer model taken from prototype to production. What
+        matters here is hazard-rate bootstrapping, base-correlation mapping, and knowing when a quoted
+        spread is information and when it's noise. Since March at Clearwater on fixed-income model
+        validation: building calculations and defending them against Bloomberg across Treasuries,
+        corporates, MBS and swaps.
+      </p>
+      <p>
+        Two other things. The 2023 MSCI note on what CDS implied about US default during the debt-ceiling
+        standoff — implied default probability lower than 2011 despite far wider spreads, because the
+        comparison turns on cheapest-to-deliver — was picked up by Reuters and the FT. And earlier, at
+        Russell, multi-factor and style-rotation work on China A-shares, which is where the factor instinct
+        comes from.
+      </p>
+      <p>
+        What I shouldn't pretend to bring: legal doctrine, econometric theory, Chinese institutional
+        knowledge, or a publication record. I have production models and industry research, not journal
+        articles. Converting the first into the second is the point, and that's the honest pitch.
+      </p>
+    </section>
+
+    <!-- ============================================================= -->
+    <!-- ============ 1 · SHU ============ -->
+    <section id="shu">
+      <h2>1. Haibing Shu <span class="cn">（舒海兵）</span></h2>
+      <p class="standfirst">Associate Professor of Finance, Antai College, Shanghai Jiao Tong University</p>
+
+      <div class="facts">
+        <p><b>Background</b> PhD Finance, USTC. Joint-training PhD and postdoc at Virginia; research fellow
+          at CKGSB; visiting scholar at HKUST. Some industry experience.</p>
+        <p><b>Interests</b> Corporate finance, governance, financial markets, political economy, fintech.</p>
+        <p><b>Contact</b> hbshu@sjtu.edu.cn ·
+          <a href="https://www.acem.sjtu.edu.cn/en/faculty/shuhaibing.html" target="_blank" rel="noopener">faculty page</a></p>
+      </div>
+
+      <p>
+        Shu uses political and institutional variation in China as identification. His signature is the
+        clean natural experiment: find a discrete political shock or a sharp institutional discontinuity,
+        trace it into firm outcomes. Politics is his instrument, not his subject.
+      </p>
+      <p>
+        The thing I noticed reading him: <strong>his outcome variable is almost always equity, investment
+        or performance — very rarely the cost of debt.</strong> That gap is real rather than manufactured,
+        and it's where a credit person is additive.
+      </p>
+
+      <table>
+        <thead><tr><th>Paper</th><th>Finding</th><th class="yr">Year</th></tr></thead>
+        <tbody>
+          <tr><td>Liu, Shu &amp; Wei, <em>JFE</em> 125(2)</td><td>The Bo Xilai scandal as an exogenous shock to political uncertainty; prices fall further for politically sensitive firms.</td><td class="yr">2017</td></tr>
+          <tr><td>Duchin, Gao &amp; Shu, <em>RFS</em> 33(12)</td><td>Government involvement, and distance from it, shape corporate autonomy and performance.</td><td class="yr">2020</td></tr>
+          <tr><td>Shu &amp; Viard, <em>JMS</em> 62(2)</td><td>Subnational regions as a time-varying treatment on firm performance.</td><td class="yr">2025</td></tr>
+          <tr><td>Sivadasan, Shu &amp; Xu, working paper</td><td>Managerial capital and the 2018 US–China trade war. He is currently working on tariff shocks.</td><td class="yr">2025</td></tr>
+        </tbody>
+      </table>
+
+      <p>
+        His live grant is NSFC #72272098 on passive political labels and firm outcomes, PI, 2023–2026 —
+        which means it ends this year and a follow-on direction is genuinely useful to him.
+      </p>
+
+      <div class="aside">
+        <p><b>Approach.</b> Open with the trade-war working paper, not the Bo scandal paper. Citing the 2017
+        JFE article signals a Wikipedia acquaintance; citing the 2025 draft signals I've read him — and it
+        happens to be where I'm additive rather than derivative.</p>
+      </div>
+
+      <!-- S1 -->
+      <div class="proposal" id="s1">
+        <span class="num">Project 1.1</span>
+        <h3>Trade-policy shocks and corporate credit spreads</h3>
+
+        <div class="ps-block">
+          <span class="ps-label">Problem</span>
+          <p>
+            Trade-policy events — Section 301 and 232 lists, exclusion grants and expirations, rate changes —
+            are among the largest discrete shocks to real cash flows many issuers face. The open question is
+            not whether equity moves, but whether <em>credit</em> moves, by how much, and for which firms.
+          </p>
+          <p class="hl">
+            <strong>We are trying to measure whether tariffs reprice the cost of debt, and whether creditors
+            and equity holders disagree about what the shock means for solvency versus margins.</strong>
+          </p>
+        </div>
+
+        <div class="ps-block">
+          <span class="ps-label">Current gap</span>
+          <p>
+            Public debate treats “the cost of tariffs” as a macroeconomic talking point. Firm-level evidence
+            on the <em>financing</em> channel is almost absent. Equity event studies exist; parallel credit
+            studies with clean spread construction do not.
+          </p>
+          <p>
+            That matters because holders and creditors should react differently to a shock that compresses
+            margins without necessarily threatening default. Without both sides measured the same way, the
+            disagreement is invisible.
+          </p>
+        </div>
+
+        <div class="ps-block">
+          <span class="ps-label">Proposed work</span>
+          <p>
+            Build a timestamped event catalogue from the Federal Register and USTR with pre-specified coding
+            rules. Map tariff lines to firm import intensity. Estimate abnormal spread changes over short
+            windows, side by side with equity CARs. Then run the cross-section (import intensity, leverage,
+            rating, supplier concentration), placebos, and matched controls.
+          </p>
+          <p>
+            Shu’s existing work already establishes differential real effects of trade-war shocks, so exposure
+            mapping and identification are partly in place. The missing half is the credit panel:
+            bootstrapping, curve construction, liquidity filtering, and knowing which quotes to discard.
+          </p>
+        </div>
+
+        <div class="spec">
+          <b>Data</b> Federal Register, TRACE, Compustat · <b>12 months</b> ·
+          <b>Risk</b> thin single-name CDS for mid-caps — design bond-first, CDS as robustness
+        </div>
+      </div>
+
+      <!-- S2 -->
+      <div class="proposal" id="s2">
+        <span class="num">Project 1.2</span>
+        <h3>Implicit state support and corporate bond pricing</h3>
+
+        <div class="ps-block">
+          <span class="ps-label">Problem</span>
+          <p>
+            Many state-linked issuers trade at spreads that look “too tight” for standalone fundamentals.
+            The question is whether that wedge is a priced political guarantee — and whether it collapses when
+            the guarantee is tested.
+          </p>
+          <p class="hl">
+            <strong>We are trying to turn political labels and government proximity into a measured credit
+            factor: how much of the bond spread is support rather than credit quality.</strong>
+          </p>
+        </div>
+
+        <div class="ps-block">
+          <span class="ps-label">Current gap</span>
+          <p>
+            A large stock of state-linked credit is held passively through index rules the holder did not
+            choose. If the spread embeds an implicit guarantee whose withdrawal is a discrete political event,
+            those holders are short a contingent claim that has never been priced as such.
+          </p>
+          <p>
+            Decomposing spreads into expected loss, risk premium, and support is well-posed in credit
+            engineering, but it has not been wired to Shu’s institutional measures of political proximity.
+          </p>
+        </div>
+
+        <div class="ps-block">
+          <span class="ps-label">Proposed work</span>
+          <p>
+            Use his political-label and government-proximity constructs (including the NSFC-funded work
+            ending 2026) as the support signal. On the market side: spread decomposition, guarantee-event
+            studies when support is tested, and aggregation to index level using published methodology only.
+          </p>
+          <p>
+            The label construct is his; the measurement of whether it prices in bonds is the open extension.
+          </p>
+        </div>
+
+        <div class="spec">
+          <b>Data</b> institutional access to ChinaBond or CSMAR; public index methodology; rating uplift notches ·
+          <b>12–15 months</b> · <b>Risk</b> depends on data access outside personal control
+        </div>
+      </div>
+
+      <!-- S3 -->
+      <div class="proposal" id="s3">
+        <span class="num">Project 1.3</span>
+        <h3>Firm-level political risk as a priced credit factor</h3>
+
+        <div class="ps-block">
+          <span class="ps-label">Problem</span>
+          <p>
+            Credit risk systems routinely use duration, spread, rating, and sector. They almost never use a
+            clean measure of policy exposure. When a firm is heavily exposed to regulation, trade, or fiscal
+            politics, that exposure is invisible in the risk stack until it shows up as a surprise loss.
+          </p>
+          <p class="hl">
+            <strong>We are trying to build a firm-level political-sensitivity measure that improves
+            credit risk forecasts — and to test whether three independent measurement routes pick out the
+            same firms.</strong>
+          </p>
+        </div>
+
+        <div class="ps-block">
+          <span class="ps-label">Current gap</span>
+          <p>
+            Equity models have rough political-risk proxies. Credit has essentially none. Without
+            convergent validity — text-based, revenue-based, and event-beta measures agreeing or disagreeing
+            for clear reasons — any new factor looks like another entry in the factor zoo.
+          </p>
+        </div>
+
+        <div class="ps-block">
+          <span class="ps-label">Proposed work</span>
+          <p>
+            Construct three scalable measures of political sensitivity: 10-K text, revenue dependence on
+            policy-sensitive activities, and realised betas around political events. Build a credit return
+            panel and evaluate out-of-sample risk improvement (not a return premium story).
+          </p>
+          <p>
+            Shu’s career defines what “politically sensitive” means as a firm attribute and where such
+            measures go spurious — that is the defence against the obvious referee attack. The factor
+            construction, panel, and evaluation sit on the measurement side.
+          </p>
+        </div>
+
+        <div class="spec">
+          <b>Data</b> EDGAR full text, TRACE, WRDS — essentially free ·
+          <b>10–14 months</b> · <b>Risk</b> factor-zoo scepticism; lead with out-of-sample risk improvement
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================= -->
+    <!-- ============ 2 · QIAN ============ -->
+    <section id="qian">
+      <h2>2. Junhui Qian <span class="cn">（钱军辉）</span></h2>
+      <p class="standfirst">Professor of Economics, Antai College, Shanghai Jiao Tong University</p>
+
+      <div class="facts">
+        <p><b>Interests</b> Econometric theory and applications, international finance, the Chinese economy.</p>
+        <p><b>Co-authors</b> Liangjun Su (Tsinghua), Joon Y. Park (Indiana), Robin Sickles (Rice).</p>
+        <p><b>Contact</b> jhqian@sjtu.edu.cn ·
+          <a href="https://jhqian.org/research/index.htm" target="_blank" rel="noopener">research page, with code for every paper</a></p>
+      </div>
+
+      <p>
+        Qian is a structural-break econometrician. His central contribution is a family of shrinkage
+        estimators — adaptive group fused Lasso — that find an unknown number of breaks at unknown dates in
+        time series, panels, and panels with interactive fixed effects. Alongside it runs a functional-data
+        thread he has already applied to yield curves.
+      </p>
+      <p>
+        His 2025 output shows the direction: refinement of the estimator, time-varying interactive fixed
+        effects, and the dynamics of whole cross-sectional distributions rather than point estimates.
+        He publishes code with every paper, which tells you how he works. An econometrician with a strong
+        estimator and no compelling dataset should be a straightforward person to bring a dataset to.
+      </p>
+
+      <table>
+        <thead><tr><th>Paper</th><th>Why it matters here</th><th class="yr">Year</th></tr></thead>
+        <tbody>
+          <tr><td>Qian &amp; Su, <em>Journal of Econometrics</em> 191(1)</td><td>Common breaks in panels. Tests whether series break <em>together</em> — the statistical form of "did the whole market change regime, or one segment?"</td><td class="yr">2016</td></tr>
+          <tr><td>Li, Qian &amp; Su, <em>JASA</em> 111(516)</td><td>Breaks in factor <em>loadings</em>, not only means. His most cited work.</td><td class="yr">2016</td></tr>
+          <tr><td>Feng &amp; Qian, <em>CFRI</em> 8(3) and <em>Economics Letters</em> 168</td><td>Term structure by functional PCA, and yield-curve forecasting with a dynamic spline. The curve-as-object machinery already exists.</td><td class="yr">2018</td></tr>
+          <tr><td>Wang, Jin, Li, Qian &amp; Su, <em>Journal of Econometrics</em> 249</td><td>Smooth time-varying structural change as an alternative to discrete breaks.</td><td class="yr">2025</td></tr>
+          <tr><td>Hu, Park &amp; Qian, arXiv 2505.15763</td><td>Distributional dynamics for repeated cross-sections. A credit-spread cross-section is exactly this kind of object and nobody has applied it to one.</td><td class="yr">2025</td></tr>
+        </tbody>
+      </table>
+
+      <div class="aside">
+        <p><b>Approach.</b> Econometricians get approached constantly by people wanting free statistics help.
+        The opposite is needed: arrive with a dataset he can't easily get and a question his own estimator
+        was built for, having already run his published code on a toy version. Two pages and one figure —
+        a curve object with candidate break dates marked.</p>
+      </div>
+
+      <!-- Q1 -->
+      <div class="proposal" id="q1">
+        <span class="num">Project 2.1</span>
+        <h3>Structural breaks in the Treasury term structure</h3>
+
+        <div class="ps-block">
+          <span class="ps-label">Problem</span>
+          <p>
+            Market regimes on the Treasury curve are almost always dated by narrative after the fact —
+            “post-QE,” “hiking cycle,” “dash for cash.” That is not the same as estimating when level, slope,
+            and curvature dynamics actually changed, with uncertainty attached.
+          </p>
+          <p class="hl">
+            <strong>We are trying to date structural breaks in the daily Treasury curve as a functional
+            object, and to test whether different curves (on-the-run vs off-the-run, nominal vs TIPS, cash
+            vs swap) break on the same dates.</strong>
+          </p>
+        </div>
+
+        <div class="ps-block">
+          <span class="ps-label">Current gap</span>
+          <p>
+            If the off-the-run curve breaks before the on-the-run curve, or TIPS breaks when nominals do not,
+            that separates liquidity from expectations in a way usual term-structure decompositions cannot.
+            Without a formal break estimator on a desk-quality curve, those claims stay storytelling.
+          </p>
+        </div>
+
+        <div class="ps-block">
+          <span class="ps-label">Proposed work</span>
+          <p>
+            Treat the daily curve as a functional object (≈2015–present). Apply functional PCA and
+            common-break methods — both already developed and coded by Qian — to level, slope, and curvature
+            dynamics across multiple curve types.
+          </p>
+          <p>
+            The project lives or dies on curve construction: bootstrapping conventions, on-the-run selection,
+            settlement and day-count, splicing across instruments. A curve no desk would accept produces
+            break dates that are artifacts.
+          </p>
+        </div>
+
+        <div class="spec">
+          <b>Data</b> Treasury, FRED, NY Fed — free and official ·
+          <b>12 months</b> · <b>Risk</b> breaks land where everyone expected; pre-commit to cross-curve disagreement as the headline
+        </div>
+      </div>
+
+      <!-- Q2 -->
+      <div class="proposal" id="q2">
+        <span class="num">Project 2.2</span>
+        <h3>Distributional dynamics of corporate credit spreads</h3>
+
+        <div class="ps-block">
+          <span class="ps-label">Problem</span>
+          <p>
+            Credit stress is monitored through averages — an index spread, an aggregate OAS. The
+            economically interesting event is often a change in <em>shape</em>: the right tail of the
+            cross-section detaches while the median stays calm, before defaults and downgrades arrive in a
+            cluster.
+          </p>
+          <p class="hl">
+            <strong>We are trying to model the daily cross-section of corporate spreads as a time-evolving
+            distribution, and to test whether tail dispersion leads the median into stress.</strong>
+          </p>
+        </div>
+
+        <div class="ps-block">
+          <span class="ps-label">Current gap</span>
+          <p>
+            There is no standard, formally estimated statistic for “distributional stress” in credit with
+            inference attached. Methods exist for repeated cross-sections (Hu, Park &amp; Qian 2025) and are
+            essentially untested on financial markets that need a flagship application.
+          </p>
+        </div>
+
+        <div class="ps-block">
+          <span class="ps-label">Proposed work</span>
+          <p>
+            Build a large daily TRACE panel of corporate spreads, benchmarked to the Treasury curve (linked
+            to 2.1), with liquidity and staleness filters. Estimate distributional dynamics: tail vs median
+            timing, breaks in those dynamics, and lead–lag versus default clusters and downgrade waves.
+          </p>
+          <p>
+            The econometric framework is Qian’s; the contribution on this side is the panel itself — the
+            unglamorous construction work that makes the methods paper economically meaningful.
+          </p>
+        </div>
+
+        <div class="spec">
+          <b>Data</b> TRACE, Treasury curves, published default statistics ·
+          <b>12–15 months</b> · <b>Risk</b> real methods lift — dedicated reading time before a credible proposal
+        </div>
+      </div>
+
+      <!-- Q3 -->
+      <div class="proposal" id="q3">
+        <span class="num">Project 2.3</span>
+        <h3>Common structural breaks in dollar funding bases</h3>
+
+        <div class="ps-block">
+          <span class="ps-label">Problem</span>
+          <p>
+            Dollar arbitrage bases — CDS–bond, swap spreads, cross-currency, cash–futures — are the cleanest
+            observables of dealer balance-sheet capacity. When they dislocate, the policy question is whether
+            the system hit a common constraint or a set of instrument-specific frictions.
+          </p>
+          <p class="hl">
+            <strong>We are trying to test whether funding bases break on common dates, and whether breaks
+            are in levels or in loadings — i.e. whether bases started responding differently to the same
+            shocks.</strong>
+          </p>
+        </div>
+
+        <div class="ps-block">
+          <span class="ps-label">Current gap</span>
+          <p>
+            “Common vs idiosyncratic” is argued constantly with little formal evidence. Panel structural-break
+            methods exist precisely for this question, but they have not been applied to a carefully
+            constructed set of dollar bases.
+          </p>
+        </div>
+
+        <div class="ps-block">
+          <span class="ps-label">Proposed work</span>
+          <p>
+            Construct defensible base series (including CDS–bond with cheapest-to-deliver, curve mismatch,
+            funding assumptions, and quote quality). Apply common-break and loading-break estimators to test
+            joint vs separate dislocation, and whether breaks cluster on regulation or stress.
+          </p>
+        </div>
+
+        <div class="spec">
+          <b>Data</b> swap and cross-currency free; CDS index via university license only ·
+          <b>10–12 months</b> · <b>Risk</b> data access; fallback is swap and cross-currency only
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================= -->
+    <!-- ============ 3 · CHEN ============ -->
+    <section id="chen">
+      <h2>3. Baizhu Chen <span class="cn">（陈百助）</span></h2>
+      <p class="standfirst">Professor of Clinical Finance and Business Economics, USC Marshall</p>
+
+      <div class="facts">
+        <p><b>Roles</b> Academic Director of Marshall's Global EMBA; Co-Academic Director of the USC–SJTU
+          ICCI; Senior Researcher at the CASS Institute of Finance and Banking; chief economist at
+          Sino-Century Capital; former president of the Chinese Economists Society.</p>
+        <p><b>Interests</b> Macroeconomics and international economics with an emphasis on China.</p>
+        <p><b>Contact</b> baizhu@marshall.usc.edu ·
+          <a href="https://www.marshall.usc.edu/personnel/baizhu-chen" target="_blank" rel="noopener">Marshall profile</a></p>
+      </div>
+
+      <p>
+        Chen is a macro and international economist rather than a micro-empiricist, working where political
+        and institutional conditions meet market outcomes. Two things matter for a collaboration. He's
+        comfortable with quantitative risk methods — the 2018 <em>Finance Research Letters</em> paper with
+        Fang, Yu and Qian ranks G7 and BRICS equity markets by systemic-risk contribution using ADCC ΔCoVaR
+        with skewed-t innovations. And he's a bridge figure: clinical faculty, EMBA director, CASS
+        researcher, VC economist. That means he values work that reaches policy and practitioner audiences
+        and can place it, and he's likely less protective of research time than tenure-track faculty.
+      </p>
+      <p>
+        He's also the only one of the four I have any connection to, as a Marshall graduate.
+      </p>
+
+      <table>
+        <thead><tr><th>Paper</th><th>Relevance</th><th class="yr">Year</th></tr></thead>
+        <tbody>
+          <tr><td>Fang, Chen, Yu &amp; Qian, <em>Finance Research Letters</em> 24</td><td>Systemically important markets via ADCC ΔCoVaR with a skewed-t distribution, across G7 and BRICS equities.</td><td class="yr">2018</td></tr>
+          <tr><td>Chen &amp; Feng, <em>EJPE</em></td><td>Growth under political uncertainty. His earliest line, and the ancestor of anything on sovereign risk.</td><td class="yr">1990s</td></tr>
+          <tr><td>Work on Stock Connect and stock liquidity</td><td>Market opening as a natural experiment on liquidity. Worth asking him for the exact citation before referring to it.</td><td class="yr">2021</td></tr>
+        </tbody>
+      </table>
+
+      <div class="aside">
+        <p><b>Approach.</b> Alumnus first, researcher second, and explicit that I'm not applying to anything
+        and not asking about a job. Of the four he's the one for whom the Reuters and FT pickup actually
+        counts, because reach is something he values and can use.</p>
+      </div>
+
+      <!-- C1 -->
+      <div class="proposal" id="c1">
+        <span class="num">Project 3.1</span>
+        <h3>Systemic risk with equity and credit-market nodes</h3>
+
+        <div class="ps-block">
+          <span class="ps-label">Problem</span>
+          <p>
+            Cross-market systemic-risk rankings are built almost entirely from equity indices. Yet the major
+            transmission episodes of the last twenty years — 2008, 2011, March 2020 — ran through credit and
+            funding as much as through stocks.
+          </p>
+          <p class="hl">
+            <strong>We are trying to re-estimate a ΔCoVaR-style system with credit nodes (CDX, iTraxx,
+            major sovereign CDS, EM hard currency) and to test whether the ranking and lead–lag structure
+            change when credit is included.</strong>
+          </p>
+        </div>
+
+        <div class="ps-block">
+          <span class="ps-label">Current gap</span>
+          <p>
+            Chen’s 2018 work ranks markets by systemic contribution using ADCC ΔCoVaR on equities. Whether
+            that ranking survives when credit is added — and whether credit leads equity into stress — has
+            no current answer. Without credit nodes, the map of “who infects whom” is incomplete by design.
+          </p>
+        </div>
+
+        <div class="ps-block">
+          <span class="ps-label">Proposed work</span>
+          <p>
+            Extend the existing estimator and framing with carefully constructed credit index series: roll
+            conventions, continuity across index versions, spread-to-return transforms. Get those wrong and
+            the results are artifacts. Report both the new ranking and the credit-leads-equity evidence as
+            co-equal findings.
+          </p>
+        </div>
+
+        <div class="spec">
+          <b>Data</b> equity free; credit via published index spreads or liquid ETFs as proxy ·
+          <b>10–12 months</b> · <b>Risk</b> reads as incremental — make credit-leads-equity the headline
+        </div>
+      </div>
+
+      <!-- C2 -->
+      <div class="proposal" id="c2">
+        <span class="num">Project 3.2</span>
+        <h3>Capital-market effects of investment restrictions</h3>
+
+        <div class="ps-block">
+          <span class="ps-label">Problem</span>
+          <p>
+            Restriction events — delisting rules, outbound screening, entity listings, index exclusions —
+            are adopted with strong claims about cost and effect. Almost none has been evaluated afterwards
+            with joint equity and debt measurement.
+          </p>
+          <p class="hl">
+            <strong>We are trying to measure whether restriction events raise the cost of equity and debt
+            for affected issuers, and whether the effect is permanent capital denial or a transitional
+            price shock.</strong>
+          </p>
+        </div>
+
+        <div class="ps-block">
+          <span class="ps-label">Current gap</span>
+          <p>
+            The announcement-versus-implementation asymmetry is understudied. If most of the effect lands
+            on announcement and partly reverses on implementation, that is evidence about whether the policy
+            does what it claims. Market-opening studies exist; the reverse experiment is thinner.
+          </p>
+        </div>
+
+        <div class="ps-block">
+          <span class="ps-label">Proposed work</span>
+          <p>
+            Event study on restriction dates, debt-side measurement, and holdings aggregation for realised
+            cost to holders. The main identification threat is simultaneous domestic regulatory action in
+            the same windows — where domain judgment on institutions is essential.
+          </p>
+        </div>
+
+        <div class="spec">
+          <b>Data</b> EDGAR, holdings filings, Federal Register, CRSP, TRACE — all public ·
+          <b>12 months</b> · <b>Risk</b> charged subject; pre-register, honest intervals, joint sign-off on interpretation
+        </div>
+      </div>
+
+      <!-- C3 -->
+      <div class="proposal" id="c3">
+        <span class="num">Project 3.3</span>
+        <h3>Market pricing of fiscal and political risk</h3>
+
+        <div class="ps-block">
+          <span class="ps-label">Problem</span>
+          <p>
+            Fiscal and political uncertainty shows up across the sovereign complex: sovereign CDS, bill-curve
+            kinks around projected x-dates, cash–futures and swap spreads, and the term structure of implied
+            default probability. Commentary often quotes spreads without separating credit repricing from
+            contract mechanics (delivery, denomination, cheapest-to-deliver).
+          </p>
+          <p class="hl">
+            <strong>We are trying to measure how much of an observed sovereign widening is credit repricing
+            versus technical contract effects — and whether successive debt-limit episodes have changed enough
+            to call it regime change.</strong>
+          </p>
+        </div>
+
+        <div class="ps-block">
+          <span class="ps-label">Current gap</span>
+          <p>
+            Sovereign CDS is thin, technically strange, and routinely misread. One public illustration already
+            exists: implied default probability lower in 2023 than 2011 despite far wider spreads, once
+            delivery is taken seriously. That remains a case note until adjustments are documented, applied
+            consistently across episodes, and cross-checked against other instruments.
+          </p>
+        </div>
+
+        <div class="ps-block">
+          <span class="ps-label">Proposed work</span>
+          <p>
+            Build a multi-instrument measurement stack for four fiscal/political episodes: CDS auction and
+            delivery mechanics, hazard-rate bootstrapping, Treasury curve construction, and parallel reads
+            from bills, futures, and swaps. Rebuild independently from public sources only.
+          </p>
+        </div>
+
+        <div class="spec">
+          <b>Data</b> Treasury, FRED, CBO, CME, public DTCC; sovereign CDS quotes the main constraint ·
+          <b>12 months</b> · <b>Risk</b> poor CDS liquidity — treat data quality as a result; employer boundary requires written clarity
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================= -->
+    <!-- ============ 4 · ZHOU ============ -->
+    <section id="zhou">
+      <h2>4. Weihuan Zhou</h2>
+      <p class="standfirst">Professor, Faculty of Law &amp; Justice, UNSW Sydney · Co-Director, CIBEL Centre</p>
+
+      <div class="facts">
+        <p><b>Roles</b> Co-Director of CIBEL; Council Member, WEF Global Future Council on the Future of
+          Trade and Investment; Executive Council, Society of International Economic Law; editorial boards
+          of <em>World Trade Review</em> and others.</p>
+        <p><b>Background</b> Former trade lawyer at a top-tier Australian firm, advising China's MOFCOM and
+          exporters in trade-remedy investigations; former WTO Secretariat consultant. PhD Sydney, 2012.</p>
+        <p><b>Contact</b> weihuan.zhou@unsw.edu.au ·
+          <a href="https://research.unsw.edu.au/people/professor-weihuan-zhou" target="_blank" rel="noopener">UNSW profile</a> ·
+          <a href="http://www.cibel.unsw.edu.au/" target="_blank" rel="noopener">CIBEL</a></p>
+      </div>
+
+      <p>
+        Zhou works on the legal architecture of economic security. Over three years his agenda has moved
+        away from classical WTO doctrine toward the live fault lines: industrial policy, cross-border
+        subsidies, critical minerals and supply-chain de-risking, export controls, EV and clean-tech
+        conflict, digital policy and data security.
+      </p>
+      <p>
+        What his field lacks entirely is quantification. Legal scholarship describes instruments, timelines
+        and doctrinal tests precisely and then stops; finance research on the trade war uses annual dummies
+        that discard everything the lawyers know. The space between is empty. This is where the
+        complementarity is least contested — I wouldn't be competing with anyone, because nobody in his
+        field does this. I also studied at UNSW, which is a small point of contact.
+      </p>
+
+      <table>
+        <thead><tr><th>Paper</th><th>Relevance</th><th class="yr">Year</th></tr></thead>
+        <tbody>
+          <tr><td>Zhou, Crochet &amp; Wang, <em>World Trade Review</em> 24(2)</td><td>Demystifying China's critical minerals strategies and rethinking de-risking. Around 44 citations already; the anchor for 4.1.</td><td class="yr">2025</td></tr>
+          <tr><td>Zhou &amp; Liu, <em>Journal of World Trade</em> 60(3/4)</td><td>Industrial policy in an era of re-globalization — his current organising frame.</td><td class="yr">2026</td></tr>
+          <tr><td>Zhou &amp; Crochet, <em>Melbourne Journal of Int'l Law</em> 25</td><td>Attribution to the state: when is support legally attributable? The question underneath implicit-guarantee pricing.</td><td class="yr">2024</td></tr>
+          <tr><td>Crochet &amp; Zhou, <em>ICLQ</em> 72(3)</td><td>Anti-circumvention — a fast-growing and very poorly measured category of trade action.</td><td class="yr">2023</td></tr>
+          <tr><td>Wang &amp; Zhou, <em>Journal of Contemporary China</em> 32(143)</td><td>Already co-authoring across disciplines with political scientists.</td><td class="yr">2023</td></tr>
+        </tbody>
+      </table>
+
+      <p>
+        He's co-investigator on funded work through 2025 on cross-border subsidies and on engaging China in
+        trading-system reform, and has held UNSW seed grants with SJTU and Tsinghua — so a bridge to SJTU
+        already exists.
+      </p>
+
+      <div class="aside">
+        <p><b>Approach.</b> Be explicit that I'm not a lawyer and not attempting legal analysis — the offer
+        is to measure the market consequences of instruments he classifies. That removes the main reason a
+        senior law professor would decline. Propose CIBEL as the home, which is a structure he already runs,
+        and lead with one pilot: twenty coded cases and a chart.</p>
+      </div>
+
+      <!-- Z1 -->
+      <div class="proposal" id="z1">
+        <span class="num">Project 4.1</span>
+        <h3>Market effects of critical-minerals export controls</h3>
+
+        <div class="ps-block">
+          <span class="ps-label">Problem</span>
+          <p>
+            Critical-minerals export controls — licensing regimes, quotas, entity-specific restrictions —
+            are announced as if markets will price them immediately and correctly. Downstream firms that
+            depend on the restricted input should show equity and credit reactions; the size of those
+            reactions should depend on legal form (licensing vs prohibition, temporary vs indefinite).
+          </p>
+          <p class="hl">
+            <strong>We are trying to measure what a control announcement does to exposed firms, and whether
+            reaction size scales with legal scope, stringency, and durability.</strong>
+          </p>
+        </div>
+
+        <div class="ps-block">
+          <span class="ps-label">Current gap</span>
+          <p>
+            Supply-chain policy is still largely built on qualitative vulnerability assessments. Finance work
+            on the trade war often uses coarse annual dummies that discard the legal detail lawyers care
+            about. The law-and-finance middle — correct legal coding plus market measurement — is empty.
+          </p>
+        </div>
+
+        <div class="ps-block">
+          <span class="ps-label">Proposed work</span>
+          <p>
+            Zhou codes the taxonomy: which measure is what, effective date, scope. The empirical half builds
+            the event study, exposure mapping, and credit measurement. Upstream substitutes should react in
+            the opposite direction — a built-in validity check. Track half-life across successive episodes as
+            substitution and stockpiling evolve.
+          </p>
+        </div>
+
+        <div class="spec">
+          <b>Data</b> official gazettes, Federal Register, EU OJ, WTO notifications, EDGAR, CRSP, TRACE ·
+          <b>12–15 months</b> · <b>Risk</b> contaminated windows from clustered geopolitics; flag clean windows as the headline
+        </div>
+      </div>
+
+      <!-- Z2 -->
+      <div class="proposal" id="z2">
+        <span class="num">Project 4.2</span>
+        <h3>A legally coded panel of trade-remedy actions</h3>
+
+        <div class="ps-block">
+          <span class="ps-label">Problem</span>
+          <p>
+            Trade-remedy dockets are public but unusable at scale: PDFs, inconsistent identifiers, no stable
+            link to listed securities. Without a coded panel, both policy impact assessment and firm-level
+            risk pricing are weaker than they need to be.
+          </p>
+          <p class="hl">
+            <strong>We are trying to turn the trade-remedy docket into a machine-readable, legally correct
+            panel linked to firms — then test whether coded actions move equity and credit predictably.</strong>
+          </p>
+        </div>
+
+        <div class="ps-block">
+          <span class="ps-label">Current gap</span>
+          <p>
+            Correct legal coding (preliminary vs final, sunset, force date, product scope) requires trade-remedy
+            expertise. No public dataset gets this right at scale. Infrastructure is slower than a single paper
+            but more durable if others can reuse it.
+          </p>
+        </div>
+
+        <div class="ps-block">
+          <span class="ps-label">Proposed work</span>
+          <p>
+            Phase 1: schema and a fifty-case pilot with inter-coder reliability. Phase 2: full extraction and
+            a versioned public release. Phase 3: market analysis and a firm-level exposure score. Legal coding
+            sits with Zhou; pipeline, entity resolution, and market analysis sit on the quantitative side.
+          </p>
+        </div>
+
+        <div class="spec">
+          <b>Data</b> Commerce and ITC dockets, Federal Register, WTO, EU OJ ·
+          <b>15–18 months</b> · <b>Risk</b> scope creep — hard-limit phase one to one jurisdiction
+        </div>
+      </div>
+
+      <!-- Z3 -->
+      <div class="proposal" id="z3">
+        <span class="num">Project 4.3</span>
+        <h3>Credit-market valuation of state-attributable support</h3>
+
+        <div class="ps-block">
+          <span class="ps-label">Problem</span>
+          <p>
+            Trade law must measure subsidies that often take the form of a promise rather than a cash
+            transfer. Countervailing methodology needs a benchmark for that “benefit.” Credit markets
+            continuously price contingent guarantees through spreads between state-linked and private peers.
+          </p>
+          <p class="hl">
+            <strong>We are trying to estimate the credit-market value of implicit state support and connect
+            it to the legal concept of a benefit attributable to the state — then compare it with duties
+            actually calculated in countervailing cases.</strong>
+          </p>
+        </div>
+
+        <div class="ps-block">
+          <span class="ps-label">Current gap</span>
+          <p>
+            Attribution doctrine and credit-market support pricing speak past each other. The legal concept
+            lacks an operational market number; the market number lacks a legal definition that makes the
+            comparison meaningful. That gap is exactly a law–finance problem.
+          </p>
+        </div>
+
+        <div class="ps-block">
+          <span class="ps-label">Proposed work</span>
+          <p>
+            Matched-pair estimation of support wedges, option-based cross-checks, and rating-agency uplift
+            as an independent read. Validate on episodes where support was expected and did not arrive.
+            Attribution framework from Zhou’s line; credit construction and estimation on the other side.
+          </p>
+        </div>
+
+        <div class="spec">
+          <b>Data</b> countervailing determinations, cross-market bond spreads, rating rationales ·
+          <b>14–18 months</b> · <b>Risk</b> hardest of the twelve — matched-pair identification; second-year after 4.1
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================= -->
+    <!-- ============ COMPARISON ============ -->
+    <section id="comparison">
+      <h2>Comparative evaluation</h2>
+      <p>
+        Twelve projects isn't a plan, it's an option set. To force a decision I scored each on five things,
+        one to five, and weighted my own leverage double — because if I'm not doing something the professor
+        can't, the collaboration has no reason to exist.
+      </p>
+
+      <div class="legend">
+        <p><b>Edge ×2</b> — how much of the work only I can do. <b>Fit</b> — alignment with what they're
+        funded for or publishing now, so the odds of a yes. <b>Data</b> — five means free and public.
+        <b>New</b> — how new the contribution is. <b>Clear</b> — five means few obstacles in the way.
+        Maximum 30. Project number gives the professor: 1 Shu, 2 Qian, 3 Chen, 4 Zhou.</p>
+      </div>
+
+      <table class="scored">
+        <thead>
+          <tr>
+            <th class="rk">#</th><th class="id">ID</th><th>Project · main constraint</th>
+            <th class="m">Edge</th><th class="m">Fit</th><th class="m">Data</th><th class="m">New</th><th class="m">Clear</th>
+            <th class="sc">Score</th><th class="mo">Mo</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="top">
+            <td class="rk">1</td><td class="id">4.1</td>
+            <td>Market effects of export controls<span class="con">contaminated event windows</span></td>
+            <td class="m">5</td><td class="m">5</td><td class="m">5</td><td class="m">5</td><td class="m">3</td>
+            <td class="sc">28</td><td class="mo">12–15</td>
+          </tr>
+          <tr class="top">
+            <td class="rk">2</td><td class="id">2.2</td>
+            <td>Distributional dynamics of credit spreads<span class="con">methods learning curve</span></td>
+            <td class="m">5</td><td class="m">5</td><td class="m">4</td><td class="m">5</td><td class="m">2</td>
+            <td class="sc">26</td><td class="mo">12–15</td>
+          </tr>
+          <tr class="top">
+            <td class="rk">3</td><td class="id">3.3</td>
+            <td>Pricing of fiscal and political risk<span class="con">CDS liquidity; employer boundary</span></td>
+            <td class="m">5</td><td class="m">4</td><td class="m">4</td><td class="m">4</td><td class="m">3</td>
+            <td class="sc">25</td><td class="mo">12</td>
+          </tr>
+          <tr>
+            <td class="rk">4</td><td class="id">3.1</td>
+            <td>Systemic risk with credit-market nodes<span class="con">could read as incremental</span></td>
+            <td class="m">5</td><td class="m">5</td><td class="m">4</td><td class="m">2</td><td class="m">4</td>
+            <td class="sc">25</td><td class="mo">10–12</td>
+          </tr>
+          <tr>
+            <td class="rk">5</td><td class="id">1.3</td>
+            <td>Political risk as a priced credit factor<span class="con">another-factor scepticism</span></td>
+            <td class="m">5</td><td class="m">3</td><td class="m">5</td><td class="m">3</td><td class="m">4</td>
+            <td class="sc">25</td><td class="mo">10–14</td>
+          </tr>
+          <tr>
+            <td class="rk">6</td><td class="id">1.1</td>
+            <td>Trade-policy shocks and credit spreads<span class="con">thin CDS; bond-first design solves it</span></td>
+            <td class="m">4</td><td class="m">5</td><td class="m">4</td><td class="m">3</td><td class="m">4</td>
+            <td class="sc">24</td><td class="mo">12</td>
+          </tr>
+          <tr>
+            <td class="rk">7</td><td class="id">2.1</td>
+            <td>Structural breaks in the Treasury curve<span class="con">could end up merely descriptive</span></td>
+            <td class="m">4</td><td class="m">4</td><td class="m">5</td><td class="m">3</td><td class="m">4</td>
+            <td class="sc">24</td><td class="mo">12</td>
+          </tr>
+          <tr>
+            <td class="rk">8</td><td class="id">4.2</td>
+            <td>Legally coded trade-action panel<span class="con">scope creep</span></td>
+            <td class="m">5</td><td class="m">3</td><td class="m">5</td><td class="m">4</td><td class="m">2</td>
+            <td class="sc">24</td><td class="mo">15–18</td>
+          </tr>
+          <tr>
+            <td class="rk">9</td><td class="id">2.3</td>
+            <td>Common breaks in dollar funding bases<span class="con">CDS index access</span></td>
+            <td class="m">5</td><td class="m">4</td><td class="m">2</td><td class="m">4</td><td class="m">3</td>
+            <td class="sc">23</td><td class="mo">10–12</td>
+          </tr>
+          <tr>
+            <td class="rk">10</td><td class="id">1.2</td>
+            <td>Implicit state support in bond markets<span class="con">data I don't control</span></td>
+            <td class="m">4</td><td class="m">5</td><td class="m">2</td><td class="m">4</td><td class="m">2</td>
+            <td class="sc">21</td><td class="mo">12–15</td>
+          </tr>
+          <tr>
+            <td class="rk">11</td><td class="id">3.2</td>
+            <td>Capital costs of investment restrictions<span class="con">confounded windows; charged subject</span></td>
+            <td class="m">3</td><td class="m">4</td><td class="m">5</td><td class="m">3</td><td class="m">3</td>
+            <td class="sc">21</td><td class="mo">12</td>
+          </tr>
+          <tr>
+            <td class="rk">12</td><td class="id">4.3</td>
+            <td>Credit valuation of state-attributable support<span class="con">matched-pair identification</span></td>
+            <td class="m">4</td><td class="m">4</td><td class="m">3</td><td class="m">5</td><td class="m">1</td>
+            <td class="sc">21</td><td class="mo">14–18</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>What the scores say</h3>
+      <p>
+        <strong>4.1 separates itself.</strong> It's the only project scoring five on edge, fit, data and
+        novelty at once — his critical-minerals paper is recent and well cited, the legal coding is
+        something only he can supply, and every input is public. Its single weak column is clean windows,
+        which is a design problem rather than a blocker.
+      </p>
+      <p>
+        <strong>2.2 ranks second on strength, not on readiness.</strong> Highest novelty here, and the one
+        where the benefit runs most clearly toward the professor, since it hands an untested framework its
+        first serious application. It scores two on clear only because of the methods lift on my side —
+        which is the one obstacle I can remove by myself, with two months of reading.
+      </p>
+      <p>
+        <strong>The 25-point tie is a choice about speed.</strong> 3.3 has the strongest personal claim,
+        3.1 is the fastest to a first paper and the easiest yes, 1.3 is the cheapest to run but the weakest
+        on agenda fit. Take 3.1 to get moving, 3.3 to do the better work.
+      </p>
+      <p>
+        <strong>The bottom three are all clear-column problems.</strong> 1.2 and 4.3 score respectably on
+        substance and fail on execution risk — access I don't control, and an identification problem that
+        would take a year. 3.2 is the only one weak on edge, which by my own rule is the real
+        disqualifier. All three are second-year work at best.
+      </p>
+      <p>
+        One thing the table can't show: three of these share infrastructure. Build the Treasury curve
+        library once for 2.1 and it feeds 2.2's benchmarking and 3.3's bill-curve work; build the
+        event-catalogue discipline once for 1.1 and it transfers to 4.1, 4.2 and 3.2. Running 3.3 → 2.1 →
+        2.2 means the second and third each start with a third of the work already done, which is worth
+        more than a point or two of score.
+      </p>
+    </section>
+
+    <!-- ============ APPROACH ============ -->
+    <section id="approach">
+      <h2>Engagement strategy and constraints</h2>
+
+      <p>
+        <strong>Build the pilot before contacting anyone.</strong> One dataset, one figure, one page. For 3.3
+        that's a delivery-adjusted implied default probability series across the four episodes; for 4.1,
+        twenty coded events and a reaction chart. Professors respond to demonstrated execution, not to
+        proposals, and this inverts the usual cold-email dynamic.
+      </p>
+      <p>
+        On the message itself: one page and one figure, with the proposal as an attachment rather than the
+        email. Lead with their most recent work, not their most cited — the difference is visible
+        immediately. Make a small specific ask, twenty minutes or a reaction to one figure, not "would you
+        like to collaborate". State the division of labour plainly: I build and estimate, I'm asking for
+        judgment on identification and framing. On authorship, say only that it should follow real
+        contribution in whatever order they think fair.
+      </p>
+
+      <div class="aside">
+        <p><b>The principle underneath all of it:</b> every project should be executable alone, on public
+        data, if the professor declines. The collaborator is an accelerant, not a prerequisite. Built that
+        way, four unanswered emails cost nothing but time.</p>
+      </div>
+
+      <h3>Constraints</h3>
+      <p>
+        Public or personally licensed data only. No employer code, models, client data or internal documents
+        — not as input, not as reference, not as a private sanity check; anything I've seen at work gets
+        rederived from public sources or left out. Project 3.3 needs particular care since it revisits MSCI
+        ground. Check the employment agreement on outside research and publication before starting, and
+        resolve any ambiguity in writing. Everything lives in a separate repository on personal hardware.
+      </p>
+    </section>
+
+    <!-- ============ SOURCES ============ -->
+    <section id="sources">
+      <h2>References</h2>
+
+      <div class="linklist">
+        <p><a href="https://www.acem.sjtu.edu.cn/en/faculty/shuhaibing.html" target="_blank" rel="noopener">Haibing Shu — Antai faculty page</a>; <a href="https://www.sciencedirect.com/science/article/abs/pii/S0304405X17301022" target="_blank" rel="noopener">Liu, Shu &amp; Wei (2017)</a>; <a href="https://academic.oup.com/rfs/article-abstract/33/12/5555/5713524" target="_blank" rel="noopener">Duchin, Gao &amp; Shu (2020)</a>.</p>
+        <p><a href="https://jhqian.org/research/index.htm" target="_blank" rel="noopener">Junhui Qian — research page</a> and <a href="https://scholar.google.com/citations?user=9wCrKekAAAAJ" target="_blank" rel="noopener">Scholar</a>; <a href="https://arxiv.org/abs/2505.15763" target="_blank" rel="noopener">Hu, Park &amp; Qian (2025)</a>, the basis for 2.2.</p>
+        <p><a href="https://www.marshall.usc.edu/personnel/baizhu-chen" target="_blank" rel="noopener">Baizhu Chen — USC Marshall</a>; <a href="https://www.sciencedirect.com/science/article/abs/pii/S1544612317303215" target="_blank" rel="noopener">Fang, Chen, Yu &amp; Qian (2018)</a>.</p>
+        <p><a href="https://research.unsw.edu.au/people/professor-weihuan-zhou" target="_blank" rel="noopener">Weihuan Zhou — UNSW</a>, <a href="https://scholar.google.com/citations?user=pF_DCGEAAAAJ" target="_blank" rel="noopener">Scholar</a>, <a href="https://www.cibel.unsw.edu.au/research/CIBEL-working-paper-series" target="_blank" rel="noopener">CIBEL working papers</a>, <a href="https://papers.ssrn.com/sol3/cf_dev/AbsByAuth.cfm?per_id=837011" target="_blank" rel="noopener">SSRN author page</a>.</p>
+        <p><a href="https://www.msci.com/research-and-insights/blog-post/the-cds-market-view-on-us-default" target="_blank" rel="noopener">The CDS market's view on US default</a>, MSCI 2023 — background to 3.3.</p>
+        <p><a href="https://oviiy.github.io/" target="_blank" rel="noopener">oviiy.github.io</a> — personal site and index of research outputs; <a href="https://oviiy.github.io/mw_lab/" target="_blank" rel="noopener">mw_lab</a> — tools and interactive work (including a possible home for a 3.1 dashboard).</p>
+      </div>
+
+      <footer>
+        Working note · August 2026
+      </footer>
+    </section>
+
+  </article>
+</div>
+
+<script>
+(function(){
+  var links = Array.prototype.slice.call(document.querySelectorAll('.rail a'));
+  var targets = links.map(function(a){ return document.querySelector(a.getAttribute('href')); });
+
+  function sync(){
+    var y = window.scrollY + 140, current = 0;
+    for(var i=0;i<targets.length;i++){
+      if(targets[i] && targets[i].offsetTop <= y) current = i;
+    }
+    links.forEach(function(a,i){ a.classList.toggle('current', i===current); });
+  }
+
+  var ticking = false;
+  window.addEventListener('scroll', function(){
+    if(!ticking){
+      window.requestAnimationFrame(function(){ sync(); ticking = false; });
+      ticking = true;
+    }
+  }, {passive:true});
+  sync();
+})();
+
+(function(){
+  var KEY = 'rcp-theme';
+  function apply(theme){
+    if(theme === 'dark') document.documentElement.setAttribute('data-theme','dark');
+    else document.documentElement.removeAttribute('data-theme');
+    try{ localStorage.setItem(KEY, theme); }catch(e){}
+    var btn = document.getElementById('theme-toggle');
+    if(btn){
+      var dark = theme === 'dark';
+      btn.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
+      btn.setAttribute('title', dark ? 'Light mode' : 'Dark mode');
+    }
+  }
+  function current(){
+    return document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+  }
+  try{
+    var saved = localStorage.getItem(KEY);
+    apply(saved === 'dark' ? 'dark' : 'light');
+  }catch(e){ apply('light'); }
+  var btn = document.getElementById('theme-toggle');
+  if(btn) btn.addEventListener('click', function(){
+    apply(current() === 'dark' ? 'light' : 'dark');
+  });
+})();
+</script>
+</body>
+</html>
