@@ -34,8 +34,8 @@ mw_lab/
     ├── itv.html
     ├── math-finance-map.html
     ├── ai-industry-chain-encyclopedia.html
-    └── theorem-library/
-        └── index.html
+    ├── theorem-library.html
+    └── private/          # unlisted; direct URL only
 ```
 
 ---
@@ -47,7 +47,7 @@ mw_lab/
 | **Quant & Allocator Interview Prep (ITV)** | Structured interview prep for quant and allocator roles — questions, answers, and topic coverage | [knowledge/itv.html](./knowledge/itv.html) |
 | **Mathematical Finance Map** | Intuition-first guide to why mathematical finance is built the way it is — probability, filtrations, no-arbitrage, risk-neutral pricing, Black–Scholes spine (KaTeX) | [knowledge/math-finance-map.html](./knowledge/math-finance-map.html) |
 | **AI Industry Encyclopedia** | Full AI industry-chain field guide — silicon, power, networks, models, training, supply chain, and myths (2025–2026) | [knowledge/ai-industry-chain-encyclopedia.html](./knowledge/ai-industry-chain-encyclopedia.html) |
-| **Theorem Library** | Math and physics theorems in plain language — Newton, thermo, Maxwell, relativity, quantum, plus classic math; KaTeX and interactive demos | [knowledge/theorem-library/](./knowledge/theorem-library/index.html) |
+| **Theorem Library** | Math and physics theorems in plain language (EN/ZH toggle, default English) — Newton, thermo, Maxwell, relativity, quantum, plus classic math; KaTeX | [knowledge/theorem-library.html](./knowledge/theorem-library.html) |
 
 Some files under `knowledge/` are **unlisted** (not in the table above) and are shared only by direct URL.
 
