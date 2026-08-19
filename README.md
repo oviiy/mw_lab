@@ -32,6 +32,8 @@ mw_lab/
 │       └── index.html
 └── knowledge/
     ├── itv.html
+    ├── quant-interview-drill.html
+    ├── treasury-quant-interview-prep.html
     ├── math-finance-map.html
     ├── ai-industry-chain-encyclopedia.html
     ├── theorem-library.html
@@ -45,6 +47,8 @@ mw_lab/
 | Resource | Description | Link |
 |----------|-------------|------|
 | **Quant & Allocator Interview Prep (ITV)** | Structured interview prep for quant and allocator roles — questions, answers, and topic coverage | [knowledge/itv.html](./knowledge/itv.html) |
+| **Quant Interview Drill** | Interactive drill book — mixed and desk-targeted quizzes, study mode, mastery tracking across foundation/core/advanced | [knowledge/quant-interview-drill.html](./knowledge/quant-interview-drill.html) |
+| **Treasury Quant Interview Prep** | Interview dossier for Treasury QR seats — margin, financing, liquidity, short-rate models, Greeks, 120-question quiz | [knowledge/treasury-quant-interview-prep.html](./knowledge/treasury-quant-interview-prep.html) |
 | **Mathematical Finance Map** | Intuition-first guide to why mathematical finance is built the way it is — probability, filtrations, no-arbitrage, risk-neutral pricing, Black–Scholes spine (KaTeX) | [knowledge/math-finance-map.html](./knowledge/math-finance-map.html) |
 | **AI Industry Encyclopedia** | Full AI industry-chain field guide — silicon, power, networks, models, training, supply chain, and myths (2025–2026) | [knowledge/ai-industry-chain-encyclopedia.html](./knowledge/ai-industry-chain-encyclopedia.html) |
 | **Theorem Library** | Math and physics theorems in plain language (EN/ZH toggle, default English) — Newton, thermo, Maxwell, relativity, quantum, plus classic math; KaTeX | [knowledge/theorem-library.html](./knowledge/theorem-library.html) |
@@ -87,7 +91,7 @@ Some files under `knowledge/` are **unlisted** (not in the table above) and are 
 2. Browse by category:
    - [Tools](./tools/) — including Sleeve Research, Arbitrage-Free Surface Lab, US Style Analysis
    - [Games](./games/) — Particell, Blitz, Catrun, Crimewave, Neon District, Three Body
-   - [Knowledge](./knowledge/) — Interview prep, Mathematical Finance Map, AI Industry Encyclopedia, Theorem Library
+   - [Knowledge](./knowledge/) — Interview prep, Quant Interview Drill, Treasury Quant Interview Prep, Mathematical Finance Map, AI Industry Encyclopedia, Theorem Library
 3. Open any link in your browser.
 4. Everything runs **client-side** — no backend or install required.
 
