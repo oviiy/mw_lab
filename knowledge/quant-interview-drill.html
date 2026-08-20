@@ -23,10 +23,31 @@
   --good-t:rgba(70,201,139,.08); --good-b:rgba(70,201,139,.75);
   --bad-t:rgba(239,95,110,.07);  --bad-b:rgba(239,95,110,.7);
   --lift:none; --mute:.58;
-  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
-  --serif:"Iowan Old Style","Palatino Linotype",Palatino,"Source Serif 4",Georgia,serif;
-  --wide:1160px; --read:880px; --pad:30px; --r:6px;
+  /* Charter and Iowan Old Style are both Matthew Carter faces that ship with
+     macOS; both hold up on a dark ground where Palatino and Hoefler go thin. */
+  --mono:ui-monospace,"SF Mono",SFMono-Regular,"JetBrains Mono","IBM Plex Mono",
+         Menlo,Consolas,monospace;
+  --serif:Charter,"Iowan Old Style","Palatino Linotype",Palatino,"Source Serif 4",
+          "Georgia Pro",Georgia,serif;
+  /* one multiplier drives the whole scale: reader setting x viewport */
+  --user-scale:1; --dev-scale:1;
+  --scale:calc(var(--user-scale) * var(--dev-scale));
+  --t-micro:calc(11px   * var(--scale));   /* eyebrows, tickers, keycaps      */
+  --t-xs:   calc(12.5px * var(--scale));   /* meta lines, hints, footnotes    */
+  --t-ui:   calc(14.5px * var(--scale));   /* buttons, selects, table figures */
+  --t-nm:   calc(15.5px * var(--scale));   /* masthead, desk names            */
+  --t-code: calc(13.5px * var(--scale));   /* code blocks                     */
+  --t-read: calc(17px   * var(--scale));   /* options, insight prose          */
+  --t-card: calc(18.5px * var(--scale));   /* study card stems                */
+  --t-stem: calc(21px   * var(--scale));   /* the question itself             */
+  --t-stat: calc(30px   * var(--scale));
+  --t-big:  calc(62px   * var(--scale));
+  --wide:1160px; --read:calc(870px * var(--scale)); --pad:30px; --r:6px;
+  --hdr:56px;   /* measured from the real header, see syncHeader() */
 }
+:root[data-size=l] {--user-scale:1.1}
+:root[data-size=xl]{--user-scale:1.22}
+
 /* ── day: warm-neutral paper, ink, and a deeper ochre so the
       accent still carries on a light ground ───────────────────── */
 :root[data-theme=light]{
@@ -51,7 +72,8 @@
 html{scroll-behavior:smooth}
 html,body{margin:0}
 body{background:var(--bg);color:var(--ink);
-     font:13px/1.55 var(--mono);-webkit-font-smoothing:antialiased}
+     font:var(--t-ui)/1.55 var(--mono);-webkit-font-smoothing:antialiased;
+     text-size-adjust:100%;-webkit-text-size-adjust:100%}
 ::selection{background:var(--amber-sel)}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}
   html{scroll-behavior:auto}}
@@ -66,16 +88,15 @@ body{background:var(--bg);color:var(--ink);
 header{position:sticky;top:0;z-index:20;border-bottom:1px solid var(--line);
        background:var(--veil);backdrop-filter:blur(12px)}
 header .wrap{display:flex;align-items:center;gap:16px;height:56px}
-h1{margin:0;font-size:13.5px;font-weight:600;letter-spacing:.24em;text-transform:uppercase;
+h1{margin:0;font-size:var(--t-nm);font-weight:600;letter-spacing:.22em;text-transform:uppercase;
    white-space:nowrap}
 h1 em{font-style:normal;color:var(--amber)}
-header .sub{color:var(--dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 header .spacer{flex:1}
-header .clock{color:var(--faint);letter-spacing:.1em;text-transform:uppercase;font-size:10px;
+header .clock{color:var(--faint);letter-spacing:.1em;text-transform:uppercase;font-size:var(--t-micro);
               white-space:nowrap}
 
 /* ── primitives ───────────────────────────────────────────────── */
-.lbl{font-size:10px;letter-spacing:.17em;text-transform:uppercase;color:var(--faint)}
+.lbl{font-size:var(--t-micro);letter-spacing:.17em;text-transform:uppercase;color:var(--faint)}
 button{font:inherit;cursor:pointer;background:var(--panel);color:var(--ink);
        border:1px solid var(--line2);border-radius:var(--r);padding:7px 13px;
        transition:border-color .14s,background .14s,color .14s}
@@ -96,8 +117,10 @@ main{padding:0 0 70px}
 .view{display:none} .view.on{display:block}
 .grow{flex:1}
 .sec{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin:38px 0 12px}
-.sec h2{margin:0;font-size:11px;letter-spacing:.19em;text-transform:uppercase;font-weight:600}
-.sec p{margin:0;color:var(--dim);flex:1;min-width:250px;font-size:12.5px}
+.sec h2{margin:0;font-size:var(--t-micro);letter-spacing:.19em;text-transform:uppercase;
+        font-weight:600;white-space:nowrap}
+.sec p{margin:0;color:var(--dim);flex:1;min-width:250px;
+       font:calc(var(--t-read) * .88)/1.55 var(--serif)}
 
 /* ── the tape: one mark per question, a fill blotter ──────────── */
 .tape{display:flex;gap:2px;align-items:center;flex-wrap:wrap}
@@ -111,14 +134,15 @@ main{padding:0 0 70px}
        gap:1px;background:var(--line);border:1px solid var(--line);
        border-radius:9px;overflow:hidden;margin:26px 0 10px;box-shadow:var(--lift)}
 .stat{background:var(--panel);padding:15px 17px 16px}
-.stat .v{font-size:25px;letter-spacing:-.015em;margin-top:7px;font-variant-numeric:tabular-nums;
+.stat .v{font-size:var(--t-stat);letter-spacing:-.015em;margin-top:7px;font-variant-numeric:tabular-nums;
          line-height:1.1}
-.stat .v small{font-size:11.5px;color:var(--faint);letter-spacing:0;margin-left:2px}
+.stat .v small{font-size:var(--t-xs);color:var(--faint);letter-spacing:0;margin-left:3px}
 .stat.acc .v{color:var(--amber)}
 .stat .bar{margin-top:11px;height:3px;background:var(--track);border-radius:2px;overflow:hidden}
 .stat .bar i{display:block;height:100%;background:var(--amber);border-radius:2px;
              transition:width .6s cubic-bezier(.2,.7,.3,1)}
-.foot-note{margin:10px 2px 0;color:var(--faint);font-size:11.5px}
+.foot-note{margin:11px 2px 0;color:var(--faint);
+           font:calc(var(--t-read) * .85)/1.55 var(--serif)}
 
 /* ── launcher ─────────────────────────────────────────────────── */
 .launch{margin:24px 0 0;border:1px solid var(--line);border-radius:9px;background:var(--panel);
@@ -137,7 +161,7 @@ main{padding:0 0 70px}
 
 /* ── the book ─────────────────────────────────────────────────── */
 .book{width:100%;border-collapse:collapse}
-.book th{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--faint);
+.book th{font-size:var(--t-micro);letter-spacing:.15em;text-transform:uppercase;color:var(--faint);
          font-weight:500;text-align:right;padding:0 12px 9px;border-bottom:1px solid var(--line);
          white-space:nowrap}
 .book th:first-child,.book th.l{text-align:left;padding-left:2px}
@@ -148,18 +172,28 @@ main{padding:0 0 70px}
 .book tr.row:hover{background:var(--amber-t2)}
 .book tr.row:hover .tk{color:var(--amber);border-color:var(--amber-b)}
 .book tr.row:hover td.go{color:var(--amber)}
-.tier{display:inline-block;font-size:9.5px;letter-spacing:.11em;text-transform:uppercase;
+.tier{display:inline-block;font-size:calc(var(--t-micro) * .88);letter-spacing:.11em;
+      text-transform:uppercase;
       border-radius:3px;padding:2px 6px;margin-right:9px;vertical-align:middle;
       border:1px solid var(--line2);color:var(--dim)}
 .tier.t1{color:var(--good);border-color:var(--good-b)}
 .tier.t3{color:var(--amber);border-color:var(--amber-b)}
-.lv{color:var(--dim);font-variant-numeric:tabular-nums}
+.lv{font-variant-numeric:tabular-nums}
 .lv .sep{color:var(--faint);padding:0 3px}
-.tk{display:inline-block;font-size:9.5px;letter-spacing:.11em;border:1px solid var(--line2);
+.lv .t1{color:var(--good)} .lv .t2{color:var(--dim)} .lv .t3{color:var(--amber)}
+/* the legend that decodes it, shown under the section heading */
+.legend{display:flex;gap:14px;flex-wrap:wrap;margin:9px 0 2px}
+.legend span{display:flex;align-items:center;gap:6px;color:var(--faint);
+             font-size:var(--t-micro);letter-spacing:.13em;text-transform:uppercase}
+.legend i{width:9px;height:9px;border-radius:2px;display:block}
+.legend .l1 i{background:var(--good)} .legend .l2 i{background:var(--dim)}
+.legend .l3 i{background:var(--amber)}
+.tk{display:inline-block;font-size:calc(var(--t-micro) * .88);letter-spacing:.11em;
+    border:1px solid var(--line2);
     border-radius:3px;padding:3px 6px;color:var(--dim);transition:.13s;vertical-align:middle}
-.book .nm{margin-left:11px;color:var(--ink);font-size:13.5px}
-.book .bl{color:var(--faint);display:block;margin:4px 0 0 47px;font-size:11.5px;
-          max-width:56ch;line-height:1.5}
+.book .nm{margin-left:11px;color:var(--ink);font-size:var(--t-nm)}
+.book .bl{color:var(--faint);display:block;margin:5px 0 0 47px;max-width:58ch;
+          font:calc(var(--t-read) * .84)/1.5 var(--serif)}
 .mast{display:inline-flex;gap:2px;vertical-align:middle}
 .mast i{width:16px;height:5px;border-radius:1.5px;background:var(--track)}
 .mast i.f{background:var(--violet)}
@@ -176,27 +210,30 @@ main{padding:0 0 70px}
 /* ── drill ────────────────────────────────────────────────────── */
 .qbar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:16px 0 13px;
       border-bottom:1px solid var(--line);margin-bottom:4px;
-      position:sticky;top:56px;z-index:10;background:var(--bg)}
+      position:sticky;top:var(--hdr);z-index:10;background:var(--bg)}
 .qbar .where{color:var(--dim)}
 .qbar .where b{color:var(--ink);font-weight:600}
-.qstem{font:17.5px/1.62 var(--serif);margin:32px 0 5px;color:var(--ink-hi)}
+.qstem{font:var(--t-stem)/1.55 var(--serif);margin:34px 0 6px;color:var(--ink-hi);
+       letter-spacing:.004em;max-width:58ch}
 .qstem code,.opt code,.exp code,.card code,footer code{font:.85em/1.4 var(--mono);
       color:var(--cyan);background:var(--cyan-t2);padding:1.5px 5px;border-radius:3px;
       overflow-wrap:break-word}
-.qstem pre,.exp pre{font:12px/1.6 var(--mono);background:var(--sunk);border:1px solid var(--line);
+.qstem pre,.exp pre{font:var(--t-code)/1.62 var(--mono);background:var(--sunk);
+      border:1px solid var(--line);
       border-left:2px solid var(--line2);border-radius:var(--r);padding:12px 15px;overflow-x:auto;
       color:var(--ink);margin:0 0 16px}
-.qmeta{color:var(--faint);font-size:11px;margin-bottom:24px;letter-spacing:.02em}
+.qmeta{color:var(--faint);font-size:var(--t-xs);margin-bottom:26px;letter-spacing:.02em}
 
 .opts{display:flex;flex-direction:column;gap:8px;margin:0 0 22px}
 .opt{display:flex;gap:13px;align-items:flex-start;text-align:left;width:100%;
      background:var(--panel);border:1px solid var(--line);border-radius:7px;
-     padding:12px 15px;font:14.5px/1.55 var(--serif);color:var(--ink);
+     padding:14px 17px;font:var(--t-read)/1.5 var(--serif);color:var(--ink);
      transition:border-color .14s,background .14s}
 .opt:hover:not(:disabled){border-color:var(--line2);background:var(--panel-h)}
-.opt .k{font:11px/1.55 var(--mono);color:var(--dim);border:1px solid var(--line2);
-        border-bottom-width:2px;border-radius:4px;min-width:22px;height:22px;text-align:center;
-        flex:none;margin-top:2px;transition:.14s}
+.opt > span:last-child{max-width:60ch}
+.opt .k{font:var(--t-micro)/1.5 var(--mono);color:var(--dim);border:1px solid var(--line2);
+        border-bottom-width:2px;border-radius:4px;min-width:24px;height:24px;text-align:center;
+        flex:none;margin-top:1px;transition:.14s}
 .opt.pick{border-color:var(--amber);background:var(--amber-t)}
 .opt.pick .k{color:var(--on-amber);background:var(--amber);border-color:var(--amber)}
 .opt.right{border-color:var(--good-b);background:var(--good-t)}
@@ -207,12 +244,72 @@ main{padding:0 0 70px}
 .opt.mute{opacity:var(--mute)}
 
 .acts{display:flex;gap:11px;align-items:center;flex-wrap:wrap;min-height:36px}
-.hint{color:var(--faint);font-size:11.5px;display:flex;align-items:center;gap:5px}
+.hint{color:var(--faint);font-size:var(--t-xs);display:flex;align-items:center;gap:5px}
+/* ── masthead tabs ───────────────────────────────────────────── */
+nav.tabs{display:flex;gap:2px;margin-left:6px}
+nav.tabs button{background:transparent;border:1px solid transparent;color:var(--dim);
+                padding:5px 12px;font-size:var(--t-ui);border-radius:var(--r)}
+nav.tabs button:hover{color:var(--ink);background:var(--panel);border-color:var(--line)}
+nav.tabs button.on{color:var(--amber);border-color:var(--amber-b);background:var(--amber-t)}
+
+/* ── mind map ────────────────────────────────────────────────── */
+.maphead{position:sticky;top:var(--hdr);z-index:9;background:var(--bg);
+         border-bottom:1px solid var(--line);margin-bottom:6px}
+.mapbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;padding:14px 0 10px}
+.jump{display:flex;gap:4px;flex-wrap:wrap;padding:0 0 12px}
+.jump button{background:transparent;border:1px solid var(--line);color:var(--faint);
+             padding:3px 7px;font-size:calc(var(--t-micro) * .92);letter-spacing:.09em;
+             border-radius:3px;min-height:0}
+.jump button:hover{color:var(--amber);border-color:var(--amber-b);background:transparent}
+.mdesk{border-bottom:1px solid var(--line)}
+.mhead{display:flex;align-items:center;gap:11px;width:100%;background:transparent;border:none;
+       border-radius:0;padding:15px 4px;text-align:left;color:var(--ink)}
+.mhead:hover{background:var(--amber-t2);border:none;color:var(--ink)}
+.mhead .mname{font-size:var(--t-nm);color:var(--ink)}
+.mhead .mcount{color:var(--faint);font-size:var(--t-xs);white-space:nowrap}
+.tw{color:var(--faint);width:11px;flex:none;transition:transform .16s;display:inline-block;
+    font-size:calc(var(--t-micro) * .9)}
+.open > .mhead .tw,.open > .bhead .tw{transform:rotate(90deg);color:var(--amber)}
+.mbody{display:none;padding:0 0 14px 16px;margin-left:6px;border-left:1px solid var(--line)}
+.mdesk.open > .mbody{display:block}
+.mbranch{margin:2px 0}
+.bhead{display:flex;align-items:center;gap:10px;width:100%;background:transparent;border:none;
+       border-radius:0;padding:9px 4px;text-align:left;color:var(--dim);
+       font-size:var(--t-micro);letter-spacing:.13em;text-transform:uppercase}
+.bhead:hover{color:var(--amber);background:transparent;border:none}
+.bhead .bcount{color:var(--faint);letter-spacing:0;text-transform:none}
+.mleaves{display:none;grid-template-columns:minmax(9em,max-content) minmax(0,1fr);
+         gap:7px 20px;margin:3px 0 12px;padding:0 0 0 15px;border-left:1px solid var(--line)}
+.mbranch.open > .mleaves{display:grid}
+.mleaves dt{font:var(--t-ui)/1.5 var(--mono);color:var(--amber);word-break:break-word}
+.mleaves dd{margin:0;font:calc(var(--t-read) * .93)/1.55 var(--serif);color:var(--ink);
+            max-width:64ch}
+.mleaves dd code,.mleaves dt code{font-size:.92em}
+.mleaves .hit{background:var(--amber-t);border-radius:3px}
+
+/* ── typeset math ────────────────────────────────────────────── */
+math{font-family:"STIX Two Math","Latin Modern Math","Cambria Math",
+     "TeX Gyre Termes Math",var(--serif);font-size:1.06em;color:inherit}
+math[display=block]{display:block;margin:.85em 0;font-size:1.14em;
+                    overflow-x:auto;overflow-y:hidden;max-width:100%}
+.mleaves dd math,.opt math{font-size:1.04em}
+.qstem math{font-size:1em}
+mfrac{padding:0 .05em}
+@media (max-width:700px){
+  .mleaves{grid-template-columns:minmax(0,1fr);gap:2px 0}
+  .mleaves dt{color:var(--amber);font-size:var(--t-xs)}
+  .mleaves dd{margin:0 0 11px}
+}
+.sizer{display:flex}
+.sizer button{border-radius:0;min-width:34px;text-align:center}
+.sizer button:first-child{border-radius:var(--r) 0 0 var(--r)}
+.sizer button:last-child{border-radius:0 var(--r) var(--r) 0;margin-left:-1px}
 button.theme{background:transparent;border-color:var(--line);color:var(--dim);
-             padding:5px 11px;font-size:11px;letter-spacing:.09em;text-transform:uppercase;
+             padding:5px 11px;font-size:var(--t-micro);letter-spacing:.09em;text-transform:uppercase;
              white-space:nowrap}
 button.theme:hover{color:var(--amber);border-color:var(--amber-b)}
-kbd{font:10px/1.6 var(--mono);border:1px solid var(--line2);border-bottom-width:2px;
+kbd{font:calc(var(--t-micro) * .92)/1.6 var(--mono);border:1px solid var(--line2);
+    border-bottom-width:2px;
     border-radius:3px;padding:1px 5px;color:var(--dim);background:var(--sunk)}
 .opt:not(:disabled){cursor:pointer}
 .flag{background:transparent;border-color:var(--line);color:var(--dim)}
@@ -224,39 +321,39 @@ kbd{font:10px/1.6 var(--mono);border:1px solid var(--line2);border-bottom-width:
   .reveal{animation:rise .24s cubic-bezier(.2,.7,.3,1)}
   @keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 }
-.verdict{display:flex;gap:11px;align-items:baseline;font-size:11.5px;letter-spacing:.15em;
+.verdict{display:flex;gap:11px;align-items:baseline;font-size:var(--t-xs);letter-spacing:.15em;
          text-transform:uppercase;padding-bottom:12px}
 .verdict.ok{color:var(--good)} .verdict.no{color:var(--bad)}
-.verdict span{color:var(--dim);letter-spacing:.02em;text-transform:none;font-size:11.5px}
+.verdict span{color:var(--dim);letter-spacing:.02em;text-transform:none;font-size:var(--t-xs)}
 .exp{border-left:2px solid var(--cyan);background:var(--cyan-t);
      border-radius:0 7px 7px 0;padding:15px 20px 16px}
 .exp .lbl{color:var(--cyan);display:block;margin-bottom:9px}
-.exp p{margin:0 0 10px;font:14.5px/1.7 var(--serif)}
+.exp p{margin:0 0 12px;font:var(--t-read)/1.68 var(--serif);max-width:62ch}
 .exp p:last-child{margin-bottom:0}
 .exp b{color:var(--ink-hi);font-weight:600}
 .exp em{color:var(--amber);font-style:normal}
 
 /* ── score ────────────────────────────────────────────────────── */
 .score{margin:36px 0}
-.score .big{font-size:56px;letter-spacing:-.025em;font-variant-numeric:tabular-nums;
+.score .big{font-size:var(--t-big);letter-spacing:-.025em;font-variant-numeric:tabular-nums;
             color:var(--amber);line-height:1;margin-top:9px}
-.score .big small{font-size:15px;color:var(--faint);letter-spacing:0}
+.score .big small{font-size:var(--t-ui);color:var(--faint);letter-spacing:0}
 .miss{border:1px solid var(--line);border-radius:7px;margin:9px 0;overflow:hidden;
       background:var(--panel)}
 .miss summary{cursor:pointer;padding:13px 16px;list-style:none;display:flex;gap:13px;
               align-items:flex-start;transition:background .13s}
 .miss summary::-webkit-details-marker{display:none}
-.miss summary::before{content:'+';color:var(--faint);flex:none;font-size:14px;line-height:1.5}
+.miss summary::before{content:'+';color:var(--faint);flex:none;font-size:var(--t-ui);line-height:1.5}
 .miss[open] summary::before{content:'–';color:var(--amber)}
 .miss summary:hover{background:var(--panel-h)}
-.miss .st{font:14.5px/1.55 var(--serif);flex:1}
+.miss .st{font:var(--t-read)/1.5 var(--serif);flex:1;max-width:62ch}
 .miss .bd{padding:2px 16px 16px}
 .actions{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-top:30px;
          padding-top:22px;border-top:1px solid var(--line)}
 
 /* ── study ────────────────────────────────────────────────────── */
 .searchbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;
-           position:sticky;top:113px;z-index:9;background:var(--bg);
+           position:sticky;top:var(--hdr);z-index:9;background:var(--bg);
            padding:14px 0 12px;margin:0 0 6px}
 .searchbar .lbl{white-space:nowrap;margin-left:auto}
 input[type=search]{font:inherit;background:var(--sunk);color:var(--ink);flex:1;min-width:200px;
@@ -267,37 +364,50 @@ input[type=search]::placeholder{color:var(--faint)}
       box-shadow:var(--lift)}
 .card .top{padding:15px 18px 13px}
 .card .top .tk{margin-right:9px}
-.card .st{font:16px/1.58 var(--serif);color:var(--ink-hi);margin:8px 0 0}
+.card .st{font:var(--t-card)/1.52 var(--serif);color:var(--ink-hi);margin:9px 0 0;max-width:58ch}
 .card .ans{padding:0 18px 17px}
-.card .ans .a{font:14.5px/1.6 var(--serif);color:var(--good);margin:0 0 12px;
-              display:flex;gap:10px;align-items:baseline}
-.card .ans .a .k{font:9.5px/1.7 var(--mono);color:var(--on-good);background:var(--good);
-     border-radius:3px;padding:1px 6px;letter-spacing:.1em;flex:none}
+/* block rather than flex: a flex item will not break a line inside inline
+   code, which overhangs the viewport on a narrow phone at the largest size */
+.card .ans .a{font:var(--t-read)/1.55 var(--serif);color:var(--good);margin:0 0 13px;
+              max-width:62ch}
+.card .ans .a .k{font:calc(var(--t-micro) * .88)/1.8 var(--mono);color:var(--on-good);
+     background:var(--good);display:inline-block;vertical-align:2px;margin-right:9px;
+     border-radius:3px;padding:1px 6px;letter-spacing:.1em}
 .card .top.click{cursor:pointer}
 .hidden{display:none}
-.empty{color:var(--dim);padding:38px 0;font:15px/1.65 var(--serif)}
+.empty{color:var(--dim);padding:40px 0;font:var(--t-read)/1.6 var(--serif)}
 
 footer{border-top:1px solid var(--line);margin-top:14px}
-footer .wrap{padding-top:34px;padding-bottom:70px;color:var(--faint);font-size:11.5px;
-             line-height:1.75}
-footer p{margin:0 0 12px;max-width:92ch}
+footer .wrap{padding-top:36px;padding-bottom:74px;color:var(--dim);
+             font:calc(var(--t-read) * .88)/1.68 var(--serif)}
+footer p{margin:0 0 13px;max-width:80ch}
 footer b{color:var(--dim);font-weight:600}
 
 #v-learn .qbar{position:static}
-#v-learn .searchbar{top:56px}
 
 @media (max-width:820px){
   :root{--pad:16px}
-  header .wrap{height:50px;gap:10px}
-  header .sub,header .clock{display:none}
-  .qbar{top:50px} #v-learn .searchbar{top:50px}
-  .qstem{font-size:16.5px;margin-top:24px}
-  .score .big{font-size:42px}
+  header .wrap{height:auto;min-height:50px;gap:9px;flex-wrap:wrap;
+               padding-top:9px;padding-bottom:9px}
+  nav.tabs{order:3;flex:1 0 100%;margin-left:0}
+  nav.tabs button{flex:1}
+  .mhead .mcount .br{display:none}
+  .mhead .mcount{font-size:calc(var(--t-micro) * .92)}
+  .mapbar .lbl{display:none}
+  .jump{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;
+        scrollbar-width:none;padding-bottom:10px}
+  .jump::-webkit-scrollbar{display:none}
+  .jump button{flex:0 0 auto}
+  header .clock{display:none}
+
+  :root{--dev-scale:.93}
+  .qstem{margin-top:26px}
   .sec{margin-top:30px;display:block}
   .sec h2{margin-bottom:7px}
   .sec p{min-width:0}
   /* 16px stops iOS zooming the page when a field takes focus */
-  select,input[type=search]{font-size:16px;padding:9px 11px}
+  /* 16px minimum stops iOS zooming the page when a field takes focus */
+  select,input[type=search]{font-size:max(16px,var(--t-ui));padding:9px 11px}
   .searchbar .lbl{margin-left:0}
   /* comfortable thumb targets */
   button{padding:9px 14px;min-height:40px}
@@ -320,7 +430,7 @@ footer b{color:var(--dim);font-weight:600}
   .tape{gap:1.5px} .tape i{width:5px;height:13px}
   .exp{padding:13px 15px 14px}
   /* a long identifier must break rather than push the layout wider than the screen */
-  code{overflow-wrap:anywhere}
+  code{overflow-wrap:anywhere;padding:1px 3px}
   .miss summary{padding:12px 14px}
 }
 
@@ -332,36 +442,46 @@ footer b{color:var(--dim);font-weight:600}
   .book tr.row:hover{background:none}
   .book td{padding:0;border:none;text-align:left}
   /* every stat becomes a labelled field; there is room for all of them here */
-  .book td:not(:first-child){display:inline-block;margin:9px 16px 0 0;font-size:12px}
-  .book td:not(:first-child)::before{content:attr(data-l);display:block;font-size:9.5px;
+  .book td:not(:first-child){display:inline-block;margin:10px 16px 0 0;font-size:var(--t-ui)}
+  .book td:not(:first-child)::before{content:attr(data-l);display:block;
+    font-size:calc(var(--t-micro) * .88);
     letter-spacing:.13em;text-transform:uppercase;color:var(--faint);margin-bottom:3px}
   /* these two must out-specify the rule above, and follow it */
   .book tr.row td.go{display:none}
   .book tr.row .bl{display:none}
-  .book .nm{font-size:14.5px}
+  .book .nm{font-size:var(--t-nm)}
   .bar-row{justify-content:flex-start}
 }
 @media (max-width:400px){
   .minibar{width:38px}
-  h1{font-size:12px;letter-spacing:.16em}
-  .stat .v{font-size:21px}
+  h1{letter-spacing:.14em}
   .stat{padding:12px 13px}
+  :root{--dev-scale:.88}
 }
 </style>
 <script>
 /* runs before first paint: no dark flash for day-mode readers */
 try{document.documentElement.dataset.theme =
   localStorage.getItem('quantdrill.theme') ||
-  (matchMedia('(prefers-color-scheme:light)').matches ? 'light' : 'dark');}catch(e){}
+  (matchMedia('(prefers-color-scheme:light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.size =
+  localStorage.getItem('quantdrill.size') || 'm';}catch(e){}
 </script>
 </head>
 <body>
 <header><div class="wrap">
   <h1>Quant <em>Drill</em></h1>
-  <span class="sub">interview prep &mdash; <span id="hdr-total">0</span> questions across
-    <span id="hdr-desks">0</span> desks</span>
+  <nav class="tabs" id="tabs">
+    <button data-view="home">Quiz</button>
+    <button data-view="learn">Study</button>
+    <button data-view="map">Map</button>
+  </nav>
   <span class="spacer"></span>
   <span class="clock" id="hdr-note"></span>
+  <span class="sizer">
+    <button class="theme" id="btn-smaller" title="Smaller text" aria-label="Smaller text">A&minus;</button>
+    <button class="theme" id="btn-bigger" title="Larger text" aria-label="Larger text">A+</button>
+  </span>
   <button class="theme" id="btn-theme" title="Switch between day and night"></button>
 </div></header>
 <main>
@@ -389,7 +509,6 @@ try{document.documentElement.dataset.theme =
         <option value="3">Advanced</option>
       </select></label>
       <span class="grow"></span>
-      <button class="chip" data-go="learn">Study mode &rarr;</button>
     </div>
     <div class="row2">
       <span class="lbl">Or target</span>
@@ -403,12 +522,18 @@ try{document.documentElement.dataset.theme =
   <div class="notice" id="notice"></div>
 
   <div class="sec">
-    <h2>The book</h2>
-    <p>Pick a desk to drill it on its own. Every drill runs foundation first, then core, then advanced, so a desk doubles as a conceptual recap. Levels shows the split.</p>
+    <h2>Topics</h2>
+    <p>Pick a topic to drill it on its own. Every drill runs foundation first, then core, then advanced, so one pass doubles as a conceptual recap.</p>
+  </div>
+  <div class="legend">
+    <span class="l1"><i></i>Foundation</span>
+    <span class="l2"><i></i>Core</span>
+    <span class="l3"><i></i>Advanced</span>
+    <span style="text-transform:none;letter-spacing:0">&mdash; the three numbers in Levels, in that order</span>
   </div>
   <table class="book">
     <thead><tr>
-      <th class="l">Desk</th>
+      <th class="l">Topic</th>
       <th class="hidesm">Seen</th>
       <th>Levels</th>
       <th>Coverage</th>
@@ -431,7 +556,7 @@ try{document.documentElement.dataset.theme =
 <!-- ══ DRILL ═════════════════════════════════════════════════ -->
 <section class="view" id="v-drill"><div class="wrap read">
   <div class="qbar">
-    <button class="ghost" id="btn-quit">&larr; Book</button>
+    <button class="ghost" id="btn-quit">&larr; Quiz</button>
     <span class="where" id="where"></span>
     <span class="grow"></span>
     <span class="tape" id="tape"></span>
@@ -441,6 +566,7 @@ try{document.documentElement.dataset.theme =
   <div class="opts" id="opts"></div>
   <div id="reveal"></div>
   <div class="acts">
+    <button class="ghost" id="btn-prev">&larr; Previous</button>
     <button class="primary" id="btn-next" style="display:none">Next question &rarr;</button>
     <span class="hint" id="hint"></span>
     <span class="grow"></span>
@@ -453,10 +579,28 @@ try{document.documentElement.dataset.theme =
   <div class="score" id="score"></div>
 </div></section>
 
+<!-- ══ MAP ═══════════════════════════════════════════════════ -->
+<section class="view" id="v-map"><div class="wrap">
+  <div class="maphead">
+  <div class="mapbar">
+    <span class="lbl">Mind map</span>
+    <input type="search" id="map-q" placeholder="Search every line&hellip;" autocomplete="off">
+    <button class="chip" id="btn-expand">Expand all</button>
+    <button class="chip" id="btn-collapse">Collapse all</button>
+    <span class="lbl" id="map-count"></span>
+  </div>
+  <div class="jump" id="map-jump"></div>
+  </div>
+  <div id="map-list"></div>
+  <p class="foot-note">Every line is the compressed form of something the drill tests in full. Read
+  down a topic before an interview, then open the same topic in the Quiz to check whether it actually
+  stuck.</p>
+</div></section>
+
 <!-- ══ STUDY ═════════════════════════════════════════════════ -->
 <section class="view" id="v-learn"><div class="wrap read">
   <div class="qbar">
-    <button class="ghost" id="btn-learn-back">&larr; Book</button>
+    <button class="ghost" id="btn-learn-back">&larr; Quiz</button>
     <span class="where"><b>Study mode</b> &mdash; every question with its answer and the insight behind it</span>
   </div>
   <div class="searchbar">
@@ -476,14 +620,14 @@ try{document.documentElement.dataset.theme =
 </main>
 
 <footer><div class="wrap">
-  <p><b>How to use this.</b> Start with a desk and let it run from foundation to advanced &mdash; that
+  <p><b>How to use this.</b> Start with a topic and let it run from foundation to advanced &mdash; that
   first pass is the conceptual recap. Then run a mixed drill the day before the
   interview, because recall in a random order is the thing that actually gets tested. Read the insight even
   when you were right: about a third of these questions have a correct answer that is easy to reach for
   the wrong reason, and the insight is where that shows up.</p>
   <p><b>Keyboard.</b> <code>1</code>&ndash;<code>4</code> to answer, <code>Space</code> for the next
-  question, <code>F</code> to flag. <code>A</code>&ndash;<code>D</code>, <code>Enter</code> and
-  <code>N</code> work too. Picking an answer marks it straight away, so there is no undo &mdash; that is
+  question, <code>&larr;</code> to go back over one you have already answered, <code>F</code> to flag.
+  <code>A</code>&ndash;<code>D</code>, <code>Enter</code> and <code>N</code> work too. Picking an answer marks it straight away, so there is no undo &mdash; that is
   the trade for one keystroke instead of two.</p>
   <p><b>What this is not.</b> Multiple choice cannot test whether you can derive It&#333;&rsquo;s lemma at a
   whiteboard, price a swap from first principles, or write clean code under pressure. It tests whether the
@@ -3024,6 +3168,1095 @@ T('teaser','TEAS','Brain Teasers',
  [`0 degrees`,`7.5 degrees`,`15 degrees`,`90 degrees`],1,
  `<p><b>7.5°.</b> The minute hand is exactly at 3. The hour hand has moved a quarter of the way from 3 to 4, and each hour mark is 30°, so it sits 7.5° past the minute hand.</p><p>The trap is answering 0° by forgetting that the hour hand moves continuously. The general formula is |30H − 5.5M| degrees: the hour hand travels 0.5° per minute and the minute hand 6°, so they close at 5.5° per minute — which also tells you the hands overlap every 12/11 hours, not every hour.</p>`,1]
 ]);
+/* ══════════════════════════════════════════════════════════════
+   TeX → MathML
+   Math is authored between $…$ (inline) or $$…$$ (block) and
+   rendered to MathML, which every current browser typesets
+   natively. No library, no web font, still works offline.
+   ══════════════════════════════════════════════════════════════ */
+const TEX_SYM = {
+  alpha:'α',beta:'β',gamma:'γ',delta:'δ',epsilon:'ε',varepsilon:'ε',zeta:'ζ',eta:'η',
+  theta:'θ',vartheta:'ϑ',iota:'ι',kappa:'κ',lambda:'λ',mu:'μ',nu:'ν',xi:'ξ',pi:'π',
+  rho:'ρ',varrho:'ϱ',sigma:'σ',varsigma:'ς',tau:'τ',upsilon:'υ',phi:'φ',varphi:'φ',
+  chi:'χ',psi:'ψ',omega:'ω',
+  Gamma:'Γ',Delta:'Δ',Theta:'Θ',Lambda:'Λ',Xi:'Ξ',Pi:'Π',Sigma:'Σ',Upsilon:'Υ',
+  Phi:'Φ',Psi:'Ψ',Omega:'Ω',
+  infty:'∞',partial:'∂',nabla:'∇',ell:'ℓ',hbar:'ℏ',emptyset:'∅',varnothing:'∅',
+  forall:'∀',exists:'∃',neg:'¬',angle:'∠',prime:'′',
+  cdot:'⋅',cdots:'⋯',ldots:'…',dots:'…',vdots:'⋮',ddots:'⋱',
+  times:'×',div:'÷',pm:'±',mp:'∓',ast:'∗',star:'⋆',circ:'∘',bullet:'∙',
+  le:'≤',leq:'≤',ge:'≥',geq:'≥',ne:'≠',neq:'≠',ll:'≪',gg:'≫',
+  approx:'≈',sim:'∼',simeq:'≃',cong:'≅',equiv:'≡',propto:'∝',asymp:'≍',
+  in:'∈',notin:'∉',ni:'∋',subset:'⊂',subseteq:'⊆',supset:'⊃',supseteq:'⊇',
+  cup:'∪',cap:'∩',setminus:'∖',perp:'⊥',parallel:'∥',
+  to:'→',rightarrow:'→',longrightarrow:'⟶',leftarrow:'←',gets:'←',
+  Rightarrow:'⇒',implies:'⟹',Leftarrow:'⇐',leftrightarrow:'↔',
+  Leftrightarrow:'⇔',iff:'⟺',mapsto:'↦',uparrow:'↑',downarrow:'↓',
+  sum:'∑',prod:'∏',coprod:'∐',int:'∫',iint:'∬',oint:'∮',
+  bigcup:'⋃',bigcap:'⋂',sqrt:'√',
+  wedge:'∧',vee:'∨',land:'∧',lor:'∨',oplus:'⊕',otimes:'⊗',
+  langle:'⟨',rangle:'⟩',lceil:'⌈',rceil:'⌉',lfloor:'⌊',rfloor:'⌋',
+  mid:'∣',nmid:'∤',colon:':',vert:'|',Vert:'‖',backslash:'∖',
+  therefore:'∴',because:'∵',deg:'°',degree:'°',top:'⊤',bot:'⊥',
+  quad:' ',qquad:'  ',
+};
+/* purely presentational commands with no MathML equivalent worth emitting */
+const TEX_IGNORE = { displaystyle:1, textstyle:1, scriptstyle:1, limits:1, nolimits:1,
+                     left:0, right:0, bigl:1, bigr:1, Bigl:1, Bigr:1, big:1, Big:1 };
+/* names typeset upright, as operators rather than a product of letters */
+const TEX_OPNAME = ('lim max min sup inf arg exp ln log sin cos tan sinh cosh tanh det ' +
+  'dim ker deg gcd Pr Var Cov Corr E P Q N O sgn diag tr rank vec plim').split(' ');
+const TEX_BIG = { sum:1, prod:1, coprod:1, bigcup:1, bigcap:1, lim:1, max:1, min:1, sup:1, inf:1 };
+const TEX_ACCENT = { hat:'^', widehat:'^', bar:'‾', overline:'‾', tilde:'~', widetilde:'~',
+                     vec:'→', dot:'˙', ddot:'¨', check:'ˇ' };
+const TEX_ESC = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+function texTokens(src) {
+  const t = []; let i = 0;
+  while (i < src.length) {
+    const c = src[i];
+    if (c === '\\') {
+      const m = /^[A-Za-z]+/.exec(src.slice(i + 1));
+      if (m) { t.push({ k: 'cmd', v: m[0] }); i += 1 + m[0].length; }
+      else { t.push({ k: 'chr', v: src[i + 1] === undefined ? '\\' : src[i + 1] }); i += 2; }
+    } else if ('{}^_&'.includes(c)) { t.push({ k: c }); i++; }
+    else if (/\s/.test(c)) { i++; }
+    else if (/[0-9]/.test(c)) {
+      const m = /^[0-9]+(\.[0-9]+)?/.exec(src.slice(i));
+      t.push({ k: 'num', v: m[0] }); i += m[0].length;
+    } else if (/[A-Za-z]/.test(c)) { t.push({ k: 'var', v: c }); i++; }
+    else { t.push({ k: 'op', v: c }); i++; }
+  }
+  return t;
+}
+
+/* returns { mml, big } — `big` marks operators that take under/over limits */
+function texParse(tk, state) {
+  const out = [];
+  while (state.i < tk.length) {
+    const t = tk[state.i];
+    if (t.k === '}') break;
+    state.i++;
+    let node = null, big = false;
+
+    if (t.k === 'num') node = '<mn>' + t.v + '</mn>';
+    else if (t.k === 'var') node = '<mi>' + t.v + '</mi>';
+    else if (t.k === 'op') node = '<mo>' + TEX_ESC(t.v) + '</mo>';
+    else if (t.k === 'chr') {
+      if (t.v === ',' || t.v === ';' || t.v === ':') node = '<mspace width="0.22em"/>';
+      else if (t.v === '!') node = '<mspace width="-0.15em"/>';
+      else if (t.v === ' ') node = '<mspace width="0.25em"/>';
+      else node = '<mo>' + TEX_ESC(t.v) + '</mo>';
+    }
+    else if (t.k === '{') { node = '<mrow>' + texParse(tk, state).mml + '</mrow>'; state.i++; }
+    else if (t.k === '^' || t.k === '_') { state.i--; break; }   /* handled by the caller below */
+    else if (t.k === 'cmd') {
+      const c = t.v;
+      if (c === 'frac' || c === 'dfrac' || c === 'tfrac') {
+        node = '<mfrac>' + texArg(tk, state) + texArg(tk, state) + '</mfrac>';
+      } else if (c === 'binom') {
+        node = '<mrow><mo>(</mo><mfrac linethickness="0">' + texArg(tk, state) +
+               texArg(tk, state) + '</mfrac><mo>)</mo></mrow>';
+      } else if (c === 'sqrt') {
+        if (tk[state.i] && tk[state.i].k === 'op' && tk[state.i].v === '[') {
+          state.i++; const idx = [];
+          while (state.i < tk.length && !(tk[state.i].k === 'op' && tk[state.i].v === ']')) {
+            const one = texParse1(tk, state); idx.push(one);
+          }
+          state.i++;
+          node = '<mroot>' + texArg(tk, state) + '<mrow>' + idx.join('') + '</mrow></mroot>';
+        } else node = '<msqrt>' + texArg(tk, state) + '</msqrt>';
+      } else if (TEX_ACCENT[c]) {
+        node = '<mover accent="true">' + texArg(tk, state) +
+               '<mo stretchy="true">' + TEX_ACCENT[c] + '</mo></mover>';
+      } else if (c === 'text' || c === 'mathrm' || c === 'operatorname') {
+        node = '<mtext>' + TEX_ESC(texRaw(tk, state)) + '</mtext>';
+      } else if (c === 'mathbf') {
+        node = '<mi mathvariant="bold">' + TEX_ESC(texRaw(tk, state)) + '</mi>';
+      } else if (c === 'mathbb') {
+        node = '<mi mathvariant="double-struck">' + TEX_ESC(texRaw(tk, state)) + '</mi>';
+      } else if (c === 'mathcal') {
+        node = '<mi mathvariant="script">' + TEX_ESC(texRaw(tk, state)) + '</mi>';
+      } else if (c === 'left' || c === 'right') {
+        const d = tk[state.i]; state.i++;
+        const ch = d ? (d.v === '.' ? '' : d.v) : '';
+        node = ch ? '<mo stretchy="true">' + TEX_ESC(ch) + '</mo>' : '';
+      } else if (TEX_IGNORE[c]) {
+        continue;
+      } else if (c === 'boldsymbol') {
+        node = '<mi mathvariant="bold-italic">' + TEX_ESC(texRaw(tk, state)) + '</mi>';
+      } else if (TEX_OPNAME.includes(c)) {
+        node = '<mo lspace="0" rspace="0.12em">' + c + '</mo>';
+        big = !!TEX_BIG[c];
+      } else if (TEX_SYM[c] !== undefined) {
+        const s = TEX_SYM[c];
+        big = !!TEX_BIG[c];
+        node = /[∑∏∐∫∬∮⋃⋂]/.test(s)
+          ? '<mo largeop="true" movablelimits="' + (big ? 'true' : 'false') + '">' + s + '</mo>'
+          : (/[a-zA-Zα-ωΑ-Ω]/.test(s) ? '<mi>' + s + '</mi>' : '<mo>' + TEX_ESC(s) + '</mo>');
+      } else {
+        node = '<mi>' + TEX_ESC(c) + '</mi>';   /* unknown command: show it rather than vanish */
+      }
+    }
+    if (node === null) continue;
+
+    /* sub- and superscripts attach to the node just built */
+    let sub = null, sup = null;
+    for (;;) {
+      const n = tk[state.i];
+      if (n && n.k === '_' && sub === null) { state.i++; sub = texArg(tk, state); }
+      else if (n && n.k === '^' && sup === null) { state.i++; sup = texArg(tk, state); }
+      else break;
+    }
+    if (sub !== null || sup !== null) {
+      const tag = big ? (sub !== null && sup !== null ? 'munderover' : sub !== null ? 'munder' : 'mover')
+                      : (sub !== null && sup !== null ? 'msubsup' : sub !== null ? 'msub' : 'msup');
+      node = '<' + tag + '>' + node + (sub !== null ? sub : '') + (sup !== null ? sup : '') +
+             '</' + tag + '>';
+    }
+    out.push(node);
+  }
+  return { mml: out.join('') };
+}
+
+/* one argument: a braced group, or the single next token */
+function texArg(tk, state) {
+  const t = tk[state.i];
+  if (!t) return '<mrow/>';
+  if (t.k === '{') { state.i++; const r = texParse(tk, state); state.i++; return '<mrow>' + r.mml + '</mrow>'; }
+  return texParse1(tk, state);
+}
+function texParse1(tk, state) {
+  const save = state.i, t = tk[state.i];
+  if (!t) return '<mrow/>';
+  state.i++;
+  if (t.k === 'num') return '<mn>' + t.v + '</mn>';
+  if (t.k === 'var') return '<mi>' + t.v + '</mi>';
+  if (t.k === 'op' || t.k === 'chr') return '<mo>' + TEX_ESC(t.v) + '</mo>';
+  if (t.k === 'cmd' && TEX_SYM[t.v] !== undefined) {
+    const s = TEX_SYM[t.v];
+    return /[a-zA-Zα-ωΑ-Ω]/.test(s) ? '<mi>' + s + '</mi>' : '<mo>' + TEX_ESC(s) + '</mo>';
+  }
+  state.i = save;                      /* not a simple atom: parse it properly */
+  const one = texParse(tk, { i: state.i, stop: 1 });
+  state.i++;
+  return one.mml || '<mrow/>';
+}
+/* literal text of one argument, for \text and friends */
+function texRaw(tk, state) {
+  const t = tk[state.i];
+  if (!t) return '';
+  if (t.k !== '{') { state.i++; return t.v || ''; }
+  state.i++; let s = '', depth = 1;
+  while (state.i < tk.length) {
+    const n = tk[state.i];
+    if (n.k === '{') depth++;
+    else if (n.k === '}') { depth--; if (!depth) { state.i++; break; } }
+    s += (n.v !== undefined ? n.v : (n.k === '^' ? '^' : n.k === '_' ? '_' : ''));
+    if (n.k === 'cmd' && TEX_SYM[n.v] !== undefined) s = s.slice(0, -n.v.length) + TEX_SYM[n.v];
+    state.i++;
+  }
+  return s;
+}
+
+function texToMathML(src, block) {
+  let body;
+  try { body = texParse(texTokens(src), { i: 0 }).mml; }
+  catch (e) { return '<code>' + TEX_ESC(src) + '</code>'; }
+  return '<math xmlns="http://www.w3.org/1998/Math/MathML"' +
+         (block ? ' display="block"' : '') + '>' + body + '</math>';
+}
+
+/* Replace $$…$$ and $…$ in a fragment of HTML. Content carries no other
+   dollar signs, which the build checks. */
+function mathify(s) {
+  if (!s || s.indexOf('$') < 0) return s;
+  return s.replace(/\$\$([^$]+)\$\$/g, (m, t) => texToMathML(t, true))
+          .replace(/\$([^$]+)\$/g,   (m, t) => texToMathML(t, false));
+}
+/* ══════════════════════════════════════════════════════════════
+   MIND MAP
+   M(deskId, [ [branchName, [ [key, essence], ... ]], ... ])
+   Desk name and ticker are taken from the question bank, so the
+   map and the drill can never drift apart.
+   ══════════════════════════════════════════════════════════════ */
+const MAP=[];
+function M(id,branches){MAP.push({id,branches});}
+
+M('prob',[
+ ['Axioms & counting',[
+  ['Axioms','P ≥ $0 \\cdot P(\\Omega) = 1 \\cdot$ disjoint events add'],
+  ['Union','$P(A\\cup B) = P(A)+P(B)-P(A\\cap B)$'],
+  ['Complement','P(at least one) = 1 &minus; P(none) &mdash; almost always the fast route'],
+  ['Permutations','order matters: $n!/(n-k)!$'],
+  ['Combinations','order does not: $\\binom{n}{k} = \\frac{n!}{k!(n-k)!}$'],
+  ['Pairs grow quadratically','$\\binom{n}{2} \\approx n^2/2$ &mdash; why 23 people suffice for a birthday match'],
+ ]],
+ ['Conditioning',[
+  ['Definition','$P(A \\mid B) = \\frac{P(A\\cap B)}{P(B)}$'],
+  ['Chain rule','$P(A\\cap B) = P(B)\\,P(A \\mid B)$ &mdash; write it down before reasoning'],
+  ['Bayes','$P(A \\mid B) = \\frac{P(B \\mid A)\\,P(A)}{P(B)}$'],
+  ['Base rate','rare disease + 5% false positives &rarr; a positive is mostly noise'],
+  ['Total probability','$P(A) = \\sum_i P(A \\mid B_i) P(B_i)$ over a partition'],
+  ['Independence','$P(A\\cap B) = P(A)P(B)$; mutually exclusive is the <em>opposite</em>'],
+  ['At least one 3','sample space is 11 outcomes, not $6 \\to 2/11$ for sum 7'],
+ ]],
+ ['Expectation & variance',[
+  ['Linearity','$E[aX+bY] = aE[X]+bE[Y]$ &mdash; holds even when dependent'],
+  ['Indicators','count = &Sigma; indicators; sum the expectations. Solves most counting problems'],
+  ['Variance','$\\text{Var}(X) = E[X^2] - (E[X])^2$, never negative'],
+  ['Sum','$\\text{Var}(X+Y)=\\text{Var}(X)+\\text{Var}(Y)+2\\,\\text{Cov}(X,Y)$ &mdash; the 2 is the dropped term'],
+  ['Tail formula','$E[X] = \\in t_0^\\infty P(X>t)\\,dt$ for $X \\ge 0$'],
+  ['Tower','$E[X] = E\\big[E[X \\mid Y]\\big]$'],
+  ['Var decomposition','$\\text{Var}(X)=E[\\text{Var}(X \\mid Y)]+\\text{Var}(E[X \\mid Y])$'],
+  ['$E[X \\mid Y]$','the $L^2$ projection onto functions of $Y$; a random variable, not a number'],
+ ]],
+ ['Classic results',[
+  ['Coupon collector','$nH_n \\approx n\\ln n$; six-sided die $= 14.7$ rolls'],
+  ['Fixed points','expected number in a random permutation = 1, for every n'],
+  ['Gambler ruin','fair game: $P(\\text{reach } N \\text{ from } k) = k/N$'],
+  ['Broken stick','two uniform breaks $\\to 1/4$; break the longer piece $\\to \\ln 4 - 1$'],
+  ['Order statistics','$E[\\max] = \\frac{n}{n+1}$, $E[\\min] = \\frac{1}{n+1}$ for $n$ uniforms'],
+  ['HH vs HT','6 flips vs 4 &mdash; overlap makes patterns unequal'],
+  ['Correlation bound','$\\rho_{12}\\rho_{23} \\pm \\sqrt{(1-\\rho_{12}^2)(1-\\rho_{23}^2)}$; 0.8 and 0.8 give $[0.28, 1]$'],
+ ]],
+ ['Inequalities & limits',[
+  ['Markov','$P(X \\ge a) \\le \\frac{E[X]}{a}$, for $X \\ge 0$'],
+  ['Chebyshev','$P(|X-\\mu| \\ge a) \\le \\frac{\\sigma^2}{a^2}$ &mdash; Markov applied to $(X-\\mu)^2$'],
+  ['Chernoff','Markov on $e^{tX}$, optimised over $t$ &mdash; exponentially tight'],
+  ['Jensen','$\\varphi$ convex $\\Rightarrow E[\\varphi(X)] \\ge \\varphi(E[X])$; the gap is time value, and $\\sigma^2/2$'],
+  ['Cauchy-Schwarz','$|\\text{Cov}(X,Y)| \\le \\sigma_X\\sigma_Y$, which is why $|\\rho| \\le 1$'],
+  ['LLN','weak = in probability; strong = almost surely. Needs only a finite mean'],
+  ['CLT','$\\frac{\\sqrt{n}(\\bar{X}-\\mu)}{\\sigma} \\to N(0,1)$; needs finite <b>variance</b>'],
+  ['CLT fails','Cauchy has no mean; t(2) has no variance &rarr; no $\\sqrt{n}$ convergence'],
+ ]],
+ ['Stopping & martingales',[
+  ['Stopping time','decide using information up to t only &mdash; no peeking'],
+  ['Wald','$E\\left[\\sum_{i=1}^{N} X_i\\right] = E[N]\\,E[X]$, $N$ a stopping time'],
+  ['Optional stopping','needs bounded &tau;, bounded martingale, or uniform integrability'],
+  ['Martingale betting','reaches target a.s.; $E[\\tau] = \\infty$ and drawdown unbounded'],
+  ['Symmetric walk','hits +1 with probability 1, expected time infinite (null recurrent)'],
+ ]],
+]);
+
+M('dist',[
+ ['Reading a distribution',[
+  ['Density','f $\\ge 0$ and $\\int f = 1; f$ may exceed 1 &mdash; it is not a probability'],
+  ['CDF','$F(x) = P(X \\le x);$ the general object, works for discrete too'],
+  ['Quantile','F&#8315;&sup1;(p); VaR is literally a quantile of the loss CDF'],
+  ['Sampling','F&#8315;&sup1;(U) has distribution F &mdash; inverse transform'],
+  ['Moments','mean, variance, skew (3rd), kurtosis (4th), all standardised'],
+ ]],
+ ['The families',[
+  ['Uniform(a,b)','mean (a+b)/2, variance (b&minus;a)&sup2;/12 &mdash; also tick rounding error'],
+  ['Bernoulli(p)','mean p, variance p(1&minus;p), maximal at $p = \\tfrac{1}{2}$'],
+  ['Binomial(n,p)','mean np, variance np(1&minus;p); SD &radic;(npq)'],
+  ['Poisson(&lambda;)','mean = variance = &lambda;; limit of binomial with np fixed'],
+  ['Geometric(p)','mean 1/p; discrete memoryless'],
+  ['Exponential(&lambda;)','mean 1/&lambda;; the <b>only</b> continuous memoryless law; constant hazard'],
+  ['Gamma(k,&lambda;)','sum of k exponentials; wait for the kth Poisson arrival'],
+  ['Beta(&alpha;,&beta;)','support [0,1]; conjugate to binomial; recovery rates'],
+  ['Normal','closed under affine maps and independent sums'],
+  ['Lognormal','ln X normal; $E[X] = e^(\\mu+\\sigma^2/2),$ median e^&mu;'],
+  ['$\\chi^2(k)$','sum of k squared standard normals; mean k, variance 2k'],
+  ['Student t(&nu;)','$Z/\\sqrt{\\chi^2/\\nu};$ moments exist only below &nu;'],
+  ['Cauchy','t(1): no mean; ratio of two normals; sample mean never converges'],
+  ['Pareto','P(X &gt; x) ~ $x^(-\\alpha);$ moments finite only below &alpha;'],
+ ]],
+ ['Transforms',[
+  ['MGF','M(t) = E[e^(tX)]; derivatives at 0 give moments; multiplies over sums'],
+  ['MGF may not exist','lognormal and Cauchy have none &mdash; use the characteristic function'],
+  ['Char. function','&phi;(t) = E[e^(itX)] always exists; the basis of transform pricing'],
+  ['Closure','normals add; Poissons add in rate; gammas add in shape; $\\chi^2$ in df'],
+  ['Standardise','Z $= (X-\\mu)/\\sigma$'],
+ ]],
+ ['Tails & shape',[
+  ['68-95-99.7','$1\\sigma, 2\\sigma, 3\\sigma.$ One-sided: 1.645 = 5%, 1.96 = 2.5%, 2.326 = 1%'],
+  ['Skew','3rd standardised moment; equities negative &mdash; the option skew prices it'],
+  ['Excess kurtosis','4th &minus; 3; daily equity index runs +3 to +8'],
+  ['Fat tails from mixing','two normals with different variances &rarr; leptokurtic, not bimodal'],
+  ['EVT','maxima &rarr; Gumbel / Fr&eacute;chet / Weibull; exceedances &rarr; generalised Pareto'],
+  ['Stable laws','closed under addition; only the normal has finite variance'],
+  ['Copula','Sklar: joint = marginals + copula. Gaussian copula has zero tail dependence'],
+ ]],
+]);
+
+M('spro',[
+ ['Markov chains',[
+  ['Markov property','future &#8869; past given the present'],
+  ['Transition matrix','P(i,j) one step; <b>rows</b> sum to 1'],
+  ['n steps','$P^n$ &mdash; Chapman-Kolmogorov'],
+  ['Stationary','$\\pi P = \\pi,$ normalised; unique if irreducible'],
+  ['Convergence','needs aperiodicity; rate set by the second eigenvalue (spectral gap)'],
+  ['Absorbing','P(i,i) = 1; default row in a rating matrix'],
+  ['Absorption time','$(I-Q)^{-1}$ row sums, over transient states'],
+  ['Continuous time','generator Q, rows sum to <b>0</b>; P(t) = e^(Qt)'],
+ ]],
+ ['Brownian motion',[
+  ['Definition','$W_0=0,$ independent increments, $W_t-W_s$ ~ N(0, $t-s),$ continuous'],
+  ['Scaling','displacement ~ $\\sqrt{t}$ &mdash; the origin of the $\\sqrt{T}$ vol rule'],
+  ['Quadratic variation','&lang;W&rang;&#8348; = t, so $(\\mathrm{d}W)^2 =$ dt'],
+  ['Total variation','infinite &mdash; why the It&#333; integral had to be built'],
+  ['Differentiability','nowhere differentiable, with probability one'],
+  ['Reflection','P(max &gt; $a) = 2\\cdot P(W_t$ &gt; a) &mdash; barriers and one-touch pricing'],
+  ['Hitting with drift','$\\mu \\ge 0 \\to$ probability 1; $\\mu$ &lt; $0 \\to e^(2\\mu a/\\sigma^2)$'],
+  ['Exit probability','driftless on [a,b] from x: $(x-a)/(b-a)$'],
+ ]],
+ ['The named SDEs',[
+  ['GBM','$\\mathrm{d}S = \\mu S$ $\\mathrm{d}t + \\sigma S$ $\\mathrm{d}W \\to S$ lognormal; log drift &mu; &minus; &sigma;&sup2;/2'],
+  ['OU','$\\mathrm{d}X = \\kappa(\\theta-X)\\mathrm{d}t + \\sigma d W;$ stationary N(&theta;, &sigma;&sup2;/2&kappa;)'],
+  ['OU = AR(1)','discretised, $\\varphi = e^(-\\kappa\\Delta t);$ half-life ln2/&kappa;'],
+  ['CIR','$\\sigma\\sqrt{r}$ diffusion; positive iff Feller 2&kappa;&theta; &ge; &sigma;&sup2;'],
+  ['Poisson process','count Poisson(&lambda;t); gaps Exponential(&lambda;)'],
+  ['Conditional arrivals','given N(t)=n, times are n uniforms on [0,t]'],
+  ['Competing clocks','min of exponentials ~ Exp(&Sigma;&lambda;&#7522;); winner &prop; &lambda;&#7522;'],
+ ]],
+ ['Martingales',[
+  ['Definition','$E[X_t$ | $F_s] = X_s$ &mdash; a fair game'],
+  ['Sub / super','sub drifts up, super drifts <em>down</em>'],
+  ['Convex map','$\\varphi$ convex &rarr; &phi;(martingale) is a submartingale (Jensen)'],
+  ['Compensator','$X^2 -$ &lang;X&rang; is a martingale (Doob-Meyer)'],
+  ['Filtration','information that only grows; predictable = set before the move'],
+  ['Why it matters','discounted tradables are martingales under Q'],
+ ]],
+ ['Deeper',[
+  ['L&eacute;vy','stationary independent increments = drift + Brownian + jumps'],
+  ['Ergodic','time average = ensemble average; stationarity alone is not enough'],
+  ['Backward eq.','propagates a payoff back &mdash; Black-Scholes is one'],
+  ['Forward eq.','Fokker-Planck, evolves the density &mdash; Dupire comes from it'],
+ ]],
+]);
+
+M('stats',[
+ ['Estimation',[
+  ['Population vs sample','$\\mu, \\sigma$ are parameters; x&#772;, s are statistics (random)'],
+  ['SE of the mean','$\\sigma/\\sqrt{n}$ &mdash; depends on calendar span, not sampling frequency'],
+  ['Bessel','divide by $n-1$ for unbiased <em>variance</em>; s is still biased for $\\sigma$'],
+  ['MLE','invariant and asymptotically efficient; often biased in finite samples'],
+  ['MoM','match sample to theoretical moments; robust, less efficient'],
+  ['Cram&eacute;r-Rao','$\\text{Var}(\\hat{\\theta}) \\ge 1/I(\\theta)$ for unbiased estimators'],
+  ['Sufficiency','P(data | T) free of $\\theta;$ Rao-Blackwell conditions on it'],
+  ['Bias-variance','MSE = bias&sup2; + variance; biased can beat unbiased'],
+  ['Delta method','$\\text{Var}(g(\\hat{\\theta})) \\approx g^{\\prime}(\\theta)^2\\,\\text{Var}(\\hat{\\theta})$'],
+  ['Bootstrap','resample to get the sampling distribution; block-bootstrap for time series'],
+ ]],
+ ['Inference',[
+  ['p-value','P(data this extreme | $H_0)$ &mdash; not $P(H_0$ | data)'],
+  ['Null','the default; you reject it or fail to, never accept it'],
+  ['Type I / II','$\\alpha =$ false positive; $\\beta =$ false negative; power = 1&minus;&beta;'],
+  ['Power','always relative to a stated effect size'],
+  ['Winner curse','low power inflates the effects that do reach significance'],
+  ['CI','a statement about the procedure, not about this interval'],
+  ['Multiple testing','100 tests at 5% $\\to 5$ false positives; Bonferroni &alpha;/m, or BH for FDR'],
+  ['Factor bar','t &gt; 3 for a published anomaly (Harvey-Liu)'],
+  ['t vs z','t for estimated variance; fatter tails, converges by df &asymp; 30'],
+ ]],
+ ['Regression',[
+  ['OLS','$\\hat{\\beta} = (X^{\\prime}X)^{-1}X^{\\prime}y$; residual $\\perp$ every regressor'],
+  ['Gauss-Markov','BLUE under exogeneity, homoskedasticity, no autocorrelation &mdash; no normality'],
+  ['Heteroskedasticity','coefficients still unbiased; SEs wrong &rarr; White / clustered'],
+  ['Omitted variable','bias = &beta;&#8354; &times; (regression of Z on X); sign it in your head'],
+  ['Collinearity','unbiased but inflated variance; nothing significant, everything jointly so'],
+  ['$R^2$','simple regression: $\\rho^2.$ Never falls when you add a regressor'],
+  ['Residual plots','the most informative diagnostic; look before trusting anything'],
+  ['Leverage','extreme x moves the line most; check influence, not just outliers'],
+ ]],
+ ['Traps',[
+  ['Regression to mean','select on an extreme, remeasure, it moderates. No cause needed'],
+  ['Simpson','the association can reverse on aggregation &mdash; confounder weights'],
+  ['Correlation','linear only; U-shape reads as zero. Spearman for monotone, still not causal'],
+  ['Leakage','anything chosen using the test set is no longer a test'],
+  ['Survivorship','the sample was selected on the outcome'],
+ ]],
+]);
+
+M('ts',[
+ ['Stationarity',[
+  ['Weak','constant mean and variance; autocovariance depends on lag only'],
+  ['Strict','the whole joint law is time-invariant; neither implies the other'],
+  ['Why it matters','without it, estimates from one path mean nothing'],
+  ['Differencing','$\\Delta x_t = x_t - x_t_-_1$ removes a stochastic trend'],
+  ['Over-differencing','induces a non-invertible MA unit root and amplifies noise'],
+  ['ADF','null = <b>unit root</b>; failing to reject is usually low power'],
+  ['KPSS','null = stationary; run both, disagreement means the sample cannot say'],
+ ]],
+ ['ARMA',[
+  ['AR(1)','stationary iff |&phi;| &lt; 1; $\\text{Var} = \\sigma^2/(1-\\varphi^2);$ ACF = &phi;^k'],
+  ['Half-life','$\\ln2 / (-\\ln \\varphi)$ &mdash; sets the holding period of a reversion trade'],
+  ['AR(p)','PACF cuts off at p, ACF decays'],
+  ['MA(q)','ACF cuts off at q, PACF decays; invertible iff |&theta;| &lt; 1'],
+  ['ARMA','both decay &rarr; fall back on AIC/BIC'],
+  ['Slow linear ACF','not a high-order AR &mdash; that is a unit root'],
+  ['Wold','any stationary process = deterministic + MA(&infin;) of uncorrelated shocks'],
+  ['AIC vs BIC','AIC 2k (prediction); BIC k ln n (consistent, stricter beyond n = 7)'],
+  ['Ljung-Box','joint test of autocorrelations; on squared residuals it tests ARCH'],
+ ]],
+ ['Volatility',[
+  ['Stylised facts','returns near-unpredictable; <b>squared</b> returns strongly persistent'],
+  ['GARCH(1,1)','$\\sigma^2_t = \\omega + \\alpha\\epsilon^2 + \\beta\\sigma^2;$ persistence &alpha;+&beta;'],
+  ['Long run','$\\omega/(1-\\alpha-\\beta);$ daily equity &alpha;+&beta; &asymp; 0.95-0.99'],
+  ['EWMA','IGARCH with $\\omega=0, \\lambda=0.94;$ no mean reversion, flat forecast curve'],
+  ['Leverage','GARCH is symmetric; use GJR or EGARCH for the asymmetry'],
+  ['Realised vol','sum of squared intraday returns; 5-minute sampling by convention'],
+  ['Microstructure noise','bid-ask bounce inflates RV as sampling gets finer'],
+  ['Annualise','$\\sigma_{\\text{annual}} = \\sigma_{\\text{daily}}\\sqrt{252}$ &mdash; 1% daily $\\approx$ 16%'],
+  ['Long memory','RV autocorrelation decays hyperbolically; HAR fits it with three terms'],
+ ]],
+ ['Multivariate & practice',[
+  ['Spurious regression','two random walks &rarr; high R&sup2;, huge t; DW near zero is the tell'],
+  ['Cointegration','a linear combination is I(0) &mdash; the stat-arb trade'],
+  ['Granger rep.','cointegration &hArr; an error-correction representation exists'],
+  ['Granger causality','a forecasting statement, not a causal one'],
+  ['VAR stability','all eigenvalues inside the unit circle'],
+  ['Kalman','optimal linear state estimate; handles missing data and time-varying betas'],
+  ['Random walk forecast','the last value; forecast variance grows like h'],
+  ['Backtest CV','no shuffling; purge overlapping labels, then embargo'],
+  ['Hurst','0.5 random walk, &gt;0.5 trending, &lt;0.5 mean-reverting; noisy estimator'],
+ ]],
+]);
+
+M('lalg',[
+ ['Core objects',[
+  ['Singular','det = 0 &hArr; some eigenvalue 0 &hArr; rank deficient &hArr; no inverse'],
+  ['Rank','independent columns = independent rows'],
+  ['Eigen','Av = &lambda;v &mdash; the natural coordinate system of the map'],
+  ['Symmetric','real eigenvalues, orthogonal eigenvectors: $A = Q\\Lambda Q^{\\prime}$'],
+  ['PSD','x&prime;Ax &ge; 0 &hArr; all eigenvalues &ge; 0 &mdash; every covariance matrix'],
+  ['Transpose','(AB)&prime; = B&prime;A&prime;; (AB)&#8315;&sup1; = B&#8315;&sup1;A&#8315;&sup1;'],
+  ['Trace / det','trace = &Sigma;&lambda;, $\\det = \\prod\\lambda$'],
+  ['Covariance rank','$\\le$ min(n, $T-1)$ &mdash; 500 assets on 250 days is singular, always'],
+ ]],
+ ['Decompositions',[
+  ['LU','general solve; factor once, reuse for many right-hand sides'],
+  ['Cholesky','A = LL&prime;, half the cost; exists iff positive definite'],
+  ['Cholesky as a test','it fails exactly when a correlation matrix is inadmissible'],
+  ['Correlated draws','X = LZ gives covariance LL&prime; = &Sigma;'],
+  ['QR','the right way to do least squares'],
+  ['SVD','$A = U\\Sigma V^{\\prime}$ for <b>any</b> matrix; rank, pseudo-inverse, best low-rank fit'],
+  ['PCA','eigenvectors of $\\Sigma$ by eigenvalue; standardise first; SVD of centred data is stabler'],
+  ['Yield curve PCA','level / slope / curvature &asymp; 95-99% of daily variance'],
+ ]],
+ ['Numerics',[
+  ['Never invert','solve the system; inversion costs 3&times; and loses accuracy'],
+  ['Condition number','$\\kappa = \\sigma_{\\max}/\\sigma_{\\min}$; you lose $\\log_{10}\\kappa$ digits, and double precision has about 16'],
+  ['Normal equations','X&prime;X squares &kappa; &mdash; halves your digits before you start'],
+  ['Ridge','$+\\lambda I$ lifts every eigenvalue: shrinkage and reconditioning are one act'],
+  ['Cancellation','$E[X^2]-(E[X])^2$ on a large mean can go negative; use Welford'],
+  ['Finite difference','central error O(h&sup2;); total error minimised near h &asymp; &epsilon;^(1/3)'],
+  ['Float addition','not associative &mdash; parallel sums are not bitwise reproducible'],
+  ['Sherman-Morrison','rank-one inverse update in $O(n^2);$ the Kalman filter runs on it'],
+ ]],
+ ['Solving',[
+  ['Newton','quadratic locally; needs the derivative; diverges from a bad start'],
+  ['Bisection','linear but guaranteed given a sign change'],
+  ['Brent','bisection safety plus interpolation speed &mdash; the practical default'],
+  ['Implied vol','Newton on vega, bracketed fallback; vega &rarr; 0 in the wings'],
+  ['Iterative solvers','CG for large sparse SPD; preconditioning decides whether it works'],
+  ['Nearest correlation','Higham alternating projections when a matrix is not PSD'],
+  ['Power iteration','repeated multiply &rarr; dominant eigenvector; rate |&lambda;&#8322;/&lambda;&#8321;|'],
+ ]],
+]);
+
+M('optz',[
+ ['Convexity',[
+  ['Convex','chord above the graph &hArr; f&Prime; $\\ge 0 \\iff$ PSD Hessian'],
+  ['Why it matters','local optimum = global; a duality certificate exists'],
+  ['First order','&nabla;f = 0 is necessary, not sufficient (saddles qualify)'],
+  ['Second order','PD Hessian confirms a minimum'],
+  ['Non-convex','answer depends on start and algorithm; report multi-start dispersion'],
+  ['Min / max','minimise f = maximise &minus;f; monotone transforms preserve the argmin'],
+ ]],
+ ['Constraints',[
+  ['Lagrangian','L $= f + \\lambda h;$ at the optimum &nabla;f &parallel; &nabla;h'],
+  ['Multiplier','the shadow price &mdash; objective gain per unit of relaxation'],
+  ['KKT','stationarity + feasibility + &mu; &ge; 0 + complementary slackness'],
+  ['Active set','only binding constraints carry a non-zero multiplier'],
+  ['Weak duality','dual &le; primal, always; strong duality needs convexity + Slater'],
+  ['LP','optimum sits at a vertex of the polytope'],
+  ['QP','$w^{\\prime}\\Sigma w$ with linear constraints &mdash; mean-variance is one'],
+  ['SOCP','norm constraints: volatility itself, robust sets, 3/2 impact costs'],
+  ['MIP','cardinality or min-lot &rarr; integer variables &rarr; NP-hard'],
+ ]],
+ ['Algorithms',[
+  ['Gradient descent','x $\\leftarrow x - \\eta\\nabla f;$ stability needs &eta; &lt; 2/L'],
+  ['Ill-conditioning','zig-zags across narrow valleys; momentum or preconditioning fix it'],
+  ['Newton','$-H^{-1}\\nabla f$; quadratic but $O(n^3)$ per step'],
+  ['Quasi-Newton','BFGS builds H&#8315;&sup1; from gradients; L-BFGS stores a few vectors'],
+  ['SGD','noisy mini-batch gradients; noise helps escape saddles; decay the rate'],
+  ['Proximal / ISTA','gradient on the smooth part, prox on the non-smooth (soft-threshold)'],
+  ['Interior point','log barrier, drive &mu;&rarr;0; iterations barely grow with size'],
+  ['Metaheuristics','annealing and GA for rugged black boxes; no guarantee, heavy tuning'],
+ ]],
+ ['Regularisation',[
+  ['L2 / ridge','strongly convex, better conditioned, unique solution, no sparsity'],
+  ['L1 / lasso','corners on the axes &rarr; exact zeros &rarr; feature selection'],
+  ['Elastic net','sparsity with grouped selection under collinearity'],
+  ['Constraint form','a penalty and a hard norm bound are Lagrangian duals'],
+  ['Long-only','acts like covariance shrinkage; often better out of sample (Jagannathan-Ma)'],
+  ['Turnover','$|w - w_0|$ linearised by buy/sell variables &mdash; stays a QP'],
+  ['Robust','worst case over an uncertainty set; ellipsoidal set &rarr; SOCP'],
+ ]],
+]);
+
+M('mathfin',[
+ ['It&#333; calculus',[
+  ['Quadratic variation','$(\\mathrm{d}W)^2 =$ dt &mdash; the reason a second-order term survives'],
+  ['It&#333; lemma','df = (f&#8348; + &mu;f&#8339; + &frac12;&sigma;&sup2;f&#8339;&#8339;)dt + &sigma;f&#8339;dW'],
+  ['The $\\tfrac{1}{2}\\sigma^2$ term','the entire origin of convexity value'],
+  ['Log of GBM','$d(\\ln S) = (\\mu - \\sigma^2/2)\\mathrm{d}t + \\sigma d W$'],
+  ['Product rule','d(XY) = XdY + YdX + d&lang;X,Y&rang;'],
+  ['It&#333; integral','a martingale; zero expectation, variance by It&#333; isometry'],
+ ]],
+ ['Measure & pricing',[
+  ['Girsanov','changes the drift, never the volatility (QV is pathwise)'],
+  ['Under Q','every tradable drifts at r; real-world &mu; disappears from the price'],
+  ['Numeraire','price/numeraire is a martingale under the induced measure'],
+  ['T-forward','use the T-bond &rarr; the forward price is a martingale'],
+  ['Annuity measure','the swap rate is a martingale &rarr; Black&rsquo;s swaption formula'],
+  ['FTAP 1','no arbitrage &hArr; an equivalent martingale measure exists'],
+  ['FTAP 2','complete &hArr; that measure is unique; jumps break uniqueness'],
+  ['Feynman-Kac','PDE &hArr; discounted expectation; grid or Monte Carlo by convenience'],
+ ]],
+ ['Black-Scholes',[
+  ['Replication','option + &Delta; shares is instantaneously riskless &rarr; earns r'],
+  ['PDE','$V_t + \\tfrac{1}{2}\\sigma^2S^2V_s_s +$ rSV&#8347; &minus; rV = 0'],
+  ['$d_1, d_2$','d&#8322; = d&#8321; &minus; &sigma;&radic;T; N(d&#8322;) = P(exercise), N(d&#8321;) = delta'],
+  ['Put-call parity','C $- P =$ Se^(&minus;qT) &minus; Ke^(&minus;rT) &mdash; model-free, static'],
+  ['Assumptions','continuous rebalancing, no gaps, no costs, constant &sigma;'],
+ ]],
+ ['Greeks',[
+  ['Delta','$\\partial V/\\partial S;$ the hedge ratio; $N(d_1)$ for a call'],
+  ['Gamma','$\\partial^2V/\\partial S^2;$ peaks ATM, diverges like 1/&radic;T near expiry'],
+  ['Vega','$\\partial V/\\partial\\sigma \\approx S\\sqrt{T}\\cdot\\varphi(d_1);$ peaks ATM, grows with maturity'],
+  ['Theta','$\\Theta \\approx -\\tfrac{1}{2}\\sigma^2S^2\\Gamma$ &mdash; the rent on convexity'],
+  ['Rho','rate sensitivity; matters for long-dated, negligible short-dated'],
+  ['Vanna','$\\partial^2V/\\partial S\\partial\\sigma$ &mdash; spot and vol moving together'],
+  ['Volga','$\\partial^2V/\\partial\\sigma^2$ &mdash; vega convexity, prices the smile wings'],
+  ['Hedged P&amp;L','$\\tfrac{1}{2}\\Gamma S^2(\\sigma^2_{\\text{realised}} - \\sigma^2_{\\text{implied}})\\,\\mathrm{d}t$ &mdash; path-dependent'],
+ ]],
+ ['The surface',[
+  ['Implied vol','the wrong number in the wrong formula to get the right price'],
+  ['Smile','the market is telling you the risk-neutral density is not lognormal'],
+  ['Breeden-Litzenberger','$\\partial^2C/\\partial K^2$ <b>is</b> the risk-neutral density'],
+  ['Butterfly','negative &part;&sup2;C/&part;K&sup2; = negative probability = arbitrage'],
+  ['Calendar','total variance w = &sigma;&sup2;T must be non-decreasing in T'],
+  ['Dupire','$\\sigma^2_l_o_- = (\\partial w/\\partial T) / g(k)$ &mdash; calendar over butterfly'],
+  ['Local vol','fits every vanilla, gets smile dynamics wrong (flattens with T)'],
+  ['Heston','$\\rho$ sets skew, vol-of-vol sets curvature, $\\theta$ the level, $\\kappa$ the decay'],
+  ['SABR','fast closed form, intuitive parameters, not arbitrage-free at low strikes'],
+  ['Jumps','fatten the wings; steep short-dated smile flattening with maturity'],
+  ['Var swap','$2\\cdot E[-\\ln(S/F)];$ strip weighted 1/K&sup2;; strike above ATM when skewed'],
+ ]],
+]);
+
+M('optn',[
+ ['The instruments',[
+  ['Call / put','right not obligation: $\\max(S-K,0) /$ $\\max(K-S,0)$'],
+  ['Premium','intrinsic + time value; OTM options are all time value'],
+  ['Moneyness','call ITM when S &gt; K; quote against ln(K/F) to compare across names'],
+  ['European / American','exercise at T / any time; Bermudan on a schedule'],
+  ['Max loss','buyer: the premium. Short call: unbounded. Short put: $K -$ premium'],
+  ['Covered call','long stock + short call &equiv; <b>short put</b> by parity'],
+  ['Straddle','same strike C+P: max vega and gamma, zero delta ATM'],
+  ['Risk reversal','long call short put &mdash; a skew trade, roughly delta-one'],
+ ]],
+ ['Early exercise & carry',[
+  ['American call','never early on a non-payer &rarr; equals the European'],
+  ['American put','exercise deep ITM when interest on K beats remaining time value'],
+  ['Dividends','cut the forward &rarr; calls down, puts up; reopens early call exercise'],
+  ['Discrete divs','break tree recombination; escrowed vs proportional distorts &sigma;'],
+  ['Forward','F $= Se^((r-q)T)$ &mdash; arbitrage, never a forecast'],
+ ]],
+ ['Numerical pricing',[
+  ['Binomial','replicate with stock+cash; $p = (e^(r\\Delta t)-d)/(u-d)$ falls out'],
+  ['CRR','u $= e^(\\sigma\\sqrt{\\;}\\Delta t), d = 1/u;$ matches the first two log moments'],
+  ['Convergence','O(1/n) but oscillatory as nodes straddle the strike'],
+  ['Explicit FD','cheap per step, conditionally stable: $\\Delta t \\le (\\Delta x)^2/\\sigma^2$'],
+  ['Implicit FD','unconditionally stable, tridiagonal solve per step'],
+  ['Crank-Nicolson','2nd order, but oscillates at the payoff kink &rarr; Rannacher damping'],
+  ['Longstaff-Schwartz','regress continuation value; the standard American Monte Carlo'],
+  ['Choose','PDE for low-dimension and early exercise; MC for high-dimension and path'],
+ ]],
+ ['Exotics',[
+  ['Digital','e^(&minus;rT)N(d&#8322;); hedge as a tight call spread; skew-sensitive'],
+  ['Barrier','knock-in + knock-out = vanilla; delta and gamma explode at the barrier'],
+  ['Asian','average &rarr; cheaper than vanilla; manipulation-resistant; geometric has a form'],
+  ['Lookback','pays off the running max/min; expensive; monitoring frequency matters a lot'],
+  ['Cliquet','forward-starting strip &rarr; depends on forward smile and vol-of-vol'],
+  ['Quanto','fixed FX rate still needs a $-\\rho\\sigma_s\\sigma_x_x$ drift correction'],
+  ['Spread option','difference of lognormals has no closed form; Kirk or 2-D integration'],
+  ['Model risk','same vanilla fit, different barrier price &mdash; calibration &ne; correctness'],
+ ]],
+]);
+
+M('simu',[
+ ['Fundamentals',[
+  ['Estimator','average the payoff over draws; works for any payoff'],
+  ['Rate','$\\text{SE} = \\sigma/\\sqrt{N}$ &mdash; halve the error, quadruple the work'],
+  ['Report','always quote the standard error; two SE is roughly 95%'],
+  ['Dimension','cost is independent of dimension &mdash; why MC beats quadrature'],
+  ['Seeding','deterministic given a seed: reproducible, testable, comparable'],
+  ['Bias vs noise','discretisation bias sits on top of the SE and is invisible to it'],
+ ]],
+ ['Generating draws',[
+  ['Inverse transform','F&#8315;&sup1;(U); monotone, so it composes with antithetics and QMC'],
+  ['Box-Muller','two uniforms &rarr; two normals; exact, but not monotone &rarr; poor for QMC'],
+  ['Acceptance-rejection','sample a bound, reject; efficiency = area ratio'],
+  ['Correlated normals','Cholesky &Sigma; = LL&prime;, then X = LZ'],
+  ['GBM step','S $\\exp((r-\\sigma^2/2)\\Delta + \\sigma\\sqrt{\\;}\\Delta Z)$ &mdash; exact at any &Delta;'],
+  ['Drop the $-\\sigma^2/2$','and $E[S_t]$ overshoots &mdash; the standard simulation bug'],
+ ]],
+ ['Variance reduction',[
+  ['Antithetics','pair Z with $-Z;$ helps if monotone, <em>hurts</em> a straddle'],
+  ['Control variate','X $- \\beta(Y - E[Y]);$ variance cut by $1-\\rho^2$'],
+  ['Best example','geometric Asian as a control for arithmetic: $\\rho$ &gt; 0.99'],
+  ['Importance sampling','shift the measure toward the rare region, reweight'],
+  ['IS danger','heavy-tailed likelihood ratio can raise variance, even to infinity'],
+  ['Common random numbers','essential for finite-difference Greeks and A/B comparisons'],
+  ['QMC / Sobol','toward 1/N, but no honest error bar unless randomised'],
+  ['Brownian bridge','front-loads variance into the first dimensions where Sobol is best'],
+ ]],
+ ['Discretisation & Greeks',[
+  ['Euler-Maruyama','strong 0.5, weak 1.0'],
+  ['Which order','European &rarr; weak; path-dependent and pathwise Greeks &rarr; strong'],
+  ['Milstein','adds a correction term for strong order 1'],
+  ['Barrier bias','discrete monitoring misses crossings &rarr; correct with a Brownian bridge'],
+  ['CIR / Heston','Euler can go negative; use full truncation, QE, or the exact &chi;&sup2;'],
+  ['Pathwise','differentiate the payoff; needs Lipschitz, fails on digitals'],
+  ['Likelihood ratio','differentiate the density; handles discontinuities, noisier'],
+  ['AAD','all sensitivities for roughly the cost of one extra pricing pass'],
+  ['Multilevel','telescope over grids: cost $O(\\epsilon^{-3}) \\to O(\\epsilon^{-2})$'],
+  ['Nested MC','outer &times; inner, and inner noise biases the nonlinear outer &mdash; use LSM'],
+ ]],
+]);
+
+M('fi',[
+ ['Bond mechanics',[
+  ['Par','principal at maturity; prices quoted as % of it'],
+  ['Price / yield','move in opposite directions, convexly'],
+  ['Discount / premium','below par &rarr; yield &gt; coupon; above par &rarr; yield &lt; coupon'],
+  ['Accrued','dirty = clean + accrued; quoted clean so prices do not sawtooth'],
+  ['YTM','assumes reinvestment at the YTM and holding to maturity'],
+  ['Zero / spot','the rate for one cash flow at one date &mdash; the atomic unit'],
+  ['Discount factor','$\\text{DF} = 1/(1+z)^n$ or e^(&minus;zT); they multiply across periods'],
+  ['Forward','locked today for a later period; f from $(1+z_2)^2 = (1+z_1)(1+f)$'],
+  ['Quick forward','$2\\times$ the 2y minus the 1y &mdash; forwards lever the slope'],
+ ]],
+ ['Risk measures',[
+  ['Macaulay','cash-flow weighted average time; a zero&rsquo;s equals its maturity'],
+  ['Modified','Macaulay/(1+y/m); $-(1/P)(\\mathrm{d}P/\\mathrm{d}y); 7$ means &minus;7% per 100bp'],
+  ['DV01','currency change per basis point; additive across a book'],
+  ['Convexity','the $\\tfrac{1}{2}C(\\Delta y)^2$ term; positive both ways, so you pay for it in yield'],
+  ['Negative convexity','callables and MBS: duration shortens as yields fall'],
+  ['Floater','rate duration &asymp; time to next reset; <b>full</b> spread duration'],
+  ['Key rate','bucketed sensitivities &mdash; a barbell and bullet differ on a twist'],
+  ['Immunisation','match PV and duration, asset convexity &ge; liability; parallel only'],
+ ]],
+ ['Curve & carry',[
+  ['Bootstrap','solve sequentially so every input reprices exactly'],
+  ['Interpolation','choose in forward space &mdash; smooth zeros can hide sawtooth forwards'],
+  ['Carry','coupon minus financing'],
+  ['Rolldown','ageing down an upward-sloping curve; carry + roll is the hurdle'],
+  ['Steepener','DV01-neutral 2s10s; rebalance as it drifts; convexity differs'],
+  ['Butterfly','neutral to level and slope, a view on curvature'],
+  ['PCA','level / slope / curvature &asymp; 95-99% of variance'],
+  ['Expectations hyp.','rejected &mdash; forwards predict excess returns, so a term premium exists'],
+ ]],
+ ['Spreads & products',[
+  ['Nominal spread','yield minus one benchmark yield &mdash; contaminated by curve shape'],
+  ['Z-spread','constant add-on to the whole zero curve'],
+  ['OAS','Z-spread net of embedded optionality &mdash; use for callables and MBS'],
+  ['ASW','what you earn swapping into floating; differs from Z away from par'],
+  ['Credit triangle','s $\\approx h(1-R);$ only the product is observed, so R is fixed by convention'],
+  ['Swap par rate','PV(fixed) = PV(float); rate = PV(float)/annuity'],
+  ['Annuity','the swap DV01, and the swaption numeraire'],
+  ['OIS discounting','collateralised trades fund at the collateral rate &rarr; multi-curve'],
+  ['Futures CTD','maximise implied repo; conversion factors bias by yield &rarr; CTD switches'],
+  ['Futures vs FRA','margining &rarr; convexity adjustment &asymp; &frac12;&sigma;&sup2;T&#8321;T&#8322;'],
+  ['Breakeven','nominal &minus; real = expected inflation + risk premium &minus; liquidity'],
+  ['Repo haircut','protects the cash lender; procyclical, and that is the systemic part'],
+ ]],
+]);
+
+M('rates',[
+ ['One-factor models',[
+  ['Short rate','the instantaneous rate &mdash; a construct, not a traded instrument'],
+  ['Mean reversion','$\\kappa(\\theta-r)\\mathrm{d}t;$ sets vol decay with maturity and tenor decorrelation'],
+  ['Vasicek','OU: Gaussian, affine, closed form, allows negative rates'],
+  ['CIR','$\\sigma\\sqrt{r};$ positive iff 2&kappa;&theta; &ge; &sigma;&sup2; (Feller)'],
+  ['Ho-Lee','$\\kappa = 0:$ fits the curve, but flat vol term structure'],
+  ['Hull-White','$\\theta(t) \\to$ exact fit to today&rsquo;s curve, still analytic'],
+  ['Black-Karasinski','lognormal r: positive, but no closed-form bond price'],
+  ['Affine','P = A&middot;e^(&minus;Br) &mdash; drift and $\\sigma^2$ affine in r; Riccati ODEs'],
+  ['One-factor limit','all rates perfectly correlated &mdash; the curve cannot truly twist'],
+ ]],
+ ['Framework',[
+  ['Bond price','$P(t,T) = E^Q[\\exp(-\\int r$ ds)]'],
+  ['Convexity','Jensen &rarr; long yields sit <em>below</em> expected average short rates'],
+  ['Equilibrium vs no-arb','derive the curve vs take it as input'],
+  ['HJM','choose the vol structure and the drift is forced; generally non-Markov'],
+  ['LMM / BGM','lognormal forwards make Black&rsquo;s cap formula exact; needs simulation'],
+  ['Cap/swaption clash','forwards and the swap rate cannot both be lognormal'],
+  ['G2++','two factors buy tenor decorrelation; still Gaussian and analytic'],
+  ['Market price of risk','$\\lambda: Q$ drift = P drift &minus; &lambda;&sigma;; unidentifiable from prices alone'],
+ ]],
+ ['Calibration & practice',[
+  ['Q vs P','calibrate to prices for pricing; estimate from history for risk'],
+  ['Curve first','$\\theta(t)$ fits the discount curve; $\\kappa$ and $\\sigma$ fit the swaption grid'],
+  ['$\\kappa$ matters most','it drives Bermudan value through exercise-date correlation'],
+  ['Trinomial tree','build geometry from vol, then forward-induct Arrow-Debreu to fit the curve'],
+  ['Negative rates','shifted lognormal floors at $-s;$ or quote normal (Bachelier) vol'],
+  ['Normal conversion','$\\sigma_{\\text{normal}} \\approx \\sigma_{\\text{lognormal}} \\times F$'],
+  ['CMS','swap rate is a martingale under the annuity, not the payment measure &rarr; adjust'],
+  ['CIR simulation','exact non-central &chi;&sup2;, or Euler with full truncation'],
+ ]],
+]);
+
+M('risk',[
+ ['The measures',[
+  ['VaR','a quantile of the loss distribution; says nothing beyond it'],
+  ['Not coherent','VaR can be superadditive &mdash; diversification appears to add risk'],
+  ['Expected shortfall','mean loss beyond VaR; coherent; FRTB uses 97.5% ES'],
+  ['Equivalence','ES 97.5% $\\approx$ VaR 99% under normality, not under fat tails'],
+  ['Coherence axioms','monotone, translation-invariant, homogeneous, subadditive'],
+  ['Convex measures','drop homogeneity so risk can grow faster than size (liquidity)'],
+  ['Volatility','symmetric and path-blind &mdash; cannot see skew, tails or drawdown'],
+ ]],
+ ['Computing it',[
+  ['Parametric','$\\mu + z\\sigma;$ fast, wrong tails, needs a covariance matrix'],
+  ['Historical','no distribution assumed, but bounded by the window; ghost effects'],
+  ['Filtered HS','rescale past returns by current/historical vol &mdash; the practical fix'],
+  ['Monte Carlo','flexible, slow, and only as good as the model behind it'],
+  ['$\\sqrt{T}$ scaling','needs i.i.d.; clustering and autocorrelation break it'],
+  ['Delta-gamma','second-order for options; still local, fails on barriers'],
+  ['Cornish-Fisher','adjusts the Gaussian quantile for skew and kurtosis; fragile when large'],
+  ['Full revaluation','the honest answer; compute cost is the only reason not to'],
+ ]],
+ ['Decomposition',[
+  ['Marginal VaR','$\\partial\\,\\text{VaR}/\\partial w_i$ &mdash; use for sizing a new trade'],
+  ['Component VaR','$w_i \\times$ marginal; sums exactly to total by Euler'],
+  ['Incremental VaR','actual change from adding the position; can be negative'],
+  ['MCR','$(\\Sigma w)_i/\\sigma_k$ &mdash; proportional to beta to the portfolio'],
+  ['Diversification benefit','$\\Sigma$ standalone &minus; portfolio; shrinks as correlations rise'],
+  ['Concentration','one position dominating means little left to diversify'],
+ ]],
+ ['Tails, model, counterparty',[
+  ['EVT / POT','exceedances above a threshold &rarr; generalised Pareto (Pickands)'],
+  ['Threshold choice','too low breaks the asymptotics, too high leaves no data'],
+  ['Gaussian copula','zero tail dependence &mdash; the CDO lesson'],
+  ['t-copula','positive tail dependence; extremes cluster'],
+  ['Backtesting','Kupiec = count only; Christoffersen adds independence'],
+  ['Clustering','clustered exceptions mean the model is not tracking volatility'],
+  ['Calm-year pass','almost no power; report it as the weak evidence it is'],
+  ['Stress test','a chosen scenario, no probability; reverse stress is more informative'],
+  ['Liquidity-adjusted','add exit cost and lengthen the horizon; FRTB 10-120 day buckets'],
+  ['Stale marks','smooth returns understate vol, correlation and risk &mdash; check autocorrelation'],
+  ['CVA','expected positive exposure &times; default probability &times; LGD, discounted'],
+  ['Wrong-way risk','exposure rises exactly as the counterparty deteriorates'],
+  ['MPOR','the gap between last margin call and close-out &mdash; what IM covers'],
+  ['XVA family','CVA, DVA, FVA, MVA, KVA &mdash; overlaps still contested'],
+  ['Model risk','price under several models and reserve the dispersion; validate independently'],
+ ]],
+]);
+
+M('port',[
+ ['Mean-variance',[
+  ['Portfolio return','$w^{\\prime}\\mu$ &mdash; a weighted average, always'],
+  ['Portfolio risk','$\\sigma^2 = w^{\\prime}\\Sigma w$ &mdash; <b>not</b> a weighted average; that is diversification'],
+  ['Tangency','$w \\propto \\Sigma^{-1}\\mu$'],
+  ['Minimum variance','$w \\propto \\Sigma^{-1}\\mathbf{1}$ &mdash; needs no return forecast'],
+  ['Two-fund','every efficient portfolio = cash + tangency'],
+  ['Error maximiser','$\\Sigma^{-1}$ loads on the worst-estimated directions'],
+  ['Diversification limit','equal weights &rarr; average covariance, not zero'],
+  ['n = 20-30','captures most of the available equity diversification'],
+ ]],
+ ['Estimation',[
+  ['Mean SE','$\\sigma/\\sqrt{T}$ &mdash; 10y at 20% vol gives &plusmn;6.3%/yr. Hopeless'],
+  ['Frequency does not help','more samples improve &sigma;, not $\\mu$'],
+  ['Parameter count','$\\Sigma$ has n(n+1)/2 &mdash; 500 assets is 125,250'],
+  ['Shrinkage','Ledoit-Wolf: $\\alpha F + (1-\\alpha)S;$ guarantees invertibility'],
+  ['Factor model','$\\Sigma = B\\Omega B^{\\prime} + D$, $D$ diagonal &mdash; residual correlation is the failure'],
+  ['Condition number','check it before inverting; huge gross exposures are the symptom'],
+  ['Constraints as shrinkage','long-only often improves out-of-sample (Jagannathan-Ma)'],
+  ['Resampling','average optima over bootstrapped inputs (Michaud)'],
+  ['Black-Litterman','equilibrium prior + views with confidence &rarr; stable weights'],
+ ]],
+ ['Measurement',[
+  ['Sharpe','$(R - R_t)/\\sigma;$ scales &radic;T under i.i.d.'],
+  ['Sharpe caveat','autocorrelated or smoothed marks inflate it &mdash; Lo&rsquo;s correction'],
+  ['Combining','n uncorrelated equal-Sharpe books &rarr; &radic;n; &rho;=0.3 kills a lot of it'],
+  ['Information ratio','active return / tracking error'],
+  ['Fundamental law','$\\text{IR} \\approx$ $\\text{IC}\\sqrt{BR}$ &mdash; breadth means <b>independent</b> bets'],
+  ['Transfer coefficient','constraints and correlated signals erode effective breadth'],
+  ['Beta','$\\text{Cov}(r_i,r_m)/\\text{Var}(r_m);$ estimated, drifts, shrink toward 1'],
+  ['CAPM','$E[R] = r_t + \\beta(E[R_m]-r_t);$ the empirical SML is too flat'],
+  ['Drawdown','path-dependent &mdash; invisible to Sharpe'],
+ ]],
+ ['Construction & costs',[
+  ['Risk parity','equal risk contribution; assumes equal Sharpes; needs leverage'],
+  ['Kelly','maximise E[log W]; $\\mu/\\sigma^2;$ full Kelly is brutal, half-Kelly is standard'],
+  ['Overbetting','$2\\times$ Kelly gives zero growth &mdash; the penalty is asymmetric'],
+  ['Impact term','penalise turnover; nonlinear impact creates a no-trade region'],
+  ['Rebalancing','contrarian, short volatility; earns on reversion, costs in trends'],
+  ['Market neutral','zero beta &ne; zero factor risk &mdash; August 2007'],
+  ['Alpha decay','published anomalies fade 30-50% (McLean-Pontiff); monitor IC, not P&amp;L'],
+  ['Capacity','a first-class parameter, not an afterthought'],
+ ]],
+]);
+
+M('micr',[
+ ['The book',[
+  ['Spread','ask &minus; bid; a round trip costs roughly the full spread'],
+  ['Market order','certain execution, uncertain price; takes liquidity'],
+  ['Limit order','certain price, uncertain fill; provides liquidity, and is adversely selected'],
+  ['Price-time priority','better price first, then earliest at that price'],
+  ['Depth','size at each level; tight spread on tiny size is not liquidity'],
+  ['Tick size','floors the spread; big tick &rarr; queue position is everything'],
+  ['Iceberg','hides size, yields queue priority; detectable by replenishment'],
+  ['Closing auction','10-25% of daily volume; crowded, and imbalance data is tradeable'],
+ ]],
+ ['Costs',[
+  ['Impact','your own adverse move; temporary decays, permanent persists'],
+  ['Square-root law','impact &asymp; Y&sigma;&radic;(Q/V) &mdash; concave, so capacity does not collapse'],
+  ['Kyle&rsquo;s lambda','price move per unit net order flow; $1/\\lambda$ is depth'],
+  ['Slippage','realised minus expected; meaningless without naming the benchmark'],
+  ['Implementation shortfall','vs the decision price; charges you for not trading too'],
+  ['VWAP','matches the volume curve; benchmark-driven, ignores urgency'],
+  ['Almgren-Chriss','impact vs timing risk &rarr; exponentially decaying schedule'],
+  ['Effective / realised','the gap between them is the adverse selection component'],
+  ['Fees','maker rebates sit outside the quoted spread; TCA must be net of them'],
+ ]],
+ ['Information',[
+  ['Adverse selection','your quote is hit exactly when it is about to be wrong'],
+  ['Glosten-Milgrom','a spread arises from information asymmetry alone'],
+  ['Order flow imbalance','strong very-short-horizon predictor; decays as depth refills'],
+  ['Queue position','front fills on benign flow and can cancel; back fills on sweeps'],
+  ['Latency','shortens the window in which a stale quote is a free option'],
+  ['Inventory','skew the quotes to mean-revert the position (Avellaneda-Stoikov)'],
+  ['Width vs skew','width prices information, skew prices inventory'],
+  ['PIN','mixture model on buy/sell counts; fragile, and classification is unreliable'],
+  ['Lee-Ready','trade classification breaks at millisecond resolution &mdash; use the aggressor flag'],
+ ]],
+]);
+
+M('ml',[
+ ['The setup',[
+  ['Supervised','labelled target; unsupervised finds structure'],
+  ['Features / label','every feature must be knowable <em>before</em> the label'],
+  ['Train / validate / test','select on validation; touch the test set once'],
+  ['Classification / regression','discrete vs continuous target; drives loss and metric'],
+  ['Loss','squared error is outlier-sensitive; absolute is robust; Huber compromises'],
+  ['Parameters vs hyperparameters','learned vs chosen; hyperparameters need their own split'],
+  ['Nested CV','inner loop tunes, outer loop measures the whole procedure'],
+ ]],
+ ['Bias, variance, regularisation',[
+  ['Trade-off','complexity &darr; bias, &uarr; variance; test error is U-shaped'],
+  ['Overfitting','large train-test gap; check for regime shift before blaming the model'],
+  ['L1 vs L2','L1 zeros coefficients; L2 shrinks and shares among correlated features'],
+  ['Early stopping','a regularisation hyperparameter, not just a speedup'],
+  ['Dropout','ensemble of subnetworks; largely superseded by norm layers and weight decay'],
+  ['Scaling','needed for SVM, k-NN, PCA, ridge, neural nets; irrelevant for trees'],
+  ['Fit on train only','scalers and imputers included &mdash; otherwise it is leakage'],
+ ]],
+ ['Models',[
+  ['Bagging','parallel, reduces <b>variance</b> $\\to$ deep unpruned trees'],
+  ['Boosting','sequential on residuals, reduces <b>bias</b> $\\to$ shallow trees, early stopping'],
+  ['Random forest','OOB gives free validation &mdash; optimistic on serially correlated data'],
+  ['GBM &gt; deep nets','on tabular data: heterogeneous features, thresholds, small samples'],
+  ['Logistic regression','proper scoring rule &rarr; reasonably calibrated probabilities'],
+  ['SVM kernel','inner products only; $n\\times n$ kernel matrix limits scale'],
+  ['k-NN','distances concentrate in high dimension &mdash; the curse'],
+  ['PCA','variance, not predictive value; standardise first'],
+ ]],
+ ['Evaluation & finance',[
+  ['Accuracy','useless at 1% positives &mdash; predict "no" and score 99%'],
+  ['ROC AUC','P(random positive ranked above random negative); balance-insensitive'],
+  ['PR curve','the right one under heavy imbalance'],
+  ['Calibration','reliability diagram; Platt or isotonic on held-out data'],
+  ['MDI importance','biased toward high-cardinality features; use permutation on holdout'],
+  ['SHAP','explains the model, not the world; assumes feature independence'],
+  ['Purged CV','remove overlapping labels, then embargo; never shuffle time'],
+  ['Signal-to-noise','$R^2$ of 0.01 can be very profitable &mdash; inverts every intuition'],
+  ['SMOTE','interpolates fake data and breaks time order &mdash; prefer class weights'],
+ ]],
+]);
+
+M('py',[
+ ['Semantics',[
+  ['Mutable defaults','evaluated once at definition &mdash; use None as the sentinel'],
+  ['Late binding','closures capture the variable; fix with <code>lambda i=i:</code>'],
+  ['is vs ==','identity vs value; small ints and short strings are interned'],
+  ['Shallow copy','<code>a[:]</code> copies the outer list only; deepcopy recurses'],
+  ['<code>[[0]*3]*3</code>','replicates the reference &mdash; use a comprehension'],
+  ['Scope','any name assigned in a function is local throughout it'],
+  ['return in finally','overrides the pending return and swallows exceptions'],
+  ['__exit__ true','suppresses the exception &mdash; almost never what you want'],
+  ['Type hints','not enforced at runtime; value is in mypy and the editor'],
+ ]],
+ ['Performance',[
+  ['GIL','one thread runs bytecode; C extensions release it'],
+  ['Threads vs processes','threads for I/O, processes (or native code) for CPU'],
+  ['asyncio','many concurrent waits; one blocking call stalls the whole loop'],
+  ['list.insert(0)','O(n) &mdash; use <code>deque</code> for a queue'],
+  ['set membership','O(1) vs O(n) for a list &mdash; the cheapest common speedup'],
+  ['Generators','constant memory, single pass, no len or indexing'],
+  ['__slots__','drops the instance dict: 40-50% memory on small objects'],
+  ['lru_cache on methods','holds self &rarr; leak; use cached_property'],
+  ['GC','refcounting + generational cycle collector; disable in latency-critical loops'],
+  ['fork vs spawn','spawn re-imports; needs picklable args and a __main__ guard'],
+ ]],
+ ['NumPy',[
+  ['Vectorisation','removes interpreter overhead, not multithreading (BLAS aside)'],
+  ['Broadcasting','align right, stretch size-1 dims; $(n,1)-(n,)$ silently gives (n,n)'],
+  ['Views vs copies','basic slicing views; fancy and boolean indexing copy'],
+  ['In-place','<code>b += 1</code> mutates the shared array'],
+  ['float equality','$0.1+0.2 \\ne 0.3$ &mdash; use isclose, or integers for money'],
+  ['Summation','order matters; fsum or pairwise for accuracy'],
+  ['np.vectorize','a convenience wrapper, not a speedup'],
+ ]],
+]);
+
+M('pandas',[
+ ['Model',[
+  ['Series / DataFrame','1-D labelled vs 2-D; <code>df[&#39;a&#39;]</code> Series, <code>df[[&#39;a&#39;]]</code> frame'],
+  ['Index','row labels, and the basis of automatic alignment'],
+  ['Alignment','arithmetic joins on labels &mdash; a mismatch yields NaN, not an error'],
+  ['.loc vs .iloc','label (endpoint inclusive) vs position (exclusive)'],
+  ['NaN','missing, not zero; NaN &ne; NaN, so test with isna()'],
+  ['skipna','aggregations skip by default; an all-NaN sum is 0.0'],
+  ['dtypes','one stray string makes a column object; specify dtype on read'],
+  ['category','low-cardinality strings: large memory and groupby win'],
+ ]],
+ ['Operations',[
+  ['Chained assignment','<code>df[m][&#39;b&#39;]=1</code> may hit a copy &mdash; use single-step .loc'],
+  ['Copy-on-Write','pandas 3.0 default; makes the semantics deterministic'],
+  ['transform vs agg','transform keeps shape and index; agg collapses'],
+  ['Sector neutralise','<code>groupby(s)[&#39;r&#39;].transform(lambda x:(x-x.mean())/x.std())</code>'],
+  ['apply is slow','one Python call per group; prefer built-ins, then itertuples'],
+  ['iterrows','builds a Series per row and loses dtypes &mdash; avoid'],
+  ['pivot vs pivot_table','pivot raises on duplicates; pivot_table silently averages'],
+  ['merge validate','pass one_to_one / one_to_many to catch row explosions'],
+  ['drop_duplicates','keep=&#39;last&#39; is positional &mdash; sort by time first'],
+  ['value_counts','drops NaN by default; pass dropna=False when profiling'],
+  ['query','numexpr path pays off above ~100k rows'],
+ ]],
+ ['Time series',[
+  ['shift(1)','apply yesterday&rsquo;s signal to today&rsquo;s return &mdash; the lookahead guard'],
+  ['merge_asof','nearest preceding key; set tolerance and direction'],
+  ['resample vs rolling','rebin frequency vs moving window at the same frequency'],
+  ['Bin labels','default left label &mdash; a Monday bar contains Monday&rsquo;s close'],
+  ['rolling min_periods','defaults to the full window; setting 1 hides noisy early values'],
+  ['Offset windows','<code>rolling(&#39;20D&#39;)</code> is time-based; an integer counts rows'],
+  ['pct_change','historic default forward-filled across gaps &mdash; pass fill_method=None'],
+  ['Timezones','localise to UTC at ingestion; naive vs aware comparison raises'],
+  ['reindex','conform to a common calendar; ffill there will carry stale prices'],
+ ]],
+]);
+
+M('cpp',[
+ ['Ownership',[
+  ['RAII','acquire in the constructor, release in the destructor &mdash; no finally needed'],
+  ['Rule of five','destructor, copy ctor/assign, move ctor/assign &mdash; all or none'],
+  ['Rule of zero','hold resources in types that manage them and write none'],
+  ['Declared destructor','suppresses implicit moves &rarr; silent fallback to copying'],
+  ['Virtual destructor','required to delete through a base pointer'],
+  ['unique_ptr','the default; shared_ptr costs an atomic refcount and a control block'],
+  ['weak_ptr','breaks reference cycles that refcounting cannot free'],
+  ['std::move','only a cast; const objects still copy'],
+  ['Moved-from','valid but unspecified: destroy or assign, do not read'],
+ ]],
+ ['Semantics',[
+  ['Slicing','assigning derived to base by value discards the derived part'],
+  ['Virtual in ctor','dispatches to the base version'],
+  ['<code>v(10)</code> vs <code>v{10}</code>','ten zeros vs one element &mdash; braces prefer initializer_list'],
+  ['Most vexing parse','<code>Widget w();</code> declares a function'],
+  ['constexpr','may run at compile time; consteval must'],
+  ['Copy elision','guaranteed for prvalues since C++17 &mdash; never <code>return std::move(x)</code>'],
+  ['Exception safety','basic = valid; strong = rollback; noexcept = never throws'],
+  ['noexcept move','vector reallocation only moves if the move is noexcept'],
+  ['Lambda capture','<code>[&amp;]</code> dangles if stored; <code>[=]</code> in a member captures this'],
+  ['UB','uninitialised reads, signed overflow, races &mdash; the optimiser assumes it away'],
+ ]],
+ ['Performance',[
+  ['Iterator invalidation','vector reallocation invalidates everything; reserve up front'],
+  ['map vs unordered_map','O(log n) ordered vs O(1) average; map often wins when small'],
+  ['Cache locality','struct-of-arrays for scans; array-of-structs for record updates'],
+  ['False sharing','independent counters on one cache line &rarr; coherence traffic'],
+  ['Alignment','member order changes sizeof; large to small saves padding'],
+  ['std::function','type erasure: indirect call, possible allocation, no inlining'],
+  ['Virtual cost','the lost inlining, more than the indirect jump'],
+  ['emplace_back','constructs in place; but uses direct init, so explicit ctors slip through'],
+  ['Atomics','relaxed = atomicity only; release/acquire to publish; seq_cst is the safe default'],
+  ['Pass by value + move','when you will store it; const&amp; when you only read'],
+ ]],
+]);
+
+M('algo',[
+ ['Complexity',[
+  ['Big-O','growth rate, constants hidden &mdash; measure at your actual size'],
+  ['Amortised','total over a sequence; a single op can still spike'],
+  ['Space','memoisation buys time with memory; streaming buys memory with passes'],
+  ['Sorting bound','$\\Omega(n$ log n) for comparison sorts; counting/radix escape it'],
+  ['Timsort','O(n log n) worst, O(n) on partially sorted real data'],
+  ['Quicksort worst','$O(n^2)$ on sorted input with a naive pivot &mdash; randomise'],
+  ['NP-hard','stop seeking exact polynomial; use approximation or a solver with a gap'],
+ ]],
+ ['Structures',[
+  ['Hash map','O(1) average, O(n) worst; resize spikes matter in latency paths'],
+  ['Array vs list','contiguous beats pointer-chasing almost always'],
+  ['Stack / queue','LIFO &rarr; DFS; FIFO &rarr; BFS, and BFS gives unweighted shortest path'],
+  ['Heap','top-k in O(n log k) with a size-k heap; quickselect is O(n) average'],
+  ['LRU cache','hash map + doubly linked list &rarr; O(1) get and put'],
+  ['Fenwick / segment tree','range query and point update both O(log n)'],
+  ['Binary search','needs sorted; O(log n); worth it only for repeated queries'],
+ ]],
+ ['Patterns',[
+  ['Hash for the inner loop','two-sum in O(n) &mdash; trade memory for a lookup'],
+  ['Two pointers','sorted arrays, cycle detection (Floyd) in O(1) space'],
+  ['Sliding window','rolling aggregate replaces recomputation &mdash; anagram search in O(n)'],
+  ['Running aggregate','max-profit and Kadane are one pass with one running value'],
+  ['Dynamic programming','optimal substructure <b>and</b> overlapping subproblems'],
+  ['DP in finance','backward induction on a tree is exactly this'],
+  ['Reservoir sampling','k of an unknown-length stream, O(k) memory'],
+  ['Sketches','HyperLogLog, count-min, t-digest &mdash; bounded memory on unbounded data'],
+  ['Bit tricks','<code>x &amp; (x-1)</code> clears the lowest set bit; subset DP and Fenwick indexing'],
+ ]],
+]);
+
+M('teaser',[
+ ['The reasoning moves',[
+  ['Find the invariant','colouring, parity, conservation &mdash; proves impossibility fast'],
+  ['Count the outcomes','k tests distinguish 2^k or 3^k states &mdash; the information bound'],
+  ['Work backwards','finite games and American options both yield to induction'],
+  ['Balance the worst case','an optimal strategy equalises the cost of every branch'],
+  ['Look for symmetry','the airplane seat and the ace gaps collapse to one line'],
+  ['Elimination, not selection','25 horses: argue who <em>cannot</em> place'],
+  ['Check the appealing answer','the bat and ball is a test of verification, not algebra'],
+  ['Name the sampling','two children, broken stick &mdash; wording changes the answer'],
+ ]],
+ ['Answers worth knowing',[
+  ['2 eggs, 100 floors','14 &mdash; $n(n+1)/2 \\ge 100$'],
+  ['25 horses','7 races'],
+  ['12 balls','3 weighings (3&sup3; = 27 &ge; 24 states)'],
+  ['1000 bottles','10 tasters, binary encoding'],
+  ['100 lockers','10 open &mdash; perfect squares have odd divisor counts'],
+  ['100 prisoners','$\\approx31$% via cycle-following; correlate the outcomes'],
+  ['Secretary','reject n/e, then take the next best &mdash; succeeds 1/e'],
+  ['Airplane seat','1/2, for any number of passengers'],
+  ['Two ropes','45 min: both ends of one, one end of the other'],
+  ['Bridge crossing','17 min &mdash; send the two slowest together'],
+  ['5 pirates','98 / 0 / 1 / 0 / 1'],
+  ['Blue eyes','night 100 &mdash; common knowledge, not mutual knowledge'],
+  ['Rope round Earth','1 m of slack &rarr; 1/2&pi; &asymp; 16 cm, whatever the radius'],
+  ['100! zeros','24 = &lfloor;100/5&rfloor; + &lfloor;100/25&rfloor;'],
+  ['Biased coin','von Neumann: HT vs TH, discard matches'],
+  ['Ants and fly','only elapsed time matters: 250 cm'],
+  ['Clock at 3:15','7.5&deg;; hands close at 5.5&deg; per minute'],
+  ['First ace','9.6 cards before it &mdash; four aces make five gaps of 48/5'],
+  ['St Petersburg','infinite expectation; log utility and finite wealth resolve it'],
+  ['Die with re-roll','value 4.25, so the option is worth 0.75'],
+ ]],
+]);
 
 /* ══════════════════════════════════════════════════════════════
    ENGINE
@@ -3072,8 +4305,6 @@ BANK.forEach(t => {
   t.tiers = [1, 2, 3].map(k => t.ids.filter(id => Q[id].d === k).length);
 });
 const ALL = Object.keys(Q);
-$('#hdr-total').textContent = ALL.length;
-$('#hdr-desks').textContent = BANK.length;
 $('#foot-count').innerHTML = '<b>' + ALL.length + ' questions</b> across ' + BANK.length +
   ' sections &mdash; ' + ALL.filter(i => Q[i].d === 1).length + ' foundation, ' +
   ALL.filter(i => Q[i].d === 2).length + ' core, ' + ALL.filter(i => Q[i].d === 3).length +
@@ -3143,7 +4374,10 @@ function notice(text) {
 
 /* ── views ───────────────────────────────────────────────────────── */
 function show(v) { document.querySelectorAll('.view').forEach(n => n.classList.remove('on'));
-  $('#v-' + v).classList.add('on'); window.scrollTo(0, 0); }
+  $('#v-' + v).classList.add('on'); window.scrollTo(0, 0);
+  const tab = TAB_OF[v];
+  document.querySelectorAll('#tabs button').forEach(b =>
+    b.classList.toggle('on', b.dataset.view === tab)); }
 
 /* ── HOME ────────────────────────────────────────────────────────── */
 function renderHome() {
@@ -3178,7 +4412,11 @@ function renderHome() {
         '<span class="bl">' + t.blurb + '</span></td>' +
       '<td class="hidesm ' + (ts ? '' : 'zero') + '" data-l="Seen">' + ts + '<span class="pct"> / ' +
         t.ids.length + '</span></td>' +
-      '<td data-l="Levels" class="lv">' + t.tiers.join('<span class="sep">&middot;</span>') + '</td>' +
+      '<td data-l="Levels" class="lv" title="' + t.tiers[0] + ' foundation, ' + t.tiers[1] +
+        ' core, ' + t.tiers[2] + ' advanced">' +
+        '<span class="t1">' + t.tiers[0] + '</span><span class="sep">&middot;</span>' +
+        '<span class="t2">' + t.tiers[1] + '</span><span class="sep">&middot;</span>' +
+        '<span class="t3">' + t.tiers[2] + '</span></td>' +
       '<td class="' + (ts ? '' : 'zero') + '" data-l="Coverage"><span class="bar-row">' +
         '<span class="minibar"><i style="width:' + pct(ts, t.ids.length) + '%"></i></span>' +
         pct(ts, t.ids.length) + '%</span></td>' +
@@ -3201,7 +4439,8 @@ function renderHome() {
     d.appendChild(go); d.appendChild(dr); slot.appendChild(d);
   }
   $('#btn-flagged').disabled = !ALL.some(id => peek(id).flag);
-  $('#hdr-note').textContent = S.done ? S.done + ' drills completed' : '';
+  $('#hdr-note').textContent = S.done
+    ? S.done + (S.done === 1 ? ' drill completed' : ' drills completed') : '';
 }
 
 /* ── DRILL ───────────────────────────────────────────────────────── */
@@ -3222,7 +4461,7 @@ function start(mode) {
   }
   const len = +$('#len').value;
   if (len && ids.length > len) ids = ids.slice(0, len);
-  S.sess = { mode, ids, i: 0, res: [] };
+  S.sess = { mode, ids, i: 0, res: [], pick: [], perms: [] };
   save(); show('drill'); paint();
 }
 
@@ -3230,14 +4469,19 @@ let perm = null, picked = null, locked = false;
 
 function paint() {
   const s = S.sess, id = s.ids[s.i], q = Q[id], r = peek(id);
-  perm = shuffle([0, 1, 2, 3]); picked = null; locked = false;
+  s.pick = s.pick || []; s.perms = s.perms || [];        /* sessions saved before review existed */
+  const done = s.res[s.i] === 0 || s.res[s.i] === 1;
+  /* keep the option order stable so going back shows exactly what was seen */
+  perm = s.perms[s.i] || (s.perms[s.i] = shuffle([0, 1, 2, 3]));
+  picked = done ? s.pick[s.i] : null;
+  locked = done;
   window.scrollTo(0, 0);
 
   $('#where').innerHTML = '<b>' + modeName(s.mode) + '</b> &middot; ' + (s.i + 1) + ' of ' +
     s.ids.length + (s.mode.startsWith('topic:') ? '' : ' &middot; ' + TOPIC[q.topic].name);
   paintTape();
 
-  $('#stem').innerHTML = q.stem;
+  $('#stem').innerHTML = mathify(q.stem);
   $('#qmeta').innerHTML = '<span class="tier t' + q.d + '">' + TIER[q.d] + '</span>' +
     TOPIC[q.topic].code + ' &middot; ' +
     (r.n ? 'seen ' + r.n + '&times;, right ' + r.c + '&times;' +
@@ -3246,7 +4490,7 @@ function paint() {
   const box = $('#opts'); box.innerHTML = '';
   perm.forEach((orig, pos) => {
     const b = el('button', 'opt');
-    b.innerHTML = '<span class="k">' + (pos + 1) + '</span><span>' + q.opts[orig] + '</span>';
+    b.innerHTML = '<span class="k">' + (pos + 1) + '</span><span>' + mathify(q.opts[orig]) + '</span>';
     b.onclick = () => grade(pos);          /* one click: pick and mark */
     box.appendChild(b);
   });
@@ -3255,17 +4499,15 @@ function paint() {
   $('#btn-next').style.display = 'none';
   $('#btn-flag').classList.toggle('on', !!r.flag);
   $('#btn-flag').innerHTML = (r.flag ? '&#9873; Flagged' : '&#9873; Flag');
+  $('#btn-prev').disabled = s.i === 0;
   $('#reveal').innerHTML = '';
+  if (done) reveal(s.res[s.i] === 1, true);   /* re-open a question already answered */
 }
 
-function grade(pos) {
-  if (locked) return;
-  locked = true; picked = pos;
-  const s = S.sess, id = s.ids[s.i], q = Q[id];
-  const chosen = perm[picked], ok = chosen === q.ans;
-  s.res[s.i] = ok ? 1 : 0;
-  score(id, ok);
-
+/* Draw the marked options, the verdict and the insight. Called on grading and
+   again on every revisit; `replay` means do not touch the score. */
+function reveal(ok, replay) {
+  const s = S.sess, q = Q[s.ids[s.i]];
   [...$('#opts').children].forEach((n, pos) => {
     n.disabled = true; n.classList.remove('pick');
     if (perm[pos] === q.ans) n.classList.add('right');
@@ -3276,15 +4518,33 @@ function grade(pos) {
   const rv = el('div', 'reveal');
   rv.innerHTML =
     '<div class="verdict ' + (ok ? 'ok' : 'no') + '">' + (ok ? 'Correct' : 'Not quite') +
-      '<span>' + (ok ? 'You picked ' + letter + '.' : 'The answer is ' + letter + '.') + '</span></div>' +
-    '<div class="exp"><span class="lbl">Insight</span>' + q.exp + '</div>';
-  $('#reveal').appendChild(rv);
+      '<span>' + (ok ? 'You picked ' + letter + '.' : 'The answer is ' + letter + '.') +
+      (replay ? ' &middot; already answered, not re-scored' : '') + '</span></div>' +
+    '<div class="exp"><span class="lbl">Insight</span>' + mathify(q.exp) + '</div>';
+  $('#reveal').innerHTML = ''; $('#reveal').appendChild(rv);
   $('#hint').innerHTML = 'or press <kbd>Space</kbd>';
   $('#btn-next').style.display = '';
   $('#btn-next').textContent = s.i + 1 < s.ids.length ? 'Next question →' : 'See results →';
-  $('#btn-next').focus({ preventScroll: true });
+  if (!replay) $('#btn-next').focus({ preventScroll: true });
+}
+
+function grade(pos) {
+  if (locked) return;
+  locked = true; picked = pos;
+  const s = S.sess, id = s.ids[s.i], q = Q[id];
+  const ok = perm[picked] === q.ans;
+  s.res[s.i] = ok ? 1 : 0;
+  s.pick[s.i] = pos;
+  score(id, ok);          /* scored once, on the first answer only */
+  reveal(ok, false);
   save();
   paintTape();
+}
+
+function prev() {
+  const s = S.sess;
+  if (!s || s.i === 0) return;
+  s.i--; save(); paint(); paintTape();
 }
 /* the tape: one mark per question in this drill, windowed to 48 */
 function paintTape() {
@@ -3328,7 +4588,7 @@ function finish() {
 
   const keys = Object.keys(byTopic);
   if (keys.length > 1) {
-    w.appendChild(el('div', 'lbl', 'By desk'));
+    w.appendChild(el('div', 'lbl', 'By topic'));
     const tb = el('table', 'book');
     tb.innerHTML = '<tbody>' + keys.sort((a, b) =>
         (byTopic[a].c / byTopic[a].n) - (byTopic[b].c / byTopic[b].n))
@@ -3345,20 +4605,20 @@ function finish() {
     missed.forEach(id => {
       const q = Q[id];
       const d = el('details', 'miss');
-      d.innerHTML = '<summary><span class="st">' + q.stem + '</span></summary>' +
+      d.innerHTML = '<summary><span class="st">' + mathify(q.stem) + '</span></summary>' +
         '<div class="bd"><div class="verdict ok" style="padding-top:4px">Answer' +
-        '<span>' + strip(q.opts[q.ans]).trim() + '</span></div>' +
-        '<div class="exp"><span class="lbl">Insight</span>' + q.exp + '</div></div>';
+        '<span>' + mathify(q.opts[q.ans]) + '</span></div>' +
+        '<div class="exp"><span class="lbl">Insight</span>' + mathify(q.exp) + '</div></div>';
       w.appendChild(d);
     });
   } else if (answered) {
-    w.appendChild(el('p', 'empty', 'Clean sheet. Run a longer drill, or take on a desk you have not touched.'));
+    w.appendChild(el('p', 'empty', 'Clean sheet. Run a longer drill, or take on a topic you have not touched.'));
   }
 
   const acts = el('div', 'actions');
   const again = el('button', 'primary', 'Drill again'); again.onclick = () => start(s.mode);
   const wk = el('button', 'chip', 'Retry what I missed'); wk.onclick = () => start('missed');
-  const home = el('button', 'chip', 'Back to the book');
+  const home = el('button', 'chip', 'Back to the quiz');
   home.onclick = () => { renderHome(); show('home'); };
   acts.appendChild(again); acts.appendChild(wk); acts.appendChild(home);
   w.appendChild(acts);
@@ -3370,7 +4630,7 @@ let hideAns = false;
 function renderLearn() {
   const sel = $('#learn-topic');
   if (!sel.options.length) {
-    sel.appendChild(new Option('All desks', ''));
+    sel.appendChild(new Option('All topics', ''));
     BANK.forEach(t => sel.appendChild(new Option(t.name + '  (' + t.ids.length + ')', t.id)));
   }
   const t = sel.value, term = $('#learn-q').value.trim().toLowerCase(),
@@ -3392,10 +4652,10 @@ function renderLearn() {
           '<span class="tier t' + q.d + '">' + TIER[q.d] + '</span>' +
           '<span class="lbl">' +
           (r.box >= 2 ? 'mastered' : r.n ? pct(r.c, r.n) + '% over ' + r.n : 'unseen') + '</span>' +
-          '<div class="st">' + q.stem + '</div></div>' +
+          '<div class="st">' + mathify(q.stem) + '</div></div>' +
         '<div class="ans' + (hideAns ? ' hidden' : '') + '">' +
-          '<p class="a"><span class="k">ANSWER</span>' + q.opts[q.ans] + '</p>' +
-          '<div class="exp"><span class="lbl">Insight</span>' + q.exp + '</div></div>';
+          '<p class="a"><span class="k">ANSWER</span>' + mathify(q.opts[q.ans]) + '</p>' +
+          '<div class="exp"><span class="lbl">Insight</span>' + mathify(q.exp) + '</div></div>';
       if (hideAns) { const top = c.querySelector('.top'); top.classList.add('click');
         top.onclick = () => c.querySelector('.ans').classList.toggle('hidden'); }
       list.appendChild(c);
@@ -3426,12 +4686,140 @@ try {
   });
 } catch (e) {}
 
+/* ── text size ───────────────────────────────────────────────────── */
+const SIZE_KEY = 'quantdrill.size', SIZES = ['m', 'l', 'xl'];
+function applySize(v) {
+  document.documentElement.dataset.size = v;
+  requestAnimationFrame(syncHeader);
+  const i = SIZES.indexOf(v);
+  $('#btn-smaller').disabled = i <= 0;
+  $('#btn-bigger').disabled = i >= SIZES.length - 1;
+  try { localStorage.setItem(SIZE_KEY, v); } catch (e) {}
+}
+const stepSize = d => {
+  const i = SIZES.indexOf(document.documentElement.dataset.size || 'm');
+  applySize(SIZES[Math.min(SIZES.length - 1, Math.max(0, i + d))]);
+};
+applySize(SIZES.includes(document.documentElement.dataset.size)
+  ? document.documentElement.dataset.size : 'm');
+$('#btn-smaller').onclick = () => stepSize(-1);
+$('#btn-bigger').onclick  = () => stepSize(1);
+
+/* ── mind map ────────────────────────────────────────────────────── */
+const MAP_KEY = 'quantdrill.map';
+let mapOpen = {};
+try { mapOpen = JSON.parse(localStorage.getItem(MAP_KEY) || '{}'); } catch (e) { mapOpen = {}; }
+const saveMap = () => { try { localStorage.setItem(MAP_KEY, JSON.stringify(mapOpen)); } catch (e) {} };
+const leafCount = m => m.branches.reduce((n, b) => n + b[1].length, 0);
+
+function renderMap() {
+  const term = $('#map-q').value.trim().toLowerCase();
+  const list = $('#map-list'); list.innerHTML = '';
+  const jump = $('#map-jump');
+  if (!jump.children.length) {
+    MAP.forEach(m => { const b = el('button', null, TOPIC[m.id].code);
+      b.title = TOPIC[m.id].name;
+      b.onclick = () => { mapOpen[m.id] = true; saveMap(); renderMap();
+        const n = list.querySelector('[data-id="' + m.id + '"]');
+        if (n) n.scrollIntoView({ block: 'start', behavior: 'smooth' }); };
+      jump.appendChild(b); });
+  }
+  let shownLines = 0, shownDesks = 0;
+  const rx = term ? new RegExp('(' + term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'ig') : null;
+  /* render the math first, then highlight only outside <math>…</math>, so a
+     search term can never inject a span into the MathML tree */
+  const mark = t => {
+    const html = mathify(t);
+    if (!rx) return html;
+    return html.split(/(<math[\s\S]*?<\/math>)/g)
+      .map(part => part.startsWith('<math') ? part
+        : part.replace(rx, '<span class="hit">$1</span>')).join('');
+  };
+
+  MAP.forEach(m => {
+    const t = TOPIC[m.id];
+    const branches = m.branches.map(([name, leaves]) => {
+      const keep = term
+        ? leaves.filter(l => (strip(l[0]) + ' ' + strip(l[1])).toLowerCase().includes(term)
+                          || name.toLowerCase().includes(term))
+        : leaves;
+      return [name, keep];
+    }).filter(b => b[1].length);
+    if (!branches.length) return;
+    shownDesks++;
+
+    const sec = el('section', 'mdesk'); sec.dataset.id = m.id;
+    const open = term ? true : !!mapOpen[m.id];
+    if (open) sec.classList.add('open');
+    const n = branches.reduce((a, b) => a + b[1].length, 0);
+    shownLines += n;
+    const head = el('button', 'mhead',
+      '<span class="tw">&#9654;</span><span class="tk">' + t.code + '</span>' +
+      '<span class="mname">' + t.name + '</span><span class="grow"></span>' +
+      '<span class="mcount"><span class="br">' + branches.length + ' branches &middot; </span>' +
+      n + ' lines</span>');
+    head.setAttribute('aria-expanded', open ? 'true' : 'false');
+    head.onclick = () => { mapOpen[m.id] = !sec.classList.contains('open'); saveMap(); renderMap(); };
+    sec.appendChild(head);
+
+    const body = el('div', 'mbody');
+    branches.forEach(([name, leaves], bi) => {
+      const br = el('div', 'mbranch');
+      const bkey = m.id + ':' + bi;
+      if (term || mapOpen[bkey] !== false) br.classList.add('open');
+      const bh = el('button', 'bhead',
+        '<span class="tw">&#9654;</span>' + mark(name) +
+        '<span class="grow"></span><span class="bcount">' + leaves.length + '</span>');
+      bh.onclick = () => { mapOpen[bkey] = !br.classList.contains('open'); saveMap(); renderMap(); };
+      br.appendChild(bh);
+      const dl = el('dl', 'mleaves');
+      leaves.forEach(l => {
+        dl.appendChild(el('dt', null, mark(l[0])));
+        dl.appendChild(el('dd', null, mark(l[1])));
+      });
+      br.appendChild(dl);
+      body.appendChild(br);
+    });
+    sec.appendChild(body);
+    list.appendChild(sec);
+  });
+
+  const total = MAP.reduce((a, m) => a + leafCount(m), 0);
+  const plural = (n, w) => n + ' ' + w + (n === 1 ? '' : 's');
+  $('#map-count').textContent = term
+    ? shownLines + ' of ' + total + ' lines in ' + plural(shownDesks, 'topic')
+    : total + ' lines across ' + plural(MAP.length, 'topic');
+  if (!shownLines) list.appendChild(el('p', 'empty', 'Nothing matches that search.'));
+}
+
+/* the sticky bars sit under the masthead, whose height changes with the
+   text size and wraps to two rows on a phone: measure it rather than guess */
+function syncHeader() {
+  document.documentElement.style.setProperty('--hdr',
+    document.querySelector('header').offsetHeight + 'px');
+}
+addEventListener('resize', syncHeader);
+
+/* ── tabs ────────────────────────────────────────────────────────── */
+const TAB_OF = { home: 'home', drill: 'home', score: 'home', learn: 'learn', map: 'map' };
+document.querySelectorAll('#tabs button').forEach(b => b.onclick = () => {
+  const v = b.dataset.view;
+  if (v === 'home') { renderHome(); show('home'); }
+  else if (v === 'learn') { show('learn'); renderLearn(); }
+  else { show('map'); renderMap(); }
+});
+$('#map-q').oninput = renderMap;
+$('#btn-expand').onclick = () => { MAP.forEach(m => { mapOpen[m.id] = true;
+  m.branches.forEach((b, i) => mapOpen[m.id + ':' + i] = true); }); saveMap(); renderMap(); };
+$('#btn-collapse').onclick = () => { MAP.forEach(m => mapOpen[m.id] = false); saveMap(); renderMap(); };
+
 /* ── wiring ──────────────────────────────────────────────────────── */
 document.querySelectorAll('[data-go]').forEach(b => b.onclick = () => {
   const g = b.dataset.go;
   if (g === 'learn') { show('learn'); renderLearn(); } else start(g);
 });
 $('#btn-next').onclick = next;
+$('#btn-prev').onclick = prev;
 $('#btn-flag').onclick = () => {
   const id = S.sess.ids[S.sess.i], r = rec(id);
   r.flag = r.flag ? 0 : 1; save();
@@ -3475,6 +4863,10 @@ document.addEventListener('keydown', e => {
   if (slot >= 0 && !locked) {
     const b = $('#opts').children[slot];
     if (b) { b.click(); e.preventDefault(); }
+  } else if (e.key === 'ArrowLeft' || k === 'p') {
+    prev(); e.preventDefault();
+  } else if (e.key === 'ArrowRight') {
+    if (locked) next(); e.preventDefault();
   } else if (e.key === ' ' || e.key === 'Spacebar') {
     /* preventDefault also cancels the focused Next button's own space activation,
        so this advances exactly one question rather than two */
@@ -3486,6 +4878,7 @@ document.addEventListener('keydown', e => {
 });
 
 renderHome();
+syncHeader();
 </script>
 </body>
 </html>
