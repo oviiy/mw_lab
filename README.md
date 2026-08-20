@@ -17,6 +17,7 @@ mw_lab/
 ├── tools/
 │   ├── sleeve_research.html
 │   ├── arb-free-surface-lab.html
+│   ├── credit_correlation.html
 │   ├── video_downloader.html
 │   ├── jp.html
 │   ├── us_rotation.html
@@ -63,6 +64,7 @@ Some files under `knowledge/` are **unlisted** (not in the table above) and are 
 |------|-------------|------|
 | **Sleeve Research** | Single-file HTML/JS tool for sleeve-based strategy signals, interactive backtesting, parameter sweeps, Monte Carlo, walk-forward, universe exploration | [tools/sleeve_research.html](./tools/sleeve_research.html) |
 | **Arbitrage-Free Surface Lab** | Interactive lab for arbitrage-free surfaces — explore no-arb constraints and surface constructions in the browser | [tools/arb-free-surface-lab.html](./tools/arb-free-surface-lab.html) |
+| **Credit Correlation Desk** | Interactive CDX/iTraxx tranche lab — compound vs base correlation, ρ inversion, FRED-backed market snapshots | [tools/credit_correlation.html](./tools/credit_correlation.html) |
 | **US Style Analysis** | US equity style analysis research dashboard (single-file HTML) | [tools/us_rotation.html](./tools/us_rotation.html) |
 | **Video Downloader** | Browser tool to download short-form videos (e.g. Douyin / Xiaohongshu) without watermark | [tools/video_downloader.html](./tools/video_downloader.html) |
 | **Japanese Tools** | Japanese learning and utility helpers | [tools/jp.html](./tools/jp.html) |
@@ -89,7 +91,7 @@ Some files under `knowledge/` are **unlisted** (not in the table above) and are 
 1. Enable **GitHub Pages** for this repository  
    (Settings → Pages → Source: Deploy from `main` branch / GitHub Actions).
 2. Browse by category:
-   - [Tools](./tools/) — including Sleeve Research, Arbitrage-Free Surface Lab, US Style Analysis
+   - [Tools](./tools/) — including Sleeve Research, Arbitrage-Free Surface Lab, Credit Correlation Desk, US Style Analysis
    - [Games](./games/) — Particell, Blitz, Catrun, Crimewave, Neon District, Three Body
    - [Knowledge](./knowledge/) — Interview prep, Quant Interview Drill, Treasury Quant Interview Prep, Mathematical Finance Map, AI Industry Encyclopedia, Theorem Library
 3. Open any link in your browser.
