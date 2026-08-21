@@ -174,8 +174,6 @@ tr:nth-child(even) td{background:rgba(255,255,255,.017)}
   <div class="brandsub">Margin · financing · liquidity<br>Interview preparation dossier</div>
   <button id="themebtn" class="qzbtn" style="width:100%;margin:2px 0 12px">Day mode</button>
   <input id="filter" placeholder="Filter questions…" autocomplete="off">
-  <h4>Practice</h4>
-  <a href="#s20">★ Quiz — 120 questions</a>
   <h4>Orientation</h4>
   <a href="#s0">0 · How to use this</a>
   <a href="#s1">1 · Decode the role</a>
@@ -197,6 +195,11 @@ tr:nth-child(even) td{background:rgba(255,255,255,.017)}
   <a href="#s13">13 · Mock question bank</a>
   <a href="#s14">14 · Behavioral &amp; STAR</a>
   <a href="#s15">15 · Questions to ask them</a>
+  <h4>Reference &amp; study plan</h4>
+  <a href="#s16">16 · Numbers cheat-sheet</a>
+  <a href="#s17">17 · Glossary</a>
+  <a href="#s18">18 · Rapid-fire flashcards</a>
+  <a href="#s19">19 · 10-day study plan</a>
   <h4>Deep dives</h4>
   <a href="#s21">20 · Repo, financing &amp; collateral</a>
   <a href="#s22">21 · MVA &amp; the cost of margin</a>
@@ -205,11 +208,10 @@ tr:nth-child(even) td{background:rgba(255,255,255,.017)}
   <a href="#s25">24 · Model risk &amp; governance</a>
   <a href="#s26">25 · Whiteboard drills</a>
   <a href="#s27">26 · Interview-day playbook</a>
-  <h4>Reference</h4>
-  <a href="#s16">16 · Numbers cheat-sheet</a>
-  <a href="#s17">17 · Glossary</a>
-  <a href="#s18">18 · Rapid-fire flashcards</a>
-  <a href="#s19">19 · 10-day study plan</a>
+  <h4>Applied JD preparation</h4>
+  <a href="#s28">27 · JD requirement bootcamp</a>
+  <h4>Practice</h4>
+  <a href="#s20">28 · Quiz — 120 questions</a>
 </nav>
 <main>
 
@@ -816,6 +818,12 @@ Uniquely satisfies efficiency (Σφ = ρ(N)), symmetry, dummy, and additivity. C
 <li><b>Day counts &amp; conventions</b>: ACT/360 (USD money market, SOFR), 30/360 (USD corporate/fixed swap legs historically), ACT/ACT (USTs), business-day rules (modified following), and the compounding convention for SOFR in arrears.</li>
 <li><b>Sanity checks</b>: reprice all inputs; inspect the implied forward curve for kinks; confirm monotone DFs; compare to a benchmark curve.</li>
 </ul>
+<div class="fxm">\[
+P(0,T_n)=\frac{1-S_n\sum_{i=1}^{n-1}\delta_iP(0,T_i)}{1+S_n\delta_n},
+\qquad
+f(0;T_{i-1},T_i)=\frac{1}{\delta_i}\left(\frac{P(0,T_{i-1})}{P(0,T_i)}-1\right).
+\]</div>
+<div class="fxnote">For a par swap rate <var>S</var><sub>n</sub>, the first identity bootstraps the final discount factor after earlier pillars are known; the second extracts the simply compounded forward. Interview check: substituting the solved discount factors back into <span class="m">\(S_n\sum_i\delta_iP(0,T_i)=1-P(0,T_n)\)</span> must reprice the swap to zero.</div>
 
 <h3>8.2 The risk identities</h3>
 <div class="fxm">\[\begin{aligned}
@@ -857,6 +865,20 @@ Uniquely satisfies efficiency (Σφ = ρ(N)), symmetry, dummy, and additivity. C
 <li><b>Concentration/liquidity overlays</b> dominate for large single-name or illiquid positions — days-to-liquidate driven. A pod that grows a small-cap position hits these before any market move.</li>
 <li><b>Corporate actions and dividends</b>: dividend risk on shorts, hard-to-borrow spikes around index events and dividend-capture, and the margin impact of M&amp;A/deal risk arb (deal-break scenarios are a specific stress).</li>
 </ul>
+<h4>Equity-financing P&amp;L — the formula to write first</h4>
+<div class="fxm">\[
+\begin{aligned}
+\mathrm{FinancingCost}_{\mathrm{long}}&=L\,(r_{\mathrm{ref}}+s_L)\frac{d}{360},\\
+\mathrm{NetShortCost}&=S\,(b-r_{\mathrm{rebate}})\frac{d}{360},\\
+\mathrm{AllInCost}&=\mathrm{FinancingCost}_{\mathrm{long}}+\mathrm{NetShortCost}
++\mathrm{MarginFundingCost}+\mathrm{Fees}-\mathrm{InventoryRevenue}.
+\end{aligned}
+\]</div>
+<div class="card"><b>Worked comparison.</b> A $50m long is financed for 30 days at SOFR + 60 bp, with SOFR at 5.00%; a $40m short has a 250 bp borrow fee and earns a 4.70% collateral rebate. Then
+<div class="fx">Long cost  = $50m × 5.60% × 30/360 = $233,333
+Short economics = $40m × (2.50% − 4.70%) × 30/360 = −$73,333
+Net financing cost before margin/fees = $160,000</div>
+The negative short-cost term means the rebate exceeds the borrow fee. In practice, confirm the contract's quote and sign conventions: some desks quote the borrow rate net of rebate. For cash-versus-synthetic placement, compare this all-in result with the TRS spread, IM funding, dividend/tax treatment, and lost netting benefits—not the headline spread alone.</div>
 <div class="tip"><b>If asked "how are equities and fixed income margin different?"</b> — the cleanest three-part answer: (1) <b>Regime</b>: equities are dominated by rules-based/scenario-grid regimes (Reg T, TIMS portfolio margin) and PB house overlays; FI is dominated by collateral haircuts, CCP VaR models, and SIMM. (2) <b>Risk driver</b>: equity margin is driven by percentage price shocks and single-name concentration (a ±15% grid), FI by curve/spread moves in basis points where a hedged book's <i>gross</i> notional is enormous relative to net risk — so netting matters far more in FI. (3) <b>Funding overlay</b>: FI positions are usually repo-financed, so haircut and repo-rate risk are inseparable from margin; equity shorts carry borrow-fee and recall risk that has no FI analogue. Then land it: "which is why the same position can be cheap at one venue and expensive at another, and why placement optimization is where the value is."</div>
 
 <h2 id="s10"><span class="num">10</span>Statistics &amp; risk methods</h2>
@@ -1757,7 +1779,173 @@ V(0) \;=\; A(0)\;\mathbb{E}^{\mathbb{Q}^A}\big[\max\big(S(T)-K,\,0\big)\big]
 </div>
 <div class="say"><b>The closing line, if you get one</b>"The thing that attracts me to this seat is that the feedback loop is measurable. Margin saved is capital redeployed, financing negotiated is P&amp;L, and the liquidity buffer either holds in a stress or it doesn't. That's a rarer property than it sounds in quant work, and it's the kind of problem I want to own."</div>
 
-<h2 id="s20"><span class="num">27</span>Quiz — 120 questions with explanations <span class="tag t-code">interactive</span></h2>
+<h2 id="s28"><span class="num">27</span>JD requirement bootcamp — formulas, cases &amp; delivery <span class="tag t-must">must master</span></h2>
+<p class="lede">This section converts each line of the Millennium job description into something you can calculate, design, diagnose, and explain. The objective is not to recite definitions: it is to show how you would own a Treasury model from legal terms and raw positions through a controlled production result and a measurable financial outcome.</p>
+
+<h3>27.1 Margin analysis across fixed income and equities</h3>
+<p>Start every answer by identifying the <b>margin regime</b>, because there is no universal margin formula. Cash equities may use rules or portfolio scenarios; listed derivatives use a CCP model; bilateral derivatives may use SIMM; repo and securities lending are governed by haircuts and agreement terms. Then decompose the result into market risk, concentration/liquidity add-ons, wrong-way risk, and operational or house overlays.</p>
+<div class="fxm">\[
+\text{Total requirement}
+=\underbrace{\text{Base market-risk margin}}_{\text{scenario, VaR/ES, or sensitivity model}}
++\underbrace{\text{Add-ons}}_{\text{concentration, liquidity, basis, wrong-way risk}}
++\underbrace{\text{House overlay}}_{\text{counterparty or operational conservatism}}
+-\underbrace{\text{eligible offsets}}_{\text{only within an enforceable netting set}}.
+\]</div>
+<h4>Worked comparison</h4>
+<div class="card"><b>Equity scenario margin.</b> Suppose a hedged book has a $20m long and an $18m short in the same permitted class, and the applicable simplified stress is ±15%. Under a deliberately simplified linear scenario,
+<div class="fx">Up shock P&amp;L = 0.15 × (20 − 18) = +$0.30m
+Down shock P&amp;L = −0.15 × (20 − 18) = −$0.30m
+Base scenario margin = max loss = $0.30m</div>
+If the short were not legally or methodologically eligible to offset the long, a gross-style estimate would be <code>0.15 × ($20m + $18m) = $5.70m</code>. The $5.40m difference is not automatically a collectible benefit: concentration, idiosyncratic, minimum, liquidity, and house charges may remain.</div>
+<div class="card"><b>Repo haircut cash requirement.</b> For collateral market value <var>V</var> and haircut <var>h</var>, the maximum cash advanced is
+<div class="fxm">\[C=V(1-h),\qquad \text{equity posted}=Vh.\]</div>
+On $100m of Treasuries, a haircut widening from 2% to 5% reduces cash capacity from $98m to $95m: a <b>$3m liquidity outflow</b>, before any collateral price decline. If the collateral also falls 4%, cash capacity becomes <code>$96m × 95% = $91.2m</code>, an $6.8m reduction from the original $98m.</div>
+<div class="say"><b>How to answer “margin rose overnight”</b>“I would reconcile population and legal mapping first, then separate market moves from parameter moves and add-ons. I would produce a bridge: prior margin + new/terminated trades + market-risk change + volatility or correlation recalibration + concentration/liquidity add-ons + agreement or methodology changes + data corrections = current margin. That makes the number actionable instead of merely reporting it.”</div>
+
+<h3>27.2 Implementing global netting margin agreements</h3>
+<p>The implementation unit is not “counterparty.” It is the legally enforceable <b>netting set</b>. Encode the hierarchy explicitly:</p>
+<div class="fx">trade → booking legal entity → counterparty legal entity → master agreement
+      → product scope → netting/collateral set → margin methodology → eligible collateral</div>
+<table>
+<tr><th>Agreement</th><th>Typical scope</th><th>Terms the model must represent</th></tr>
+<tr><td>ISDA Master + CSA</td><td>OTC derivatives</td><td>Close-out netting, threshold, MTA, independent amount/IM, eligible collateral, haircuts, call timing and dispute terms</td></tr>
+<tr><td>GMRA</td><td>Repo</td><td>Transaction exposure, margin ratio/haircut, margin maintenance, substitution, manufactured payments and close-out</td></tr>
+<tr><td>GMSLA/MSLA</td><td>Securities lending</td><td>Collateralization level, daily mark, margin calls, eligible collateral, recalls, distributions and close-out</td></tr>
+<tr><td>Clearing/PB agreement</td><td>Listed, cleared or prime-brokered portfolios</td><td>Account structure, house margin, cross-margin eligibility, concentration charges and portability/segregation</td></tr>
+</table>
+<div class="fxm">\[
+E_k=\max\!\left(\sum_{i\in N_k}V_i-C_k,0\right),\qquad
+\mathrm{IM}_{\mathrm{firm}}=\sum_k \mathrm{IM}(N_k),
+\]</div>
+<p>where <var>N</var><sub>k</sub> is an enforceable netting set and <var>C</var><sub>k</sub> is recognized collateral after eligibility and haircut adjustments. Never combine exposures across <var>k</var> merely because the counterparties share a brand.</p>
+<h4>Worked netting and allocation example</h4>
+<div class="card">Pod A has standalone IM of $8m, Pod B $6m, and the combined legal netting set requires $10m.
+<div class="fx">Netting benefit B = 8 + 6 − 10 = $4m
+Pro-rata standalone allocation:
+  A charge = 10 × 8/14 = $5.714m
+  B charge = 10 × 6/14 = $4.286m</div>
+This allocation is additive and easy to explain, but it is not marginal-risk sensitive. For a smooth, positively homogeneous risk measure <var>ρ</var>, prefer Euler allocation:
+<div class="fxm">\[a_i=x_i\frac{\partial\rho(x)}{\partial x_i},\qquad \sum_i a_i=\rho(x).\]</div>
+For step-function add-ons or non-smooth rules, explicitly allocate the residual or use approximate Shapley values. Validate any new agreement mapping with legal sign-off, historical snapshots, a parallel run, negative tests that prove forbidden offsets cannot occur, and an effective-date audit trail.</div>
+
+<h3>27.3 Optimizing and maintaining the stress-cash model</h3>
+<p>A good stress-cash model is a <b>dated, currency- and entity-specific cash-flow ladder</b>. It shocks both the portfolio and the margin/financing terms; it does not assume that today's margin rate survives a crisis.</p>
+<div class="fxm">\[
+\begin{aligned}
+\Delta C_{s,e,c,t}={}&\Delta VM+\Delta IM+\Delta H+R+S+F-I,\\
+\mathrm{CumNeed}_{s,e,c}(t)={}&\sum_{u\le t}\Delta C_{s,e,c,u},\\
+\mathrm{PeakNeed}_{e,c}={}&\max_s\max_t\mathrm{CumNeed}_{s,e,c}(t),\\
+\mathrm{Surplus}_{s,e,c}(t)={}&L^{\mathrm{available}}_{e,c}(t)-\mathrm{CumNeed}_{s,e,c}(t).
+\end{aligned}
+\]</div>
+<p><var>H</var> is haircut widening, <var>R</var> financing that does not roll, <var>S</var> settlement/FX/option-assignment cash, <var>F</var> fees/coupons/dividends, and <var>I</var> reliable inflows. Do not net entities or currencies unless the cash can legally and operationally move before the relevant cutoff.</p>
+<h4>Worked three-day ladder</h4>
+<table>
+<tr><th>$m</th><th>Day 0 intraday</th><th>Day 1</th><th>Day 2</th></tr>
+<tr><td>VM outflow</td><td>18</td><td>6</td><td>2</td></tr>
+<tr><td>IM increase</td><td>5</td><td>4</td><td>1</td></tr>
+<tr><td>Haircut/roll gap</td><td>0</td><td>9</td><td>3</td></tr>
+<tr><td>Reliable inflow</td><td>−4</td><td>−7</td><td>−5</td></tr>
+<tr><td><b>Net daily need</b></td><td><b>19</b></td><td><b>12</b></td><td><b>1</b></td></tr>
+<tr><td><b>Cumulative need</b></td><td><b>19</b></td><td><b>31</b></td><td><b>32</b></td></tr>
+</table>
+<p>With $40m of genuinely available liquidity, the minimum surplus is $8m and the stressed coverage ratio is <code>40/32 = 1.25×</code>. If $10m is trapped in another legal entity, usable liquidity is only $30m and the firm has a $2m shortfall. That distinction is the point of the model.</p>
+<div class="tip"><b>Validation:</b> backtest predicted calls against realized calls; monitor exceedance frequency, magnitude, cause, and clustering; reconcile starting positions and terms; benchmark simplified approximations against full revaluation; and run reverse stress. A useful reverse-stress output is the smallest shock multiplier <var>λ</var> such that <code>min surplus(λ) = 0</code>.</div>
+
+<h3>27.4 Production Python research framework</h3>
+<p>Describe a system of pure calculation components surrounded by controlled I/O. A compact interface might be:</p>
+<pre><code>class MarginModel(Protocol):
+    def requirement(
+        self,
+        netting_set: NettingSet,
+        market: MarketSnapshot,
+        parameters: ParameterSet,
+    ) -&gt; MarginResult: ...
+
+@dataclass(frozen=True)
+class MarginResult:
+    total: float
+    currency: str
+    components: Mapping[str, float]
+    run_id: str
+    as_of: datetime
+    model_version: str</code></pre>
+<p>Insist on immutable as-of inputs, configuration rather than hard-coded agreement terms, deterministic run IDs, currency and unit types, a common sign convention, and explainable component outputs.</p>
+<h4>Tests to volunteer in the interview</h4>
+<ul>
+<li><b>Unit:</b> a single repo reproduces <code>Vh</code>; a one-sensitivity SIMM portfolio reproduces the hand calculation.</li>
+<li><b>Invariants:</b> zero positions give zero base margin; duplicating an identical standalone portfolio doubles a homogeneous charge; more recognized collateral cannot increase unsecured exposure.</li>
+<li><b>Golden portfolios:</b> fixed portfolios and official/vendor examples with versioned expected results.</li>
+<li><b>Negative legal tests:</b> trades in different entities, agreements, or jurisdictions are never offset.</li>
+<li><b>Regression and parallel run:</b> bridge old versus new results by component and require sign-off above tolerances.</li>
+<li><b>Operational:</b> late trades, duplicates, stale prices, missing FX, corrections, holiday calendars, retries, and idempotent reruns.</li>
+</ul>
+<div class="fxm">\[
+\widehat p=\frac{x}{T},\qquad
+LR_{\mathrm{POF}}=-2\log\!\left[
+\frac{(1-p)^{T-x}p^x}{(1-\widehat p)^{T-x}\widehat p^x}
+\right]\ \xrightarrow{d}\ \chi^2_1,
+\qquad p=1-\alpha.
+\]</div>
+<div class="fxnote">In the Kupiec coverage test, <var>x</var> is the number of VaR exceptions in <var>T</var> observations. At 99% VaR over 250 days, the expected count is 2.5—not zero. Passing coverage is not enough: Christoffersen adds an independence test because clustered exceptions reveal a dynamically misspecified volatility or dependence model.</div>
+<div class="fx">Day-over-day explain:
+M(t) − M(t−1) = trade population + market moves + parameter/version changes
+                + agreement mapping + add-ons + data corrections + residual</div>
+<p>The residual should be close to zero. A dashboard showing only total margin is incomplete; users need the bridge, top contributors, data-quality flags, model version, and drill-through to positions.</p>
+
+<h3>27.5 Collateral optimization and financial performance</h3>
+<p>Turn “research into improved financial performance” into an optimization problem and a measurable counterfactual. Let <var>x</var><sub>ij</sub> be market value of collateral asset <var>i</var> delivered to obligation <var>j</var>.</p>
+<div class="fxm">\[
+\begin{aligned}
+\min_x\quad &\sum_{i,j}x_{ij}\left(f_i+o_i+s_{ij}+q_{ij}\right)\\
+\text{s.t.}\quad
+&\sum_i x_{ij}(1-h_{ij})\ge R_j &&\forall j,\\
+&\sum_j x_{ij}\le A_i &&\forall i,\\
+&x_{ij}=0 &&\text{if asset }i\text{ is ineligible for }j,\\
+&\sum_{i\in G}x_{ij}(1-h_{ij})\le \kappa_{Gj}R_j &&\text{concentration limits},\\
+&x_{ij}\ge0.
+\end{aligned}
+\]</div>
+<p><var>f</var> is funding cost, <var>o</var> opportunity cost, <var>s</var> settlement/FX cost, <var>q</var> liquidity or wrong-way-risk penalty, <var>R</var> the collateral requirement, and <var>A</var> inventory. Add integer variables only when settlement lots, account choices, or all-or-none constraints require them.</p>
+<div class="card"><b>Worked value calculation.</b> A netting enhancement releases $100m of average posted collateral. If the firm's marginal funding cost is 75 bp and implementation/operating cost is $200k per year:
+<div class="fx">Gross annual benefit = $100m × 0.0075 = $750k
+Net annual benefit   = $750k − $200k = $550k
+Benefit in bps of a $2bn portfolio = $550k/$2bn × 10,000 = 2.75 bp</div>
+Present a range, not false precision: haircut or margin benefit can disappear under stress, funding spreads vary, and concentrating flows with one dealer has counterparty and negotiation costs.</div>
+
+<h3>27.6 Ownership, collaboration, documentation and the 60-minute case</h3>
+<p>For each model project, describe four artifacts: <b>research note</b> (method and assumptions), <b>implementation specification</b> (interfaces, conventions and acceptance criteria), <b>validation pack</b> (benchmarks, backtests and limitations), and <b>runbook</b> (inputs, dependencies, alerts, reruns, escalation and rollback). This directly addresses delivery ownership and supporting documentation in the JD.</p>
+<table>
+<tr><th>Stakeholder</th><th>What they need from you</th><th>Evidence of good delivery</th></tr>
+<tr><td>Treasury</td><td>Cash, collateral and funding decisions</td><td>Actionable scenarios, timing/currency/entity detail, interpretable drivers</td></tr>
+<tr><td>FIC business management</td><td>Economics and prioritization</td><td>Benefit in dollars/bp, sensitivity range, clear limitations</td></tr>
+<tr><td>Quant developers</td><td>Unambiguous model contract</td><td>Reference implementation, formulas, conventions and golden cases</td></tr>
+<tr><td>Technology/operations</td><td>Reliable production behavior</td><td>Data contracts, SLAs, monitoring, reconciliation and runbook</td></tr>
+<tr><td>Global users</td><td>Consistent handoffs across time zones</td><td>Decision log, named owners, written acceptance criteria and async status</td></tr>
+</table>
+<h4>Integrated interview case — rehearse aloud</h4>
+<div class="warn"><b>Prompt:</b> “We want to onboard a global agreement that may permit offsets across rates derivatives, repo, and securities lending. Design the analysis and implementation.”</div>
+<ol>
+<li><b>Clarify:</b> legal entities, agreements, jurisdictions, product scope, decision horizon, consumers, runtime, and whether the request is prospective pricing or daily margin.</li>
+<li><b>Establish the baseline:</b> reconcile positions and external calls; reproduce current margin by agreement and component.</li>
+<li><b>Legal design:</b> obtain authoritative agreement terms and opinions; construct versioned netting sets; refuse unsupported cross-product/entity offsets.</li>
+<li><b>Quantify:</b> recompute historical and stressed margin under old and proposed structures; report benefit distribution, stressed erosion, concentration, and counterparty exposure.</li>
+<li><b>Economics:</b> value released liquidity at marginal funding/opportunity cost and subtract legal, operational, custody, and concentration costs.</li>
+<li><b>Build:</b> implement a configuration-driven agreement mapper and methodology plugin; produce component attribution and marginal pre-trade estimates.</li>
+<li><b>Validate:</b> golden portfolios, negative legal tests, external reconciliation, historical backtest, stress/reverse stress, and a parallel run.</li>
+<li><b>Release:</b> acceptance criteria, owners, staged rollout, monitoring, documentation, rollback, and post-release benefit tracking.</li>
+</ol>
+<div class="say"><b>Two-minute closing answer</b>“I would treat this as a controlled change to both legal scope and a production risk model. First I would establish a reconciled baseline and get the enforceable netting sets from Legal rather than infer them from counterparty names. Then I would recompute margin on historical and stressed snapshots, quantify the distribution of liquidity released, test whether concentration add-ons or correlation stress erode the benefit, and translate the result into dollars using marginal funding cost. The implementation would be configuration-driven, versioned, reproducible, and tested with both golden portfolios and negative cases that prove prohibited offsets cannot occur. I would parallel-run it against the current process, give Treasury a day-over-day bridge and stress-cash impact, document the operating procedure, and track realized versus forecast savings after release.”</div>
+
+<h3>27.7 JD readiness checklist</h3>
+<div class="grid2">
+<div class="kbox"><b>Margin</b><div class="chk"><input type="checkbox">I can identify the regime before calculating.</div><div class="chk"><input type="checkbox">I can hand-calculate a scenario and repo haircut example.</div><div class="chk"><input type="checkbox">I can explain an overnight change with a complete bridge.</div></div>
+<div class="kbox"><b>Netting</b><div class="chk"><input type="checkbox">I can distinguish ISDA/CSA, GMRA and GMSLA/MSLA.</div><div class="chk"><input type="checkbox">I can draw the legal netting-set hierarchy.</div><div class="chk"><input type="checkbox">I can calculate and allocate a netting benefit.</div></div>
+<div class="kbox"><b>Stress cash</b><div class="chk"><input type="checkbox">I can build a dated entity/currency ladder.</div><div class="chk"><input type="checkbox">I shock margin terms as well as market prices.</div><div class="chk"><input type="checkbox">I can explain backtesting and reverse stress.</div></div>
+<div class="kbox"><b>Delivery</b><div class="chk"><input type="checkbox">I can design the Python interfaces and test plan.</div><div class="chk"><input type="checkbox">I have six quantified STAR stories.</div><div class="chk"><input type="checkbox">I can run the integrated case in under 15 minutes.</div></div>
+</div>
+
+<h2 id="s20"><span class="num">28</span>Quiz — 120 questions with explanations <span class="tag t-code">interactive</span></h2>
 <p class="lede">Multiple choice across every topic in this dossier. Click an answer to lock it in and reveal the explanation — the explanation is the point, so read it even when you're right. Progress is saved in this browser; use the topic chips to drill one area and <b>Retry wrong</b> to grind the ones you missed.</p>
 
 <style>
