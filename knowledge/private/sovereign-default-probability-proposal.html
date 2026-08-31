@@ -1,0 +1,565 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Research Proposal — Delivery-Adjusted Sovereign Default Risk</title>
+<link rel="canonical" href="https://oviiy.github.io/mw_lab/knowledge/private/sovereign-default-probability-proposal.html">
+<style>
+:root{--bg:#fff;--ink:#111;--muted:#555;--line:#d6d9de;--soft:#f5f5f5;--accent:#9a4029;--blue:#2563a6;--orange:#d97706;--green:#16836d;--red:#c2413b;--purple:#7c3aed;--serif:"Times New Roman",Times,serif;--sans:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;color-scheme:light}
+html[data-theme=dark]{--bg:#191919;--ink:#eee;--muted:#bbb;--line:#4b5563;--soft:#242424;--accent:#e58968;--blue:#60a5fa;--orange:#f59e0b;--green:#34d399;--red:#f87171;--purple:#a78bfa;color-scheme:dark}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:20px/1.72 var(--serif)}
+a{color:var(--accent);text-underline-offset:3px}
+.bar,.rail,.theme{display:none}
+.layout{max-width:980px;margin:auto;padding:0 3.4rem 5rem}
+.hero{text-align:center;padding:4.5rem 0 2.1rem;border:0}
+.eyebrow{font:400 1.08rem/1.45 var(--serif);color:var(--ink)}
+h1{font:500 2.55rem/1.22 var(--serif);letter-spacing:0;margin:1.15rem auto 1rem;max-width:860px}
+.dek{font-size:1.12rem;line-height:1.68;color:var(--ink);max-width:800px;margin:1.9rem auto 0;text-align:justify}
+.dek:before{content:"Abstract. ";font-weight:700}
+.meta{font:400 1.02rem/1.5 var(--serif);color:var(--ink);margin-top:1.3rem}
+.stats{display:block;background:transparent;border-top:1px solid var(--ink);border-bottom:1px solid var(--ink);padding:.65rem 0;margin:0 0 2.6rem;text-align:center}
+.stat{display:inline;background:transparent;padding:0;font-size:.98rem}
+.stat:not(:last-child):after{content:"  ·  ";color:var(--muted)}
+.stat b,.stat span{display:inline;font:400 .98rem/1.45 var(--serif);letter-spacing:0;text-transform:none;color:var(--ink)}
+.stat b:after{content:" "}
+.kicker{display:none}
+main{counter-reset:section}
+section{padding:2.1rem 0;border:0;scroll-margin-top:1rem}
+section>h2{counter-increment:section;font-size:1.55rem;line-height:1.32;margin:0 0 1rem;font-weight:700}
+section>h2:before{content:counter(section) ". "}
+h3{font-size:1.22rem;font-weight:700;margin:1.55rem 0 .45rem}
+.lead{font-size:1.08rem;line-height:1.7;color:var(--ink)}
+.question{font-size:1.12rem;line-height:1.65;border:0;padding:0;margin:1.25rem 2rem;font-style:italic;text-align:center}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:2rem}
+.finding{display:grid;grid-template-columns:1.6rem 1fr;gap:.7rem;margin:.95rem 0}
+.finding i{font:400 1.05rem/1.65 var(--serif);color:var(--ink);font-style:normal}
+.finding p{margin:0;font-size:1rem;line-height:1.6}
+.note{background:transparent;border:1px solid var(--line);padding:.95rem 1.15rem;margin:1.5rem 0;font-size:1rem;line-height:1.65}
+.controls{display:flex;gap:.55rem;align-items:center;flex-wrap:wrap;justify-content:center;border-block:1px solid var(--line);padding:.6rem 0;margin:1.1rem 0;font:400 .92rem var(--serif)}
+.controls button,.controls select{border:0;border-bottom:1px solid var(--line);border-radius:0;padding:.3rem .5rem;background:transparent;color:var(--ink);cursor:pointer;font:inherit}
+.controls button[aria-pressed=true]{background:transparent;color:var(--ink);border-bottom:2px solid var(--ink);font-weight:700}
+.chart{width:100%;height:360px;display:block}
+.chart.tall{height:400px}
+.tick,.axislabel{fill:var(--muted);font:13px var(--serif)}
+.axis,.gridline{stroke:var(--line);stroke-width:1}
+.gridline{opacity:.75}
+.caption{font:400 .98rem/1.55 var(--serif);color:var(--ink);margin:.35rem 0 1.4rem}
+.caption:before{content:"Note: ";font-style:italic}
+.tablewrap{overflow-x:auto}
+.table{width:100%;border-collapse:collapse;margin:1.5rem 0;font:400 1rem/1.5 var(--serif)}
+.table th{text-align:left;color:var(--ink);border-top:1px solid var(--ink);border-bottom:1px solid var(--ink);padding:.65rem .5rem;font-weight:700}
+.table td{vertical-align:top;border-bottom:1px solid var(--line);padding:.85rem .55rem}
+.table tr:last-child td{border-bottom:1px solid var(--ink)}
+.table td:first-child{font-weight:600}
+.steps{display:grid;grid-template-columns:1fr;background:transparent;border:0}
+.steps div{display:grid;grid-template-columns:7.5rem 1fr;padding:.45rem 0;border-bottom:1px solid var(--line)}
+.steps b,.steps span{font-size:1.05rem;line-height:1.55;color:var(--ink);margin:0}
+.phase{display:inline;font-weight:700;letter-spacing:0;text-transform:none;border:0;padding:0;margin-right:.35rem}
+.refs{counter-reset:r}
+.ref{display:grid;grid-template-columns:1.8rem 1fr;gap:.7rem;margin:.85rem 0;font-size:1.05rem;line-height:1.6}
+.ref:before{counter-increment:r;content:counter(r);font:600 .85rem/1.8 var(--serif);color:var(--muted)}
+footer{padding:2rem 0;border-top:1px solid var(--ink);font:400 .95rem/1.55 var(--serif);color:var(--muted)}
+.equation{margin:1.15rem 0;padding:.55rem .25rem;text-align:center;overflow:visible;font-size:1.02rem}
+.equation-note{font-size:.98rem;line-height:1.55;color:var(--muted);margin:-.45rem 0 1.15rem;text-align:center}
+section p,section li{font-size:1rem}
+.legend{display:flex;gap:1.2rem;flex-wrap:wrap;justify-content:center;font:400 .92rem/1.4 var(--serif);margin:.4rem 0 0}
+.legend i{display:inline-block;width:1.1rem;height:.35rem;margin-right:.35rem;vertical-align:middle}
+.kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);margin:1.4rem 0 1.6rem}
+.kpi div{background:var(--bg);padding:1rem .85rem}
+.kpi b{display:block;font:700 1.35rem/1.15 var(--serif)}
+.kpi span{display:block;margin-top:.4rem;font-size:.88rem;line-height:1.4;color:var(--muted)}
+.stack{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:1.3rem 0 1.6rem}
+.stack article{border:1px solid var(--line);padding:1rem .9rem}
+.stack b{display:block;font-size:1.02rem}
+.stack span{display:block;margin-top:.45rem;font-size:.92rem;line-height:1.45;color:var(--muted)}
+.stack em{display:block;margin-top:.55rem;font-style:normal;font-size:.82rem;letter-spacing:.04em;text-transform:uppercase;color:var(--accent)}
+.lab{display:grid;grid-template-columns:1fr 1fr;gap:1.4rem;align-items:start;margin:1.2rem 0}
+.panel{border:1px solid var(--line);padding:1rem 1.05rem}
+.panel h4{margin:.1rem 0 .7rem;font-size:1.05rem}
+.slid{display:grid;grid-template-columns:9.5rem 1fr 4.2rem;gap:.6rem;align-items:center;margin:.55rem 0;font-size:.95rem}
+.slid input[type=range]{width:100%}
+.readout{font-variant-numeric:tabular-nums}
+.out{margin-top:.85rem;padding-top:.75rem;border-top:1px solid var(--line);font-size:.98rem;line-height:1.55}
+.out b{font-size:1.2rem}
+.small{font-size:.95rem;color:var(--muted)}
+@media(max-width:700px){
+  .layout{padding-inline:1.2rem}
+  .hero{padding-top:2.5rem}
+  .grid2,.lab,.stack,.kpi{grid-template-columns:1fr}
+  .steps div{grid-template-columns:1fr}
+  .stats{text-align:left}
+  .stat{display:block}
+  .stat:not(:last-child):after{content:""}
+  h1{font-size:2rem}
+}
+@media print{.controls{display:none}body{background:#fff;color:#111}.layout{max-width:900px}}
+</style>
+<script>
+window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']],tags:'ams'},chtml:{scale:1.02},options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<div class="layout"><main>
+<header class="hero" id="purpose">
+  <div class="eyebrow">Research proposal prepared for discussion with Professor Baizhu Chen</div>
+  <h1>Spreads Are Not Probabilities<br>Delivery-Adjusted U.S. Sovereign Default Risk</h1>
+  <p class="meta">Research collaboration proposal · 31 August 2026</p>
+  <p class="dek">Commentary treats one-year U.S. sovereign CDS spreads as a thermometer of default risk. They are not. A CDS premium prices the product of a risk-adjusted default probability and a loss given default, and for the United States the loss is dominated by the cheapest-to-deliver Treasury rather than by a recovery convention. Across four debt-limit episodes the two objects disagree. In May 2023 the one-year spread reached 177 basis points — two to three times the 2011 and 2013 peaks — while a delivery-adjusted implied default probability of about 4 percent was <em>below</em> 2011 (6 percent) and similar to 2013. In 2025 the same probability peaked near 1 percent, even as five-year U.S. CDS traded through several European sovereigns. The proposed project rebuilds that measurement from public sources, places it in a pre-specified four-instrument stack (CDS, bills around the x-date, cash–futures, and swap spreads), and uses the August 2026 high-real-rate, ordinary-slope state as a non-event contrast: fiscal duration without a credit event. The contribution is measurement, not a political theory of the debt limit.</p>
+  <p class="meta"><strong>Keywords:</strong> sovereign CDS; cheapest-to-deliver; implied default probability; debt limit; Treasury bills; convenience yield<br><strong>JEL:</strong> G12, G13, H63, E43, G18<br><strong>Boundary:</strong> public data and published sources only; no employer code, models, quotes, or systems</p>
+</header>
+
+<div class="stats">
+  <div class="stat"><b>Episodes:</b><span>2011, 2013, 2023, 2025</span></div>
+  <div class="stat"><b>Contrast:</b><span>August 2026 long-end state</span></div>
+  <div class="stat"><b>Headline fact:</b><span>wider 2023 spread, lower PD than 2011</span></div>
+  <div class="stat"><b>Ask:</b><span>twenty minutes on one figure</span></div>
+</div>
+
+<section id="question">
+  <h2>Research question and proposed contribution</h2>
+  <p class="question">When U.S. sovereign CDS widen around a fiscal deadline, how much of the move is credit repricing, how much is cheapest-to-deliver mechanics, and when is the same fiscal news showing up as duration or convenience rather than as default?</p>
+  <p>The question is well-posed because the United States is the only large sovereign for which the cheapest deliverable into a CDS auction is a deep, regularly issued government bond whose price can move for purely monetary-policy reasons. A 2020 1.25 percent bond due May 2050 traded near 58 in early May 2023, not because the Treasury was insolvent, but because the policy rate had risen. That cheapening raises the CDS payout in a technical default and therefore raises the spread even if the probability of the credit event is unchanged. Treating the spread as a probability therefore mixes a political object with an interest-rate put.</p>
+  <div class="grid2">
+    <div>
+      <h3>Economic content</h3>
+      <p>Debt-limit episodes are discrete political shocks. They should, if they are about default, invert the CDS curve, kink bills that mature near the x-date, and leave the long real curve comparatively untouched. If they are about fiscal duration or convenience, the opposite pattern should appear: a high long real yield, an ordinary slope, and a quiet one-year default probability. August 2026 is already measured on the curve side. The missing half is a comparable default-probability object.</p>
+    </div>
+    <div>
+      <h3>Measurement content</h3>
+      <p>The project documents a public, episode-consistent pipeline: identify the cheapest deliverable each day from the outstanding coupon universe, convert one-year CDS into a risk-adjusted default probability under both a constant-hazard convention and an x-date-timed convention, and test whether bills, futures, and swap spreads agree. Thin trading is reported as a result, not hidden in a footnote.</p>
+    </div>
+  </div>
+  <div class="note"><strong>Relation to work already on the table.</strong> A public 2023 note (Sparks and Wang, MSCI) showed that the May 3, 2023 implied one-year default probability was 3.9 percent — lower than 2011 despite a much wider spread — once the cheapest-to-deliver price was used as recovery. Benzoni, Cabanilla, Cocco and Kavoussi (Chicago Fed, 2023, 2025) independently reach the same qualitative ranking with a timed-default formula. That ranking is the starting fact, not the paper. What remains is a replicable public pipeline, a pre-specified cross-instrument protocol, a 2025–26 update, and a non-event contrast that the curve work has already measured.</div>
+</section>
+
+<section id="fact">
+  <h2>The fact that makes the project worth doing</h2>
+  <p class="lead">Four published peaks are enough to see that spreads and probabilities are different objects. The exhibits below use those published prints as a frozen illustration; the collaboration would replace them with a reconstructed daily panel.</p>
+  <div class="kpi">
+    <div><b>82 bp</b><span>2011 one-year CDS peak (Markit / CRS), week before the Budget Control Act.</span></div>
+    <div><b>177 bp</b><span>2023 one-year CDS on 1 May (Chicago Fed, Bloomberg).</span></div>
+    <div><b>6% vs 4%</b><span>Delivery-adjusted PD: 2011 peak versus 2023 April/May (Chicago Fed; MSCI 3.9% on 3 May).</span></div>
+    <div><b>1.1%</b><span>2025 PD as of the Chicago Fed’s May 2025 draft — below every prior episode.</span></div>
+  </div>
+  <div class="controls" id="factButtons">
+    <button type="button" data-view="both" aria-pressed="true">Spread and probability</button>
+    <button type="button" data-view="spread">CDS spread only</button>
+    <button type="button" data-view="pd">Implied PD only</button>
+  </div>
+  <svg id="headlineChart" class="chart tall" role="img" aria-label="One-year CDS peaks versus delivery-adjusted implied default probabilities across four debt-limit episodes"></svg>
+  <div class="legend">
+    <span><i style="background:#2563a6"></i>One-year CDS, basis points</span>
+    <span><i style="background:#c2413b"></i>Delivery-adjusted implied PD, percent</span>
+  </div>
+  <p class="caption">2011 CDS from contemporaneous Markit prints compiled by CRS and the Atlantic (peak about 82 bp). 2023 CDS of 177 bp on 1 May from Benzoni et al. (2023, Figure 5). Implied PDs from Benzoni et al. (2023, 2025): about 6 percent in 2011, 4 percent in 2013, 4 percent in April 2023, 1 percent at the November 2024 election and 1.1 percent in May 2025. MSCI (Sparks and Wang, 9 May 2023) reports 3.9 percent on 3 May 2023 using the 1.25s of 15 May 2050 at a price of about 58. 2013 one-year CDS is shown as a range implied by the Chicago Fed’s statement that 2023 premiums were two to three times the prior peaks. These are published benchmarks, not a reconstructed tape.</p>
+
+  <h3>Why the ranking reverses</h3>
+  <p>Write \(s\) for the one-year running spread, \(P^{\mathrm{CTD}}\) for the price of the cheapest deliverable per 100 of face, and \(L = 1 - P^{\mathrm{CTD}}/100\) for the implied loss given a technical default that does not further cheapen the bond. A first-order map is</p>
+  <div class="equation">\[
+    s \approx p\cdot L, \qquad
+    p \approx \frac{s}{1-P^{\mathrm{CTD}}/100}.
+    \tag{1}
+  \]</div>
+  <p class="equation-note">Constant-hazard, zero-rate, one-period illustration. The working specification below replaces this with an x-date-timed survival curve.</p>
+  <p>In 2011 the cheapest deliverable still traded near par, so \(L\) was small and a spread of roughly 80 basis points mapped into a 6 percent probability. In 2023 the 1.25s of May 2050 — issued near par in the 2020 rate trough — traded near 55–58. The same political object (a possible missed payment) now paid 42–45 points rather than a handful of points. Investors paid a wider spread for a <em>smaller</em> implied \(p\). That is the sense in which U.S. sovereign CDS is a hybrid of credit and an interest-rate put (Sparks and Wang 2023).</p>
+  <svg id="ctdChart" class="chart" role="img" aria-label="Price of the 1.25 percent Treasury of May 2050, the 2023 cheapest-to-deliver bond"></svg>
+  <p class="caption">Price of the 1.25s of 15 May 2050, the bond Chicago Fed and MSCI identify as the 2023 cheapest deliverable. Published marks: about 49.4 on 21 October 2022 (episode low), about 55 in spring 2023, about 58 on 3 May 2023. Outstanding face on that CUSIP exceeded $73 billion against $5.7 billion of net U.S. sovereign CDS notional in the week of 12 May 2023, so an auction would likely have cleared near this price (Benzoni et al. 2023). The 1.375s of 15 August 2050 were only slightly richer.</p>
+</section>
+
+<section id="lab">
+  <h2>A working laboratory: spread, recovery, and probability</h2>
+  <p>Equation (1) is enough to see the identification. Hold the probability fixed and the spread must rise when the cheapest deliverable cheapens; hold the spread fixed and the implied probability falls. MSCI’s published comparative static is that a 5 percent decline in the cheapest-to-deliver price, with \(p\) held at 4 percent, raises the one-year spread by about 13 basis points. The sliders recompute that map. They are a teaching device, not an estimator.</p>
+  <div class="lab">
+    <div class="panel">
+      <h4>Hold probability fixed</h4>
+      <div class="slid"><label for="pFix">Implied PD</label><input id="pFix" type="range" min="0.5" max="8" step="0.1" value="4"><span class="readout" id="pFixOut">4.0%</span></div>
+      <div class="slid"><label for="ctd1">CTD price</label><input id="ctd1" type="range" min="40" max="100" step="0.5" value="58"><span class="readout" id="ctd1Out">58.0</span></div>
+      <div class="out">Implied one-year spread<br><b id="sOut">168 bp</b><div class="small" id="sNote"></div></div>
+    </div>
+    <div class="panel">
+      <h4>Hold the spread fixed</h4>
+      <div class="slid"><label for="sFix">CDS spread</label><input id="sFix" type="range" min="10" max="200" step="1" value="177"><span class="readout" id="sFixOut">177 bp</span></div>
+      <div class="slid"><label for="ctd2">CTD price</label><input id="ctd2" type="range" min="40" max="100" step="0.5" value="58"><span class="readout" id="ctd2Out">58.0</span></div>
+      <div class="out">Implied one-year PD<br><b id="pOut">4.2%</b><div class="small" id="pNote"></div></div>
+    </div>
+  </div>
+  <svg id="putChart" class="chart" role="img" aria-label="One-year CDS spread as a function of cheapest-to-deliver price at a fixed default probability"></svg>
+  <p class="caption">Each curve holds \(p\) fixed and varies the cheapest-to-deliver price. The red marker is the 3 May 2023 MSCI print (price about 58, \(p = 3.9\%\)). Moving left along a curve is a pure rates-put effect: cheaper long bonds, same default probability, wider spread. A vertical move onto a higher curve is a credit effect. The 2023 spike was, on the published attribution, almost entirely a vertical move: long-end prices were range-bound through 3 May, so the 146 bp widening from early 2023 mapped into \(p\) rather than into \(L\) (Sparks and Wang 2023).</p>
+</section>
+
+<section id="design">
+  <h2>Empirical design</h2>
+  <p>The estimator has to do three things the one-period map does not: put the credit event on the political calendar, discount on a curve that is not itself the Treasury par curve, and refuse to treat a quote as a price when the market did not trade.</p>
+
+  <h3>Timed default at the x-date</h3>
+  <p>Debt-limit default, if it occurs, is not a constant-hazard Poisson event. It is concentrated on a window around the Treasury’s exhaustion date. Following Sundaresan (2009) as implemented by Benzoni et al. (2023), let \(s(i)\) be the risk-adjusted survival probability through quarter \(i\), \(c\) the annual premium, \(B_0(i)\) a non-Treasury discount factor, and \(L_t\) the current cheapest-to-deliver discount to par. For a one-year contract originated at \(t\),</p>
+  <div class="equation">\[
+    \sum_{i=1}^{4}s(i)\,B_0(i)\frac{c}{4}
+    +\sum_{i=1}^{4}p(i)\,B_0\!\left(i-\tfrac12\right)\frac{c}{8}
+    = L_t\sum_{i=1}^{4}p(i)\,B_0\!\left(i-\tfrac12\right),
+    \tag{2}
+  \]</div>
+  <p>with \(p(i)=s(i-1)-s(i)\). The identifying restriction for an episode is that \(p(i)\) is zero except in the quarter that contains the contemporaneous x-date, where it equals a single \(p_t\). That \(p_t\) is the object reported in Figure 7 of the Chicago Fed essay and the object this project will reconstruct daily. Discounting uses OIS or SOFR term rates, not CMT: during a debt-limit episode the Treasury curve is the thing being tested.</p>
+  <div class="note"><strong>Two numbers, not one.</strong> The paper will always report both the timed \(p_t\) from (2) and the constant-hazard map (1). The 2011–2023 ranking is robust to that choice in the published work; the 2025–26 comparison may not be, because the x-date window and the cheapest deliverable both move. Disagreement between (1) and (2) is a result.</div>
+
+  <h3>Cheapest-to-deliver construction</h3>
+  <p>Each day \(t\), the deliverable set is the universe of marketable coupon Treasuries with remaining maturity of at most thirty years, as specified by the ISDA physical-settlement matrix for the relevant sovereign transaction type (U.S. sovereign CDS trades on European-sovereign standard terms: failure to pay, moratorium, and restructuring). The cheapest-to-deliver price is</p>
+  <div class="equation">\[
+    P^{\mathrm{CTD}}_t = \min_{j\in\mathcal D_t} P_{j,t}, \qquad
+    L_t = 1 - P^{\mathrm{CTD}}_t/100.
+    \tag{3}
+  \]</div>
+  <p>In 2023 the minimizer was stable — the 1.25s of May 2050, with the 1.375s of August 2050 a close second. In 2011 and 2013 the minimizer rotated, which is why Benzoni et al. average the five preceding calendar days. The pipeline will store the identity of the minimizer, not only its price, and will flag days on which the second-cheapest is more than a point away. Auction-clearing risk is treated separately: when net CDS notional is small relative to the cheapest issue’s float, \(P^{\mathrm{CTD}}_t\) is a defensible auction proxy; when it is not, the paper reports a blended-recovery band rather than a point.</p>
+
+  <h3>A four-instrument disagreement protocol</h3>
+  <p>A single CDS-implied \(p_t\) cannot carry the paper. The protocol is written before looking at 2025–26.</p>
+  <div class="stack">
+    <article>
+      <em>Credit event</em>
+      <b>Sovereign CDS</b>
+      <span>One-year and five-year USD and EUR contracts; DTCC weekly gross/net notional and trade counts; inversion of the 1y–5y curve as a short-horizon flag.</span>
+    </article>
+    <article>
+      <em>Payment timing</em>
+      <b>Bills around the x-date</b>
+      <span>Spread of bills maturing inside the CBO/Treasury exhaustion window to adjacent bills and to matched-maturity OIS. 2023: about 100 bp. 2025: small (Chicago Fed 2025-07).</span>
+    </article>
+    <article>
+      <em>Relative value</em>
+      <b>Cash–futures and swap spreads</b>
+      <span>Treasury futures CTD is a different bond from the CDS CTD. Swap spreads speak to dealer capacity and convenience, not to a missed coupon.</span>
+    </article>
+    <article>
+      <em>Duration state</em>
+      <b>Nominal–real par curve</b>
+      <span>Already measured through 28 August 2026: 10- and 30-year real yields at the 99th percentile of 2015–26, 30y–2y slope at the 46th. That is the non-event contrast.</span>
+    </article>
+  </div>
+  <div class="tablewrap">
+    <table class="table">
+      <thead><tr><th>Hypothesis</th><th>CDS \(p_t\)</th><th>Bill x-date kink</th><th>Long real yield / slope</th><th>Swap spread</th></tr></thead>
+      <tbody>
+        <tr><td>Technical default risk</td><td>Rises; 1y &gt; 5y</td><td>Bills inside the window cheapen versus OIS</td><td>Not required</td><td>Not required</td></tr>
+        <tr><td>Rates-put / CTD mechanics</td><td>Spread rises, \(p_t\) does not</td><td>Absent</td><td>Long yields already high (cheap CTD)</td><td>May be quiet</td></tr>
+        <tr><td>Fiscal duration / convenience</td><td>Quiet</td><td>Absent</td><td>High long real level, ordinary slope</td><td>More negative if dealer capacity binds</td></tr>
+        <tr><td>Market plumbing</td><td>Quiet</td><td>Absent</td><td>Local long-end rotation, window-sensitive</td><td>Widens with fails / inventory</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="caption">Exclusion restrictions, not labels applied after seeing dates. No row is fully identified from one instrument. The paper asks whether each mechanism’s necessary signature is present, and whether the four instruments agree. The August 2026 thesis already rejects exceptional steepness and residual mean breaks after policy conditioning; it cannot speak to \(p_t\).</p>
+
+  <h3>Select dates and read the stack</h3>
+  <div class="controls" id="epButtons"></div>
+  <svg id="stackChart" class="chart tall" role="img" aria-label="Schematic four-instrument snapshot by episode"></svg>
+  <p class="caption" id="stackCaption"></p>
+</section>
+
+<section id="episodes">
+  <h2>Four episodes and one contrast</h2>
+  <p>The sample is the union of four resolved debt-limit episodes and the August 2026 long-end state, which is included because it is the cleanest recent case of fiscal-duration stress without a credit-event deadline.</p>
+  <div class="tablewrap">
+    <table class="table">
+      <thead><tr><th>Episode</th><th>Political facts</th><th>CDS / PD</th><th>Other markets</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>2011</td>
+          <td>X-date 2 August. Budget Control Act. S&amp;P downgrade to AA+ on 5 August.</td>
+          <td>One-year CDS peak about 82 bp; first recorded 1y–5y inversion; timed \(p\) about 6%.</td>
+          <td>Gross U.S. sovereign CDS notional peaked at $32.3 billion (Boyarchenko and Shachar 2020). CTD rotated near par.</td>
+        </tr>
+        <tr>
+          <td>2013</td>
+          <td>Shutdown; Continuing Appropriations Act, 17 October.</td>
+          <td>Timed \(p\) peaked at 4%. Spreads well below 2023.</td>
+          <td>Activity pocket; net notional later referenced at $4.1 billion in the week of 25 October 2013.</td>
+        </tr>
+        <tr>
+          <td>2023</td>
+          <td>Limit hit 19 January; extraordinary measures; FRA 3 June; Secretary Yellen’s 1 June letter.</td>
+          <td>One-year CDS 177 bp on 1 May; MSCI \(p=3.9\%\) on 3 May; Chicago Fed about 4% in April, then about 20 bp after FRA.</td>
+          <td>Net notional $5.7 billion (week of 12 May), above 2013. Bills around the x-date about 100 bp cheap versus adjacent / OIS. DTCC rank jumped from 466th to 12th by average notional, 2022:Q4 to 2023:Q1.</td>
+        </tr>
+        <tr>
+          <td>2025</td>
+          <td>FRA suspension ended 1 January; limit reinstated at $36.1 trillion on 2 January; raised $5 trillion to $41.1 trillion on 4 July. CBO x-date mid-August to late September.</td>
+          <td>Timed \(p\) 1% by 6 November 2024, 0.35% just after, 1.1% in the May 2025 Chicago Fed draft. Five-year CDS 48 bp on 5 June 2025 (Griffin / S&amp;P Global), through Spain and France, alongside Italy.</td>
+          <td>Bill distortions small relative to 2023 (Chicago Fed 2025-07). TGA drawdowns coincide with spread spikes (Bianco 2025). U.S. CDS still thin versus China, Brazil, Turkey in DTCC prints.</td>
+        </tr>
+        <tr>
+          <td>Aug. 2026 contrast</td>
+          <td>No x-date. 19 August: long-end liquidity-support buybacks doubled to at least $4 billion, operations from 9 September. Coupon auction sizes unchanged.</td>
+          <td>No comparable credit-event spike in the public record used here. Reconstructing daily \(p_t\) through August 2026 is a deliverable of the project, not a number already in hand.</td>
+          <td>Official 10- and 30-year par yields at the 99.3rd and 99.6th percentiles of 2015–26; real 10- and 30-year at the 99.3rd and 99.5th; 30y–2y slope at the 46th. Joint PC1 splits 50.21 / 49.79 between nominal and real. Residual mean boundaries vanish after EFFR conditioning. That is a duration state, not a default state — if the CDS side agrees.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p>The comparative claim is then simple enough to falsify. If 2025–26 is a regime of structurally wider CDS for a given \(p_t\), the rates-put term should account for it: the cheapest deliverable is still a low-coupon 2050s bond, and a 30-year par yield of 5.22 percent on 28 August 2026 keeps that bond at a deep discount. If instead \(p_t\) itself has risen while bills do not kink, the market is pricing a different object than a missed payment in a particular month — a longer-horizon fiscal default in the sense of Chernov, Schmid and Schneider (2020), not a debt-limit event. If neither \(p_t\) nor the bill kink moves, August 2026 stays on the duration side of the table, which is what the completed curve thesis already suggests.</p>
+</section>
+
+<section id="liquidity">
+  <h2>Liquidity, quanto, and data quality as results</h2>
+  <p>U.S. sovereign CDS is a small market that wakes up for political deadlines. Gross notional peaked at $32.3 billion in August 2011, fell to $1.3 billion by 2021:Q4, and reached $13.3 billion in the week of 12 May 2023. Most weeks in 2022 saw no trades; the week of 26 May 2023 saw 178 contracts, then three or four a week after the FRA. A majority of contracts are euro-denominated, so the premium embeds a quanto on dollar depreciation in default (Augustin, Chernov and Song 2020). Klingler and Lando (2018) give a further non-credit motive: dealer capital relief on uncollateralized sovereign derivatives.</p>
+  <p>The paper therefore reports, for every peak, the DTCC trade count, net notional, 1y–5y slope, and USD/EUR basis when both quotes exist. A probability estimated off three contracts is labeled as such. That is closer to Chen’s instinct about what a number can bear than a single Bloomberg series treated as a price.</p>
+  <div class="note"><strong>Data constraint, stated in advance.</strong> Historical single-name CDS is the binding input. Candidate public or personally licensed sources: DTCC TIW aggregates, any university Markit/S&amp;P Global access, and contemporaneous published prints (Chicago Fed, MSCI, CRS, Reuters, FT) as an audit tape. If a continuous 2011–2026 one-year series cannot be licensed, the paper is built on episode windows plus the public prints, and that limitation is in the abstract. Employer terminals are not a fallback.</div>
+</section>
+
+<section id="literature">
+  <h2>Relation to the literature and to Professor Chen’s agenda</h2>
+  <div class="tablewrap">
+    <table class="table">
+      <thead><tr><th>Research line</th><th>What exists</th><th>What this project adds</th></tr></thead>
+      <tbody>
+        <tr><td>CDS-implied U.S. default</td><td>Sparks and Wang (MSCI, 2023); Benzoni et al. (Chicago Fed 2023, 2025); Barclays FAQs (Willemann et al. 2023).</td><td>A public reconstruction spanning four episodes and the 2026 non-event, with both (1) and (2), CUSIP-level CTD identity, and a written disagreement protocol.</td></tr>
+        <tr><td>Sovereign CDS theory</td><td>Chernov, Schmid and Schneider (2020) on fiscal default versus inflation; Klingler and Lando (2018) on capital-relief demand; quanto (Augustin, Chernov and Song 2020).</td><td>Does not estimate a structural model. Uses those papers as the menu of non-credit and long-horizon interpretations against which the four-instrument signatures are read.</td></tr>
+        <tr><td>Bills and x-dates</td><td>Chicago Fed 2023 and 2025 on bill–OIS kinks; Treasury and CBO x-date letters.</td><td>Places the kink on the same calendar as \(p_t\) and the CTD, with a pre-specified “small versus 2023” threshold rather than a narrative.</td></tr>
+        <tr><td>Political uncertainty and markets</td><td>Chen and Feng (EJPE) on growth under political uncertainty; Fang, Chen, Yu and Qian (FRL 2018) on ADCC ΔCoVaR across G7 and BRICS equities.</td><td>Supplies the missing sovereign-credit node: a default-probability series that can sit beside an equity ΔCoVaR without pretending that a CDS spread is already that node.</td></tr>
+        <tr><td>Curve-level fiscal stress</td><td>Completed public-data thesis on August 2026: high real rates, ordinary slopes, no residual mean break after EFFR conditioning.</td><td>Asks whether that duration state is also a default-probability state. If not, fiscal commentary that quotes the 30-year and the CDS in the same sentence is mixing objects.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>Chen’s 2018 paper ranks equity markets by systemic contribution. The natural extension, already sketched as a companion project, is to put credit nodes into that system. This proposal is narrower and should be first. Without a defensible \(p_t\), a U.S. sovereign CDS spread fed into ΔCoVaR is just another noisy equity-correlated spread. With it, one can ask whether equity-market systemic rankings move when the sovereign object is a 6 percent timed default probability (2011) or a 1 percent probability sitting on a 99th-percentile real long yield (2026). That is a question a Marshall / CASS / CES audience will recognize, and it is a question that needs the measurement half before the spillover half.</p>
+</section>
+
+<section id="collaboration">
+  <h2>Division of work, scope, and constraints</h2>
+  <div class="grid2">
+    <div>
+      <h3>What I would build</h3>
+      <ul>
+        <li>Daily CTD identifier from the public coupon universe.</li>
+        <li>Timed and constant-hazard \(p_t\) from whatever CDS tape can be licensed or reconstructed.</li>
+        <li>Bill–OIS x-date kinks, futures CTD, and swap-spread overlays.</li>
+        <li>The August 2026 curve contrast, already completed on official par yields.</li>
+        <li>A replicable public archive: hashes, episode calendars, and a one-figure notebook that can be rerun when the next x-date appears.</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Where Professor Chen’s judgment is the scarce input</h3>
+      <ul>
+        <li>Which political dates are treatment and which are noise — including 2025’s overlap of a debt limit, a tax bill, and Liberation Day tariffs.</li>
+        <li>How far a thin CDS print can be asked to go in a paper that will be read by policy and practitioner audiences.</li>
+        <li>Whether the right first paper is the four-episode measurement note or the measurement-plus-ΔCoVaR companion.</li>
+        <li>Placement and framing. This is not a job inquiry; it is an ask for identification and audience.</li>
+      </ul>
+    </div>
+  </div>
+  <h3>Proposed work plan</h3>
+  <div class="steps">
+    <div><b class="phase">Already in hand</b><span>Public 2023 illustration of the CTD adjustment; Chicago Fed confirmation of the 2011 &gt; 2023 &gt; 2025 PD ranking; completed official-data curve thesis through 28 August 2026; episode calendar from Treasury letters, CBO, and enacted law.</span></div>
+    <div><b class="phase">4 weeks</b><span>Pilot: reconstruct CTD and both \(p\) maps for 2023 alone from public prices plus published CDS prints; one figure that replicates the MSCI 3.9 percent / Chicago Fed 4 percent ranking without any employer system. This is the object of the twenty-minute conversation.</span></div>
+    <div><b class="phase">10–12 weeks</b><span>Extend the pipeline to 2011, 2013, and 2025; add bill–OIS kinks and the 1y–5y inversion; write the measurement note.</span></div>
+    <div><b class="phase">Second paper, if the first survives</b><span>Feed \(p_t\) and a credit-return node into the Fang–Chen–Yu–Qian ΔCoVaR framing. That paper is 3.1 in the internal map; it should not be started until this one has a number that can be defended.</span></div>
+  </div>
+  <div class="note"><strong>Employer boundary, written rather than implied.</strong> The 2023 MSCI note is a published, citable illustration. Everything in this project is re-derived from public or personally licensed sources, or omitted. No MSCI (or Clearwater) code, models, client files, quote boards, or private sanity checks. The employment agreement will be checked in writing before any submission. Files live on personal hardware in a separate repository. If a data item cannot be rebuilt in that constraint, it does not enter the paper. Authorship should follow real contribution, in whatever order is fair.</div>
+  <p>The immediate request is a short discussion of whether the 2011–2023 reversal — wider spread, lower delivery-adjusted probability — is the right first figure to take to a policy and practitioner audience, and whether the August 2026 curve state belongs in the same paper as a non-event or should wait. The project is executable alone on public data if the answer is no. A collaborator is an accelerant, not a prerequisite.</p>
+</section>
+
+<section id="references">
+  <h2>References and public sources</h2>
+  <div class="refs">
+    <div class="ref"><div>Augustin, P., M. Chernov, and D. Song. 2020. “Sovereign Credit Risk and Exchange Rates: Evidence from CDS Quanto Spreads.” <em>Journal of Financial Economics</em> 137(1).</div></div>
+    <div class="ref"><div>Benzoni, L., C. Cabanilla, A. Cocco, and C. Kavoussi. 2023. “What Does the CDS Market Imply for a U.S. Default?” Federal Reserve Bank of Chicago <em>Economic Perspectives</em> No. 4, and Working Paper 2023-17.</div></div>
+    <div class="ref"><div>Benzoni, L., and M. Wernick. 2025. “The 2025 U.S. Debt Limit Through the Lens of Financial Markets.” Federal Reserve Bank of Chicago Working Paper 2025-07.</div></div>
+    <div class="ref"><div>Boyarchenko, N., and O. Shachar. 2020. “The Evolving Market for U.S. Sovereign Credit Risk.” Federal Reserve Bank of New York <em>Liberty Street Economics</em>.</div></div>
+    <div class="ref"><div>Chen, B., and Y. Feng. “Growth under Political Uncertainty.” <em>European Journal of Political Economy</em>.</div></div>
+    <div class="ref"><div>Chernov, M., L. Schmid, and A. Schneider. 2020. “A Macrofinance View of U.S. Sovereign CDS Premiums.” <em>Journal of Finance</em> 75(5).</div></div>
+    <div class="ref"><div>Fang, L., B. Chen, H. Yu, and Y. Qian. 2018. “Identifying Systemic Important Markets from a Global Perspective: Using the ADCC ΔCoVaR Approach with Skewed-t Distribution.” <em>Finance Research Letters</em> 24.</div></div>
+    <div class="ref"><div>Klingler, S., and D. Lando. 2018. “Safe Haven CDS Premiums.” <em>Review of Financial Studies</em> 31(5).</div></div>
+    <div class="ref"><div>Sparks, A., and M. Wang. 2023. “The CDS Market’s View on US Default.” MSCI Research, 9 May. Reuters coverage, 31 May 2023; discussed in Wigglesworth, <em>Financial Times</em>, 8 March 2023.</div></div>
+    <div class="ref"><div>Sundaresan, S. 2009. <em>Fixed Income Markets and Their Derivatives</em>. Elsevier.</div></div>
+    <div class="ref"><div>U.S. Department of the Treasury. Debt-limit letters to Congress, 2023 and 2025; August 2026 Quarterly Refunding; “Treasury Announces Increased Sizes of Nominal Long-End Liquidity Support Buybacks,” 19 August 2026.</div></div>
+    <div class="ref"><div>Congressional Research Service. IN12045, “Federal Debt and the Debt Limit in 2025”; R41932 on 2011 CDS prints. CBO x-date updates, 2023 and 2025.</div></div>
+    <div class="ref"><div>Willemann, S., J. Patel, A. Pradhan, and A. Mok. 2023. “FAQs on USA Sovereign CDS — 2023 Edition.” Barclays Credit and Rates Strategy, 8 March.</div></div>
+    <div class="ref"><div>Completed baseline on the curve side: “High Real Rates, Ordinary Slopes,” public-data thesis, 30 August 2026, official CMT and R-CMT through 28 August 2026. <a href="https://oviiy.github.io/mw_lab/knowledge/private/fiscal-risk-or-market-plumbing-paper.html">Open the thesis</a>.</div></div>
+  </div>
+</section>
+
+<footer>
+  Research collaboration proposal for discussion with Professor Baizhu Chen, USC Marshall. Public data and published sources only. Candidate dates and published prints are not investment advice. This file is unlisted; share the URL only with intended readers.
+</footer>
+</main></div>
+
+<script>
+const D = {
+  episodes: [
+    {id:'2011', label:'2011', cds:82, cdsLo:82, cdsHi:82, pd:6.0, ctd:94, bill:1, invert:1, duration:0, note:'Budget Control Act, 2 Aug 2011. One-year CDS about 82 bp (Markit/CRS). Timed PD about 6% (Chicago Fed). First recorded 1y–5y inversion. CTD rotated near par; 94 is an illustration of that near-par state, not a CUSIP print.'},
+    {id:'2013', label:'2013', cds:68, cdsLo:59, cdsHi:85, pd:4.0, ctd:92, bill:1, invert:0, duration:0, note:'Continuing Appropriations Act, 17 Oct 2013. Timed PD peaked at 4% (Chicago Fed). One-year CDS shown as the midpoint of a 59–85 bp band implied by “two to three times lower than 2023’s 177 bp.” CTD again rotated and is illustrated near par.'},
+    {id:'2023', label:'2023', cds:177, cdsLo:177, cdsHi:177, pd:4.0, ctd:58, bill:2, invert:1, duration:0, note:'One-year CDS 177 bp on 1 May 2023 (Chicago Fed/Bloomberg). MSCI PD 3.9% on 3 May with the 1.25s of 15 May 2050 at about 58; Chicago Fed about 4% in April. Bills around the x-date about 100 bp cheap. Net notional $5.7 bn. FRA 3 June; PD then near 20 bp.'},
+    {id:'2025', label:'2025', cds:null, cdsLo:null, cdsHi:null, pd:1.1, ctd:52, bill:0, invert:0, duration:0, note:'Chicago Fed 2025-07: PD 1% by the 6 Nov 2024 election, 1.1% in the May 2025 draft. Five-year CDS printed 48 bp on 5 June 2025 (S&P Global, via Reuters/Griffin) — not plotted on the one-year panel. Bill kinks small versus 2023. Limit raised $5 tn on 4 July 2025.'},
+    {id:'2026', label:'Aug. 2026', cds:null, cdsLo:null, cdsHi:null, pd:null, ctd:50, bill:0, invert:0, duration:2, note:'Non-event contrast, not a debt-limit episode. Official 30-year par 5.22% (99.6th percentile of 2015–26); 30y–2y slope 88 bp (46th). Real 10- and 30-year also above the 99th percentile. No published credit-event spike is used here; reconstructing daily PD through August 2026 is a project deliverable. Long-end buybacks doubled on 19 August, operations from 9 September.'}
+  ]
+};
+
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const ink = () => getComputedStyle(document.documentElement).getPropertyValue('--ink').trim() || '#111';
+const mut = () => getComputedStyle(document.documentElement).getPropertyValue('--muted').trim() || '#555';
+const line = () => getComputedStyle(document.documentElement).getPropertyValue('--line').trim() || '#d6d9de';
+const blue = '#2563a6', red = '#c2413b', orange = '#d97706', green = '#16836d';
+
+function frame(svg, y0, y1, ylab, m){
+  const W = Math.max(svg.clientWidth, 320), H = svg.clientHeight;
+  m = Object.assign({l:56,r:52,t:22,b:48}, m||{});
+  const y = v => m.t + (y1-v)/(y1-y0)*(H-m.t-m.b);
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  svg.innerHTML = '';
+  for(let i=0;i<5;i++){
+    const yy = m.t + i*(H-m.t-m.b)/4, v = y1 - i*(y1-y0)/4;
+    svg.insertAdjacentHTML('beforeend', `<line class="gridline" x1="${m.l}" x2="${W-m.r}" y1="${yy}" y2="${yy}"/><text class="tick" x="${m.l-8}" y="${yy+4}" text-anchor="end">${v.toFixed(y1>20?0:1)}</text>`);
+  }
+  svg.insertAdjacentHTML('beforeend', `<line class="axis" x1="${m.l}" x2="${W-m.r}" y1="${H-m.b}" y2="${H-m.b}"/><text class="tick" transform="translate(14 ${H/2}) rotate(-90)" text-anchor="middle">${ylab}</text>`);
+  return {W,H,m,y,xFrac:(f)=>m.l+f*(W-m.l-m.r)};
+}
+
+let factView = 'both';
+function drawHeadline(){
+  const svg = $('#headlineChart');
+  const eps = D.episodes.filter(e => e.id !== '2026');
+  const W = Math.max(svg.clientWidth, 320), H = svg.clientHeight;
+  const m = {l:52,r:56,t:28,b:56};
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  svg.innerHTML = '';
+  const showS = factView !== 'pd', showP = factView !== 'spread';
+  const yS = v => m.t + (200-v)/200*(H-m.t-m.b);
+  const yP = v => m.t + (8-v)/8*(H-m.t-m.b);
+  for(let i=0;i<5;i++){
+    const yy = m.t + i*(H-m.t-m.b)/4;
+    svg.insertAdjacentHTML('beforeend', `<line class="gridline" x1="${m.l}" x2="${W-m.r}" y1="${yy}" y2="${yy}"/>`);
+    if(showS) svg.insertAdjacentHTML('beforeend', `<text class="tick" x="${m.l-8}" y="${yy+4}" text-anchor="end">${(200-i*50).toFixed(0)}</text>`);
+    if(showP) svg.insertAdjacentHTML('beforeend', `<text class="tick" x="${W-m.r+8}" y="${yy+4}">${(8-i*2).toFixed(0)}</text>`);
+  }
+  svg.insertAdjacentHTML('beforeend', `<line class="axis" x1="${m.l}" x2="${W-m.r}" y1="${H-m.b}" y2="${H-m.b}"/>`);
+  if(showS) svg.insertAdjacentHTML('beforeend', `<text class="tick" transform="translate(14 ${H/2}) rotate(-90)" text-anchor="middle">One-year CDS (bp)</text>`);
+  if(showP) svg.insertAdjacentHTML('beforeend', `<text class="tick" transform="translate(${W-12} ${H/2}) rotate(90)" text-anchor="middle">Implied PD (%)</text>`);
+  const n = eps.length, group = (W-m.l-m.r)/n, bw = Math.min(28, group*0.22);
+  eps.forEach((e,i) => {
+    const cx = m.l + group*(i+0.5);
+    if(showS && e.cds != null){
+      const x = cx - (showP ? bw*0.7 : 0) - bw/2;
+      svg.insertAdjacentHTML('beforeend', `<rect x="${x}" y="${yS(e.cds)}" width="${bw}" height="${H-m.b-yS(e.cds)}" fill="${blue}" opacity=".92"/>`);
+      if(e.cdsLo !== e.cdsHi){
+        svg.insertAdjacentHTML('beforeend', `<line x1="${cx-(showP?bw*0.7:0)}" x2="${cx-(showP?bw*0.7:0)}" y1="${yS(e.cdsHi)}" y2="${yS(e.cdsLo)}" stroke="${blue}" stroke-width="1.5"/><text class="tick" x="${x+bw/2}" y="${yS(e.cdsHi)-6}" text-anchor="middle">~${e.cds}</text>`);
+      } else {
+        svg.insertAdjacentHTML('beforeend', `<text class="tick" x="${x+bw/2}" y="${yS(e.cds)-6}" text-anchor="middle">${e.cds}</text>`);
+      }
+    }
+    if(showP){
+      const x = cx + (showS ? bw*0.7 : 0) - bw/2;
+      svg.insertAdjacentHTML('beforeend', `<rect x="${x}" y="${yP(e.pd)}" width="${bw}" height="${H-m.b-yP(e.pd)}" fill="${red}" opacity=".92"/><text class="tick" x="${x+bw/2}" y="${yP(e.pd)-6}" text-anchor="middle">${e.pd.toFixed(1)}%</text>`);
+    }
+    svg.insertAdjacentHTML('beforeend', `<text class="tick" x="${cx}" y="${H-22}" text-anchor="middle">${e.label}</text>`);
+  });
+}
+
+function drawCTD(){
+  const svg = $('#ctdChart');
+  const marks = [
+    {d:'2022-10-21', p:49.4, t:'21 Oct 2022  49.4  (Chicago Fed low)'},
+    {d:'2023-03-06', p:55.7, t:'6 Mar 2023  55.7  (Barclays / FT)'},
+    {d:'2023-05-03', p:58, t:'3 May 2023  ~58  (MSCI)'}
+  ];
+  const t0 = +new Date('2022-09-01'), t1 = +new Date('2023-06-15');
+  const ts = marks.map(z => +new Date(z.d));
+  const f = frame(svg, 44, 66, 'Price per 100');
+  const x = t => f.m.l + (t-t0)/(t1-t0)*(f.W-f.m.l-f.m.r);
+  const path = marks.map((z,i)=>(i?'L':'M')+x(+new Date(z.d))+','+f.y(z.p)).join(' ');
+  svg.insertAdjacentHTML('beforeend', `<path d="${path}" fill="none" stroke="${orange}" stroke-width="2.4"/>`);
+  marks.forEach(c => {
+    const xx = x(+new Date(c.d)), yy = f.y(c.p);
+    svg.insertAdjacentHTML('beforeend', `<circle cx="${xx}" cy="${yy}" r="4.5" fill="${orange}"/><text class="tick" x="${xx+7}" y="${yy-10}">${c.t}</text>`);
+  });
+  ['2022-10-01','2023-01-01','2023-04-01'].forEach(d => {
+    svg.insertAdjacentHTML('beforeend', `<text class="tick" x="${x(+new Date(d))}" y="${f.H-16}" text-anchor="middle">${d.slice(0,7)}</text>`);
+  });
+}
+
+function impliedSpread(pPct, ctd){ return pPct/100 * (100-ctd) * 100; }
+function impliedPD(sBp, ctd){ return ctd>=100 ? 0 : (sBp/100) / (1-ctd/100) * 100; }
+
+function drawPut(){
+  const svg = $('#putChart');
+  const f = frame(svg, 0, 280, 'Implied one-year CDS (bp)', {l:56,r:24,t:22,b:48});
+  const x = p => f.m.l + (p-40)/60*(f.W-f.m.l-f.m.r);
+  const ps = [2,4,6];
+  const cols = [green, red, blue];
+  ps.forEach((p,j) => {
+    let d = '';
+    for(let px=40; px<=100; px+=1){
+      const s = impliedSpread(p, px);
+      d += (px===40?'M':'L') + x(px) + ',' + f.y(s);
+    }
+    svg.insertAdjacentHTML('beforeend', `<path d="${d}" fill="none" stroke="${cols[j]}" stroke-width="2"/><text class="tick" x="${x(42)}" y="${f.y(impliedSpread(p,42))-6}" fill="${cols[j]}">p = ${p}%</text>`);
+  });
+  const mx = x(58), my = f.y(impliedSpread(3.9, 58));
+  svg.insertAdjacentHTML('beforeend', `<circle cx="${mx}" cy="${my}" r="5" fill="${red}"/><text class="tick" x="${mx+8}" y="${my+4}">3 May 2023 · p = 3.9% · CTD ≈ 58</text>`);
+  [40,50,60,70,80,90,100].forEach(p => svg.insertAdjacentHTML('beforeend', `<text class="tick" x="${x(p)}" y="${f.H-16}" text-anchor="middle">${p}</text>`));
+  svg.insertAdjacentHTML('beforeend', `<text class="tick" x="${(f.W)/2}" y="${f.H-4}" text-anchor="middle">Cheapest-to-deliver price</text>`);
+}
+
+function updateLab(){
+  const p = +$('#pFix').value, c1 = +$('#ctd1').value, s = +$('#sFix').value, c2 = +$('#ctd2').value;
+  $('#pFixOut').textContent = p.toFixed(1)+'%';
+  $('#ctd1Out').textContent = c1.toFixed(1);
+  $('#sFixOut').textContent = s.toFixed(0)+' bp';
+  $('#ctd2Out').textContent = c2.toFixed(1);
+  const sImp = impliedSpread(p, c1);
+  const pImp = impliedPD(s, c2);
+  $('#sOut').textContent = Math.round(sImp) + ' bp';
+  $('#pOut').textContent = pImp.toFixed(1) + '%';
+  $('#sNote').textContent = 'LGD = ' + (100-c1).toFixed(1) + ' points. A 5-point cheaper CTD at this p adds ' + Math.round(impliedSpread(p, c1-5)-sImp) + ' bp.';
+  $('#pNote').textContent = 'Same spread at par recovery (CTD = 100 is undefined; at 95) would imply ' + impliedPD(s, 95).toFixed(1) + '%. Near-par recovery inflates p.';
+}
+
+let epId = '2023';
+function drawStack(){
+  const svg = $('#stackChart');
+  const e = D.episodes.find(z => z.id === epId);
+  const rows = [
+    {k:'CDS / PD', v: e.pd==null ? 0.4 : e.pd/6, t: e.pd==null ? 'not yet reconstructed' : e.pd.toFixed(1)+'% timed PD'},
+    {k:'Bill x-date kink', v: e.bill/2, t: e.bill===2?'about 100 bp (2023)': e.bill===1 ? 'present, smaller' : 'small / absent in the published record'},
+    {k:'1y–5y inversion', v: e.invert, t: e.invert?'inverted (short-horizon credit)':'not the headline fact'},
+    {k:'Long-end duration', v: e.duration/2, t: e.duration===2?'99th-percentile real long yield, ordinary slope':'not the episode’s signature'}
+  ];
+  const W = Math.max(svg.clientWidth,320), H = svg.clientHeight, m={l:150,r:24,t:18,b:24};
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  svg.innerHTML='';
+  rows.forEach((r,i) => {
+    const y = m.t + i*(H-m.t-m.b)/rows.length + 18;
+    const w = Math.max(8, r.v*(W-m.l-m.r));
+    const col = [red, orange, blue, green][i];
+    svg.insertAdjacentHTML('beforeend', `<text class="tick" x="${m.l-10}" y="${y+5}" text-anchor="end">${r.k}</text><rect x="${m.l}" y="${y-10}" width="${w}" height="20" fill="${col}" opacity=".85"/><text class="tick" x="${m.l+w+8}" y="${y+5}">${r.t}</text>`);
+  });
+  $('#stackCaption').textContent = e.note;
+}
+
+function epButtons(){
+  const box = $('#epButtons');
+  box.innerHTML = D.episodes.map(e => `<button type="button" data-ep="${e.id}" ${e.id===epId?'aria-pressed="true"':''}>${e.label}</button>`).join('');
+  box.querySelectorAll('button').forEach(b => b.onclick = () => {
+    epId = b.dataset.ep;
+    box.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x===b));
+    drawStack();
+  });
+}
+
+$$('#factButtons button').forEach(b => b.onclick = () => {
+  factView = b.dataset.view;
+  $$('#factButtons button').forEach(x => x.setAttribute('aria-pressed', x===b));
+  drawHeadline();
+});
+['pFix','ctd1','sFix','ctd2'].forEach(id => $('#'+id).addEventListener('input', updateLab));
+
+function drawAll(){
+  drawHeadline(); drawCTD(); drawPut(); updateLab(); drawStack();
+}
+epButtons();
+drawAll();
+new ResizeObserver(drawAll).observe(document.querySelector('main'));
+</script>
+</body>
+</html>
