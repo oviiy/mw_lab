@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Are yield-curve factor loadings constant over time? — technical note</title>
+<meta name="description" content="Interactive technical note: U.S. Treasury yields 1970–2026, principal-component factors, time-varying loadings, a nonparametric test for constant loadings, and break-date scans." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" />
+<link rel="stylesheet" href="styles.css" />
+<script defer src="https://cdn.plot.ly/plotly-cartesian-2.35.2.min.js" charset="utf-8"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+</head>
+<body>
+<div class="layout">
+
+<nav class="toc" aria-label="Contents">
+  <div class="toc-title">Contents</div>
+  <ol>
+    <li><a href="#s1">Data</a></li>
+    <li><a href="#s2">Static factors</a></li>
+    <li><a href="#s3">Time-varying loadings</a></li>
+    <li><a href="#s4">Testing constancy</a></li>
+    <li><a href="#s5">Break dates</a></li>
+    <li><a href="#s6">Notes on construction</a></li>
+  </ol>
+  <a class="toc-refs" href="#refs">References</a>
+</nav>
+
+<article class="doc">
+<header class="doc-head">
+  <div class="kicker">Technical note · interactive companion to Qian &amp; Wang (2026), working paper <a class="cite" href="#r2">[2]</a></div>
+  <h1>Are yield-curve factor loadings constant over time?</h1>
+  <div class="meta">U.S. Treasury yields, Jan 1970 – Aug 2026 · month-end · all figures computed in your browser</div>
+  <div class="abstract">
+    <b>Abstract.</b> Factor models of the yield curve — Nelson–Siegel, Diebold–Li <a class="cite" href="#r7">[7]</a>, principal components — write yields as a few factors
+    multiplied by a <i>fixed</i> loading vector. This note examines that assumption on 56 years of Treasury yields. Three principal components
+    explain <span data-k="share3">—</span> of standardized yield variation, but loadings re-estimated through time move materially, most visibly while the short
+    end was pinned at zero. A nonparametric test for constant loadings <a class="cite" href="#r1">[1]</a> rejects constancy for three and four factors on the thesis
+    sample (2006–2026) but not for five, and sequential scans split the history into periods within which loadings look stable.
+  </div>
+</header>
+
+<!-- ============================ 1 DATA ============================ -->
+<section id="s1">
+  <h2><span class="sn">1</span>Data</h2>
+  <p>The main panel holds month-end U.S. Treasury yields from January 1970 to August 2026 (<span data-k="T">—</span> months) at eleven maturities from one month to thirty years.
+    Each maturity comes from a single published source for its entire history: Treasury-bill rates for 3 and 6 months, constant-maturity (CMT) yields otherwise
+    <a class="cite" href="#r6">[6]</a>. A maturity appears only in months when it was published; nothing is interpolated or spliced (§6). The factor analysis uses the seven
+    maturities with no gaps: 3M, 6M, 1Y, 3Y, 5Y, 7Y, 10Y.</p>
+
+  <figure class="fig" id="fig1">
+    <div class="toolbar">
+      <button class="play" id="f1Play" aria-label="Play">▶</button>
+      <input type="range" id="f1Slider" min="0" max="1" value="0" class="slider grow" />
+      <span class="date mono" id="f1Date">—</span>
+      <button class="tbtn" id="f1Pin">Pin</button><button class="tbtn ghost" id="f1Clear">Clear pins</button>
+    </div>
+    <div class="fig-row">
+      <div id="f1Curve" class="plot" style="height:330px"></div>
+      <aside class="side">
+        <dl id="f1Stats" class="stats"></dl>
+        <div id="f1Ctx" class="ctx"></div>
+      </aside>
+    </div>
+    <figcaption><b>Figure 1.</b> The yield curve at the selected month-end. Markers are published yields (orange: T-bill; teal: CMT); the line only joins them.
+      Grey band: range over the whole sample. Pin curves to compare dates; ←/→ step a month, shift for a year, space plays.</figcaption>
+  </figure>
+
+  <figure class="fig" id="fig2">
+    <div class="toolbar">
+      <div class="seg" id="f2Mode"><button data-v="levels">Yields</button><button data-v="spreads">Spreads</button></div>
+      <span class="hint">click the chart to move Figure 1 to that month</span>
+    </div>
+    <div id="f2Hist" class="plot" style="height:290px"></div>
+    <figcaption><b>Figure 2.</b> Yield history with NBER recessions shaded <a class="cite" href="#r8">[8]</a> and selected policy events marked. The spread view shows 10Y−3M and 10Y−2Y in basis points; negative values are inversions.</figcaption>
+  </figure>
+
+  <div class="tbl-wrap"><table class="tbl" id="tab1"></table></div>
+  <p class="tcap"><b>Table 1.</b> Sources and availability by maturity. ● marks the gap-free core used for factor estimation.</p>
+</section>
+
+<!-- ============================ 2 STATIC ============================ -->
+<section id="s2">
+  <h2><span class="sn">2</span>Static factors</h2>
+  <p>The benchmark model has one loading vector for all dates,
+    $$ y_t(\tau_i) = w(\tau_i)'\beta_t + \varepsilon_t(\tau_i),\qquad i = 1,\dots,N, $$
+    estimated here by principal components of the standardized core yields over the full sample. The first three components take the familiar shapes
+    <a class="cite" href="#r5">[5]</a>: <i>level</i> (all maturities move together), <i>slope</i> (short and long ends move in opposite directions) and
+    <i>curvature</i> (the belly moves against both ends). Average fitting error across all months falls from <span data-k="rmse1">—</span> with one factor to
+    <span data-k="rmse3">—</span> with three.</p>
+
+  <figure class="fig" id="fig3">
+    <div class="fig-2col">
+      <div><div class="sub">(a) loadings by maturity</div><div id="f3Load" class="plot" style="height:270px"></div></div>
+      <div><div class="sub">(b) share of variance (log scale)</div><div id="f3Scree" class="plot" style="height:270px"></div></div>
+    </div>
+    <figcaption><b>Figure 3.</b> Full-sample principal components of the seven core maturities, Jan 1970 – Aug 2026.</figcaption>
+  </figure>
+
+  <figure class="fig" id="fig4">
+    <div class="toolbar">
+      <div class="seg" id="f4Which"><button data-v="0">Level</button><button data-v="1">Slope</button><button data-v="2">Curvature</button></div>
+    </div>
+    <div id="f4Scores" class="plot" style="height:250px"></div>
+    <figcaption id="f4Cap"><b>Figure 4.</b> Factor score against its textbook proxy (both standardized).</figcaption>
+  </figure>
+</section>
+
+<!-- ============================ 3 DRIFT ============================ -->
+<section id="s3">
+  <h2><span class="sn">3</span>Time-varying loadings</h2>
+  <p>If the loadings were constant, re-estimating them on any sub-period would recover the same shapes up to sampling noise. Two estimators are shown:
+    an ordinary PCA on a trailing <i>rolling window</i>, and a <i>kernel-weighted local PCA</i> — the estimator used by the test in §4 <a class="cite" href="#r1">[1]</a> —
+    which weights nearby months more heavily on both sides of each date.</p>
+
+  <div class="toolbar sticky-tools">
+    <span class="lbl">Estimator</span>
+    <div class="seg" id="dMethod"><button data-v="rolling">Rolling window</button><button data-v="kernel">Kernel (local)</button></div>
+    <span id="dWinWrap" class="inline"><span class="lbl">window</span><input type="range" id="dWin" min="36" max="240" step="12" value="120" class="slider" /><span class="mono" id="dWinLbl">120m</span></span>
+    <span id="dBwWrap" class="inline" hidden><span class="lbl">bandwidth</span><input type="range" id="dBw" min="0.5" max="2" step="0.1" value="1" class="slider" /><span class="mono" id="dBwLbl">1.0×</span></span>
+    <span class="lbl">factor</span>
+    <div class="seg" id="dFactor"><button data-v="0">Level</button><button data-v="1">Slope</button><button data-v="2">Curvature</button></div>
+    <span class="busy" id="dBusy" hidden>computing…</span>
+  </div>
+
+  <figure class="fig" id="fig5">
+    <div class="toolbar">
+      <div class="seg" id="dHeatMode"><button data-v="delta">Change vs full sample</button><button data-v="raw">Loading</button></div>
+      <span class="hint">click to set date <span id="dNext">A</span></span>
+    </div>
+    <div id="dHeat" class="plot" style="height:270px"></div>
+    <figcaption><b>Figure 5.</b> Loadings of the selected factor by maturity (rows) and date (columns). In the default view each cell is the loading minus its full-sample value, so drift stands out even when the loading itself barely moves.</figcaption>
+  </figure>
+
+  <figure class="fig" id="fig6">
+    <div class="fig-2col">
+      <div><div class="sub">(a) loadings at two dates</div><div id="dSnap" class="plot" style="height:260px"></div></div>
+      <div><div class="sub">(b) largest principal angle to the full-sample loadings</div><div id="dAngle" class="plot" style="height:260px"></div></div>
+    </div>
+    <figcaption id="dCap"><b>Figure 6.</b> (a) Selected-factor loadings at dates A and B against the full sample (dashed). (b) The angle between the three-factor loading subspace at each date and the full-sample subspace; 0° means the same span.</figcaption>
+  </figure>
+  <p id="dText"></p>
+</section>
+
+<!-- ============================ 4 TEST ============================ -->
+<section id="s4">
+  <h2><span class="sn">4</span>Testing constancy</h2>
+  <h3>4.1 Method</h3>
+  <p>The test of <a class="cite" href="#r1">[1]</a> compares two estimates of the common component \(c_{it} = w_{it}'\beta_t\): a static one that imposes constant loadings, and a local
+    one that lets them vary smoothly. Under the null they differ only by estimation noise.</p>
+  <ol class="steps">
+    <li><b>Hypotheses.</b> \( y_{it} = w_{it}'\beta_t + \varepsilon_{it} \), \( H_0: w_{it} = w_i \) for all \(t\). Each maturity is standardized.</li>
+    <li><b>Static fit.</b> Full-sample PCA gives \( \tilde c_{it} = \tilde w_i'\tilde\beta_t \).</li>
+    <li><b>Local fit.</b> At each date, PCA of the kernel-weighted second moment
+      $$ \hat\Sigma_t = \frac1T\sum_{s=1}^T k_h\!\left(\tfrac{s-t}{T}\right) x_s x_s', \qquad h = \tfrac{2.35}{\sqrt{12}}\,T^{-1/5}N^{-1/10}, $$
+      with an Epanechnikov kernel and a boundary correction, gives \( \hat c_{it} = \hat w_{it}'\hat\beta_t \).</li>
+    <li><b>Statistic.</b> The mean squared gap and its bias-corrected, studentized version:
+      $$ M = \frac1{NT}\sum_{i,t}\big(\hat c_{it}-\tilde c_{it}\big)^2, \qquad J = \frac{T\sqrt{Nh}\,M - \hat B}{\sqrt{\hat V}}. $$
+      \(J\) is asymptotically standard normal under \(H_0\); large values indicate moving loadings.</li>
+    <li><b>Bootstrap.</b> With few maturities the normal limit is unreliable, so the null is simulated: \( x^*_t = \tilde c_t + \Sigma^{1/2} z_t \), \(z_t \sim \mathcal N(0, I)\),
+      where \(\Sigma\) is the static-residual covariance shrunk by \(0.99^{|i-j|}\). \(J\) is recomputed on each draw and \( p = (1 + \#\{J^* \ge J\})/(1 + B) \).</li>
+  </ol>
+
+  <figure class="fig" id="fig7">
+    <div class="toolbar"><span class="lbl">date t</span><input type="range" id="kT" class="slider grow" min="0" max="239" value="120" /><span class="date mono" id="kLbl"></span></div>
+    <div class="fig-2col">
+      <div><div class="sub">(a) kernel weights \(k_h\) around t</div><div id="kW" class="plot" style="height:230px"></div></div>
+      <div><div class="sub">(b) static vs local common component at t</div><div id="kFit" class="plot" style="height:230px"></div></div>
+    </div>
+    <figcaption><b>Figure 7.</b> What "local" means, on the thesis panel (T = 240, N = 17, three factors). Bars in (b): local minus static, in basis points. \(M\) is the average of the squared gaps over all dates and maturities.</figcaption>
+  </figure>
+
+  <h3>4.2 Results on the thesis sample</h3>
+  <p>The thesis applies the test to month-end zero-coupon yields from September 2006 to August 2026 (17 maturities, 3M–10Y; GSW fitted zeros <a class="cite" href="#r4">[4]</a> with FRED bill rates) with
+    B = 9,999 bootstrap draws for R = 3, 4 and 5 factors.</p>
+  <div class="tbl-wrap"><table class="tbl" id="tab2"></table></div>
+  <p class="tcap"><b>Table 2.</b> Test results. p-values use the add-one rule; with B = 9,999 the smallest attainable value is 0.0001.</p>
+  <figure class="fig" id="fig8">
+    <div class="fig-3col" id="f8Grid"></div>
+    <figcaption><b>Figure 8.</b> Bootstrap null distributions of \(J\) (grey), their 99% critical values (dotted) and the observed statistic (solid). Constancy is rejected with three and four factors; with five it is not.</figcaption>
+  </figure>
+  <p>One reading: the time variation that three or four constant-loading factors cannot capture is absorbed once a fifth factor is added — consistent with the break scans in §5.4, where the number of detected breaks falls from two (R = 3) to one (R = 4) to none (R = 5).</p>
+
+  <h3>4.3 Run it yourself</h3>
+  <p>The same statistic and bootstrap, implemented in JavaScript and checked against the thesis code to six significant digits, run here in a background thread.
+    Choose a sample and the number of factors; a 20-year window with B = 199 takes a few seconds.</p>
+  <figure class="fig" id="fig9">
+    <div class="toolbar wrap">
+      <span class="inline"><span class="lbl">data</span><select id="lDs"></select></span>
+      <span class="inline"><span class="lbl">from</span><select id="lFrom"></select><span class="lbl">to</span><select id="lTo"></select></span>
+      <span class="inline"><span class="lbl">factors R</span><div class="seg" id="lR"><button data-v="1">1</button><button data-v="2">2</button><button data-v="3">3</button><button data-v="4">4</button><button data-v="5">5</button></div></span>
+      <span class="inline"><span class="lbl">draws B</span><div class="seg" id="lB"><button data-v="99">99</button><button data-v="199">199</button><button data-v="499">499</button><button data-v="999">999</button></div></span>
+      <span class="inline"><span class="lbl">seed</span><input type="number" id="lSeed" value="2017" class="num" /></span>
+      <button class="run" id="lRun">Run test</button>
+    </div>
+    <div class="lmeta" id="lMeta"></div>
+    <div class="progress" id="lProg" hidden><div></div></div>
+    <div class="fig-row">
+      <div id="lHist" class="plot" style="height:230px"></div>
+      <aside class="side" id="lRes"><span class="muted">No run yet.</span></aside>
+    </div>
+    <figcaption><b>Figure 9.</b> Live test: bootstrap null of \(J\) for the chosen sample, with the observed value.</figcaption>
+  </figure>
+  <div class="tbl-wrap"><table class="tbl" id="lHistory"></table></div>
+</section>
+
+<!-- ============================ 5 BREAKS ============================ -->
+<section id="s5">
+  <h2><span class="sn">5</span>Break dates</h2>
+  <h3>5.1 What a break means here</h3>
+  <p>A rejection in §4 says the loadings are not constant over the <i>whole</i> sample, but not when they changed. A natural follow-up is to split the sample into
+    consecutive segments such that, within each segment, the test does <i>not</i> reject constancy. The boundaries between segments are the <b>break dates</b>.
+    A break is a change in <i>how</i> yields co-move — the shape of level, slope or curvature — not a jump in the level of rates.</p>
+
+  <h3>5.2 How the scan works</h3>
+  <ol class="steps">
+    <li><b>Start</b> a window at the first month of the current segment, with a minimum length (60 months for the long sample, 100 for the 2006–2026 sample) so the test has enough data.</li>
+    <li><b>Test</b> the window: standardize within the window, compute \(J\) with its own bandwidth, and compare it with a 999-draw bootstrap critical value at the 1% level.</li>
+    <li><b>Extend</b> the window by one month and test again, as long as constancy is not rejected.</li>
+    <li><b>Record a break</b> at the first month whose inclusion makes the test reject; confirm it with a 9,999-draw bootstrap. The next segment starts at that month.</li>
+    <li><b>Retreat rule.</b> If the very first (minimum-length) window already rejects, the change happened inside it: the scan steps back to the last window end that did not reject, records that as the break, and restarts there with a shorter minimum (24 months).</li>
+    <li><b>Stop</b> when the remaining sample is shorter than the minimum window.</li>
+  </ol>
+
+  <figure class="fig" id="fig10">
+    <div class="toolbar wrap">
+      <span class="lbl">segment</span><select id="bSeg"></select>
+      <button class="play" id="bPlay" aria-label="Play">▶</button>
+      <input type="range" id="bStep" class="slider grow" min="0" max="1" value="0" />
+      <span class="mono" id="bStepLbl"></span>
+    </div>
+    <div id="bWin" class="plot" style="height:190px"></div>
+    <div id="bTraj" class="plot" style="height:220px"></div>
+    <p class="explain" id="bExplain"></p>
+    <figcaption><b>Figure 10.</b> One segment of the 1970–2009 scan, step by step. Top: the window being tested (shaded) on the 3M and 10Y yields. Bottom: \(J\) for each window end against its 99% bootstrap critical value; red markers are rejections.</figcaption>
+  </figure>
+
+  <h3>5.3 Results, 1970–2009</h3>
+  <p>The long scan in the thesis uses the unsmoothed Fama–Bliss zero-coupon yields of Jungbacker, Koopman and van der Wel <a class="cite" href="#r3">[3]</a> (17 maturities, three factors).
+    For context Figure 11 plots this note's Treasury series; the break dates themselves come from the zero-coupon scan.</p>
+  <figure class="fig" id="fig11">
+    <div id="bTimeline" class="plot" style="height:300px"></div>
+    <figcaption><b>Figure 11.</b> Segments of constant loadings, 1970–2009 (three factors, 1% level). Red lines are break dates; shaded bands alternate between segments. Click a segment to step through it in Figure 10.</figcaption>
+  </figure>
+  <div class="tbl-wrap"><table class="tbl clickable" id="tab3"></table></div>
+  <p class="tcap"><b>Table 3.</b> Segments of the 1970–2009 scan with the confirming p-value of each break and the nearest dated event within a year. Events are context, not explanations: the scan dates when a change becomes detectable, which can lag its cause.</p>
+  <p id="bLongText"></p>
+
+  <h3>5.4 Results, 2006–2026, by number of factors</h3>
+  <p>The same scan on official Treasury par yields (11 maturities, 1M–30Y), over the thesis sample, repeated for R = 3, 4 and 5 factors:</p>
+  <figure class="fig" id="fig12">
+    <div class="fig-2col">
+      <div><div class="sub">(a) detected breaks by number of factors</div><div id="bRank" class="plot" style="height:220px"></div></div>
+      <div><div class="sub">(b) loadings before and after the break · <span class="seg small" id="bRankSel"><button data-v="3">R = 3</button><button data-v="4">R = 4</button></span></div><div id="bBA" class="plot" style="height:220px"></div></div>
+    </div>
+    <figcaption id="bRankCap"><b>Figure 12.</b> (a) Break dates for each R; more factors absorb more of the variation, so fewer breaks are found. (b) Level, slope and curvature loadings estimated separately before (dashed) and after (solid) the first break for the selected R, on this note's Treasury core maturities.</figcaption>
+  </figure>
+
+  <h3>5.5 Reading break dates with care</h3>
+  <ul>
+    <li><b>Detection, not onset.</b> A break is the first month at which the evidence crosses the 1% threshold; the underlying change may have begun earlier and been accumulating.</li>
+    <li><b>Minimum window.</b> Changes closer together than the minimum window cannot be separated; short segments (e.g. 19 months) arise only through the retreat rule.</li>
+    <li><b>Repeated testing.</b> Each segment involves many sequential tests at 1%; the scan is a descriptive segmentation, not a joint test with controlled overall size.</li>
+    <li><b>Monte Carlo noise.</b> Screening uses 999 draws; a break can shift by a month or two relative to a 9,999-draw run.</li>
+    <li><b>Specification.</b> Results depend on the number of factors, the maturities used and per-window standardization, as Figure 12 shows.</li>
+  </ul>
+</section>
+
+<!-- ============================ 6 NOTES ============================ -->
+<section id="s6">
+  <h2><span class="sn">6</span>Notes on construction</h2>
+  <ol>
+    <li><b>One source per maturity.</b> Stitching two sources at a fixed date would create an artificial break — exactly what §4–5 look for.</li>
+    <li><b>Short end.</b> The 3M and 6M CMT series begin only in September 1981. The H.15 Treasury-bill secondary-market rate covers the whole period; it is quoted on a
+      discount basis and converted on every date to bond-equivalent yield, \( y = 365\,d/(360 - d\,n) \) with \(n\) = 91 or 182 days. Over 1981–2026 the converted bill
+      yield differs from CMT by <span data-k="splice3">—</span> (3M) and <span data-k="splice6">—</span> (6M); see Figure 13. The CMT short end is not used.</li>
+    <li><b>No interpolation.</b> Gaps stay blank: 2Y before June 1976, 30Y before February 1977 and during its suspension (February 2002 – February 2006), 20Y in 1987–1993, 1M before July 2001.</li>
+    <li><b>Month-end.</b> Each month uses the last business-day observation.</li>
+    <li><b>Par vs zero.</b> CMT yields are par yields read from Treasury's fitted curve at benchmark tenors; the thesis panel and the 1970–2009 scan use zero-coupon yields. The two are never pooled.</li>
+    <li><b>Implementation.</b> The browser code reproduces the thesis statistic to six significant digits (unit-tested); bootstrap draws use a different random-number generator, so live p-values differ from the thesis by Monte Carlo noise.</li>
+  </ol>
+  <figure class="fig" id="fig13">
+    <div id="sDiff" class="plot" style="height:170px"></div>
+    <figcaption><b>Figure 13.</b> Converted T-bill yield minus CMT yield, monthly average, basis points.</figcaption>
+  </figure>
+</section>
+
+<section id="refs">
+  <h2>References</h2>
+  <ol class="refs">
+    <li id="r1">Su, L. and Wang, X. (2017). On time-varying factor models: Estimation and testing. <i>Journal of Econometrics</i> 198(1), 84–101. <a href="https://doi.org/10.1016/j.jeconom.2016.12.004" target="_blank" rel="noopener">doi:10.1016/j.jeconom.2016.12.004</a></li>
+    <li id="r2">Qian, J. and Wang, X. (2026). Are factor models with time-invariant loadings adequate for yield curves? Working paper.</li>
+    <li id="r3">Jungbacker, B., Koopman, S. J. and van der Wel, M. (2014). Smooth dynamic factor analysis with application to the U.S. term structure of interest rates. <i>Journal of Applied Econometrics</i> 29(1), 65–90.</li>
+    <li id="r4">Gürkaynak, R. S., Sack, B. and Wright, J. H. (2007). The U.S. Treasury yield curve: 1961 to the present. <i>Journal of Monetary Economics</i> 54(8), 2291–2304.</li>
+    <li id="r5">Litterman, R. and Scheinkman, J. (1991). Common factors affecting bond returns. <i>Journal of Fixed Income</i> 1(1), 54–61.</li>
+    <li id="r6">Board of Governors of the Federal Reserve System. H.15 Selected Interest Rates. <a href="https://www.federalreserve.gov/releases/h15/" target="_blank" rel="noopener">federalreserve.gov/releases/h15</a></li>
+    <li id="r7">Diebold, F. X. and Li, C. (2006). Forecasting the term structure of government bond yields. <i>Journal of Econometrics</i> 130(2), 337–364.</li>
+    <li id="r8">NBER Business Cycle Dating Committee. U.S. business cycle expansions and contractions. <a href="https://www.nber.org/research/data/us-business-cycle-expansions-and-contractions" target="_blank" rel="noopener">nber.org</a></li>
+  </ol>
+  <p class="small muted" id="buildNote"></p>
+</section>
+</article>
+</div>
+
+<script src="data.js"></script>
+<script src="engine.js"></script>
+<script src="js/core.js"></script>
+<script src="js/s1-data.js"></script>
+<script src="js/s2-static.js"></script>
+<script src="js/s3-drift.js"></script>
+<script src="js/s4-test.js"></script>
+<script src="js/s5-breaks.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
