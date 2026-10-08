@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<meta name="description" content="mw_lab — quant interview notes, browser research tools, and small games.">
+<title>mw_lab</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23101311'/%3E%3Ctext x='16' y='22' text-anchor='middle' font-family='Georgia,serif' font-size='16' fill='%23e08a52'%3Em%3C/text%3E%3C/svg%3E">
+<style>
+  :root {
+    --bg: #101311;
+    --card: #161b17;
+    --line: #2c352e;
+    --ink: #ece7db;
+    --muted: #a8a293;
+    --faint: #72786e;
+    --copper: #e08a52;
+    --moss: #8eae86;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    color: var(--ink);
+    background:
+      radial-gradient(880px 420px at 100% -10%, rgba(224,138,82,.15), transparent 58%),
+      radial-gradient(720px 460px at -12% 0%, rgba(142,174,134,.12), transparent 52%),
+      var(--bg);
+    font-family: "Segoe UI", "Helvetica Neue", sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+  }
+  a { color: inherit; text-decoration: none; }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 28px 22px 80px; }
+  .top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px 24px;
+    flex-wrap: wrap;
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--line);
+    font-family: ui-monospace, "Cascadia Mono", "Segoe UI Mono", Consolas, monospace;
+    font-size: 12px;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--faint);
+  }
+  .top nav { display: flex; gap: 18px; }
+  .top a:hover { color: var(--ink); }
+  .hero { padding: 56px 0 8px; max-width: 40rem; }
+  .kicker {
+    margin: 0 0 14px;
+    font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+    font-size: 12px;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--copper);
+  }
+  h1 {
+    margin: 0 0 16px;
+    font-family: "Iowan Old Style", Palatino, "Palatino Linotype", Georgia, serif;
+    font-weight: 500;
+    font-size: clamp(46px, 7vw, 76px);
+    letter-spacing: -0.035em;
+    line-height: 0.92;
+  }
+  .lede { margin: 0; color: var(--muted); font-size: 18px; }
+  .counts {
+    display: flex;
+    gap: 28px;
+    margin: 28px 0 0;
+    padding: 0;
+    list-style: none;
+    font-family: ui-monospace, Consolas, monospace;
+    font-size: 11px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--faint);
+  }
+  .counts strong {
+    display: block;
+    margin-bottom: 3px;
+    color: var(--ink);
+    font-family: "Iowan Old Style", Palatino, Georgia, serif;
+    font-size: 26px;
+    font-weight: 500;
+    letter-spacing: 0;
+  }
+  section { margin-top: 52px; scroll-margin-top: 18px; }
+  .sec-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--line);
+  }
+  .sec-head h2 {
+    margin: 0;
+    font-family: "Iowan Old Style", Palatino, Georgia, serif;
+    font-size: 30px;
+    font-weight: 500;
+  }
+  .sec-head span {
+    font-family: ui-monospace, Consolas, monospace;
+    font-size: 12px;
+    letter-spacing: .14em;
+    color: var(--faint);
+  }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  a.card {
+    display: flex;
+    flex-direction: column;
+    min-height: 128px;
+    padding: 16px 16px 14px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+  }
+  a.card:hover { border-color: #8d5a3a; }
+  a.card:focus-visible {
+    outline: none;
+    border-color: var(--copper);
+    box-shadow: 0 0 0 3px rgba(224,138,82,.35);
+  }
+  .card-top { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
+  .card h3 { margin: 0; font-size: 16.5px; font-weight: 650; letter-spacing: -0.015em; }
+  .go {
+    color: var(--faint);
+    font-family: ui-monospace, Consolas, monospace;
+    font-size: 14px;
+  }
+  a.card:hover .go, a.card:focus-visible .go { color: var(--copper); }
+  .card p { margin: 8px 0 0; color: var(--muted); font-size: 14.5px; }
+  .path {
+    margin-top: auto;
+    padding-top: 12px;
+    color: var(--moss);
+    font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+    font-size: 12px;
+  }
+  .note {
+    margin: 14px 0 0;
+    color: var(--faint);
+    font-size: 13.5px;
+  }
+  .note a { color: var(--muted); border-bottom: 1px solid var(--line); }
+  .note a:hover { color: var(--ink); }
+  footer {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 56px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    color: var(--faint);
+    font-size: 13px;
+  }
+  footer a { color: var(--muted); border-bottom: 1px solid var(--line); }
+  footer a:hover { color: var(--ink); }
+  @media (max-width: 720px) {
+    .grid { grid-template-columns: 1fr; }
+    .hero { padding-top: 36px; }
+    .counts { flex-wrap: wrap; }
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <span>mw_lab</span>
+      <nav>
+        <a href="#knowledge">Knowledge</a>
+        <a href="#tools">Tools</a>
+        <a href="#games">Games</a>
+      </nav>
+    </header>
+
+    <header class="hero">
+      <p class="kicker">Quant interview library</p>
+      <h1>mw_lab</h1>
+      <p class="lede">Interview notes, research tools, and small games. Each page runs in the browser.</p>
+      <ul class="counts">
+        <li><strong>6</strong>Knowledge</li>
+        <li><strong>6</strong>Tools</li>
+        <li><strong>6</strong>Games</li>
+      </ul>
+    </header>
+
+    <section id="knowledge">
+      <div class="sec-head">
+        <h2>Knowledge</h2>
+        <span>01</span>
+      </div>
+      <div class="grid">
+        <a class="card" href="knowledge/itv.html">
+          <div class="card-top"><h3>Quant &amp; Allocator Interview Prep</h3><span class="go">→</span></div>
+          <p>Questions and answers for quant and allocator seats, with topic coverage.</p>
+          <div class="path">knowledge/itv.html</div>
+        </a>
+        <a class="card" href="knowledge/quant-interview-drill.html">
+          <div class="card-top"><h3>Quant Interview Drill</h3><span class="go">→</span></div>
+          <p>Mixed and desk-targeted quizzes, study mode, and mastery tracking.</p>
+          <div class="path">knowledge/quant-interview-drill.html</div>
+        </a>
+        <a class="card" href="knowledge/treasury-quant-interview-prep.html">
+          <div class="card-top"><h3>Treasury Quant Interview Prep</h3><span class="go">→</span></div>
+          <p>Margin, financing, liquidity, short-rate models, Greeks, and a 120-question quiz.</p>
+          <div class="path">knowledge/treasury-quant-interview-prep.html</div>
+        </a>
+        <a class="card" href="knowledge/math-finance-map.html">
+          <div class="card-top"><h3>Mathematical Finance Map</h3><span class="go">→</span></div>
+          <p>Probability, filtrations, no-arbitrage, risk-neutral pricing, and the Black–Scholes spine.</p>
+          <div class="path">knowledge/math-finance-map.html</div>
+        </a>
+        <a class="card" href="knowledge/ai-industry-chain-encyclopedia.html">
+          <div class="card-top"><h3>AI Industry Encyclopedia</h3><span class="go">→</span></div>
+          <p>Silicon, power, networks, models, training, and the supply chain.</p>
+          <div class="path">knowledge/ai-industry-chain-encyclopedia.html</div>
+        </a>
+        <a class="card" href="knowledge/theorem-library.html">
+          <div class="card-top"><h3>Theorem Library</h3><span class="go">→</span></div>
+          <p>Math and physics theorems in plain language, in English and Chinese.</p>
+          <div class="path">knowledge/theorem-library.html</div>
+        </a>
+      </div>
+      <p class="note">A few notes under knowledge stay unlisted and are shared by direct link only.</p>
+    </section>
+
+    <section id="tools">
+      <div class="sec-head">
+        <h2>Tools</h2>
+        <span>02</span>
+      </div>
+      <div class="grid">
+        <a class="card" href="tools/sleeve_research.html">
+          <div class="card-top"><h3>Sleeve Research</h3><span class="go">→</span></div>
+          <p>Sleeve signals, backtests, parameter sweeps, Monte Carlo, and walk-forward.</p>
+          <div class="path">tools/sleeve_research.html</div>
+        </a>
+        <a class="card" href="tools/arb-free-surface-lab.html">
+          <div class="card-top"><h3>Arbitrage-Free Surface Lab</h3><span class="go">→</span></div>
+          <p>No-arbitrage constraints and surface construction.</p>
+          <div class="path">tools/arb-free-surface-lab.html</div>
+        </a>
+        <a class="card" href="tools/credit_correlation.html">
+          <div class="card-top"><h3>Credit Correlation Desk</h3><span class="go">→</span></div>
+          <p>CDX and iTraxx tranches, base correlation, and market snapshots.</p>
+          <div class="path">tools/credit_correlation.html</div>
+        </a>
+        <a class="card" href="tools/us_rotation.html">
+          <div class="card-top"><h3>US Style Analysis</h3><span class="go">→</span></div>
+          <p>US equity style-analysis dashboard.</p>
+          <div class="path">tools/us_rotation.html</div>
+        </a>
+        <a class="card" href="tools/video_downloader.html">
+          <div class="card-top"><h3>Video Downloader</h3><span class="go">→</span></div>
+          <p>Save short-form videos in the browser.</p>
+          <div class="path">tools/video_downloader.html</div>
+        </a>
+        <a class="card" href="tools/jp.html">
+          <div class="card-top"><h3>Japanese Tools</h3><span class="go">→</span></div>
+          <p>Japanese learning and utility helpers.</p>
+          <div class="path">tools/jp.html</div>
+        </a>
+      </div>
+      <p class="note">Quick Pull and Portfolio Rotation are local scripts in the <a href="https://github.com/oviiy/mw_lab/tree/main/tools">tools folder</a>.</p>
+    </section>
+
+    <section id="games">
+      <div class="sec-head">
+        <h2>Games</h2>
+        <span>03</span>
+      </div>
+      <div class="grid">
+        <a class="card" href="games/Particell.html">
+          <div class="card-top"><h3>Particell</h3><span class="go">→</span></div>
+          <p>Paint materials and watch heat move through a sandbox.</p>
+          <div class="path">games/Particell.html</div>
+        </a>
+        <a class="card" href="games/Blitz.html">
+          <div class="card-top"><h3>Blitz</h3><span class="go">→</span></div>
+          <p>Neon arena survivor with builds, shards, and medals.</p>
+          <div class="path">games/Blitz.html</div>
+        </a>
+        <a class="card" href="games/Catrun.html">
+          <div class="card-top"><h3>Catrun</h3><span class="go">→</span></div>
+          <p>One-button dash through biomes, coins, and gusts.</p>
+          <div class="path">games/Catrun.html</div>
+        </a>
+        <a class="card" href="games/Crimewave.html">
+          <div class="card-top"><h3>Crimewave</h3><span class="go">→</span></div>
+          <p>Isometric open world with wanted stars, cash, and a garage.</p>
+          <div class="path">games/Crimewave.html</div>
+        </a>
+        <a class="card" href="games/NeonDistrict/index.html">
+          <div class="card-top"><h3>Neon District</h3><span class="go">→</span></div>
+          <p>Top-down districts, driving, story, and police.</p>
+          <div class="path">games/NeonDistrict/</div>
+        </a>
+        <a class="card" href="games/ThreeBody.html">
+          <div class="card-top"><h3>Three Body</h3><span class="go">→</span></div>
+          <p>Figure-8, Lagrange, and chaotic three-body presets.</p>
+          <div class="path">games/ThreeBody.html</div>
+        </a>
+      </div>
+    </section>
+
+    <footer>
+      <span>Static pages. Open in Chrome or Edge.</span>
+      <a href="https://github.com/oviiy/mw_lab">github.com/oviiy/mw_lab</a>
+    </footer>
+  </div>
+</body>
+</html>
