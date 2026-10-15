@@ -1,6 +1,6 @@
 # mw_lab
 
-Browser games, research tools, and knowledge pages. The [homepage](https://oviiy.github.io/mw_lab/) lists every public browser project. GitHub Pages deploys the `main` branch through [the Pages workflow](./.github/workflows/static.yml).
+Browser games, research tools, and knowledge pages. The [file browser](https://oviiy.github.io/mw_lab/) lets visitors browse the public folders and open files directly. Its index is generated from tracked files by `python scripts/build-file-index.py` and refreshed by [the Pages workflow](./.github/workflows/static.yml).
 
 ## Knowledge
 
