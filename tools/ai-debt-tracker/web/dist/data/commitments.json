@@ -1,0 +1,95 @@
+{
+ "meta": {
+  "dataset_version": "2026.10.15",
+  "generated_at": "2026-10-15",
+  "sources": [
+   "SEC EDGAR",
+   "SEC XBRL API",
+   "FRED (ICE BofA indices, H.10 FX)"
+  ],
+  "license": "CC-BY-4.0"
+ },
+ "items": [
+  {
+   "id": "microsoft-leases-not-commenced",
+   "issuer_id": "microsoft",
+   "as_of": "2026-06-30",
+   "amount_usd": 329100000000,
+   "amount_text": "329.1 billion",
+   "description": "Additional leases, primarily for datacenters, not yet commenced",
+   "form": "10-K",
+   "source_url": "https://www.sec.gov/Archives/edgar/data/789019/000119312526323660/msft-20260630.htm",
+   "quotes": [
+    "As of June 30, 2026, we had additional leases, primarily for datacenters, that had not yet commenced of $ 329.1 billion"
+   ]
+  },
+  {
+   "id": "oracle-leases-not-commenced",
+   "issuer_id": "oracle",
+   "as_of": "2026-08-31",
+   "amount_usd": 288000000000,
+   "amount_text": "288 billion",
+   "description": "Additional lease commitments, substantially all data center arrangements; 15\u201319 year terms",
+   "form": "10-Q",
+   "source_url": "https://www.sec.gov/Archives/edgar/data/1341439/000119312526389274/orcl-20260831.htm",
+   "quotes": [
+    "As of August 31, 2026 , we had $ 288 billion of additional lease commitments, substantially all related to data center arrangements"
+   ]
+  },
+  {
+   "id": "meta-leases-not-commenced",
+   "issuer_id": "meta",
+   "as_of": "2026-06-30",
+   "amount_usd": 278990000000,
+   "amount_text": "278.99 billion",
+   "description": "Operating and finance leases not yet commenced (data centers, colocations, network); terms up to 30 years",
+   "subsequent_usd": 68000000000,
+   "subsequent_note": "Additional data center leases signed in July 2026, commencing 2027\u20132028",
+   "form": "10-Q",
+   "source_url": "https://www.sec.gov/Archives/edgar/data/1326801/000162828026050705/meta-20260630.htm",
+   "quotes": [
+    "These lease obligations were approximately $ 278.99 billion, consisting of data centers, colocations, and certain network infrastructure",
+    "In July 2026, we entered into additional data center leases with lease obligations of approximately $ 68 billion"
+   ]
+  },
+  {
+   "id": "amazon-leases-not-commenced",
+   "issuer_id": "amazon",
+   "as_of": "2026-06-30",
+   "amount_usd": 137214000000,
+   "amount_text": "137,214",
+   "description": "Leases not yet commenced (total of the commitments table, in millions)",
+   "form": "10-Q",
+   "source_url": "https://www.sec.gov/Archives/edgar/data/1018724/000101872426000026/amzn-20260630.htm",
+   "quotes": [
+    "Leases not yet commenced | 4,018 | 11,732 | 9,278 | 9,483 | 9,227 | 93,476 | 137,214"
+   ]
+  },
+  {
+   "id": "alphabet-leases-not-commenced",
+   "issuer_id": "alphabet",
+   "as_of": "2026-06-30",
+   "amount_usd": 85200000000,
+   "amount_text": "85.2 billion",
+   "description": "Leases, primarily data centers, not yet commenced",
+   "form": "10-Q",
+   "source_url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204426000071/goog-20260630.htm",
+   "quotes": [
+    "As of June 30, 2026, we have entered into leases, primarily related to data centers, that have not yet commenced with future lease payments of $85.2 billion"
+   ]
+  },
+  {
+   "id": "coreweave-leases-not-commenced",
+   "issuer_id": "coreweave",
+   "as_of": "2026-06-30",
+   "amount_usd": 35500000000,
+   "amount_text": "35.5 billion",
+   "description": "Executed leases (data centers, equipment, offices) not yet commenced; excludes arrangements with uncertain payments",
+   "form": "10-Q",
+   "source_url": "https://www.sec.gov/Archives/edgar/data/1769628/000176962826000366/crwv-20260630.htm",
+   "quotes": [
+    "The aggregate amount of estimated future undiscounted lease payments associated with such leases is $ 35.5 billion"
+   ]
+  }
+ ]
+}

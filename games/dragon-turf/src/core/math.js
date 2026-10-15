@@ -1,0 +1,18 @@
+export const TAU = Math.PI * 2;
+export const clamp = (v, a, b) => (v < a ? a : v > b ? b : v);
+export const lerp = (a, b, t) => a + (b - a) * t;
+export const damp = (a, b, lambda, dt) => a + (b - a) * (1 - Math.exp(-lambda * dt));
+export const wrapAngle = (a) => a - TAU * Math.round(a / TAU);
+export const angleDiff = (a, b) => wrapAngle(b - a);
+export const dampAngle = (a, b, lambda, dt) => a + wrapAngle(b - a) * (1 - Math.exp(-lambda * dt));
+export const dist = (ax, ay, bx, by) => Math.hypot(ax - bx, ay - by);
+export const dist2 = (ax, ay, bx, by) => (ax - bx) * (ax - bx) + (ay - by) * (ay - by);
+export const sign = (v) => (v < 0 ? -1 : v > 0 ? 1 : 0);
+export const smoothstep = (a, b, v) => { const t = clamp((v - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
+export const approach = (v, target, step) => (v < target ? Math.min(target, v + step) : Math.max(target, v - step));
+export const rectsOverlap = (a, b) => a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+export const pointInRect = (px, py, r) => px >= r.x && px <= r.x + r.w && py >= r.y && py <= r.y + r.h;
+export const fmtMoney = (n) => '$' + Math.floor(n).toLocaleString('en-US');
+export const pad2 = (n) => String(n).padStart(2, '0');
+export const easeOutBack = (t) => { const c = 1.70158; return 1 + (c + 1) * Math.pow(t - 1, 3) + c * Math.pow(t - 1, 2); };
+export const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);

@@ -1,0 +1,54 @@
+name: Update data
+
+# Weekly: discover new SEC filings, extract (Claude), validate, and open a PR with the diff.
+# A human reviews and merges; merging to main redeploys the site.
+on:
+  schedule:
+    - cron: "0 6 * * 1"   # Mondays 06:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: pipeline } }
+    # SEC_USER_AGENT is required: the SEC rejects requests without a real contact email, so
+    # without it this job stops with a clear message (the site itself keeps deploying from the
+    # committed data). ANTHROPIC_API_KEY is optional: without it, filings not yet in the
+    # extraction cache go to the review queue instead of being extracted.
+    env:
+      SEC_USER_AGENT: ${{ secrets.SEC_USER_AGENT }}       # "Your Name your@email" (SEC fair-access rule)
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12", cache: pip, cache-dependency-path: pipeline/requirements.txt }
+      - run: pip install -r requirements.txt
+      - name: Run pipeline
+        id: run
+        run: |
+          python -m aidebt.run | tee ../run.log
+          echo "summary<<EOF" >> "$GITHUB_OUTPUT"; cat ../run.log >> "$GITHUB_OUTPUT"; echo "EOF" >> "$GITHUB_OUTPUT"
+      - name: Eval gate
+        run: python -m aidebt.evaluate && pytest -q
+      # Needs Settings > Actions > General > "Allow GitHub Actions to create and approve pull requests".
+      # If that is off, the refreshed data is simply not proposed; nothing else breaks.
+      - uses: peter-evans/create-pull-request@v7
+        continue-on-error: true
+        with:
+          branch: data/weekly-update
+          title: "Data update ${{ github.run_id }}"
+          commit-message: "data: weekly update from SEC EDGAR and FRED"
+          body: |
+            Automated weekly refresh. Before merging, review:
+            - new tranches and anything in `data/review/queue.json`;
+            - `data/review/segments_queue.json`: every cloud-segment number extracted from new
+              10-Qs/10-Ks (only `validated` ones are published), plus lease-commitment entries that
+              failed their quote check or have a newer filing to update from (`status: stale`).
+
+            ```
+            ${{ steps.run.outputs.summary }}
+            ```

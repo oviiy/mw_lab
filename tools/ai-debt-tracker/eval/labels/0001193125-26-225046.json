@@ -1,0 +1,14 @@
+{
+  "accession": "0001193125-26-225046",
+  "is_new_debt": true,
+  "tranches": [
+    {"currency": "JPY", "amount": 135500000000, "maturity_date": "2029-05-16", "coupon_pct": 1.965, "spread_bp": null},
+    {"currency": "JPY", "amount": 200500000000, "maturity_date": "2031-05-16", "coupon_pct": 2.412, "spread_bp": null},
+    {"currency": "JPY", "amount": 123200000000, "maturity_date": "2033-05-16", "coupon_pct": 2.822, "spread_bp": null},
+    {"currency": "JPY", "amount": 64900000000, "maturity_date": "2036-05-16", "coupon_pct": 3.189, "spread_bp": null},
+    {"currency": "JPY", "amount": 19100000000, "maturity_date": "2041-05-16", "coupon_pct": 3.713, "spread_bp": null},
+    {"currency": "JPY", "amount": 9300000000, "maturity_date": "2056-05-16", "coupon_pct": 4.395, "spread_bp": null},
+    {"currency": "JPY", "amount": 24000000000, "maturity_date": "2066-05-17", "coupon_pct": 4.599, "spread_bp": null}
+  ],
+  "notes": "Alphabet JPY notes, 7 tranches totaling JPY 576.5bn. Priced only vs yen swap mid rates (Spread to Reference Rate +35/+50/+68/+75/+89/+109/+125 bps) -> spread_bp null per convention. 2066 notes mature May 17, 2066 (not May 16; long last coupon)."
+}

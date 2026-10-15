@@ -1,0 +1,90 @@
+{
+  "accession": "0001104659-26-106322",
+  "is_new_debt": true,
+  "doc_kind": "pricing_term_sheet",
+  "skip_reason": null,
+  "trade_date": "2026-09-09",
+  "settlement_date": "2026-09-14",
+  "tranches": [
+    {
+      "name": "5.200% Notes due 2029",
+      "instrument_type": "senior_notes",
+      "currency": "GBP",
+      "amount": 1250000000,
+      "coupon_pct": 5.2,
+      "floating_spread_bp": null,
+      "maturity_date": "2029-09-14",
+      "price_pct": 99.97,
+      "ytm_pct": 5.211,
+      "spread_bp": 53,
+      "benchmark": "UKT 4.125% due July 22, 2029",
+      "benchmark_yield_pct": 4.681,
+      "cusip": "023135EK8",
+      "isin": "XS3504677348",
+      "secured_by": null,
+      "quote": "2029 Notes: £1,250,000,000"
+    },
+    {
+      "name": "5.550% Notes due 2032",
+      "instrument_type": "senior_notes",
+      "currency": "GBP",
+      "amount": 1000000000,
+      "coupon_pct": 5.55,
+      "floating_spread_bp": null,
+      "maturity_date": "2032-09-14",
+      "price_pct": 99.945,
+      "ytm_pct": 5.561,
+      "spread_bp": 75,
+      "benchmark": "UKT 4.250% due June 7, 2032",
+      "benchmark_yield_pct": 4.811,
+      "cusip": "023135EL6",
+      "isin": "XS3504677694",
+      "secured_by": null,
+      "quote": "2032 Notes: £1,000,000,000"
+    },
+    {
+      "name": "6.250% Notes due 2038",
+      "instrument_type": "senior_notes",
+      "currency": "GBP",
+      "amount": 1000000000,
+      "coupon_pct": 6.25,
+      "floating_spread_bp": null,
+      "maturity_date": "2038-09-14",
+      "price_pct": 99.775,
+      "ytm_pct": 6.277,
+      "spread_bp": 90,
+      "benchmark": "UKT 3.750% due January 29, 2038",
+      "benchmark_yield_pct": 5.377,
+      "cusip": "023135EM4",
+      "isin": "XS3504677777",
+      "secured_by": null,
+      "quote": "2038 Notes: £1,000,000,000"
+    },
+    {
+      "name": "6.650% Notes due 2045",
+      "instrument_type": "senior_notes",
+      "currency": "GBP",
+      "amount": 1000000000,
+      "coupon_pct": 6.65,
+      "floating_spread_bp": null,
+      "maturity_date": "2045-09-14",
+      "price_pct": 99.563,
+      "ytm_pct": 6.691,
+      "spread_bp": 93,
+      "benchmark": "UKT 3.500% due January 22, 2045",
+      "benchmark_yield_pct": 5.761,
+      "cusip": "023135EN2",
+      "isin": "XS3504677934",
+      "secured_by": null,
+      "quote": "2045 Notes: £1,000,000,000"
+    }
+  ],
+  "proceeds": {
+    "ai_flag": "general",
+    "quote": "We intend to use the net proceeds from the sale of the notes for general corporate purposes, which may include, but are not limited to, repayment of debt, acquisitions, investments, working capital, investments in our subsidiaries, capital"
+  },
+  "_meta": {
+    "bundle_hash": "38c05102b82bc0f6",
+    "extractor": "claude-sonnet-5-5 via Claude Code agents, 2026-10-14"
+  }
+}

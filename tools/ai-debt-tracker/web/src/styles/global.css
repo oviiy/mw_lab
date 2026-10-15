@@ -1,0 +1,94 @@
+@import "@fontsource/spectral/400.css";
+@import "@fontsource/spectral/400-italic.css";
+@import "@fontsource/spectral/600.css";
+@import "@fontsource/spectral/700.css";
+@import "@fontsource/ibm-plex-sans-condensed/400.css";
+@import "@fontsource/ibm-plex-sans-condensed/500.css";
+@import "@fontsource/ibm-plex-sans-condensed/600.css";
+
+:root {
+  /* Two inks carry meaning everywhere on the page:
+     claret = things that wear out (hardware life), blue = debt. */
+  --paper: #f8f1e7;
+  --paper-deep: #f1e5d5;
+  --ink: #1c1a17;
+  --ink-2: #4a443d;
+  --muted: #6e655b;
+  --rule: #dccfbf;
+  --claret: #990f3d;
+  --claret-soft: #e9c6cf;
+  --blue: #0f5499;
+  --blue-soft: #c9d9ea;
+  /* third ink, for money coming in: operating cash flow and revenue (neutral, from the existing palette) */
+  --flow: #4a443d;
+  --flow-soft: #d9d0c3;
+
+  --serif: "Spectral", Georgia, serif;
+  --sans: "IBM Plex Sans Condensed", "Arial Narrow", sans-serif;
+
+  /* Type scale: 1.25 (major third) from an 19px body */
+  --t-xs: 0.8125rem;
+  --t-sm: 0.9375rem;
+  --t-md: 1.1875rem;
+  --t-lg: 1.5rem;
+  --t-xl: 2rem;
+  --t-2xl: 2.75rem;
+  --t-3xl: clamp(2.4rem, 5.2vw, 4.25rem);
+
+  --measure: 36rem;
+  --wide: 74rem;
+  --gutter: clamp(1.25rem, 4vw, 3rem);
+}
+
+* { box-sizing: border-box; }
+html { background: var(--paper); color: var(--ink); -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: var(--t-md);
+  line-height: 1.6;
+  font-feature-settings: "kern", "liga", "onum";
+  text-rendering: optimizeLegibility;
+}
+img, svg { display: block; }
+a { color: var(--blue); text-decoration-thickness: 1px; text-underline-offset: 0.18em; }
+a:hover { text-decoration-thickness: 2px; }
+:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; border-radius: 2px; }
+::selection { background: var(--claret-soft); }
+
+h1, h2, h3 { font-weight: 600; line-height: 1.12; letter-spacing: -0.012em; margin: 0; text-wrap: balance; }
+p { margin: 0 0 1em; text-wrap: pretty; }
+
+.num, .sans {
+  font-family: var(--sans);
+  font-feature-settings: "tnum", "lnum";
+}
+.claret { color: var(--claret); }
+.blue { color: var(--blue); }
+.muted { color: var(--muted); }
+
+.wrap { max-width: var(--wide); margin: 0 auto; padding: 0 var(--gutter); }
+.measure { max-width: var(--measure); }
+
+.visually-hidden {
+  position: absolute !important; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap;
+}
+
+/* Inline legend swatches used inside prose: "the claret line" */
+.swatch {
+  display: inline-block; width: 1.4em; height: 0.32em; vertical-align: 0.2em;
+  border-radius: 1px; margin-right: 0.15em;
+}
+.swatch.claret { background: var(--claret); }
+.swatch.blue { background: var(--blue); }
+
+/* Chart typography */
+.chart text { font-family: var(--sans); font-size: 12px; fill: var(--muted); font-feature-settings: "tnum"; }
+.chart .axis line, .chart .axis path { stroke: var(--rule); }
+.chart .grid line { stroke: var(--rule); stroke-dasharray: 2 3; }
+.chart .label-strong { fill: var(--ink); font-weight: 600; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+}

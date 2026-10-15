@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Are fixed-loading factor models adequate for the U.S. Treasury curve? — technical note</title>
+<meta name="description" content="Interactive technical note: testing whether yield-curve factor loadings are constant, on JKV zero-coupon yields (1970–2009) and official Treasury yields (1981–2026)." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" />
+<link rel="stylesheet" href="styles.css" />
+<script defer src="https://cdn.plot.ly/plotly-cartesian-2.35.2.min.js" charset="utf-8"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+</head>
+<body>
+<div class="layout">
+
+<nav class="toc" aria-label="Contents">
+  <div class="toc-title">Contents</div>
+  <ol>
+    <li><a href="#s1">Data</a></li>
+    <li><a href="#s2">Model and test</a></li>
+    <li><a href="#s3">Full-sample results</a></li>
+    <li><a href="#s4">The 1970s</a></li>
+    <li><a href="#s5">Local loadings</a></li>
+    <li><a href="#s6">Break scan</a></li>
+    <li><a href="#s7">Breaks and history</a></li>
+    <li><a href="#s8">Is the test reliable?</a></li>
+    <li><a href="#s9">Conclusions</a></li>
+  </ol>
+  <a class="toc-refs" href="#refs">References</a>
+</nav>
+
+<article class="doc">
+<header class="doc-head">
+  <div class="kicker">Technical note · interactive companion to Qian &amp; Wang (2026), working paper <a class="cite" href="#r2">[2]</a> · results as of week 7</div>
+  <h1>Are fixed-loading factor models adequate for the U.S. Treasury curve?</h1>
+  <div class="meta">JKV zero-coupon yields 1970–2009 · official Treasury yields 1981–2026 · month-end · figures computed in your browser from the thesis outputs</div>
+  <div class="abstract">
+    <b>Abstract.</b> Factor models of the yield curve — Nelson–Siegel <a class="cite" href="#r9">[9]</a>, Diebold–Li <a class="cite" href="#r7">[7]</a>, principal components — usually assume each maturity's
+    sensitivity to the factors (its <i>loading</i>) never changes. We apply a nonparametric test for constant loadings <a class="cite" href="#r1">[1]</a> to two data sets that are never pooled.
+    <ol class="findings">
+      <li><b>Fixed loadings are rejected.</b> Official Treasury yields reject them with 3, 4 and 5 factors; the JKV zero-coupon panel rejects the classic three-factor model.</li>
+      <li><b>The one exception is a power problem.</b> JKV with four factors does not reject over 1970–2009, but every sample starting between 1977 and 1986 does: the 1970s misfit inflates the bootstrap threshold.</li>
+      <li><b>Loadings change at a few dates, read approximately.</b> Four-factor breaks found under every window setting are JKV 1981-08 and Treasury 1993-06; dates move with the bandwidth and run late, and a change in noise variance can produce the same signal.</li>
+      <li><b>Rejections are robust</b> across sub-periods, across both data sets on their 1990–2009 overlap and across bandwidths for the full-sample test (Treasury at every bandwidth; JKV four-factor only at narrow ones).</li>
+      <li><b>Inference is sound with the bootstrap as printed.</b> The authors' released code runs a different, diagonal bootstrap; it reproduces their tables but over-rejects badly with few maturities, so the printed covariance version is used.</li>
+    </ol>
+  </div>
+</header>
+
+<!-- ============================ 1 DATA ============================ -->
+<section id="s1">
+  <h2><span class="sn">1</span>Data</h2>
+  <p>Two panels, tested separately and never pooled, between them cover 1970–2026:</p>
+  <div class="tbl-wrap"><table class="tbl" id="tab1"></table></div>
+  <p class="tcap"><b>Table 1.</b> Data sets. JKV yields are stripped directly from bond prices (CRSP), as distributed with <a class="cite" href="#r3">[3]</a>. Treasury yields before 1990 come from the Fed's H.15 archive <a class="cite" href="#r6">[6]</a>, identical to treasury.gov on all 430 shared month-ends; only the eight maturities complete since September 1981 are kept, none interpolated.</p>
+
+  <figure class="fig" id="fig1">
+    <div id="f1Heat" class="plot" style="height:330px"></div>
+    <figcaption><b>Figure 1.</b> Both panels on one time axis and one colour scale (rows: maturities, short end on top). Rates peak in the 1979–84 Volcker years; in 2009–15 and 2020–21 the short end sits at zero while the long end still moves.</figcaption>
+  </figure>
+
+  <figure class="fig" id="fig2">
+    <div class="toolbar">
+      <div class="seg" id="f2Ds"><button data-v="jkv">JKV</button><button data-v="treasury">Treasury</button></div>
+      <button class="play" id="f2Play" aria-label="Play">▶</button>
+      <input type="range" id="f2Slider" min="0" max="1" value="0" class="slider grow" />
+      <span class="date mono" id="f2Date">—</span>
+      <button class="tbtn" id="f2Pin">Pin</button><button class="tbtn ghost" id="f2Clear">Clear</button>
+    </div>
+    <div class="fig-row">
+      <div id="f2Curve" class="plot" style="height:300px"></div>
+      <aside class="side"><dl id="f2Stats" class="stats"></dl><div id="f2Ctx" class="ctx"></div></aside>
+    </div>
+    <figcaption><b>Figure 2.</b> The curve at a chosen month-end. Grey band: the range over the panel. Pin curves to compare dates; ←/→ step a month (shift: a year), space plays.</figcaption>
+  </figure>
+</section>
+
+<!-- ============================ 2 METHOD ============================ -->
+<section id="s2">
+  <h2><span class="sn">2</span>Model and test</h2>
+  <p>With \(d\) factors, yields at maturity \(i\) and month \(t\) are
+    $$ y_{it} = w_{it}'\beta_t + \varepsilon_{it}, \qquad H_0:\ w_{it} = w_i \ \text{for all } t. $$
+    Several ranks are tested (\(d\) = 3, 4, 5): rejecting \(d = 3\) alone could only mean three factors are too few, and a fixed model with more factors can mimic changing loadings.
+    The test of <a class="cite" href="#r1">[1]</a> compares two estimates of the common component \(c_{it} = w_{it}'\beta_t\):</p>
+  <ol class="steps">
+    <li><b>Global (null).</b> PCA of the standardized panel over all months gives one fixed loading matrix and \( \tilde c_{it} \).</li>
+    <li><b>Local (alternative).</b> At each month, PCA of the kernel-weighted second moment
+      $$ \hat\Sigma_t = \frac1T\sum_{s} k_h\!\left(\tfrac{s-t}{T}\right) x_s x_s', \qquad h = \tfrac{2.35}{\sqrt{12}}\,T^{-1/5}N^{-1/10} \ \text{(Silverman's rule)}, $$
+      with an Epanechnikov kernel and boundary correction, gives \( \hat c_{it} \). For the full JKV sample \(h \approx 0.149\): about 71 months on each side. Every sample and every scan window recomputes \(h\) from its own length.</li>
+    <li><b>Statistic.</b> \( M = \frac1{NT}\sum_{i,t}(\hat c_{it}-\tilde c_{it})^2 \), bias-corrected and studentized into \( J = (T\sqrt{Nh}\,M - \hat B)/\sqrt{\hat V} \). Larger \(J\) is less like noise.</li>
+    <li><b>Bootstrap.</b> Artificial panels \( x^*_t = \tilde c_t + \Sigma^{1/2} z_t \) with \(\Sigma\) the global-fit residual covariance shrunk by \(0.99^{|i-j|}\) (the covariance bootstrap printed in [1]); 9,999 draws give the null distribution of \(J\). Reject when \( p = (1+\#\{J^*\ge J\})/(1+B) < 0.01 \); the smallest reportable value is \(p \le 0.0001\).</li>
+  </ol>
+
+  <figure class="fig" id="fig3">
+    <div class="toolbar"><span class="lbl">JKV, three factors · month</span><input type="range" id="kT" class="slider grow" min="0" max="479" value="140" /><span class="date mono" id="kLbl"></span></div>
+    <div class="fig-2col">
+      <div><div class="sub">(a) kernel weights around the month</div><div id="kW" class="plot" style="height:220px"></div></div>
+      <div><div class="sub">(b) observed curve, global and local fits</div><div id="kFit" class="plot" style="height:220px"></div></div>
+    </div>
+    <figcaption id="kCap"><b>Figure 3.</b> Global and local fits on JKV. \(M\) averages the squared gap between the dashed and solid lines over every month and maturity.</figcaption>
+  </figure>
+</section>
+
+<!-- ============================ 3 RESULTS ============================ -->
+<section id="s3">
+  <h2><span class="sn">3</span>Full-sample results</h2>
+  <div class="tbl-wrap"><table class="tbl" id="tab2"></table></div>
+  <p class="tcap"><b>Table 2.</b> Full-sample tests, 9,999 bootstrap draws, 1% level. The 1990–2026 row uses treasury.gov par yields directly.</p>
+
+  <figure class="fig" id="fig4">
+    <div class="fig-3col" id="f4Grid"></div>
+    <figcaption><b>Figure 4.</b> Bootstrap null distributions of \(J\) (grey; 1,999 draws drawn for display), 99% critical value (dotted) and observed \(J\) (solid). Only JKV with four and five factors lands inside its null.</figcaption>
+  </figure>
+
+  <h3>3.1 Sub-periods and bandwidth</h3>
+  <p>Each cell below is a separate full test with its own bandwidth. Values are \(J\) divided by its 99% critical value, so above 1 means reject.</p>
+  <figure class="fig" id="fig5">
+    <div id="f5Periods" class="plot" style="height:230px"></div>
+    <figcaption id="f5Cap"><b>Figure 5.</b> J / critical value on eight samples (1,999 draws each). Boxed: the 1990–2009 overlap, where JKV and Treasury agree at every rank.</figcaption>
+  </figure>
+  <div class="tbl-wrap"><table class="tbl heat" id="tab3"></table></div>
+  <p class="tcap"><b>Table 3.</b> p-values of the full-sample test as the bandwidth changes: multiples of Silverman's \(h\), and fixed effective bandwidths \(T\cdot h\) of 36, 24 and 12 months (week 7). Treasury rejects everywhere; JKV with four factors rejects once \(T\cdot h \le 24\) months and is borderline at 0.5× and at 36 months. The size of the full test at narrow bandwidths has not been simulated.</p>
+
+  <h3>3.2 Run the test yourself</h3>
+  <p>The same statistic and covariance bootstrap in JavaScript, checked against the thesis to six significant digits, in a background thread. Pick a panel, a sample and the number of factors.</p>
+  <figure class="fig" id="fig6">
+    <div class="toolbar wrap">
+      <span class="inline"><span class="lbl">data</span><select id="lDs"></select></span>
+      <span class="inline"><span class="lbl">from</span><select id="lFrom"></select><span class="lbl">to</span><select id="lTo"></select></span>
+      <span class="inline"><span class="lbl">factors d</span><div class="seg" id="lR"><button data-v="2">2</button><button data-v="3">3</button><button data-v="4">4</button><button data-v="5">5</button></div></span>
+      <span class="inline"><span class="lbl">draws B</span><div class="seg" id="lB"><button data-v="99">99</button><button data-v="199">199</button><button data-v="499">499</button></div></span>
+      <span class="inline"><span class="lbl">seed</span><input type="number" id="lSeed" value="2017" class="num" /></span>
+      <button class="run" id="lRun">Run test</button>
+    </div>
+    <div class="lmeta" id="lMeta"></div>
+    <div class="progress" id="lProg" hidden><div></div></div>
+    <div class="fig-row">
+      <div id="lHist" class="plot" style="height:220px"></div>
+      <aside class="side" id="lRes"><span class="muted">No run yet.</span></aside>
+    </div>
+    <figcaption><b>Figure 6.</b> Live test: bootstrap null of \(J\) for the chosen sample and the observed value. With small B the smallest attainable p is 1/(B+1).</figcaption>
+  </figure>
+  <div class="tbl-wrap"><table class="tbl" id="lHistory"></table></div>
+</section>
+
+<!-- ============================ 4 1970s ============================ -->
+<section id="s4">
+  <h2><span class="sn">4</span>The 1970s and the JKV four-factor result</h2>
+  <p>JKV with four factors does not reject over 1970–2009, yet 1980–2009 does. Rerunning the full test seventeen times, changing only the first year of the sample (every sample ends in December 2009), locates the switch:</p>
+  <figure class="fig" id="fig7">
+    <div class="toolbar"><div class="seg" id="f7D"><button data-v="3">d = 3</button><button data-v="4">d = 4</button><button data-v="5">d = 5</button></div></div>
+    <div id="f7Sweep" class="plot" style="height:240px"></div>
+    <figcaption id="f7Cap"><b>Figure 7.</b> J / 99% critical value by sample start year.</figcaption>
+  </figure>
+  <p>Why the earliest years hide the rejection: the bootstrap builds its artificial data from the residuals of the fixed model, so the large 1970s misfit is treated as noise. The null distribution
+    shifts right faster than the observed statistic.</p>
+  <figure class="fig" id="fig8">
+    <div class="fig-2col">
+      <div><div class="sub">(a) fixed four-factor misfit by month (residual sum of squares)</div><div id="f8Mis" class="plot" style="height:230px"></div></div>
+      <div><div class="sub">(b) null distributions, samples starting 1970 and 1980</div><div id="f8Null" class="plot" style="height:230px"></div></div>
+    </div>
+    <figcaption id="f8Cap"><b>Figure 8.</b> Where the misfit sits, and what it does to the bootstrap threshold.</figcaption>
+  </figure>
+  <div class="tbl-wrap"><table class="tbl" id="tab4"></table></div>
+  <p class="tcap"><b>Table 4.</b> Share of months and of the fixed four-factor model's misfit by period, and controls: the 1980–2009 sample still rejects when given the 1970–2009 bandwidth in months or the 1970–2009 standardization. The 1970s are a trace of history, not bad data; the full-sample non-rejection is lost power, not support for fixed loadings.</p>
+</section>
+
+<!-- ============================ 5 LOCAL ============================ -->
+<section id="s5">
+  <h2><span class="sn">5</span>What the local loadings look like</h2>
+  <p>A rejection says the loadings move; these figures show how. Loadings are re-estimated through time either on a trailing rolling window or with the kernel weights of the test.</p>
+  <div class="toolbar sticky-tools">
+    <div class="seg" id="dDs"><button data-v="jkv">JKV</button><button data-v="treasury">Treasury</button></div>
+    <div class="seg" id="dMethod"><button data-v="kernel">Kernel (local)</button><button data-v="rolling">Rolling window</button></div>
+    <span id="dWinWrap" class="inline" hidden><span class="lbl">window</span><input type="range" id="dWin" min="36" max="240" step="12" value="120" class="slider" /><span class="mono" id="dWinLbl">120m</span></span>
+    <span class="lbl">factor</span><div class="seg" id="dFactor"><button data-v="0">Level</button><button data-v="1">Slope</button><button data-v="2">Curvature</button></div>
+    <span class="busy" id="dBusy" hidden>computing…</span>
+  </div>
+  <figure class="fig" id="fig9">
+    <div class="toolbar"><div class="seg" id="dHeatMode"><button data-v="delta">Change vs full sample</button><button data-v="raw">Loading</button></div><span class="hint">click to set date <span id="dNext">A</span></span></div>
+    <div id="dHeat" class="plot" style="height:270px"></div>
+    <div class="fig-2col">
+      <div><div class="sub">(b) loadings at dates A and B (dashed: full sample)</div><div id="dSnap" class="plot" style="height:230px"></div></div>
+      <div><div class="sub">(c) largest principal angle to the full-sample three-factor loadings</div><div id="dAngle" class="plot" style="height:230px"></div></div>
+    </div>
+    <figcaption><b>Figure 9.</b> (a) Selected-factor loadings by maturity and date; by default each cell is the change from its full-sample value. (b) Two dates against the full sample. (c) 0° means the same span as the full-sample loadings.</figcaption>
+  </figure>
+  <p id="dText"></p>
+</section>
+
+<!-- ============================ 6 BREAKS ============================ -->
+<section id="s6">
+  <h2><span class="sn">6</span>Break scan</h2>
+  <p>A rejection says the loadings are not constant over the whole sample, not when they change. The scan splits each panel into consecutive stretches within which the test does not reject.
+    A break is a change in how maturities co-move, not a jump in the level of rates.</p>
+  <h3>6.1 The rule</h3>
+  <ol class="steps">
+    <li><b>Grow</b> a window month by month from 60 months, testing each with its own bandwidth at 1% (999-draw screen; 9,999-draw confirmation).</li>
+    <li><b>Break</b> at the first month whose inclusion makes the test reject.</li>
+    <li><b>Retreat:</b> if the very first window already rejects, shrink it month by month until it no longer rejects; that point is the break.</li>
+    <li><b>Restart</b> after a break at 60 months, using only post-break data.</li>
+  </ol>
+  <p>Only the first and restart windows are choices; the level, the retreat and the bandwidth rule are fixed. Each window is a fresh 1% test, so a long scan meets some breaks by chance — §8 measures how often.</p>
+
+  <figure class="fig" id="fig10">
+    <div class="toolbar wrap">
+      <span class="inline"><span class="lbl">scan</span><select id="bScan"></select></span>
+      <span class="inline"><span class="lbl">segment</span><select id="bSeg"></select></span>
+      <button class="play" id="bPlay" aria-label="Play">▶</button>
+      <input type="range" id="bStep" class="slider grow" min="0" max="1" value="0" />
+      <span class="mono" id="bStepLbl"></span>
+    </div>
+    <div id="bWin" class="plot" style="height:180px"></div>
+    <div id="bTraj" class="plot" style="height:200px"></div>
+    <p class="explain" id="bExplain"></p>
+    <figcaption><b>Figure 10.</b> The main scan step by step. Top: the window being tested (shaded) on the 3M and 10Y yields. Bottom: \(J\) at each window end against its 99% critical value; red markers reject.</figcaption>
+  </figure>
+
+  <h3>6.2 Results</h3>
+  <figure class="fig" id="fig11">
+    <div id="bRows" class="plot" style="height:300px"></div>
+    <figcaption id="bRowsCap"><b>Figure 11.</b> Stable stretches (alternating shades carry no meaning) and break dates, 60-month first and restart windows.</figcaption>
+  </figure>
+
+  <h3>6.3 Which breaks survive other settings</h3>
+  <p>The week-6 grid reran the scan for 32 window settings (first window 24, 36, 60, 100 months × restart 12, 24, 36, 60). The first window hardly matters; the restart window sets the count.</p>
+  <div class="tbl-wrap"><table class="tbl heat" id="tab5"></table></div>
+  <p class="tcap"><b>Table 5.</b> Number of breaks by restart window (range over the four first windows).</p>
+  <figure class="fig" id="fig12">
+    <div class="toolbar">
+      <div class="seg" id="bRobDs"><button data-v="jkv">JKV</button><button data-v="treasury_cmt">Treasury</button></div>
+      <div class="seg" id="bRobD"><button data-v="3">d = 3</button><button data-v="4">d = 4</button><button data-v="5">d = 5</button></div>
+    </div>
+    <div id="bLanes" class="plot" style="height:300px"></div>
+    <figcaption id="bLanesCap"><b>Figure 12.</b> Breaks for each restart window (60-month first window) and, below, the main scan under 0.5× and 1.5× Silverman's bandwidth (week 7). Teal bands: breaks within ±3 months under all four restart windows.</figcaption>
+  </figure>
+  <p id="bRobText"></p>
+</section>
+
+<!-- ============================ 7 HISTORY ============================ -->
+<section id="s7">
+  <h2><span class="sn">7</span>Breaks against policy history</h2>
+  <p>Breaks are compared with the political and monetary calendar and with the policy rate, inflation and unemployment (FRED). These are comparisons, not causal claims, and the scan dates changes late (§8).</p>
+  <figure class="fig" id="fig13">
+    <div id="hTimeline" class="plot" style="height:360px"></div>
+    <figcaption><b>Figure 13.</b> Presidents (blue Democrat, red Republican) and fiscal milestones; Fed chairs with tightening (red) and easing (green) cycles; NBER recessions shaded <a class="cite" href="#r8">[8]</a>; the bottom four rows are the main-scan breaks. Breaks sit nearer turns in Fed policy than changes of president; there is no systematic break near the large fiscal events.</figcaption>
+  </figure>
+  <figure class="fig" id="fig14">
+    <div id="hMacro" class="plot" style="height:340px"></div>
+    <figcaption><b>Figure 14.</b> Fed funds rate and CPI inflation (top), unemployment (bottom), with four-factor breaks: solid JKV, dashed Treasury; teal lines survive every window setting. After a break the scan waits 60 months, so the 2022 tightening cannot yet show up in the Treasury four-factor row.</figcaption>
+  </figure>
+  <div class="toolbar"><div class="seg" id="hEvD"><button data-v="4">d = 4</button><button data-v="3">d = 3</button></div></div>
+  <div class="tbl-wrap"><table class="tbl" id="tab6"></table></div>
+  <p class="tcap"><b>Table 6.</b> Each main-scan break with the nearest policy or market event within a year; months after the event (negative: the event came later). † dated by retreat. With late dating and unstable dates, "breaks precede hikes" cannot be read as markets leading policy.</p>
+</section>
+
+<!-- ============================ 8 RELIABILITY ============================ -->
+<section id="s8">
+  <h2><span class="sn">8</span>Is the test reliable at our sample sizes?</h2>
+  <h3>8.1 Size and power (printed bootstrap)</h3>
+  <p>Simulations from the designs of [1] (true rank 2, 500 replications, B = 199, 5% level) at the small cross-sections that matter here: JKV has N = 17, T = 480; Treasury N = 8, T = 540.</p>
+  <div class="fig-2col">
+    <div><div class="tbl-wrap"><table class="tbl heat" id="tab7"></table></div><p class="tcap"><b>Table 7.</b> Size (%), loadings truly fixed; should be near 5.</p></div>
+    <div><div class="tbl-wrap"><table class="tbl heat" id="tab8"></table></div><p class="tcap"><b>Table 8.</b> Power (%), loadings truly change (b-designs).</p></div>
+  </div>
+  <p>With N = 8–20 and T = 100–200 size is at most 5.4%; at the JKV size (N = 17, T = 480) it is 3.4–7.4%. Power is at least 90% at the JKV size. The weak spot is slow drift (design 6b1) at N = 8 — about 30% — so Treasury non-rejections would carry little weight.</p>
+
+  <h3>8.2 Which bootstrap</h3>
+  <p>The released code of [1] keeps a diagonal square root and re-standardizes each draw, so it simulates independent errors. Run that way it reproduces the paper's Table 3 (22 of 24 cells within two standard errors), but at our sizes it over-rejects badly:</p>
+  <div class="tbl-wrap"><table class="tbl heat" id="tab9"></table></div>
+  <p class="tcap"><b>Table 9.</b> Rejection rates (%) at the 5% level, 5,000 replications: covariance bootstrap as printed vs the diagonal one in the code. All tests in this note use the printed version.</p>
+
+  <h3>8.3 A planted break in fake data</h3>
+  <p>Fake curves with the JKV shape switch from three to four factors at month 240 of 480: Nelson–Siegel loadings before, Nelson–Siegel–Svensson after with the same \(\lambda_1\), so three factors are nested in four; AR(1) factors and residual noise from the real fits.
+    The scan is exactly the real-data scan (999 + 9,999 draws, 1%), 100 replications per setup. Week 6 used PCA loadings instead.</p>
+  <figure class="fig" id="fig15">
+    <div id="sPlanted" class="plot" style="height:260px"></div>
+    <figcaption id="sPlantedCap"><b>Figure 15.</b> Planted-break simulations.</figcaption>
+  </figure>
+  <div class="tbl-wrap"><table class="tbl" id="tab10"></table></div>
+  <p class="tcap"><b>Table 10.</b> Scan outcomes by setup. <i>break</i>: 3→4 factors at month 240; <i>same noise</i>: the same break with equal noise in both halves; <i>null</i>: no break. Delay: months from the planted break to the first break found after it.</p>
+  <p id="sText"></p>
+
+  <h3>8.4 The scan's bandwidth</h3>
+  <div class="tbl-wrap"><table class="tbl" id="tab11"></table></div>
+  <p class="tcap"><b>Table 11.</b> Effective bandwidth \(T\cdot h\) (months each side) across all 28,545 window tests of the week-6 grid, by window length. The full sample's 71 months are never used inside the scan; the much wider full-sample bandwidth is the likely reason the full JKV test does not reject while the scan does.</p>
+</section>
+
+<!-- ============================ 9 CONCLUSIONS ============================ -->
+<section id="s9">
+  <h2><span class="sn">9</span>Conclusions</h2>
+  <ol>
+    <li><b>Fixed loadings are rejected</b>: Treasury at 3, 4 and 5 factors (6 of 6 tests on the two Treasury samples), JKV at the classic three.</li>
+    <li><b>The exception is power</b>: JKV's four-factor non-rejection comes from the 1970s; every start from 1977 to 1986 rejects.</li>
+    <li><b>Loadings change at a few dates</b>: four-factor breaks found under every window setting are JKV 1981-08 (two months after the June 1981 Fed funds peak) and Treasury 1993-06 (before the 1994 hikes). Under 0.5× or 1.5× Silverman the number and dates change, and a change in noise variance alone makes the four-factor scan reject, so dates are approximate.</li>
+    <li><b>Robust</b>: rejections hold across sub-periods, on the overlap of the two data sets and, for the full-sample test, across bandwidths (Treasury everywhere; JKV four-factor only at narrow ones).</li>
+    <li><b>Sound inference</b>: the printed covariance bootstrap controls size at our sample sizes; the code's diagonal version does not.</li>
+  </ol>
+  <p><b>Implication.</b> Models of the Treasury curve should let loadings change over time; individual break dates should be read as approximate candidates.</p>
+  <p class="small muted">Open points from the week-7 work plan: the size of the full-sample test at narrow bandwidths, and why the full JKV four-factor test and the scan disagree, are not settled.</p>
+</section>
+
+<section id="refs">
+  <h2>References</h2>
+  <ol class="refs">
+    <li id="r1">Su, L. and Wang, X. (2017). On time-varying factor models: Estimation and testing. <i>Journal of Econometrics</i> 198(1), 84–101. <a href="https://doi.org/10.1016/j.jeconom.2016.12.004" target="_blank" rel="noopener">doi:10.1016/j.jeconom.2016.12.004</a></li>
+    <li id="r2">Qian, J. and Wang, X. (2026). Are factor models with time-invariant loadings adequate for yield curves? Working paper.</li>
+    <li id="r3">Jungbacker, B., Koopman, S. J. and van der Wel, M. (2014). Smooth dynamic factor analysis with application to the U.S. term structure of interest rates. <i>Journal of Applied Econometrics</i> 29(1), 65–90.</li>
+    <li id="r4">Gürkaynak, R. S., Sack, B. and Wright, J. H. (2007). The U.S. Treasury yield curve: 1961 to the present. <i>Journal of Monetary Economics</i> 54(8), 2291–2304.</li>
+    <li id="r5">Litterman, R. and Scheinkman, J. (1991). Common factors affecting bond returns. <i>Journal of Fixed Income</i> 1(1), 54–61.</li>
+    <li id="r6">Board of Governors of the Federal Reserve System. H.15 Selected Interest Rates. <a href="https://www.federalreserve.gov/releases/h15/" target="_blank" rel="noopener">federalreserve.gov/releases/h15</a></li>
+    <li id="r7">Diebold, F. X. and Li, C. (2006). Forecasting the term structure of government bond yields. <i>Journal of Econometrics</i> 130(2), 337–364.</li>
+    <li id="r8">NBER Business Cycle Dating Committee. U.S. business cycle expansions and contractions. <a href="https://www.nber.org/research/data/us-business-cycle-expansions-and-contractions" target="_blank" rel="noopener">nber.org</a></li>
+    <li id="r9">Nelson, C. R. and Siegel, A. F. (1987). Parsimonious modeling of yield curves. <i>Journal of Business</i> 60(4), 473–489.</li>
+    <li id="r10">Svensson, L. E. O. (1994). Estimating and interpreting forward interest rates: Sweden 1992–1994. NBER Working Paper 4871.</li>
+    <li id="r11">Federal Reserve Bank of St. Louis. FRED: FEDFUNDS, CPIAUCSL, UNRATE. <a href="https://fred.stlouisfed.org/" target="_blank" rel="noopener">fred.stlouisfed.org</a></li>
+  </ol>
+  <p class="small muted" id="buildNote"></p>
+</section>
+</article>
+</div>
+
+<script src="data.js"></script>
+<script src="engine.js"></script>
+<script src="js/core.js"></script>
+<script src="js/s1-data.js"></script>
+<script src="js/s2-method.js"></script>
+<script src="js/s3-results.js"></script>
+<script src="js/s4-seventies.js"></script>
+<script src="js/s5-local.js"></script>
+<script src="js/s6-breaks.js"></script>
+<script src="js/s7-history.js"></script>
+<script src="js/s8-reliability.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

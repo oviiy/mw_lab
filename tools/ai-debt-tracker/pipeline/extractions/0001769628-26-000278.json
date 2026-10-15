@@ -1,0 +1,17 @@
+{
+  "accession": "0001769628-26-000278",
+  "is_new_debt": false,
+  "doc_kind": "launch_announcement",
+  "skip_reason": "Launch announcement of proposed USD/EUR senior notes due 2032 offering; no final terms (coupon, pricing, final amount) stated.",
+  "trade_date": "2026-06-11",
+  "settlement_date": null,
+  "tranches": [],
+  "proceeds": {
+    "ai_flag": "general",
+    "quote": "The Company intends to use the proceeds from the Notes Offering for general corporate purposes, including, without limitation, repayment of outstanding indebtedness, and to pay fees, costs and expenses in connection with the Notes Offering."
+  },
+  "_meta": {
+    "bundle_hash": "e38423abb95b550c",
+    "extractor": "claude-sonnet-5-5 via Claude Code agents, 2026-10-14"
+  }
+}

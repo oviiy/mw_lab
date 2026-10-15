@@ -1,0 +1,17 @@
+{
+  "accession": "0001769628-25-000052",
+  "is_new_debt": false,
+  "doc_kind": "other",
+  "skip_reason": "Disclosure that Series C put right terminated and $1.2 billion reclassified to equity; no new borrowing.",
+  "trade_date": null,
+  "settlement_date": null,
+  "tranches": [],
+  "proceeds": {
+    "ai_flag": "general",
+    "quote": null
+  },
+  "_meta": {
+    "bundle_hash": "b79607fd7bcbe184",
+    "extractor": "claude-sonnet-5-5 via Claude Code agents, 2026-10-14"
+  }
+}

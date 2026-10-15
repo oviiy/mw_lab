@@ -1,0 +1,17 @@
+{
+  "accession": "0001769628-26-000003",
+  "is_new_debt": false,
+  "doc_kind": "amendment",
+  "skip_reason": "First Amendment to DDTL 3.0 Credit Agreement amends financial covenants only; no new borrowing or commitment.",
+  "trade_date": "2025-12-31",
+  "settlement_date": null,
+  "tranches": [],
+  "proceeds": {
+    "ai_flag": "general",
+    "quote": null
+  },
+  "_meta": {
+    "bundle_hash": "756944d2bfb36cec",
+    "extractor": "claude-sonnet-5-5 via Claude Code agents, 2026-10-14"
+  }
+}

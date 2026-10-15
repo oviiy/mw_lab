@@ -1,0 +1,12 @@
+quarters: 20
+change_threshold: 0.02
+stock_universe_top_n: 1500
+holdings_per_quarter: 150
+changes_per_quarter: 100
+manager_json_max_kb: 300
+stock_json_max_kb: 100
+data_dir_max_mb: 50
+# Form 4 cluster buy: >= N distinct insiders with open-market purchases within W calendar days, >= $V combined
+cluster_window_days: 30
+cluster_min_insiders: 3
+cluster_min_value: 100000

@@ -1,0 +1,15 @@
+{
+  "accession": "0001193125-25-263045",
+  "is_new_debt": true,
+  "tranches": [
+    {"currency": "USD", "amount": 500000000, "maturity_date": "2028-11-15", "coupon_pct": null, "spread_bp": null},
+    {"currency": "USD", "amount": 1000000000, "maturity_date": "2028-11-15", "coupon_pct": 3.875, "spread_bp": 30},
+    {"currency": "USD", "amount": 2500000000, "maturity_date": "2030-11-15", "coupon_pct": 4.1, "spread_bp": 40},
+    {"currency": "USD", "amount": 1250000000, "maturity_date": "2032-11-15", "coupon_pct": 4.375, "spread_bp": 50},
+    {"currency": "USD", "amount": 3500000000, "maturity_date": "2035-11-15", "coupon_pct": 4.7, "spread_bp": 62},
+    {"currency": "USD", "amount": 2000000000, "maturity_date": "2045-11-15", "coupon_pct": 5.35, "spread_bp": 72},
+    {"currency": "USD", "amount": 4000000000, "maturity_date": "2055-11-15", "coupon_pct": 5.45, "spread_bp": 82},
+    {"currency": "USD", "amount": 2750000000, "maturity_date": "2075-11-15", "coupon_pct": 5.7, "spread_bp": 107}
+  ],
+  "notes": "Alphabet USD pricing term sheet, 8 tranches totaling USD 17.5bn. Floating Rate Notes due 2028 = Compounded SOFR + 0.52% -> coupon/spread null. A Concurrent Euro Notes Offering (appended 424B2 says ~EUR 6.4bn net proceeds) is referenced but its tranche terms are NOT in this filing, so not labeled here."
+}

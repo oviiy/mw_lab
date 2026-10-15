@@ -1,0 +1,17 @@
+{
+  "accession": "0001193125-26-254474",
+  "is_new_debt": false,
+  "doc_kind": "equity_offering",
+  "skip_reason": "Pricing term sheet for common stock and 6.25% mandatory convertible preferred stock depositary share offerings; equity, not new debt.",
+  "trade_date": "2026-06-02",
+  "settlement_date": "2026-06-04",
+  "tranches": [],
+  "proceeds": {
+    "ai_flag": "explicit",
+    "quote": "general\ncorporate purposes, including capital expenditures to scale AI infrastructure and global compute."
+  },
+  "_meta": {
+    "bundle_hash": "12a89522873716ff",
+    "extractor": "claude-sonnet-5-5 via Claude Code agents, 2026-10-14"
+  }
+}

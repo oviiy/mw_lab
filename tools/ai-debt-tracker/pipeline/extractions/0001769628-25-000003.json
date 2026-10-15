@@ -1,0 +1,36 @@
+{
+  "accession": "0001769628-25-000003",
+  "is_new_debt": true,
+  "doc_kind": "amendment",
+  "skip_reason": null,
+  "trade_date": "2025-05-02",
+  "settlement_date": null,
+  "tranches": [
+    {
+      "name": "Revolving Credit Facility (as amended by Amendment No. 3)",
+      "instrument_type": "revolver",
+      "currency": "USD",
+      "amount": 1500000000,
+      "coupon_pct": null,
+      "floating_spread_bp": null,
+      "maturity_date": "2028-05-02",
+      "price_pct": null,
+      "ytm_pct": null,
+      "spread_bp": null,
+      "benchmark": null,
+      "benchmark_yield_pct": null,
+      "cusip": null,
+      "isin": null,
+      "secured_by": null,
+      "quote": "The Third Amendment (i) increases the aggregate amount available under the Company’s revolving credit facility from $650.0 million to $1.5 billion, (ii) increases the amount available under the Company’s letters of credit facility from $175.0 million to $350.0 million, and (iii) extends the maturity of the revolving credit facility to May 2, 2028"
+    }
+  ],
+  "proceeds": {
+    "ai_flag": "general",
+    "quote": null
+  },
+  "_meta": {
+    "bundle_hash": "ec07c93a238a7fbc",
+    "extractor": "claude-sonnet-5-5 via Claude Code agents, 2026-10-14"
+  }
+}

@@ -1,0 +1,9 @@
+cff-version: 1.2.0
+message: "If you use this dataset or code, please cite it as below."
+title: "AI Debt Tracker: bonds and loans financing the AI build-out"
+type: dataset
+authors:
+  - family-names: Wang
+    given-names: Michael
+license: CC-BY-4.0
+keywords: [AI, corporate bonds, credit, capex, depreciation, SEC EDGAR, LLM extraction]

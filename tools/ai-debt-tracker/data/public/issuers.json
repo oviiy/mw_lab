@@ -1,0 +1,377 @@
+{
+ "meta": {
+  "dataset_version": "2026.10.15",
+  "generated_at": "2026-10-15",
+  "sources": [
+   "SEC EDGAR",
+   "SEC XBRL API",
+   "FRED (ICE BofA indices, H.10 FX)"
+  ],
+  "license": "CC-BY-4.0"
+ },
+ "issuers": [
+  {
+   "id": "meta",
+   "name": "Meta Platforms",
+   "ticker": "META",
+   "cik": 1326801,
+   "color": "#5b7fa6",
+   "inclusion_reason": "Capex guidance driven by AI data centers (Hyperion, Prometheus).",
+   "useful_life": {
+    "years": 5.5,
+    "source_url": "https://www.sec.gov/Archives/edgar/data/1326801/000162828026003942/meta-20251231.htm",
+    "quote": "an increase in the estimated useful lives of most servers and network assets to 5.5 years",
+    "history": [
+     {
+      "effective": "2025-01-01",
+      "years": 5.5,
+      "earnings_impact_usd": 2920000000,
+      "impact_metric": "reduction in 2025 depreciation expense",
+      "impact_url": "https://www.sec.gov/Archives/edgar/data/1326801/000162828026003942/meta-20251231.htm",
+      "impact_quote": "the financial impact of this change in estimate included a reduction in depreciation expense of $ 2.92 billion and an increase in net income of $ 2.59 billion"
+     }
+    ]
+   },
+   "fundamentals": {
+    "capex": {
+     "2022": 31186000000.0,
+     "2023": 27045000000.0,
+     "2024": 37256000000.0,
+     "2025": 69691000000.0
+    },
+    "operating_cash_flow": {
+     "2022": 50475000000.0,
+     "2023": 71113000000.0,
+     "2024": 91328000000.0,
+     "2025": 115800000000.0
+    },
+    "total_debt": {
+     "2022": 9923000000.0,
+     "2023": 18385000000.0,
+     "2024": 28826000000.0,
+     "2025": 58744000000.0
+    },
+    "debt_issued": {
+     "2022": 9921000000.0,
+     "2023": 8455000000.0,
+     "2024": 10432000000.0,
+     "2025": 29906000000.0
+    },
+    "debt_repaid": {},
+    "finance_lease_liabilities": {
+     "2022": 687000000.0,
+     "2023": 690000000.0,
+     "2024": 709000000.0,
+     "2025": 1184000000.0
+    }
+   },
+   "borrowed_usd": 65500000000,
+   "n_tranches": 17
+  },
+  {
+   "id": "alphabet",
+   "name": "Alphabet",
+   "ticker": "GOOGL",
+   "cik": 1652044,
+   "color": "#5e8c61",
+   "inclusion_reason": "Largest technical-infrastructure capex program among US issuers.",
+   "useful_life": {
+    "years": 6,
+    "source_url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204426000018/goog-20251231.htm",
+    "quote": "We depreciate servers and network equipment generally over a period of six years",
+    "history": [
+     {
+      "effective": "2023-01-01",
+      "years": 6,
+      "from_years": 4,
+      "earnings_impact_usd": 3900000000,
+      "impact_metric": "reduction in 2023 depreciation expense",
+      "impact_url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204424000022/goog-20231231.htm",
+      "impact_quote": "the effect of this change in estimate was a reduction in depreciation expense of $ 3.9 billion and an increase in net income of $ 3.0 billion"
+     }
+    ]
+   },
+   "fundamentals": {
+    "capex": {
+     "2022": 31485000000.0,
+     "2023": 32251000000.0,
+     "2024": 52535000000.0,
+     "2025": 91447000000.0
+    },
+    "operating_cash_flow": {
+     "2022": 91495000000.0,
+     "2023": 101746000000.0,
+     "2024": 125299000000.0,
+     "2025": 164713000000.0
+    },
+    "total_debt": {
+     "2022": 15312000000.0,
+     "2023": 13000000000.0,
+     "2024": 12000000000.0,
+     "2025": 49085000000.0
+    },
+    "debt_issued": {
+     "2022": 52872000000.0,
+     "2023": 10790000000.0,
+     "2024": 13589000000.0,
+     "2025": 64564000000.0
+    },
+    "debt_repaid": {},
+    "finance_lease_liabilities": {
+     "2022": 2142000000.0,
+     "2023": 1666000000.0,
+     "2024": 1677000000.0,
+     "2025": 2500000000.0
+    }
+   },
+   "borrowed_usd": 110617685820,
+   "n_tranches": 62
+  },
+  {
+   "id": "amazon",
+   "name": "Amazon",
+   "ticker": "AMZN",
+   "cik": 1018724,
+   "color": "#d0892b",
+   "inclusion_reason": "AWS AI infrastructure is the bulk of capex growth.",
+   "useful_life": {
+    "years": 5,
+    "range": [
+     5,
+     6
+    ],
+    "source_url": "https://www.sec.gov/Archives/edgar/data/1018724/000101872426000004/amzn-20251231.htm",
+    "quote": "effective January 1, 2025, we changed our estimate of the useful lives of a subset of our servers and networking equipment from six years to five years",
+    "history": [
+     {
+      "effective": "2024-01-01",
+      "years": 6,
+      "from_years": 5,
+      "earnings_impact_usd": 3100000000,
+      "impact_metric": "anticipated increase in 2024 operating income",
+      "impact_url": "https://www.sec.gov/Archives/edgar/data/1018724/000101872424000008/amzn-20231231.htm",
+      "impact_quote": "are increasing the useful life from five years to six years in January 2024, which, based on servers that are included in \u201cProperty and equipment, net\u201d as of December 31, 2023, will have an anticipated impact to our 2024 operating income of $ 3.1 billion"
+     },
+     {
+      "effective": "2025-01-01",
+      "years": 5,
+      "from_years": 6,
+      "earnings_impact_usd": -700000000,
+      "impact_metric": "anticipated decrease in 2025 operating income (subset of servers)",
+      "impact_url": "https://www.sec.gov/Archives/edgar/data/1018724/000101872425000004/amzn-20241231.htm",
+      "impact_quote": "we anticipate a decrease in 2025 operating income of approximately $ 0.7 billion"
+     }
+    ]
+   },
+   "fundamentals": {
+    "capex": {
+     "2022": 63645000000.0,
+     "2023": 52729000000.0,
+     "2024": 82999000000.0,
+     "2025": 131819000000.0
+    },
+    "operating_cash_flow": {
+     "2022": 46752000000.0,
+     "2023": 84946000000.0,
+     "2024": 115877000000.0,
+     "2025": 139514000000.0
+    },
+    "total_debt": {
+     "2022": 70542000000.0,
+     "2023": 67182000000.0,
+     "2024": 58000000000.0,
+     "2025": 68836000000.0
+    },
+    "debt_issued": {
+     "2022": 21166000000.0,
+     "2025": 15673000000.0
+    },
+    "debt_repaid": {
+     "2022": 1258000000.0,
+     "2023": 3676000000.0,
+     "2024": 9182000000.0,
+     "2025": 5021000000.0
+    },
+    "finance_lease_liabilities": {
+     "2022": 15783000000.0,
+     "2023": 12109000000.0,
+     "2024": 10602000000.0,
+     "2025": 12286000000.0
+    }
+   },
+   "borrowed_usd": 109565586761,
+   "n_tranches": 42
+  },
+  {
+   "id": "oracle",
+   "name": "Oracle",
+   "ticker": "ORCL",
+   "cik": 1341439,
+   "color": "#8a4f7d",
+   "inclusion_reason": "OCI build-out for AI contracts (incl. OpenAI); most levered hyperscaler.",
+   "useful_life": {
+    "years": 6,
+    "source_url": "https://www.sec.gov/Archives/edgar/data/1341439/000119312526277521/orcl-20260531.htm",
+    "quote": "servers and networking equipment with estimated useful life of six years"
+   },
+   "fundamentals": {
+    "capex": {
+     "2022": 4511000000.0,
+     "2023": 8695000000.0,
+     "2024": 6866000000.0,
+     "2025": 21215000000.0,
+     "2026": 55663000000.0
+    },
+    "operating_cash_flow": {
+     "2022": 9539000000.0,
+     "2023": 17165000000.0,
+     "2024": 18673000000.0,
+     "2025": 20821000000.0,
+     "2026": 31977000000.0
+    },
+    "total_debt": {
+     "2023": 90481000000.0,
+     "2024": 86869000000.0,
+     "2025": 92568000000.0,
+     "2026": 129541000000.0
+    },
+    "debt_issued": {
+     "2023": 33494000000.0,
+     "2025": 19548000000.0,
+     "2026": 46093000000.0
+    },
+    "debt_repaid": {
+     "2022": 8250000000.0,
+     "2023": 21050000000.0,
+     "2024": 3500000000.0,
+     "2025": 15841000000.0,
+     "2026": 6942000000.0
+    },
+    "finance_lease_liabilities": {
+     "2025": 2934000000.0,
+     "2026": 7701000000.0
+    }
+   },
+   "borrowed_usd": 57000000000,
+   "n_tranches": 24
+  },
+  {
+   "id": "microsoft",
+   "name": "Microsoft",
+   "ticker": "MSFT",
+   "cik": 789019,
+   "color": "#8c8577",
+   "inclusion_reason": "Second-largest AI capex program; included as the control case.",
+   "useful_life": {
+    "years": 6,
+    "range": [
+     2,
+     6
+    ],
+    "source_url": "https://www.sec.gov/Archives/edgar/data/789019/000119312526323660/msft-20260630.htm",
+    "quote": "servers and network equipment, two to six years",
+    "history": [
+     {
+      "effective": "2022-07-01",
+      "years": 6,
+      "from_years": 4,
+      "earnings_impact_usd": 3700000000,
+      "impact_metric": "increase in FY2023 operating income",
+      "impact_url": "https://www.sec.gov/Archives/edgar/data/789019/000095017023035122/msft-20230630.htm",
+      "impact_quote": "the effect of this change in estimate for fiscal year 2023 was an increase in operating income of $3.7 billion and net income of $3.0 billion"
+     }
+    ]
+   },
+   "fundamentals": {
+    "capex": {
+     "2022": 23886000000.0,
+     "2023": 28107000000.0,
+     "2024": 44477000000.0,
+     "2025": 64551000000.0,
+     "2026": 115948000000.0
+    },
+    "operating_cash_flow": {
+     "2022": 89035000000.0,
+     "2023": 87582000000.0,
+     "2024": 118548000000.0,
+     "2025": 136162000000.0,
+     "2026": 182935000000.0
+    },
+    "total_debt": {
+     "2022": 49781000000.0,
+     "2023": 47237000000.0,
+     "2024": 44937000000.0,
+     "2025": 43151000000.0,
+     "2026": 40294000000.0
+    },
+    "debt_issued": {},
+    "debt_repaid": {},
+    "finance_lease_liabilities": {
+     "2022": 14902000000.0,
+     "2023": 17067000000.0,
+     "2024": 27145000000.0,
+     "2025": 46172000000.0,
+     "2026": 66594000000.0
+    }
+   },
+   "borrowed_usd": 0,
+   "n_tranches": 0
+  },
+  {
+   "id": "coreweave",
+   "name": "CoreWeave",
+   "ticker": "CRWV",
+   "cik": 1769628,
+   "color": "#2b2a27",
+   "inclusion_reason": "Pure-play AI cloud ('neocloud') financed heavily with debt.",
+   "useful_life": {
+    "years": 6,
+    "source_url": "https://www.sec.gov/Archives/edgar/data/1769628/000176962826000104/crwv-20251231.htm",
+    "quote": "Technology equipment | 6 years",
+    "history": [
+     {
+      "effective": "2023-01-01",
+      "years": 6,
+      "from_years": 5,
+      "earnings_impact_usd": 20000000,
+      "impact_metric": "reduction in 2023 total expenses",
+      "impact_url": "https://www.sec.gov/Archives/edgar/data/1769628/000176962826000104/crwv-20251231.htm",
+      "impact_quote": "was a reduction in total expenses of $ 20 million"
+     }
+    ]
+   },
+   "fundamentals": {
+    "capex": {
+     "2023": 2943000000.0,
+     "2024": 8702000000.0,
+     "2025": 10309000000.0
+    },
+    "operating_cash_flow": {
+     "2023": 1833000000.0,
+     "2024": 2749000000.0,
+     "2025": 3058000000.0
+    },
+    "total_debt": {
+     "2024": 7926000000.0,
+     "2025": 21373000000.0
+    },
+    "debt_issued": {
+     "2023": 1404000000.0,
+     "2024": 7018000000.0,
+     "2025": 11829000000.0
+    },
+    "debt_repaid": {
+     "2023": 2000000.0,
+     "2024": 589000000.0,
+     "2025": 3399000000.0
+    },
+    "finance_lease_liabilities": {
+     "2024": 92000000.0,
+     "2025": 254000000.0
+    }
+   },
+   "borrowed_usd": 40631500000,
+   "n_tranches": 14
+  }
+ ]
+}

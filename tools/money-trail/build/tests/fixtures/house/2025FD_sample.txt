@@ -1,0 +1,35 @@
+Prefix	Last	First	Suffix	FilingType	StateDst	Year	FilingDate	DocID
+Hon.	Aderholt	Robert B.		P	AL04	2025	9/10/2025	20032062
+Hon.	Allen	Richard W.		P	GA12	2025	1/16/2025	20026537
+Hon.	Allen	Richard W.		P	GA12	2025	2/20/2025	20026727
+Hon.	Allen	Richard W.		P	GA12	2025	3/12/2025	20027927
+Hon.	Allen	Richard W.		P	GA12	2025	5/15/2025	20030316
+Hon.	Allen	Richard W.		P	GA12	2025	6/18/2025	20030502
+Hon.	Allen	Richard W.		P	GA12	2025	7/15/2025	20030608
+Hon.	Allen	Richard W.		P	GA12	2025	8/11/2025	20030850
+Hon.	Allen	Richard W.		P	GA12	2025	9/12/2025	20032052
+Hon.	Allen	Richard W.		P	GA12	2025	10/7/2025	20032204
+Hon.	Allen	Richard W.		P	GA12	2025	11/13/2025	20033415
+Hon.	Allen	Richard W.		P	GA12	2025	12/9/2025	20033589
+Hon.	Auchincloss	Jake		P	MA04	2025	2/21/2025	20027810
+Hon.	Auchincloss	Jake		P	MA04	2025	5/22/2025	20030397
+Hon.	Auchincloss	Jake		P	MA04	2025	8/27/2025	20030976
+Hon.	Auchincloss	Jake		P	MA04	2025	11/18/2025	20033492
+Hon.	Bentz	Cliff		P	OR02	2025	7/9/2025	20030646
+Hon.	Beyer	Donald Sternoff	Jr	P	VA08	2025	1/6/2025	20026517
+Hon.	Beyer	Donald Sternoff	Jr	P	VA08	2025	3/8/2025	20027932
+Hon.	Beyer	Donald Sternoff	Jr	P	VA08	2025	5/2/2025	20030262
+Hon.	Beyer	Donald Sternoff	Jr	P	VA08	2025	8/2/2025	20030746
+Hon.	Beyer	Donald Sternoff	Jr	P	VA08	2025	10/2/2025	20032200
+Hon.	Beyer	Donald Sternoff	Jr	P	VA08	2025	11/2/2025	20033325
+Hon.	Biggs	Sheri		P	SC03	2025	10/5/2025	20032149
+Hon.	Biggs	Sheri		P	SC03	2025	10/31/2025	20033379
+Hon.	Biggs	Sheri		P	SC03	2025	12/4/2025	20033579
+Hon.	Biggs	Sheri		P	SC03	2025	12/29/2025	20033694
+Hon.	Bilirakis	Gus M.		P	FL12	2025	2/6/2025	8220747
+Hon.	Bresnahan	Rob		P	PA08	2025	2/13/2025	20024346
+Hon.	Bresnahan	Rob		P	PA08	2025	3/7/2025	20027923
+Hon.	Pelosi	Nancy		O	CA11	2025	5/15/2026	10075701
+Hon.	Pelosi	Nancy		P	CA11	2025	1/17/2025	20026590
+Hon.	Pelosi	Nancy		P	CA11	2025	7/9/2025	20030630
+Hon.	Pelosi	Nancy		P	CA11	2025	10/24/2025	20033337

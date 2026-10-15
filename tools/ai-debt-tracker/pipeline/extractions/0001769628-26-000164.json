@@ -1,0 +1,54 @@
+{
+  "accession": "0001769628-26-000164",
+  "is_new_debt": true,
+  "doc_kind": "closing_8k",
+  "skip_reason": null,
+  "trade_date": null,
+  "settlement_date": "2026-04-14",
+  "tranches": [
+    {
+      "name": "9.750% Senior Notes due 2031",
+      "instrument_type": "senior_notes",
+      "currency": "USD",
+      "amount": 1750000000,
+      "coupon_pct": 9.75,
+      "floating_spread_bp": null,
+      "maturity_date": "2031-10-01",
+      "price_pct": null,
+      "ytm_pct": null,
+      "spread_bp": null,
+      "benchmark": null,
+      "benchmark_yield_pct": null,
+      "cusip": null,
+      "isin": null,
+      "secured_by": null,
+      "quote": "completed its previously announced private offering of $1,750,000 aggregate principal amount of its 9.750% Senior Notes due 2031 (the “Senior Notes”)"
+    },
+    {
+      "name": "1.75% Convertible Senior Notes due 2032",
+      "instrument_type": "convertible_notes",
+      "currency": "USD",
+      "amount": 4000000000,
+      "coupon_pct": 1.75,
+      "floating_spread_bp": null,
+      "maturity_date": "2032-10-01",
+      "price_pct": null,
+      "ytm_pct": null,
+      "spread_bp": null,
+      "benchmark": null,
+      "benchmark_yield_pct": null,
+      "cusip": null,
+      "isin": null,
+      "secured_by": null,
+      "quote": "completed its previously announced private offering of $4,000,000,000 aggregate principal amount of its 1.75% Convertible Senior Notes due 2032 (the “Convertible Notes”)"
+    }
+  ],
+  "proceeds": {
+    "ai_flag": "general",
+    "quote": "CoreWeave intends to use the proceeds from the offering of the Senior Notes for general corporate purposes, including, without limitation, repayment of outstanding indebtedness, and to pay fees, costs and expenses in connection with the offering of the Senior Notes."
+  },
+  "_meta": {
+    "bundle_hash": "dff70eced5f58ffb",
+    "extractor": "claude-sonnet-5-5 via Claude Code agents, 2026-10-14"
+  }
+}

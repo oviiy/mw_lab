@@ -1,0 +1,160 @@
+=== DOCUMENT FWP 0001193125-25-258837 filed 2025-10-30
+https://www.sec.gov/Archives/edgar/data/1326801/000119312525258837/d61769dfwp.htm
+
+FWP
+ 1
+ d61769dfwp.htm
+ FWP
+ FWP 
+ Filed Pursuant to Rule 433 
+ Registration No. 333-271535 
+ Issuer Free Writing Prospectus dated October 30, 2025 
+ Relating to Preliminary Prospectus Supplement dated October 30, 2025 
+ PRICING TERM SHEET 
+ META
+PLATFORMS, INC. 
+ October 30, 2025 
+ $4,000,000,000 4.200% Senior Notes due 2030 
+ $4,000,000,000 4.600% Senior Notes due 2032 
+ $6,500,000,000 4.875% Senior Notes due 2035 
+ $4,500,000,000 5.500% Senior Notes due 2045 
+ $6,500,000,000 5.625% Senior Notes due 2055 
+ $4,500,000,000 5.750% Senior Notes due 2065 | Summary of Terms | Issuer: | Meta Platforms, Inc. | Format: | SEC Registered | Issue: | Senior Notes | Trade Date: | October 30, 2025 | Settlement Date (T+2):* | November 3, 2025 | Denominations: | $2,000 x $1,000 | Ratings:** | Aa3 (Moody’s Investors Service, Inc.)
+ AA- (Standard & Poor’s Ratings Services) | Maturity: | 2030 Notes: November 15, 2030
+ 2032 Notes: November 15, 2032
+ 2035 Notes:
+ November 15, 2035
+ 2045 Notes: November 15, 2045
+ 2055 Notes: November 15, 2055
+ 2065 Notes: 
+November 15, 2065 | Principal Amount: | 2030 Notes: $4,000,000,000
+ 2032
+Notes: $4,000,000,000
+ 2035 Notes: $6,500,000,000
+ 2045 Notes: $4,500,000,000
+ 2055 Notes: 
+$6,500,000,000
+ 2065 Notes: $4,500,000,000 | Public Offering Price: | 2030 Notes: 99.882%
+ 2032 Notes:
+ 99.992%
+ 2035 Notes: 99.982%
+ 2045 Notes:
+ 99.817%
+ 2055 Notes: 99.824%
+ 2065 Notes: 
+99.888% | Coupon (Interest Rate): | 2030 Notes: 4.200%
+ 2032 Notes:
+ 4.600%
+ 2035 Notes: 4.875%
+ 2045 Notes:
+ 5.500%
+ 2055 Notes: 5.625%
+ 2065 Notes: 
+5.750% | Yield to Maturity: | 2030 Notes: 4.226%
+ 2032 Notes:
+ 4.601%
+ 2035 Notes: 4.877%
+ 2045 Notes:
+ 5.515%
+ 2055 Notes: 5.637%
+ 2065 Notes: 
+5.757% | Spread to Benchmark Treasury: | 2030 Notes: T + 50 bps
+ 2032 Notes:
+ T + 70 bps
+ 2035 Notes: T + 78 bps
+ 2045 Notes:
+ T + 88 bps
+ 2055 Notes: T + 98 bps
+ 2065 Notes:
+ T + 110 bps | Benchmark Treasury: | 2030 Notes: UST 3.625% due September 30, 2030
+ 2032 Notes: UST 3.875% due September 30, 2032
+ 2035
+Notes: UST 4.250% due August 15, 2035
+ 2045 Notes: UST 4.875% due August 15, 2045
+ 2055 Notes: UST 4.750% due May 15, 2055
+ 2065
+Notes: UST 4.750% due May 15, 2055 | Benchmark Treasury Price/Yield: | 2030 Notes: 99-17+ and 3.726%
+ 2032 Notes: 99-27 and 3.901%
+ 2035 Notes: 101-07 and 4.097%
+ 2045 Notes: 103-02+ and 4.635%
+ 2055 Notes: 101-15+ and 4.657%
+ 2065 Notes: 101-15+ and 4.657% | Interest Payment Dates: | May 15 and November 15, commencing on May 15, 2026 | Optional Redemption: | 2030 Notes: At any time prior to October 15, 2030, make-whole call at the Treasury Rate (as defined in the Preliminary Prospectus
+Supplement) plus 10 basis points; par call at any time on or after October 15, 2030.
+ 2032 Notes: At any time prior to September 15, 2032, make-whole call at the Treasury Rate (as defined in the Preliminary Prospectus Supplement)
+plus 15 basis points; par call at any time on or after September 15, 2032.
+ 2035 Notes: At any time prior to August 15, 2035, make-whole call at the Treasury Rate (as defined in the Preliminary Prospectus Supplement) plus
+15 basis points; par call at any time on or after August 15, 2035.
+ | 
+2 | 2045 Notes: At any time prior to May 15, 2045, make-whole
+call at the Treasury Rate (as defined in the Preliminary Prospectus Supplement) plus 15 basis points; par call at any time on or after May 15, 2045.
+ 2055 Notes: At any time prior to May 15, 2055, make-whole call at the Treasury Rate (as defined in the Preliminary Prospectus Supplement) plus 15
+basis points; par call at any time on or after May 15, 2055.
+ 2065 Notes:
+ At any time prior to May 15, 2065, make-whole call at the Treasury Rate (as defined in the Preliminary Prospectus Supplement) plus 20 basis points; par call at any time on or after May 15, 2065. | Joint Book-Running Managers: | Citigroup Global Markets Inc.
+Morgan Stanley & Co. LLC | Co-Managers: | Allen & Company LLC
+Blaylock Van, LLC
+CastleOak Securities, L.P.
+R. Seelaus & Co., LLC
+Siebert Williams Shank & Co., LLC | CUSIP / ISIN: | 2030 Notes : 30303MAB8 / US30303MAB81
+ 2032 Notes: 30303MAC6 / US30303MAC64
+ 2035 Notes: 30303MAD4 / US30303MAD48
+ 2045 Notes: 30303M8X3 / US30303M8X35
+ 2055 Notes: 30303MAE2 / US30303MAE21
+ 2065 Notes: 30303M8Y1 / US30303M8Y18
+ | 
+3 
+ * | 
+ It is expected that the delivery of the notes will be made against payment therefor on or about
+November 3, 2025, which will be the second business day after the date of the prospectus supplement. Under Rule 15c6-1 of the Securities Exchange Act of 1934, as amended, trades in the secondary market
+generally are required to settle in one business day, unless the parties to a trade expressly agree otherwise. Accordingly, purchasers who wish to trade the notes prior to the business day preceding the Settlement Date will be required, by virtue of
+the fact that the notes will settle in two business days, to specify an alternative settlement cycle at the time of any such trade to prevent a failed settlement. Such purchasers should consult their own advisors in this regard.
+ | 
+ ** | 
+ Note: A securities rating is not a recommendation to buy, sell or hold securities and may be subject to
+revision or withdrawal at any time. 
+ | 
+ The Issuer has filed a registration statement, including a prospectus and a preliminary
+prospectus supplement, with the Securities and Exchange Commission (the “SEC”) for the offering to which this communication relates. Before you invest, you should read the prospectus and the related preliminary prospectus supplement and
+other documents the Issuer has filed with the SEC for more complete information about the Issuer and this offering. You may get these documents for free by visiting EDGAR on the SEC’s website at www.sec.gov . Alternatively, the
+representatives of the underwriters can arrange to send you the prospectus and the related preliminary prospectus supplement if you request it by calling Citigroup Global Markets Inc. at 1-800-831-9146 or Morgan Stanley & Co. LLC at
+ 1-866-718-1649. 
+ This
+information does not purport to be a complete description of these securities or the offering. Please refer to the preliminary prospectus supplement for a complete description of the securities. This communication does not constitute an offer to
+sell or the solicitation of an offer to buy any securities in any jurisdiction to any person to whom it is unlawful to make such offer or solicitation in such jurisdiction. 
+ ANY DISCLAIMERS OR OTHER NOTICES THAT MAY APPEAR BELOW ARE NOT APPLICABLE TO THIS COMMUNICATION AND SHOULD BE DISREGARDED. SUCH DISCLAIMERS OR OTHER NOTICES
+WERE AUTOMATICALLY GENERATED AS A RESULT OF THIS COMMUNICATION BEING SENT VIA BLOOMBERG OR ANOTHER EMAIL SYSTEM. 
+4
+
+=== USE OF PROCEEDS #1 from https://www.sec.gov/Archives/edgar/data/1326801/000119312525257437/d762778d424b2.htm
+USE OF PROCEEDS 
+The net proceeds to us from this offering are estimated to be approximately $    , after deducting underwriting
+discounts and estimated offering expenses payable by us. 
+We intend to use the net proceeds from this offering for general corporate
+purposes. 
+S-8 
+ Table of Contents 
+ CAPITALIZATION 
+The following table sets forth our cash and cash equivalents and
+ available-for-sale marketable securities and capitalization on a consolidated basis as of September 30, 2025. We have presented our capitalization on both an actual
+and as adjusted basis to reflect the issuance of the notes and the receipt (but not the use) of the estimated net proceeds of this offering as described under “Use of Proceeds.” You should read the following table along with our
+financial statements and the accompanying notes to those statements, together with the information set forth under “Management’s Discussion and Analysis of Financial Condition and Results of Operations” in our Quarterly Report on
+Form 10-Q for the quarter ended September 30, 2025, which is incorporated by reference in this prospectus supplement and the accompanying prospectus. See “Incorporation of Certain Information by
+Reference.” | As of September 30, 2025 | Actual | As Adjusted | (in millions) | Cash and Cash Equivalents and Marketable Securities | Cash and Cash Equivalents(1) | $ | 
+ 10,187 | $ | Marketable securities | 34,261 | Total cash and cash equivalents and 
+marketable securities | $ | 
+ 44,448 | $ | Lo
+
+=== USE OF PROCEEDS #2 from https://www.sec.gov/Archives/edgar/data/1326801/000119312525257437/d762778d424b2.htm
+USE OF PROCEEDS 
+Unless otherwise specified in the applicable prospectus supplement, the net proceeds from the sale of the debt securities to which this
+prospectus relates will be used for general corporate purposes. Until we apply the proceeds from the sale of the debt securities, we may temporarily invest any proceeds that are not immediately applied to the above purposes in United States
+government or agency obligations, commercial paper, time deposits, money market funds, short-term marketable debt securities, bank deposits or certificates of deposit, repurchase agreements collateralized by United States government or agency
+obligations, or other short-term investments. 
+4 
+ Table of Contents 
+ DESCRIPTION OF DEBT SECURITIES 
+We have summarized below general terms and conditions of the debt securities covered by this prospectus. When we offer to sell a particular
+series of debt securities, we will describe the specific terms and conditions of the series in a prospectus supplement to this prospectus. We will also indicate in the applicable prospectus supplement whether the general terms and conditions
+described in this prospectus apply to the series of debt securities and/or whether the terms and conditions of the debt securities of a series will be different in one or more respects from the terms and conditions described below. 
+We will issue the debt securities in one or more series, which will consist of either our senior debt or our subordinated debt, under an
+indentu

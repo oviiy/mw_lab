@@ -1,0 +1,13 @@
+{
+  "accession": "0001193125-25-258837",
+  "is_new_debt": true,
+  "tranches": [
+    {"currency": "USD", "amount": 4000000000, "maturity_date": "2030-11-15", "coupon_pct": 4.2, "spread_bp": 50},
+    {"currency": "USD", "amount": 4000000000, "maturity_date": "2032-11-15", "coupon_pct": 4.6, "spread_bp": 70},
+    {"currency": "USD", "amount": 6500000000, "maturity_date": "2035-11-15", "coupon_pct": 4.875, "spread_bp": 78},
+    {"currency": "USD", "amount": 4500000000, "maturity_date": "2045-11-15", "coupon_pct": 5.5, "spread_bp": 88},
+    {"currency": "USD", "amount": 6500000000, "maturity_date": "2055-11-15", "coupon_pct": 5.625, "spread_bp": 98},
+    {"currency": "USD", "amount": 4500000000, "maturity_date": "2065-11-15", "coupon_pct": 5.75, "spread_bp": 110}
+  ],
+  "notes": "Meta Platforms pricing term sheet, 6 senior note tranches totaling USD 30.0bn. 2065 notes priced off the same 2055 UST benchmark."
+}

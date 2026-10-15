@@ -1,0 +1,17 @@
+{
+  "accession": "0001193125-26-338750",
+  "is_new_debt": true,
+  "tranches": [
+    {"currency": "USD", "amount": 750000000, "maturity_date": "2028-08-10", "coupon_pct": null, "spread_bp": null},
+    {"currency": "USD", "amount": 1250000000, "maturity_date": "2028-08-10", "coupon_pct": 4.5, "spread_bp": 33},
+    {"currency": "USD", "amount": 500000000, "maturity_date": "2029-08-10", "coupon_pct": null, "spread_bp": null},
+    {"currency": "USD", "amount": 2000000000, "maturity_date": "2029-08-10", "coupon_pct": 4.625, "spread_bp": 43},
+    {"currency": "USD", "amount": 3500000000, "maturity_date": "2031-08-15", "coupon_pct": 4.875, "spread_bp": 60},
+    {"currency": "USD", "amount": 2500000000, "maturity_date": "2033-08-15", "coupon_pct": 5.2, "spread_bp": 75},
+    {"currency": "USD", "amount": 4500000000, "maturity_date": "2036-08-15", "coupon_pct": 5.45, "spread_bp": 85},
+    {"currency": "USD", "amount": 3000000000, "maturity_date": "2046-08-15", "coupon_pct": 6.25, "spread_bp": 105},
+    {"currency": "USD", "amount": 4500000000, "maturity_date": "2056-08-15", "coupon_pct": 6.375, "spread_bp": 115},
+    {"currency": "USD", "amount": 2500000000, "maturity_date": "2066-08-15", "coupon_pct": 6.5, "spread_bp": 130}
+  ],
+  "notes": "Alphabet USD pricing term sheet, 10 tranches totaling USD 25.0bn. Two floating-rate tranches: 2028 FRN = Compounded SOFR + 0.44%, 2029 FRN = Compounded SOFR + 0.60% -> coupon/spread null. 2028/2029 fixed notes mature Aug 10; 2031+ mature Aug 15."
+}

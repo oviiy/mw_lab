@@ -1,0 +1,8 @@
+{
+  "accession": "0001769628-25-000105",
+  "is_new_debt": true,
+  "tranches": [
+    {"currency": "USD", "amount": 2587500000, "maturity_date": "2031-12-01", "coupon_pct": 1.75, "spread_bp": null}
+  ],
+  "notes": "CoreWeave 8-K: closing of 144A offering of $2,587,500,000 1.75% Convertible Senior Notes due Dec 1, 2031, including full exercise of the $337,500,000 initial purchasers' option (base deal $2.25bn). Initial conversion price ~$107.80/share (9.2764 shares per $1,000). Existing 9.250% 2030 and 9.000% 2031 senior notes are mentioned only as guarantor reference (not new). Capped calls (~$340.0m cost) are not debt."
+}

@@ -1,0 +1,16 @@
+# Illustrative parameters for the depreciation-wave model. These are NOT disclosed by the
+# companies; the website labels the resulting chart as illustrative and lets readers change them.
+
+# Share of capital expenditure assumed to be servers and network equipment (short-lived).
+# The rest (buildings, land, power) is depreciated over `other_asset_life_years`.
+server_share_of_capex: 0.5
+
+# Life applied to the non-server share of capex.
+other_asset_life_years: 20
+
+# How many fiscal years ahead to project depreciation from capex already spent.
+horizon_years: 5
+
+# Earliest capex vintage included (older vintages are fully depreciated within the horizon
+# under any server life shown on the site).
+first_vintage_fy: 2018

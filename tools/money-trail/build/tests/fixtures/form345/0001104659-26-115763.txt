@@ -1,0 +1,220 @@
+<SEC-DOCUMENT>0001104659-26-115763.txt : 20261014
+<SEC-HEADER>0001104659-26-115763.hdr.sgml : 20261014
+<ACCEPTANCE-DATETIME>20261014090004
+ACCESSION NUMBER:		0001104659-26-115763
+CONFORMED SUBMISSION TYPE:	4
+PUBLIC DOCUMENT COUNT:		1
+CONFORMED PERIOD OF REPORT:	20261012
+FILED AS OF DATE:		20261014
+DATE AS OF CHANGE:		20261014
+
+REPORTING-OWNER:	
+
+	OWNER DATA:	
+		COMPANY CONFORMED NAME:			Japan Post Holdings Co., Ltd.
+		CENTRAL INDEX KEY:			0001783464
+		ORGANIZATION NAME:           	
+		STATE OF INCORPORATION:			M0
+		FISCAL YEAR END:			0331
+
+	FILING VALUES:
+		FORM TYPE:		4
+		SEC ACT:		1934 Act
+		SEC FILE NUMBER:	001-07434
+		FILM NUMBER:		261458409
+
+	BUSINESS ADDRESS:	
+		STREET 1:		2-3-1 OTEMACHI
+		STREET 2:		CHIYODA-KU
+		CITY:			TOKYO
+		STATE:			M0
+		ZIP:			100-8791
+		BUSINESS PHONE:		81-2-3477-0212
+
+	MAIL ADDRESS:	
+		STREET 1:		2-3-1 OTEMACHI
+		STREET 2:		CHIYODA-KU
+		CITY:			TOKYO
+		STATE:			M0
+		ZIP:			100-8791
+
+ISSUER:		
+
+	COMPANY DATA:	
+		COMPANY CONFORMED NAME:			AFLAC INC
+		CENTRAL INDEX KEY:			0000004977
+		STANDARD INDUSTRIAL CLASSIFICATION:	ACCIDENT & HEALTH INSURANCE [6321]
+		ORGANIZATION NAME:           	02 Finance
+		EIN:				581167100
+		STATE OF INCORPORATION:			GA
+		FISCAL YEAR END:			1231
+
+	BUSINESS ADDRESS:	
+		STREET 1:		1932 WYNNTON RD
+		CITY:			COLUMBUS
+		STATE:			GA
+		ZIP:			31999
+		BUSINESS PHONE:		7063233431
+
+	MAIL ADDRESS:	
+		STREET 1:		1932 WYNNTON ROAD
+		CITY:			COLUMBUS
+		STATE:			GA
+		ZIP:			31999
+
+	FORMER COMPANY:	
+		FORMER CONFORMED NAME:	AMERICAN FAMILY CORP
+		DATE OF NAME CHANGE:	19920306
+</SEC-HEADER>
+<DOCUMENT>
+<TYPE>4
+<SEQUENCE>1
+<FILENAME>tm2626872-8_4seq1.xml
+<DESCRIPTION>OWNERSHIP DOCUMENT
+<TEXT>
+<XML>
+<?xml version="1.0"?>
+<ownershipDocument>
+
+    <schemaVersion>X0609</schemaVersion>
+
+    <documentType>4</documentType>
+
+    <periodOfReport>2026-10-12</periodOfReport>
+
+    <notSubjectToSection16>0</notSubjectToSection16>
+
+    <issuer>
+        <issuerCik>0000004977</issuerCik>
+        <issuerName>AFLAC INC</issuerName>
+        <issuerTradingSymbol>AFL</issuerTradingSymbol>
+        <issuerForeignTradingSymbol></issuerForeignTradingSymbol>
+    </issuer>
+
+    <reportingOwner>
+        <reportingOwnerId>
+            <rptOwnerCik>0001783464</rptOwnerCik>
+            <rptOwnerName>Japan Post Holdings Co., Ltd.</rptOwnerName>
+        </reportingOwnerId>
+        <reportingOwnerAddress>
+            <rptOwnerNonUSAddressFlag>true</rptOwnerNonUSAddressFlag>
+            <rptOwnerStreet1>2-3-1, OTEMACHI, CHIYODA-KU</rptOwnerStreet1>
+            <rptOwnerStreet2></rptOwnerStreet2>
+            <rptOwnerCity>TOKYO</rptOwnerCity>
+            <rptOwnerNonUSStateTerritory></rptOwnerNonUSStateTerritory>
+            <rptOwnerCountry>M0</rptOwnerCountry>
+            <rptOwnerZipCode>100-8791</rptOwnerZipCode>
+            <rptOwnerStateDescription>JAPAN</rptOwnerStateDescription>
+        </reportingOwnerAddress>
+        <reportingOwnerRelationship>
+            <isDirector>0</isDirector>
+            <isOfficer>0</isOfficer>
+            <isTenPercentOwner>1</isTenPercentOwner>
+            <isOther>0</isOther>
+            <officerTitle></officerTitle>
+            <otherText></otherText>
+        </reportingOwnerRelationship>
+    </reportingOwner>
+
+    <aff10b5One>1</aff10b5One>
+
+    <nonDerivativeTable>
+        <nonDerivativeTransaction>
+            <securityTitle>
+                <value>Common Stock</value>
+            </securityTitle>
+            <transactionDate>
+                <value>2026-10-12</value>
+            </transactionDate>
+            <deemedExecutionDate></deemedExecutionDate>
+            <transactionCoding>
+                <transactionFormType>4</transactionFormType>
+                <transactionCode>S</transactionCode>
+                <equitySwapInvolved>0</equitySwapInvolved>
+            </transactionCoding>
+            <transactionTimeliness></transactionTimeliness>
+            <transactionAmounts>
+                <transactionShares>
+                    <value>11468</value>
+                </transactionShares>
+                <transactionPricePerShare>
+                    <value>115.83</value>
+                    <footnoteId id="F1"/>
+                </transactionPricePerShare>
+                <transactionAcquiredDisposedCode>
+                    <value>D</value>
+                </transactionAcquiredDisposedCode>
+            </transactionAmounts>
+            <postTransactionAmounts>
+                <sharesOwnedFollowingTransaction>
+                    <value>50345672</value>
+                </sharesOwnedFollowingTransaction>
+            </postTransactionAmounts>
+            <ownershipNature>
+                <directOrIndirectOwnership>
+                    <value>I</value>
+                </directOrIndirectOwnership>
+                <natureOfOwnership>
+                    <value>See footnote</value>
+                    <footnoteId id="F2"/>
+                </natureOfOwnership>
+            </ownershipNature>
+        </nonDerivativeTransaction>
+        <nonDerivativeTransaction>
+            <securityTitle>
+                <value>Common Stock</value>
+            </securityTitle>
+            <transactionDate>
+                <value>2026-10-12</value>
+            </transactionDate>
+            <deemedExecutionDate></deemedExecutionDate>
+            <transactionCoding>
+                <transactionFormType>4</transactionFormType>
+                <transactionCode>S</transactionCode>
+                <equitySwapInvolved>0</equitySwapInvolved>
+            </transactionCoding>
+            <transactionTimeliness></transactionTimeliness>
+            <transactionAmounts>
+                <transactionShares>
+                    <value>732</value>
+                </transactionShares>
+                <transactionPricePerShare>
+                    <value>116.24</value>
+                    <footnoteId id="F3"/>
+                </transactionPricePerShare>
+                <transactionAcquiredDisposedCode>
+                    <value>D</value>
+                </transactionAcquiredDisposedCode>
+            </transactionAmounts>
+            <postTransactionAmounts>
+                <sharesOwnedFollowingTransaction>
+                    <value>50344940</value>
+                </sharesOwnedFollowingTransaction>
+            </postTransactionAmounts>
+            <ownershipNature>
+                <directOrIndirectOwnership>
+                    <value>I</value>
+                </directOrIndirectOwnership>
+                <natureOfOwnership>
+                    <value>See footnote</value>
+                    <footnoteId id="F2"/>
+                </natureOfOwnership>
+            </ownershipNature>
+        </nonDerivativeTransaction>
+    </nonDerivativeTable>
+
+    <footnotes>
+        <footnote id="F1">The price reported represents the weighted average price of shares of Common Stock of Aflac Inc. (the &quot;Issuer&quot;) sold in multiple transactions at prices ranging from $115.13 to $116.13 per share. The reporting person will provide to the Issuer, or the Securities and Exchange Commission staff, upon request, information regarding the number of shares sold at each price within the range.</footnote>
+        <footnote id="F2">The reported securities are held directly by J&amp;A Alliance Holdings Corporation (&quot;J&amp;A Holdings&quot;), in its capacity as the trustee of the J&amp;A Alliance Trust (the &quot;Trust&quot;). General Incorporated Association J&amp;A Alliance (&quot;General Incorporated&quot;), Kenji Sano and Tetsuya Numaguchi each may be deemed to beneficially own the securities held by J&amp;A Holdings (in its capacity as trustee of the Trust) because (i) General Incorporated owns J&amp;A Holdings and (ii) Kenji Sano and Tetsuya Numaguchi each own 50% of the equity interests in General Incorporated. Japan Post Holdings Co., Ltd. (&quot;Japan Post&quot;) may be deemed to beneficially own the shares of common stock owned directly by J&amp;A Holdings, in its capacity as the trustee of the Trust, due to its role as the sole settlor and beneficiary of the Trust. Each of General Incorporated, Kenji Sano, Tetsuya Numaguchi and Japan Post expressly disclaim beneficial ownership of the reported securities except to the extent of its pecuniary interest therein.</footnote>
+        <footnote id="F3">The price reported represents the weighted average price of shares of Common Stock of the Issuer sold in multiple transactions at prices ranging from $116.14 to $116.48 per share. The reporting person will provide to the Issuer, or the Securities and Exchange Commission staff, upon request, information regarding the number of shares sold at each price within the range.</footnote>
+    </footnotes>
+
+    <ownerSignature>
+        <signatureName>/s/ Yuki Takemura, Senior General Manager, as attorney-in-fact for Kenji Meguro</signatureName>
+        <signatureDate>2026-10-14</signatureDate>
+    </ownerSignature>
+</ownershipDocument>
+</XML>
+</TEXT>
+</DOCUMENT>
+</SEC-DOCUMENT>

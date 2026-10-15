@@ -1,0 +1,17 @@
+# Human sign-offs and corrections, keyed by accession.
+# Every entry needs a reason; overridden tranches are published with validation = "override".
+
+"0001193125-25-227562":
+  reason: >-
+    CoreWeave DDTL 2.0 incremental tranche: each draw matures five years after it is drawn,
+    so the filing has no single maturity date. We use agreement date + 5 years as the
+    latest-possible final maturity.
+  tranches:
+    0: { maturity_date: "2030-09-29" }
+
+"0001769628-26-000164":
+  reason: >-
+    CoreWeave 8-K states "$1,750,000 aggregate principal amount" for the 9.750% notes due 2031;
+    the add-on 8-K (0001769628-26-000183) confirms $1.75 billion outstanding before the $1.0B tap.
+    Amount kept at 1,750,000,000; the millions check is signed off.
+  accept: [0]

@@ -1,0 +1,12 @@
+{
+  "accession": "0001193125-26-044473",
+  "is_new_debt": true,
+  "tranches": [
+    {"currency": "GBP", "amount": 750000000, "maturity_date": "2029-02-13", "coupon_pct": 4.125, "spread_bp": 45},
+    {"currency": "GBP", "amount": 1250000000, "maturity_date": "2032-11-13", "coupon_pct": 4.625, "spread_bp": 55},
+    {"currency": "GBP", "amount": 1250000000, "maturity_date": "2041-11-13", "coupon_pct": 5.5, "spread_bp": 55},
+    {"currency": "GBP", "amount": 1250000000, "maturity_date": "2058-02-13", "coupon_pct": 5.875, "spread_bp": 60},
+    {"currency": "GBP", "amount": 1000000000, "maturity_date": "2126-02-13", "coupon_pct": 6.125, "spread_bp": 120}
+  ],
+  "notes": "Alphabet GBP notes, 5 tranches totaling GBP 5.5bn, incl. a 100-year note due 2126 (spread +120bp vs UKT 1.125% 2073). 2032 and 2041 notes mature Nov 13 (not Feb 13). Concurrent USD (appended 424B2: ~$19.8bn net) and CHF offerings are referenced but their terms are not in this filing; not labeled here."
+}

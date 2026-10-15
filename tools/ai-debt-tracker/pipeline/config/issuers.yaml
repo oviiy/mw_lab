@@ -1,0 +1,50 @@
+# Issuers tracked by the AI Debt Tracker.
+# Inclusion rule: companies whose disclosed capital expenditure is dominated by
+# AI / data-center build-out, and which fund it (at least partly) in public debt markets.
+# Every bond these issuers sold since `since` counts toward the headline total;
+# the `ai_flag` field separately marks deals whose use of proceeds names AI explicitly.
+
+since: "2024-01-01"
+
+issuers:
+  - id: meta
+    name: Meta Platforms
+    ticker: META
+    cik: 1326801
+    color: "#5b7fa6"
+    inclusion_reason: "Capex guidance driven by AI data centers (Hyperion, Prometheus)."
+
+  - id: alphabet
+    name: Alphabet
+    ticker: GOOGL
+    cik: 1652044
+    color: "#5e8c61"
+    inclusion_reason: "Largest technical-infrastructure capex program among US issuers."
+
+  - id: amazon
+    name: Amazon
+    ticker: AMZN
+    cik: 1018724
+    color: "#d0892b"
+    inclusion_reason: "AWS AI infrastructure is the bulk of capex growth."
+
+  - id: oracle
+    name: Oracle
+    ticker: ORCL
+    cik: 1341439
+    color: "#8a4f7d"
+    inclusion_reason: "OCI build-out for AI contracts (incl. OpenAI); most levered hyperscaler."
+
+  - id: microsoft
+    name: Microsoft
+    ticker: MSFT
+    cik: 789019
+    color: "#8c8577"
+    inclusion_reason: "Second-largest AI capex program; included as the control case."
+
+  - id: coreweave
+    name: CoreWeave
+    ticker: CRWV
+    cik: 1769628
+    color: "#2b2a27"
+    inclusion_reason: "Pure-play AI cloud ('neocloud') financed heavily with debt."

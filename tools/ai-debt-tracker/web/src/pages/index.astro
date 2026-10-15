@@ -1,0 +1,543 @@
+---
+import Base from "../layouts/Base.astro";
+import ChartFrame from "../components/ChartFrame";
+import Threads from "../components/charts/Threads";
+import Wall from "../components/charts/Wall";
+import Gap from "../components/charts/Gap";
+import CreditCurves from "../components/charts/CreditCurves";
+import CapexQuarterly from "../components/charts/CapexQuarterly";
+import Waterfall from "../components/charts/Waterfall";
+import Growth from "../components/charts/Growth";
+import Coverage from "../components/charts/Coverage";
+import DepWave from "../components/charts/DepWave";
+import { fig, figNo, tab } from "../lib/figures";
+import Explorer from "../components/Explorer";
+import HeroArt from "../components/HeroArt";
+import IssuerMark from "../components/IssuerMark";
+import { BondIcon, CalendarIcon, ChipIcon, CoinsIcon, DataCenterIcon, FilingIcon, FlowIcon, HourglassIcon, QuestionIcon, RateIcon, SampleIcon, ServerIcon } from "../components/icons";
+import { HowMuch, MarketPrice, TheMismatch, WhereMoneyGoes, WhoBorrows } from "../components/Chapters";
+import { bonds, datasetVersion, deals, facts, funding, headline, issuerById, issuerMeta, medianMaturity, metrics, offBalance, sensitivity, slim, summaryTable, curveShift, assetFacts, bondsInFiscalYear, commitments, segmentLabels } from "../lib/data";
+import { date, monthYear, share, usd, usdWords } from "../lib/format";
+import * as copy from "../story/copy";
+import evalReport from "../../../eval/report.json";
+
+const f = facts();
+const today = metrics.meta.generated_at;
+const slimHead = headline.map(slim);
+const borrowing = issuerMeta.filter((i) => headline.some((b) => b.issuer_id === i.id));
+const nFilings = new Set(bonds.map((b) => b.accession)).size;
+const venture = offBalance[0];
+const table1 = summaryTable();
+const sens = sensitivity();
+const sensAt = (L: number) => sens.find((x) => x.life === L)?.share ?? 0;
+const median = medianMaturity();
+const oWiden = f.oracleFirst && f.oracleLast ? f.oracleLast.spread_bp! - f.oracleFirst.spread_bp! : 0;
+const igMove = f.oracleFirst && f.oracleLast ? f.oracleLast.index_oas_bp! - f.oracleFirst.index_oas_bp! : 0;
+const ratio = (id: string) => {
+  const rs = funding().filter((r) => r.issuer_id === id);
+  const l = rs[rs.length - 1];
+  return l ? l.capex / l.ocf : 0;
+};
+const lifeLo = Math.min(...metrics.mismatch.map((m) => m.useful_life_years));
+const lifeHi = Math.max(...metrics.mismatch.map((m) => m.useful_life_years));
+const shifts = curveShift();
+const af = assetFacts();
+const cloudLabels = Object.fromEntries(Object.entries(segmentLabels).map(([k, v]) => [k, v.label.replace(/ \(.*\)$/, "")]));
+const gy = (id: string) => af.growthY[id];
+const pct0 = (v: number | null | undefined) => (v == null ? "—" : `${Math.round(v)}%`);
+const covText = (v: number | undefined) => (v == null ? "—" : v >= 10 ? `${Math.round(v)}×` : `${v.toFixed(1)}×`);
+const top = shifts[0];
+const others = shifts.slice(1);
+const fmt1 = (v: number | null, d = 1) => (v == null ? "—" : v.toFixed(d));
+// Set automatically inside GitHub Actions ("owner/repo"); undefined for local builds.
+const repoSlug = process.env.GITHUB_REPOSITORY;
+const repo = repoSlug ? `https://github.com/${repoSlug}` : undefined;
+const bibtex = `@misc{aidebttracker${datasetVersion.slice(0, 4)},
+  title  = {AI Debt Tracker: bonds and loans financing the AI build-out},
+  author = {Wang, Michael},
+  year   = {${datasetVersion.slice(0, 4)}},
+  note   = {Dataset version ${datasetVersion}},
+${repo ? `  url    = {${repo}}\n` : ""}}`;
+---
+<Base
+  title="AI Debt Tracker: the chips wear out in six years, the debt runs for decades"
+  description={`${usd(f.total)} borrowed to build AI since 2024. ${share(f.outliving)} of it outlives the servers it paid for. Every bond, from SEC filings.`}
+>
+  <a class="skip" href="#story">Skip to the story</a>
+  <header class="masthead wrap">
+    <a class="brand" href="#top">AI Debt Tracker</a>
+    <nav aria-label="Sections">
+      <a href="#story">Story</a>
+      <a href="#explore">Explore the data</a>
+      <a href="#method">Method</a>
+      {repo && <a href={repo}>Source code</a>}
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="wrap">
+        <div class="hero-top">
+          <div>
+            <h1>{copy.hero.headline}</h1>
+            <div class="byline sans">
+              <span><a class="quiet-link" href="https://oviiy.github.io/">Michael Wang</a></span>
+              <span>Working paper and open dataset, version {datasetVersion}</span>
+              <span>Updated weekly from SEC EDGAR</span>
+            </div>
+            <ul class="cast" aria-label="Companies in the sample">
+              {issuerMeta.map((i) => (
+                <li><IssuerMark id={i.id} color={i.color} size={26} /><span>{i.name}</span></li>
+              ))}
+            </ul>
+          </div>
+          <HeroArt life={6} startYear={2026} longestYear={+f.longest.maturity_date.slice(0, 4)} />
+        </div>
+        <div class="front">
+          <div class="abstract">
+            <h2 class="front-h">Abstract</h2>
+            <p>
+              Since January 2024, five of the largest spenders on AI infrastructure have raised {usdWords(f.total)} in bonds and loans.
+              We assemble every tranche from {nFilings} SEC filings ({f.nTranches} tranches), extract terms with a language model, and verify each one against
+              finance identities. Matching each tranche to the depreciation life its issuer discloses for servers ({lifeLo}–{lifeHi} years), we find that{" "}
+              <strong>{share(f.outliving)}</strong> of the principal falls due after that hardware is fully depreciated. The amount-weighted median maturity is {monthYear(median)}.
+              The result survives much longer asset lives: at ten years, {share(sensAt(10))} still outlives the asset; at twenty, {share(sensAt(20))}.
+              Credit markets price most issuers at or inside the investment-grade index. The exception is Oracle, whose ten-year new-issue spread widened
+              by {oWiden} basis points while the index moved {igMove > 0 ? "+" : ""}{igMove}.
+              On the asset side, capital spending is outgrowing the cloud revenue it is meant to earn, Oracle covers its interest only {covText(af.cov.oracle?.coverage)} from operating income, and the companies have signed a further {usd(af.leaseTotal, 2)} of data-center leases that are not yet on their balance sheets.
+            </p>
+          </div>
+          <div class="findings">
+            <h2 class="front-h">Key findings</h2>
+            <ol>
+              <li><strong>{usd(f.total)}</strong> raised since 2024; {usd(f.byYear["2026"] ?? 0)} of it in 2026 alone. <a href="#cumulative">Fig. {figNo("cumulative")}</a></li>
+              <li><strong>{share(f.outliving)}</strong> is owed after the servers it financed are written off; one bond runs to {f.longest.maturity_date.slice(0, 4)}. <a href="#threads">Fig. {figNo("threads")}</a>, <a href="#mismatch">{figNo("mismatch")}</a></li>
+              <li>Robust to asset life: <strong>{share(sensAt(10))}</strong> at 10 years, {share(sensAt(20))} at 20. <a href="#gap">Fig. {figNo("gap")}</a>, <a href="#table-sensitivity">{tab("table-sensitivity")}</a></li>
+              <li>Oracle pays <strong>+{oWiden}bp</strong> more than in 2024 for ten-year money; the market average fell. <a href="#spreads">Fig. {figNo("spreads")}</a>, <a href="#curves">{figNo("curves")}</a></li>
+              <li>Capex is <strong>{share(ratio("oracle"))}</strong> of operating cash flow at Oracle and {share(ratio("coreweave"))} at CoreWeave. <a href="#funding">Fig. {figNo("funding")}</a></li>
+              <li>Signed leases not yet on the balance sheet total <strong>{usd(af.leaseTotal, 2)}</strong>, {af.leaseVsHeadline.toFixed(1)}× the bonds. <a href="#table-commitments">{tab("table-commitments")}</a></li>
+              <li>Capex is growing faster than cloud revenue: Oracle <strong>+{pct0(gy("oracle")?.capex_yoy_pct)}</strong> vs +{pct0(gy("oracle")?.cloud_yoy_pct)}, Microsoft +{pct0(gy("microsoft")?.capex_yoy_pct)} vs Azure +{pct0(gy("microsoft")?.cloud_yoy_pct)}. <a href="#growth">Fig. {figNo("growth")}</a></li>
+              <li>Interest coverage: Oracle <strong>{covText(af.cov.oracle?.coverage)}</strong>, CoreWeave {covText(af.cov.coreweave?.coverage)}; the other four at least {covText(af.minOtherCoverage ?? undefined)}. <a href="#coverage">Fig. {figNo("coverage")}</a></li>
+              <li>Only <strong>{share(f.explicit / f.total)}</strong> of the debt names AI in its use of proceeds. <a href="#method">Method</a></li>
+            </ol>
+          </div>
+        </div>
+      </div>
+      <div class="wrap hero-chart">
+        <ChartFrame client:load id="threads" number={fig("threads")} title="Every AI-era bond and loan, from pricing to maturity"
+          how="Each horizontal line is one tranche, sorted by pricing date; thickness scales with size. The line is claret while the servers it plausibly financed are still being depreciated and blue afterwards. Bars along the top show dollars falling due each year."
+          notes="Depreciation lives are each issuer's disclosed estimate for servers and network equipment (latest 10-K). Maturities beyond 2068 are drawn to the edge and labelled. Hover any line for its terms; click to open the filing."
+          source={`${nFilings} SEC filings (FWP pricing term sheets and 8-Ks); 10-K reports. Data as of ${date(today)}.`}>
+          <Threads client:load bonds={slimHead} issuers={issuerMeta} today={today} median={median} />
+        </ChartFrame>
+        <ul class="key sans" aria-label="Legend">
+          <li><ServerIcon size={22} /><span class="swatch claret" aria-hidden="true"></span>Servers it financed still in service</li>
+          <li><BondIcon size={22} /><span class="swatch blue" aria-hidden="true"></span>Debt still owed after they are written off</li>
+          <li><span class="key-dash" aria-hidden="true"></span>Half of all principal is due after this date</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="sample" aria-labelledby="h-sample">
+      <div class="wrap">
+        <h2 id="h-sample" class="section-h"><span class="chapter-n"><SampleIcon size={30} className="chapter-icon" /></span>The sample</h2>
+        <div class="measure">
+          <p>The sample covers every bond and loan priced since 1 January 2024 by the six companies whose capital spending is most concentrated in AI data centers. Microsoft is included as a control: it borrowed nothing in public markets over the period. {tab("table-sample")} summarises the {f.nTranches} tranches that enter the totals.</p>
+        </div>
+        <figure class="table-figure" id="table-sample">
+          <figcaption><span class="frame-number">{tab("table-sample")}</span>Descriptive statistics by issuer</figcaption>
+          <div class="table-wrap">
+            <table class="booktabs num">
+              <thead>
+                <tr>
+                  <th scope="col">Issuer</th>
+                  <th scope="col" class="n">Deals</th>
+                  <th scope="col" class="n">Tranches</th>
+                  <th scope="col" class="n">Principal</th>
+                  <th scope="col" class="n">Share</th>
+                  <th scope="col" class="n">Non-USD</th>
+                  <th scope="col" class="n">Coupon</th>
+                  <th scope="col" class="n">Term (yrs)</th>
+                  <th scope="col" class="n">Spread (bp)</th>
+                  <th scope="col" class="n">Longest (yrs)</th>
+                  <th scope="col" class="n">Server life (yrs)</th>
+                  <th scope="col" class="n">Due after write-off</th>
+                </tr>
+              </thead>
+              <tbody>
+                {table1.rows.map((r) => (
+                  <tr>
+                    <th scope="row"><span class="with-mark"><IssuerMark id={r.id} color={issuerById[r.id].color} size={20} />{r.name}</span></th>
+                    <td class="n">{r.deals}</td>
+                    <td class="n">{r.tranches}</td>
+                    <td class="n">{usd(r.total)}</td>
+                    <td class="n">{share(r.share)}</td>
+                    <td class="n">{share(r.nonUsd)}</td>
+                    <td class="n">{r.coupon == null ? "—" : `${r.coupon.toFixed(2)}%`}</td>
+                    <td class="n">{fmt1(r.tenor)}</td>
+                    <td class="n">{r.spread == null ? "—" : Math.round(r.spread)}</td>
+                    <td class="n">{Math.round(r.longest)}</td>
+                    <td class="n">{r.life ?? "—"}</td>
+                    <td class="n"><strong>{share(r.outliving)}</strong></td>
+                  </tr>
+                ))}
+              </tbody>
+              <tfoot>
+                <tr>
+                  <th scope="row">{table1.all.name}</th>
+                  <td class="n">{table1.all.deals}</td>
+                  <td class="n">{table1.all.tranches}</td>
+                  <td class="n">{usd(table1.all.total)}</td>
+                  <td class="n">100%</td>
+                  <td class="n">{share(table1.all.nonUsd)}</td>
+                  <td class="n">{table1.all.coupon == null ? "—" : `${table1.all.coupon.toFixed(2)}%`}</td>
+                  <td class="n">{fmt1(table1.all.tenor)}</td>
+                  <td class="n">{table1.all.spread == null ? "—" : Math.round(table1.all.spread)}</td>
+                  <td class="n">{Math.round(table1.all.longest)}</td>
+                  <td class="n">{lifeLo}–{lifeHi}</td>
+                  <td class="n"><strong>{share(table1.all.outliving)}</strong></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+          <p class="table-notes sans">
+            <em>Notes:</em> All averages are weighted by USD principal. Coupon covers fixed-rate tranches only. Spread is the new-issue spread over the benchmark Treasury, for USD tranches that state one (CoreWeave's 144A notes and loans do not). Term runs from pricing to final maturity, ignoring calls. "Due after write-off" is the share of principal maturing after the issuer's disclosed server life has elapsed. Microsoft issued no debt in the period and is omitted.
+          </p>
+        </figure>
+      </div>
+    </section>
+
+    <div id="story">
+      <section class="chapter" aria-labelledby="h-how-much">
+        <div class="wrap chapter-head">
+          <h2 id="h-how-much"><span class="chapter-n"><CoinsIcon size={30} className="chapter-icon" />1</span>How much they have borrowed</h2>
+        </div>
+        <div class="wrap">
+          <HowMuch client:visible steps={copy.howMuch} cumulative={metrics.cumulative} issuers={borrowing}
+            today={today} shadeFrom="2026-01-01"
+            biggest={{ date: f.biggest.date, label: `${issuerById[f.biggest.issuer_id].name} ${usd(f.biggest.amount_usd, 0)}` }}
+            biggestIssuer={f.biggest.issuer_id} />
+        </div>
+      </section>
+
+      <section class="chapter" aria-labelledby="h-who">
+        <div class="wrap chapter-head">
+          <h2 id="h-who"><span class="chapter-n"><DataCenterIcon size={30} className="chapter-icon" />2</span>Who is borrowing, and how</h2>
+        </div>
+        <div class="wrap">
+          <WhoBorrows client:visible steps={copy.whoBorrows.steps} deals={deals()} issuers={issuerMeta}
+            today={today} notes={copy.whoBorrows.notes} />
+        </div>
+      </section>
+
+      <section class="chapter" aria-labelledby="h-price">
+        <div class="wrap chapter-head">
+          <h2 id="h-price"><span class="chapter-n"><RateIcon size={30} className="chapter-icon" />3</span>What lenders charge</h2>
+        </div>
+        <div class="wrap">
+          <MarketPrice client:visible steps={copy.marketPrice} bonds={slimHead} issuers={borrowing}
+            index={{ ig: metrics.index_oas_bp.ig, bbb: metrics.index_oas_bp.bbb }} today={today} />
+        </div>
+        <div class="wrap after">
+          <div class="measure">
+            <p>A single tenor can mislead, because longer bonds always pay more. {fig("curves")} fits each issuer's full credit curve: the spread it pays at every maturity. Between 2024–25 and 2026 every issuer's fitted ten-year spread rose ({others.map((o) => `${o.name} +${Math.round(o.delta)}bp`).join(", ")}). {top && <>{top.name}'s rose most, by <strong>{Math.round(top.delta)}bp</strong>, from {Math.round(top.pre!)} to {Math.round(top.post!)}. Because the whole curve moved, a shift in the mix of maturities cannot explain it.</>}</p>
+          </div>
+          <ChartFrame client:visible id="curves" number={fig("curves")} title="New-issue credit curves: spread over Treasuries by maturity"
+            how="Dots: USD fixed-rate tranches. Lines: least-squares fit of spread on log(years to maturity) for each issuer and period. Labels give the fitted spread at ten years."
+            notes="Fits use only bonds priced in the selected period. Curves with fewer than three bonds are not drawn. The table reports the fitted ten-year spread, the slope per doubling of maturity, and R²."
+            source="SEC EDGAR pricing term sheets">
+            <CreditCurves client:visible bonds={slimHead} issuers={borrowing} />
+          </ChartFrame>
+        </div>
+      </section>
+
+      <section class="chapter" aria-labelledby="h-money">
+        <div class="wrap chapter-head">
+          <h2 id="h-money"><span class="chapter-n"><FlowIcon size={30} className="chapter-icon" />4</span>Why they need to borrow</h2>
+        </div>
+        <div class="wrap">
+          <WhereMoneyGoes client:visible steps={copy.whereMoneyGoes} rows={funding()} issuers={issuerMeta} />
+        </div>
+      </section>
+
+      <section class="chapter" aria-labelledby="h-assets">
+        <div class="wrap chapter-head">
+          <h2 id="h-assets"><span class="chapter-n"><ServerIcon size={30} className="chapter-icon" />5</span>Where the money goes, and whether it comes back</h2>
+        </div>
+        <div class="wrap after">
+          <div class="measure">
+            <p>{fig("funding")} shows annual totals. This chapter follows the money quarter by quarter: how much is spent ({fig("capex")}), how the shortfall is filled ({fig("waterfall")}), what the spending is earning ({fig("growth")}), whether the debt can be serviced ({fig("coverage")}), and what the spending will cost in depreciation ({fig("depreciation")}). All figures come from the companies' 10-Q and 10-K filings; every number links back to its filing in the downloadable data.</p>
+            <p>In their latest reported quarters, capital spending equalled <strong>{pct0((af.intensityQ.oracle?.intensity ?? 0) * 100)}</strong> of revenue at Oracle and {pct0((af.intensityQ.coreweave?.intensity ?? 0) * 100)} at CoreWeave, against {pct0((af.intensityQ.alphabet?.intensity ?? 0) * 100)} at Alphabet and {pct0((af.intensityQ.amazon?.intensity ?? 0) * 100)} at Amazon.</p>
+          </div>
+          <ChartFrame client:visible id="capex" number={fig("capex")} title="Capital spending by quarter, and as a share of revenue"
+            how="Bars: capital expenditure (purchases of property and equipment), stacked by company. Line: combined capex ÷ combined revenue (right axis). Switch to calendar years for annual totals."
+            notes="Fiscal quarters are aligned to the calendar quarter they mostly fall in (Oracle's June–August quarter counts as Q3; Microsoft's July–September quarter as Q3). Cash-flow figures in 10-Qs are year-to-date and are differenced into single quarters; Q4 = full year − nine months. The latest quarter is shown only once every company has reported it."
+            source="SEC XBRL company facts (10-Q and 10-K cash-flow and income statements)" sourceUrl={`${import.meta.env.BASE_URL}data/quarterly.json`}>
+            <CapexQuarterly client:visible rows={Object.fromEntries(Object.entries(metrics.capex_intensity).map(([k, v]) => [k, v.quarters]))} issuers={issuerMeta} />
+          </ChartFrame>
+
+          <div class="measure">
+            <p>Where does the money come from? {fig("waterfall")} starts from cash generated by operations, subtracts capital spending, dividends and buybacks, and shows how what is left (or missing) was covered: new debt, cash on hand, or other flows.{af.gapY.oracle?.gap != null && <> In fiscal {af.gapY.oracle.fy} Oracle was <strong>{usd(-(af.gapY.oracle.gap ?? 0))}</strong> short and raised {usd(af.gapY.oracle.net_debt ?? 0)} of net debt.</>}{af.gapY.meta?.gap != null && <> Meta, by contrast, had {usd(af.gapY.meta.gap ?? 0)} left over in fiscal {af.gapY.meta.fy} and still borrowed {usd(af.gapY.meta.net_debt ?? 0)}.</>}</p>
+          </div>
+          <ChartFrame client:visible id="waterfall" number={fig("waterfall")} title="From operating cash to the funding gap, and what filled it"
+            how="Choose a company and fiscal year. Grey and claret bars subtract from operating cash flow; the outlined bar is the gap; blue is net debt raised; the last bars show cash drawn down and all other flows. The chart ends at zero."
+            notes="Gap = operating cash flow − capex − dividends − buybacks. Net debt = proceeds from − repayments of long-term debt. Cash = cash, equivalents and short-term securities. 'Other' is the residual: equity issued, short-term debt and commercial paper, acquisitions and investments, finance-lease principal, employee tax withholding on stock awards. Items a company does not report at all are read as zero and listed under the chart."
+            source="SEC XBRL company facts (annual 10-K cash-flow statements)" sourceUrl={`${import.meta.env.BASE_URL}data/metrics.json`}>
+            <Waterfall client:visible years={metrics.funding_gap.years} issuers={issuerMeta} bondsInYear={bondsInFiscalYear()} />
+          </ChartFrame>
+
+          <div class="measure">
+            <p>Is the spending paying for itself? {fig("growth")} compares the growth of capital spending with the growth of the revenue it is meant to earn. Each company's cloud figure is what it discloses: AWS and Google Cloud revenue, Oracle's cloud revenue, Microsoft's Azure growth rate (Microsoft does not report Azure in dollars), all of CoreWeave's revenue, and for Meta, which has no cloud business, total revenue. In the latest fiscal year, capex grew faster than cloud revenue at five of the six: Oracle <strong>+{pct0(gy("oracle")?.capex_yoy_pct)}</strong> against +{pct0(gy("oracle")?.cloud_yoy_pct)}, Microsoft +{pct0(gy("microsoft")?.capex_yoy_pct)} against Azure +{pct0(gy("microsoft")?.cloud_yoy_pct)}, Meta +{pct0(gy("meta")?.capex_yoy_pct)} against revenue +{pct0(gy("meta")?.cloud_yoy_pct)}.</p>
+          </div>
+          <ChartFrame client:visible id="growth" number={fig("growth")} title="Capital spending growth vs cloud revenue growth, year over year"
+            how="Solid claret: capex growth on the same fiscal quarter a year earlier. Dashed grey: growth of the cloud revenue measure named under each company. Each panel has its own scale."
+            notes="Segment revenue is read from inline XBRL in each 10-Q/10-K (the SEC's XBRL API omits segment data); Microsoft's Azure growth is matched in the filing text. Every value carries a verbatim quote and is published only after the quote is found in the filing."
+            source="Company 10-Q and 10-K filings (segment notes and MD&A)" sourceUrl={`${import.meta.env.BASE_URL}data/segments.json`}>
+            <Growth client:visible growth={metrics.capex_vs_cloud_growth} issuers={issuerMeta} labels={cloudLabels} />
+          </ChartFrame>
+
+          <div class="measure">
+            <p>Can they service it? Interest coverage divides operating income over the last four quarters by interest expense. For Meta, Alphabet, Amazon and Microsoft it is at least {covText(af.minOtherCoverage ?? undefined)}. Oracle's is <strong>{covText(af.cov.oracle?.coverage)}</strong>. CoreWeave's operating income is close to zero, so its coverage is {covText(af.cov.coreweave?.coverage)}: it pays its interest from new borrowing and operating cash, not from profit.</p>
+          </div>
+          <ChartFrame client:visible id="coverage" number={fig("coverage")} title="Interest coverage: operating income ÷ interest expense, trailing four quarters"
+            how="Each line is one company; Oracle and CoreWeave are highlighted. The scale is compressed (symmetric log) so that 1× and 100× both fit; the dashed line marks 1×."
+            notes="Interest expense as reported, after any interest the company capitalises into construction (Meta and others capitalise much of theirs, which raises coverage). Quarters where either input is missing are skipped."
+            source="SEC XBRL company facts (10-Q and 10-K income statements)" sourceUrl={`${import.meta.env.BASE_URL}data/metrics.json`}>
+            <Coverage client:visible coverage={metrics.interest_coverage} issuers={issuerMeta} />
+          </ChartFrame>
+
+          <div class="measure">
+            <p>The bill for the hardware arrives as depreciation. {fig("depreciation")} spreads each year's capex over the server life the company discloses (using the life in force when it was bought) and the rest over twenty years, then projects forward from capex already spent, with no further spending. It is an illustration, not a forecast: the split between servers and buildings is not disclosed, so it is a slider.{af.waveNext.coreweave && af.waveNext.coreweave.revenue && <> Even on spending already made, CoreWeave's depreciation would reach about <strong>{share(af.waveNext.coreweave.peak.total / af.waveNext.coreweave.revenue)}</strong> of its latest annual revenue.</>}</p>
+          </div>
+          <ChartFrame client:visible id="depreciation" number={fig("depreciation")} title="The depreciation wave: depreciation of capex already spent, by fiscal year"
+            how="Bars: modelled depreciation (dark claret = servers, light = buildings and other). Dots: depreciation the company reported. Bars right of the dashed line are projected from capex already spent. Move the sliders to change the server life and the server share of capex."
+            notes="Illustrative model: half-year convention, straight-line, server share and the 20-year life for other assets are assumptions (config/assumptions.yaml). Reported depreciation also includes finance-lease and intangible amortisation, which the model does not cover. Projections assume no new capex, so they are a floor."
+            source="SEC XBRL company facts; useful lives from 10-K reports" sourceUrl={`${import.meta.env.BASE_URL}data/metrics.json`}>
+            <DepWave client:visible wave={metrics.depreciation_wave.issuers} issuers={issuerMeta} />
+          </ChartFrame>
+
+          <div class="measure">
+            <p>Not all of the AI build-out is financed with bonds. The companies have also signed data-center leases that have not yet started and so are not on their balance sheets. Together these come to <strong>{usd(af.leaseTotal, 2)}</strong>, {af.leaseVsHeadline.toFixed(1)} times the bonds and loans in this tracker. They are not counted in the headline total.</p>
+          </div>
+          <figure class="table-figure" id="table-commitments">
+            <figcaption><span class="frame-number">{tab("table-commitments")}</span>Signed leases not yet commenced, and other financing off the balance sheet</figcaption>
+            <div class="table-wrap">
+              <table class="booktabs num commitments">
+                <thead>
+                  <tr>
+                    <th scope="col">Issuer</th>
+                    <th scope="col" class="n">Amount</th>
+                    <th scope="col">As of</th>
+                    <th scope="col">What the filing says</th>
+                    <th scope="col">Filing</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[...commitments].sort((a, b) => b.amount_usd - a.amount_usd).map((c) => (
+                    <tr>
+                      <th scope="row"><span class="with-mark"><IssuerMark id={c.issuer_id} size={18} />{issuerById[c.issuer_id]?.name}</span></th>
+                      <td class="n"><strong>{usd(c.amount_usd, 1)}</strong>{c.subsequent_usd && <div class="muted small">+{usd(c.subsequent_usd, 0)} signed later</div>}</td>
+                      <td>{date(c.as_of)}</td>
+                      <td class="quote-cell">{c.description}<div class="muted small">“{c.quotes[0]}”</div></td>
+                      <td><a href={c.source_url}>{c.form}</a></td>
+                    </tr>
+                  ))}
+                  {venture && (
+                    <tr>
+                      <th scope="row"><span class="with-mark"><IssuerMark id={venture.issuer_id} size={18} />{issuerById[venture.issuer_id]?.name}</span></th>
+                      <td class="n"><strong>{usd(venture.max_exposure_usd, 1)}</strong><div class="muted small">maximum exposure</div></td>
+                      <td>{date("2025-12-31")}</td>
+                      <td class="quote-cell">{venture.name}: unconsolidated joint venture (details below)<div class="muted small">“{venture.quotes[1]}”</div></td>
+                      <td><a href={venture.source_url}>10-K</a></td>
+                    </tr>
+                  )}
+                </tbody>
+                <tfoot>
+                  <tr><th scope="row">Leases not yet commenced</th><td class="n">{usd(af.leaseTotal, 2)}</td><td colspan="3">{af.leaseVsHeadline.toFixed(1)}× the {usd(metrics.headline_usd)} of bonds and loans tracked here</td></tr>
+                </tfoot>
+              </table>
+            </div>
+            <p class="table-notes sans"><em>Notes:</em> Undiscounted future lease payments as each company states them; terms run up to 30 years. Amazon's figure is the total of the "leases not yet commenced" line in the commitments table of its latest 10-Q. Meta's joint-venture exposure overlaps with its lease commitments and is not added to the total. Each quote is re-checked against the filing every time the data is rebuilt.</p>
+          </figure>
+        </div>
+      </section>
+
+      <section class="chapter" aria-labelledby="h-mismatch">
+        <div class="wrap chapter-head">
+          <h2 id="h-mismatch"><span class="chapter-n"><HourglassIcon size={30} className="chapter-icon" />6</span>The mismatch</h2>
+        </div>
+        <div class="wrap">
+          <TheMismatch client:visible steps={copy.mismatch} rows={metrics.mismatch} issuers={issuerMeta} />
+        </div>
+        <div class="wrap after">
+          <div class="measure">
+            <p>{fig("mismatch")} compares averages. {fig("gap")} follows the money through time instead. Suppose each tranche paid for servers of equal cost, bought on the day it was priced and depreciated straight-line. The claret area is the book value those servers still have; the blue line is the debt still owed. Once the claret runs out, every remaining dollar of debt is backed by nothing that it bought.</p>
+            <p>Server lives are an accounting estimate, and part of this money funds buildings and power that last far longer. Move the slider to test the claim. Even with a twenty-year life, {share(sensAt(20))} of the principal is still owed after the asset is written off ({tab("table-sensitivity")}).</p>
+          </div>
+          <ChartFrame client:visible id="gap" number={fig("gap")} title="Debt outstanding vs the remaining book value of what it financed"
+            how="Blue line: principal outstanding across all tranches. Claret area: undepreciated value of the assets, assuming each tranche bought assets of equal cost on its pricing date. Use the slider to change the assumed asset life."
+            notes="A stylised bound, not a balance sheet: companies also fund capex from cash flow, and these bonds are general obligations of the whole firm. The point is the timing, not solvency."
+            source="SEC EDGAR; disclosed useful lives from 10-K reports">
+            <Gap client:visible bonds={slimHead} issuers={issuerMeta} today={today} />
+          </ChartFrame>
+          <figure class="table-figure" id="table-sensitivity">
+            <figcaption><span class="frame-number">{tab("table-sensitivity")}</span>Sensitivity: share of principal still owed after the asset is fully depreciated</figcaption>
+            <div class="table-wrap">
+              <table class="booktabs num sens">
+                <thead>
+                  <tr><th scope="row">Assumed asset life (years)</th>{sens.map((x) => <th scope="col" class={`n${x.life >= lifeLo && x.life <= lifeHi ? " hl" : ""}`}>{x.life}</th>)}</tr>
+                </thead>
+                <tbody>
+                  <tr><th scope="row">Share of principal</th>{sens.map((x) => <td class={`n${x.life >= lifeLo && x.life <= lifeHi ? " hl" : ""}`}>{share(x.share)}</td>)}</tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="table-notes sans"><em>Notes:</em> One uniform life applied to every tranche. Highlighted columns bracket the lives the issuers actually disclose for servers ({lifeLo}–{lifeHi} years). Data-center buildings are typically depreciated over much longer periods; a blend of servers and buildings lies between the columns.</p>
+          </figure>
+
+          <div class="measure">
+            <p>The bill arrives in waves. Most of this debt falls due after {copy.wallNote.writtenOffBy}, the year by which every server bought so far will be fully depreciated. By then the companies will need new hardware, and will still be paying for the old.</p>
+          </div>
+          <ChartFrame client:visible id="wall" number={fig("wall")} title="When the AI-era debt comes due"
+            how="Principal maturing in each year, stacked by issuer. The shaded years are those in which servers bought so far are still being depreciated."
+            notes="Headline debt only; revolving credit excluded. Bonds maturing after 2066 are grouped in the final bar."
+            source="SEC EDGAR">
+            <Wall client:visible wall={metrics.maturity_wall} issuers={issuerMeta} writtenOffBy={copy.wallNote.writtenOffBy} />
+          </ChartFrame>
+
+          {venture && (
+            <aside class="offbook" aria-labelledby="h-offbook">
+              <h3 id="h-offbook"><DataCenterIcon size={28} className="inline-icon" />Not counted here: debt that stays off the balance sheet</h3>
+              <p>
+                In October 2025 Meta set up a joint venture to build its Louisiana data center campus. Partners fund most of the roughly {usd(venture.development_cost_usd, 0)} cost, Meta keeps 20% and leases the buildings back on <strong>{venture.initial_lease_years}-year</strong> initial terms. Because Meta does not control the venture, none of that borrowing appears in its debt. Its own filing puts Meta's maximum exposure at <strong>{usd(venture.max_exposure_usd, 2)}</strong>, including residual value guarantees of about {usd(venture.residual_value_guarantee_usd, 0)}.
+              </p>
+              <blockquote>
+                “{venture.quotes[1]}”
+                <cite><a href={venture.source_url}>Meta Platforms, 10-K for 2025</a></cite>
+              </blockquote>
+            </aside>
+          )}
+        </div>
+      </section>
+    </div>
+
+    <section class="objections" aria-labelledby="h-objections">
+      <div class="wrap">
+        <h2 id="h-objections" class="chapter-title"><span class="chapter-n"><QuestionIcon size={30} className="chapter-icon" />7</span>Objections, and what the data says</h2>
+        <div class="measure">
+          <p>A mismatch between asset life and debt maturity is not the same as a default. Here are the strongest counter-arguments and how far the evidence goes.</p>
+        </div>
+        <dl class="objection-list">
+          <div>
+            <dt>“These bonds are backed by the whole company, not by servers.”</dt>
+            <dd>True. They are senior unsecured obligations, serviced from total cash flow, and for Meta, Alphabet and Amazon that cash flow is large ({fig("funding")}). The finding is about timing: when the servers are obsolete, the same cash flow must pay for their replacements <em>and</em> keep servicing the debt that bought them. That matters most where capex already exceeds operating cash, which today means Oracle and CoreWeave.</dd>
+          </div>
+          <div>
+            <dt>“Not all of it buys servers. Buildings and power last decades.”</dt>
+            <dd>Also true, and the filings do not split the proceeds. {tab("table-sensitivity")} brackets the answer: even if every dollar bought assets lasting twenty years, {share(sensAt(20))} of the principal would still be owed after they were written off. With thirty years, {share(sensAt(30))} would be.</dd>
+          </div>
+          <div>
+            <dt>“Investment-grade companies always issue long bonds.”</dt>
+            <dd>They do, which is why the comparison is with the assets, not with other bonds. Corporate-finance theory predicts that firms match debt maturity to asset life (Myers 1977; Hart and Moore 1994), and the evidence broadly supports it (Stohs and Mauer 1996). Here the asset is unusually short-lived, so the usual long-bond habit produces an unusually large gap.</dd>
+          </div>
+          <div>
+            <dt>“Useful lives are estimates. GPUs may last longer.”</dt>
+            <dd>Possibly, though the companies themselves disagree about the direction. Meta lengthened its server lives to 5.5 years in 2025, while Amazon shortened a subset from six years to five. The sliders in {fig("gap")} and {fig("depreciation")} let readers set their own estimate.</dd>
+          </div>
+          <div>
+            <dt>“Spreads are tight. Lenders are not worried.”</dt>
+            <dd>For most issuers that is what the data shows (Figures {figNo("spreads")} and {figNo("curves")}), although every issuer's curve drifted up in 2026. Oracle stands out: it now pays about {oWiden} basis points more for ten-year money than in {f.oracleFirst ? monthYear(f.oracleFirst.trade_date) : "2024"}, while the market average fell.</dd>
+          </div>
+        </dl>
+      </div>
+    </section>
+
+    <section id="explore" class="explore" aria-labelledby="h-explore">
+      <div class="wrap">
+        <h2 id="h-explore">Explore every bond</h2>
+        <p class="measure">All {bonds.length} bonds and loans in the dataset, including revolving credit lines that are left out of the totals above. Filter, drag across the chart to pick a term, and share the link: it keeps your filters.</p>
+        <Explorer client:visible bonds={bonds.map(slim)} issuers={issuerMeta} />
+      </div>
+    </section>
+
+    <section id="method" class="method" aria-labelledby="h-method">
+      <div class="wrap method-grid">
+        <div class="measure">
+          <h2 id="h-method">How this was made</h2>
+
+          <h3>What counts</h3>
+          <p>Every bond and loan sold since January 2024 by six companies whose capital spending is dominated by AI data centers: Meta, Alphabet, Amazon, Oracle, Microsoft and CoreWeave. Their filings mostly say proceeds are for “general corporate purposes”, so we cannot prove each dollar went to AI. We count it anyway and say so: this is money raised by AI's biggest spenders, not money legally earmarked for AI. Only {usd(f.explicit)} ({share(f.explicit / f.total)}) comes with use-of-proceeds language that names AI, GPUs or data centers.</p>
+          <p>Revolving credit lines are listed but not counted, because they are commitments rather than borrowing. Delayed-draw term loans are counted at their full committed size. Off-balance-sheet structures and leases are discussed but not counted. Non-dollar bonds are converted at the Federal Reserve's H.10 exchange rate on the pricing date.</p>
+
+          <h3>How the data is built</h3>
+          <ol class="pipeline sans" aria-label="Pipeline">
+            <li><FilingIcon size={30} /><strong>SEC filings</strong><span>{nFilings} term sheets and 8-Ks</span></li>
+            <li><ChipIcon size={30} /><strong>LLM extraction</strong><span>terms plus a verbatim quote</span></li>
+            <li><RateIcon size={30} /><strong>Finance checks</strong><span>spread = yield − Treasury; price → yield</span></li>
+            <li><BondIcon size={30} /><strong>Dataset</strong><span>{f.nTranches} tranches, CC BY</span></li>
+            <li><CalendarIcon size={30} /><strong>Weekly refresh</strong><span>reviewed pull request</span></li>
+          </ol>
+          <ol>
+            <li>Find every pricing term sheet (SEC form FWP) these companies filed, plus CoreWeave's 8-K disclosures for deals that never get one.</li>
+            <li>A language model (Claude) reads each filing and extracts every tranche: amount, currency, coupon, maturity, price, yield, spread, identifiers, and a verbatim quote supporting the numbers.</li>
+            <li>Deterministic checks reject anything suspicious: quotes must appear word for word in the filing; the stated spread must equal yield minus the Treasury benchmark within 5 basis points; the yield recomputed from price and coupon must match within 5 basis points. Failures go to a human review queue and are never published unreviewed.</li>
+            <li>Pricing releases and closing filings for the same notes are merged so nothing is counted twice.</li>
+            <li>Market data comes from FRED; company financials from the SEC's XBRL API; server lives from each 10-K, quoted in the data.</li>
+          </ol>
+
+          <h3>How accurate the extraction is</h3>
+          <p>A second model, working only from the filings and blind to the pipeline's output, labelled {evalReport.documents} documents ({evalReport.gold_tranches} tranches) as a gold set. The pipeline matches it on <strong>{share(evalReport.tranche_recall)}</strong> of tranches, and on {share(evalReport.field_accuracy.amount)} of amounts, {share(evalReport.field_accuracy.maturity_date)} of maturities, {share(evalReport.field_accuracy.coupon_pct)} of coupons and {share(evalReport.field_accuracy.spread_bp)} of spreads. This check runs on every update; a miss fails the build.</p>
+
+          <h3>References</h3>
+          <ul class="refs">
+            <li>Hart, O., and J. Moore (1994). A theory of debt based on the inalienability of human capital. <em>Quarterly Journal of Economics</em> 109(4), 841–879.</li>
+            <li>Myers, S. C. (1977). Determinants of corporate borrowing. <em>Journal of Financial Economics</em> 5(2), 147–175.</li>
+            <li>Stohs, M. H., and D. C. Mauer (1996). The determinants of corporate debt maturity structure. <em>Journal of Business</em> 69(3), 279–312.</li>
+            <li>Data: SEC EDGAR full-text and XBRL APIs; FRED series BAMLC0A0CM, BAMLC0A4CBBB, BAMLH0A0HYM2 (ICE BofA) and H.10 exchange rates; issuer 10-K reports as linked in the dataset.</li>
+          </ul>
+
+          <h3>Limits</h3>
+          <ul>
+            <li>Spreads are as priced at issue. Secondary-market prices (FINRA TRACE) have no free bulk feed.</li>
+            <li>Private credit and joint-venture financing are only visible where a company describes it in its own filings.</li>
+            <li>Useful lives are accounting estimates. Real hardware may last longer or shorter.</li>
+            <li>Cloud revenue is not in the SEC's XBRL API; it is read from each filing's segment tables, and Microsoft discloses Azure only as a growth rate.</li>
+            <li>The depreciation wave splits capex between servers and buildings by assumption; the companies do not disclose the split.</li>
+            <li>Interest expense is after capitalised interest, which flatters coverage for companies building heavily.</li>
+          </ul>
+        </div>
+
+        <div class="method-side">
+          <h3>Use the data</h3>
+          <ul class="downloads">
+            <li><a href={`${import.meta.env.BASE_URL}data/bonds.csv`} download>bonds.csv</a> <span class="muted">every tranche, one row each</span></li>
+            <li><a href={`${import.meta.env.BASE_URL}data/bonds.json`} download>bonds.json</a> <span class="muted">same, with source quotes</span></li>
+            <li><a href={`${import.meta.env.BASE_URL}data/metrics.json`} download>metrics.json</a> <span class="muted">aggregates behind the charts</span></li>
+            <li><a href={`${import.meta.env.BASE_URL}data/issuers.json`} download>issuers.json</a> <span class="muted">financials and server lives</span></li>
+            <li><a href={`${import.meta.env.BASE_URL}data/quarterly.json`} download>quarterly.json</a> <span class="muted">quarterly fundamentals, each value with its XBRL tag and filing</span></li>
+            <li><a href={`${import.meta.env.BASE_URL}data/segments.json`} download>segments.json</a> <span class="muted">cloud segment revenue with quotes</span></li>
+            <li><a href={`${import.meta.env.BASE_URL}data/commitments.json`} download>commitments.json</a> <span class="muted">leases not yet commenced, with quotes</span></li>
+          </ul>
+          <p class="muted small">Dataset version {datasetVersion}. Data licensed CC BY 4.0; code MIT.</p>
+          <h3>Cite</h3>
+          <pre class="bib">{bibtex}</pre>
+          <h3>Definitions</h3>
+          <dl class="defs">
+            <dt>Tranche</dt><dd>One series of notes, or one loan facility, within a deal.</dd>
+            <dt>Spread</dt><dd>Extra yield over a government bond of similar maturity, in basis points (1bp = 0.01%).</dd>
+            <dt>OAS</dt><dd>Option-adjusted spread: an index-wide spread that strips out the value of call options.</dd>
+            <dt>Useful life</dt><dd>The period over which a company depreciates an asset, its own estimate of how long the asset produces value.</dd>
+            <dt>FWP</dt><dd>Free writing prospectus: the final pricing term sheet filed with the SEC on the day a bond is sold.</dd>
+            <dt>DDTL</dt><dd>Delayed-draw term loan: a committed loan drawn down over time, used by CoreWeave to buy GPUs.</dd>
+          </dl>
+          <h3>Embed a chart</h3>
+          <p class="small">Every chart has an <em>Embed</em> button that gives you an iframe which updates with the data.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer wrap">
+    <p>Built by <a class="quiet-link" href="https://oviiy.github.io/">Michael Wang</a> from public SEC and Federal Reserve data. Not investment advice. Company logos are trademarks of their owners, shown only to identify the issuers.{repo && <> Found an error? <a href={`${repo}/issues`}>Open an issue</a> with the filing link.</>}</p>
+  </footer>
+</Base>

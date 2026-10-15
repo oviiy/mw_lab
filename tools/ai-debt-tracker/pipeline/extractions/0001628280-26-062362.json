@@ -1,0 +1,17 @@
+{
+  "accession": "0001628280-26-062362",
+  "is_new_debt": false,
+  "doc_kind": "equity_offering",
+  "skip_reason": "424B5 prospectus supplement for an at-the-market offering of up to 35,000,000 shares of Class A common stock (including collared forward sales); equity, not debt.",
+  "trade_date": "2026-09-17",
+  "settlement_date": null,
+  "tranches": [],
+  "proceeds": {
+    "ai_flag": "general",
+    "quote": null
+  },
+  "_meta": {
+    "bundle_hash": "e9499eefcad04326",
+    "extractor": "claude-sonnet-5-5 via Claude Code agents, 2026-10-14"
+  }
+}

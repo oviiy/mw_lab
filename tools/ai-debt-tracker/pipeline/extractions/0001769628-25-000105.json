@@ -1,0 +1,36 @@
+{
+  "accession": "0001769628-25-000105",
+  "is_new_debt": true,
+  "doc_kind": "closing_8k",
+  "skip_reason": null,
+  "trade_date": "2025-12-08",
+  "settlement_date": "2025-12-11",
+  "tranches": [
+    {
+      "name": "1.75% Convertible Senior Notes due 2031",
+      "instrument_type": "convertible_notes",
+      "currency": "USD",
+      "amount": 2587500000,
+      "coupon_pct": 1.75,
+      "floating_spread_bp": null,
+      "maturity_date": "2031-12-01",
+      "price_pct": null,
+      "ytm_pct": null,
+      "spread_bp": null,
+      "benchmark": null,
+      "benchmark_yield_pct": null,
+      "cusip": null,
+      "isin": null,
+      "secured_by": null,
+      "quote": "completed its previously announced private offering of $2,587,500,000 aggregate principal amount of its 1.75% Convertible Senior Notes due 2031 (the “Notes”)"
+    }
+  ],
+  "proceeds": {
+    "ai_flag": "general",
+    "quote": "CoreWeave used a portion of the net proceeds from the offering to fund the cost of entering into the Capped Call Transactions (as defined below). CoreWeave intends to use the remainder of the net proceeds from the offering for general corporate purposes."
+  },
+  "_meta": {
+    "bundle_hash": "43af44296e9735d0",
+    "extractor": "claude-sonnet-5-5 via Claude Code agents, 2026-10-14"
+  }
+}

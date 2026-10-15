@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta name="theme-color" content="#f1e7d0" />
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>钱迹 · Money Trail</title>
+<meta name="description" content="钱迹 · Money Trail：用公开申报追踪基金经理、国会议员和公司内部人的买卖，并和 SPY 对比。" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Noto+Serif+SC:wght@400;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<link rel="icon" type="image/svg+xml" href="logo.svg" />
+<link rel="stylesheet" href="styles.css" />
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+<script type="module" src="js/main.js"></script>
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="#/"><img class="brand-mark" src="logo.svg" alt="" width="38" height="38" /><span class="brand-name">钱<span>迹</span></span></a>
+  <nav><a href="#/" data-i18n="nav.home">总览</a><a href="#/players" data-i18n="nav.players">谁在买</a><a href="#/managers" data-i18n="nav.funds">基金</a><a href="#/congress" data-i18n="nav.cg">国会</a><a href="#/insiders" data-i18n="nav.ins">内部人</a><a href="#/methods" data-i18n="nav.methods">方法与数据</a></nav>
+  <div class="search">
+    <input id="q" placeholder="搜索经理、股票代码或公司名…" autocomplete="off" aria-label="搜索" />
+    <div id="qres" class="qres" hidden></div>
+  </div>
+  <button id="lang" class="lang-toggle" type="button" aria-label="Switch language">EN</button>
+</header>
+<main id="app"><div class="empty">加载中…</div></main>
+<footer class="foot"><span data-i18n="foot"></span><span id="asof"></span></footer>
+</body>
+</html>

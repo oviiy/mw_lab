@@ -1,0 +1,17 @@
+{
+  "accession": "0001193125-26-034351",
+  "is_new_debt": false,
+  "doc_kind": "equity_offering",
+  "skip_reason": "Pricing term sheet for 6.50% Series D Mandatory Convertible Preferred Stock depositary shares (equity), not debt.",
+  "trade_date": "2026-02-02",
+  "settlement_date": "2026-02-05",
+  "tranches": [],
+  "proceeds": {
+    "ai_flag": "general",
+    "quote": "Oracle Corporation intends to use the net proceeds from the Depositary Shares Offering for general corporate purposes"
+  },
+  "_meta": {
+    "bundle_hash": "c710b3f0e94abca0",
+    "extractor": "claude-sonnet-5-5 via Claude Code agents, 2026-10-14"
+  }
+}

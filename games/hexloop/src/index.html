@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<meta name="theme-color" content="#07090f" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="HEXLOOP" />
+<meta name="description" content="HEXLOOP — a turn-based hex roguelike. Loop your glowing tail around enemies to pop them." />
+<title>HEXLOOP</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2307090f'/%3E%3Cpath d='M32 9l20 11.5v23L32 55 12 43.5v-23z' fill='none' stroke='%233de8ff' stroke-width='5'/%3E%3Ccircle cx='32' cy='32' r='7' fill='%23ffb547'/%3E%3C/svg%3E" />
+<style>/*APP_CSS*/</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="vignette"></div>
+<div class="hud" id="hud">
+  <header class="top">
+    <div class="hp" id="hp"></div>
+    <div class="sector">
+      <div class="sec-label" id="secLabel"></div>
+      <div class="sec-bar" id="secBar"></div>
+    </div>
+    <div class="score-box"><div class="score" id="score">0</div><div class="combo" id="combo"></div></div>
+    <button class="icon-btn" id="pauseBtn" aria-label="Pause"></button>
+  </header>
+  <div class="hint" id="hint"><span id="hintText"></span><button id="skipTut" class="skip" hidden>Skip</button></div>
+  <footer class="bottom">
+    <div class="tail-box">
+      <div class="mini-lbl">TAIL <b id="tailNum"></b></div>
+      <div class="segs" id="tailSegs"></div>
+      <div class="mods" id="mods"></div>
+    </div>
+    <div class="actions">
+      <button class="round-btn" id="undoBtn" aria-label="Undo"><span class="badge" id="undoBadge">1</span></button>
+      <button class="wait-btn" id="waitBtn"><span class="wi"></span><span>WAIT</span></button>
+    </div>
+  </footer>
+</div>
+<div id="floats"></div>
+<div id="screens"></div>
+<div id="toast"></div>
+<div id="fallback" hidden><div class="card glass"><h2>WebGL unavailable</h2><p>HEXLOOP needs WebGL. Try a recent Chrome, Safari or Firefox.</p></div></div>
+<script>/*APP_JS*/</script>
+</body>
+</html>

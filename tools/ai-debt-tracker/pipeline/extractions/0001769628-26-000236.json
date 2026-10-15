@@ -1,0 +1,36 @@
+{
+  "accession": "0001769628-26-000236",
+  "is_new_debt": true,
+  "doc_kind": "closing_8k",
+  "skip_reason": null,
+  "trade_date": "2026-05-15",
+  "settlement_date": null,
+  "tranches": [
+    {
+      "name": "DDTL 5.0 Facility (delayed draw term loan)",
+      "instrument_type": "term_loan",
+      "currency": "USD",
+      "amount": 3100000000,
+      "coupon_pct": null,
+      "floating_spread_bp": 450,
+      "maturity_date": "2031-11-15",
+      "price_pct": null,
+      "ytm_pct": null,
+      "spread_bp": null,
+      "benchmark": null,
+      "benchmark_yield_pct": null,
+      "cusip": null,
+      "isin": null,
+      "secured_by": "Substantially all assets of the Borrower (CoreWeave Financing DDTL V, LLC) and its subsidiaries and a pledge of 100% of the equity interests in the Borrower held by CW Financing DDTL V Holdco, LLC; guaranteed by the Parent",
+      "quote": "providing for a $3.1 billion delayed draw term loan facility (the “DDTL 5.0 Facility”). The DDTL 5.0 Facility was entered into primarily to finance capital expenditures required to perform certain customer contracts, including the acquisition of GPU servers and related infrastructure."
+    }
+  ],
+  "proceeds": {
+    "ai_flag": "explicit",
+    "quote": "The DDTL 5.0 Facility was entered into primarily to finance capital expenditures required to perform certain customer contracts, including the acquisition of GPU servers and related infrastructure."
+  },
+  "_meta": {
+    "bundle_hash": "78c54d67d54043b6",
+    "extractor": "claude-sonnet-5-5 via Claude Code agents, 2026-10-14"
+  }
+}

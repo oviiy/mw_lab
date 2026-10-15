@@ -1,0 +1,8 @@
+{
+  "accession": "0001769628-25-000019",
+  "is_new_debt": true,
+  "tranches": [
+    {"currency": "USD", "amount": 2000000000, "maturity_date": "2030-06-01", "coupon_pct": 9.25, "spread_bp": null}
+  ],
+  "notes": "CoreWeave 8-K (Item 7.01): priced private 144A/Reg S offering of $2,000 million 9.25% senior unsecured notes due June 1, 2030, issued at par (upsized by $500m from the previously announced size). No spread to Treasury stated -> spread_bp null."
+}

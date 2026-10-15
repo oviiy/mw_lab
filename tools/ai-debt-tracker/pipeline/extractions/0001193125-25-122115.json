@@ -1,0 +1,17 @@
+{
+  "accession": "0001193125-25-122115",
+  "is_new_debt": false,
+  "doc_kind": "launch_announcement",
+  "skip_reason": "Launch announcement for proposed $1,500 million senior notes due 2030 without final terms (no pricing); DDTL 3.0 Facility ($2.6 billion) described as not yet documented.",
+  "trade_date": "2025-05-19",
+  "settlement_date": null,
+  "tranches": [],
+  "proceeds": {
+    "ai_flag": "general",
+    "quote": "The Company intends to use the proceeds from the Notes Offering for general corporate purposes, including, without limitation, repayment of outstanding indebtedness, and to pay fees, costs and expenses in connection with the Notes Offering."
+  },
+  "_meta": {
+    "bundle_hash": "19553e8fcd28f632",
+    "extractor": "claude-sonnet-5-5 via Claude Code agents, 2026-10-14"
+  }
+}

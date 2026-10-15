@@ -1,0 +1,32 @@
+---
+import "../styles/global.css";
+import "../styles/page.css";
+
+interface Props {
+  title: string;
+  description: string;
+  bare?: boolean;
+}
+const { title, description, bare = false } = Astro.props;
+const base = import.meta.env.BASE_URL;
+const og = new URL(`${base}og.png`, Astro.site).href;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content={og} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="theme-color" content="#f8f1e7" />
+    <link rel="icon" href={`${base}favicon.svg`} type="image/svg+xml" />
+  </head>
+  <body class={bare ? "bare" : ""}>
+    <slot />
+  </body>
+</html>

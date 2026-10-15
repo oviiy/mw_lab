@@ -1,0 +1,836 @@
+{
+ "meta": {
+  "dataset_version": "2026.10.15",
+  "generated_at": "2026-10-15",
+  "sources": [
+   "SEC EDGAR",
+   "SEC XBRL API",
+   "FRED (ICE BofA indices, H.10 FX)"
+  ],
+  "license": "CC-BY-4.0"
+ },
+ "issuers": {
+  "meta": {
+   "kind": "not_applicable",
+   "label": "Total revenue (no cloud segment)",
+   "quarters": [],
+   "years": []
+  },
+  "alphabet": {
+   "kind": "ixbrl_amount",
+   "label": "Google Cloud segment revenues",
+   "quarters": [
+    {
+     "fy": 2022,
+     "fq": 1,
+     "value": 5821000000.0,
+     "unit": "usd",
+     "method": "direct",
+     "sources": [
+      "https://www.sec.gov/Archives/edgar/data/1652044/000165204423000045/goog-20230331.htm"
+     ],
+     "yoy_pct": null
+    },
+    {
+     "fy": 2022,
+     "fq": 2,
+     "value": 6276000000.0,
+     "unit": "usd",
+     "method": "direct",
+     "sources": [
+      "https://www.sec.gov/Archives/edgar/data/1652044/000165204423000070/goog-20230630.htm"
+     ],
+     "yoy_pct": null
+    },
+    {
+     "fy": 2022,
+     "fq": 3,
+     "value": 6868000000.0,
+     "unit": "usd",
+     "method": "direct",
+     "sources": [
+      "https://www.sec.gov/Archives/edgar/data/1652044/000165204423000094/goog-20230930.htm"
+     ],
+     "yoy_pct": null
+    },
+    {
+     "fy": 2022,
+     "fq": 4,
+     "value": 7315000000.0,
+     "unit": "usd",
+     "method": "annual_minus_ytd",
+     "sources": [
+      "https://www.sec.gov/Archives/edgar/data/1652044/000165204425000014/goog-20241231.htm",
+      "https://www.sec.gov/Archives/edgar/data/1652044/000165204423000094/goog-20230930.htm"
+     ],
+     "yoy_pct": null
+    },
+    {
+     "fy": 2023,
+     "fq": 1,
+     "value": 7454000000.0,
+     "unit": "usd",
+     "method": "direct",
+     "sources": [
+      "https://www.sec.gov/Archives/edgar/data/1652044/000165204424000053/goog-20240331.htm"
+     ],
+     "yoy_pct": 28.1
+    },
+    {
+     "fy": 2023,
+     "fq": 2,
+     "value": 8031000000.0,
+     "unit": "usd",
+     "method": "direct",
+     "sources": [
+      "https://www.sec.gov/Archives/edgar/data/1652044/000165204424000079/goog-20240630.htm"
+     ],
+     "yoy_pct": 28.0
+    },
+    {
+     "fy": 2023,
+     "fq": 3,
+     "value": 8411000000.0,
+     "unit": "usd",
+     "method": "direct",
+     "sources": [
+      "https://www.sec.gov/Archives/edgar/data/1652044/000165204424000118/goog-20240930.htm"
+     ],
+     "yoy_pct": 22.5
+    },
+    {
+     "fy": 2023,
+     "fq": 4,
+     "value": 9192000000.0,
+     "unit": "usd",
+     "method": "annual_minus_ytd",
+     "sources": [
+      "https://www.sec.gov/Archives/edgar/data/1652044/000165204426000018/goog-20251231.htm",
+      "https://www.sec.gov/Archives/edgar/data/1652044/000165204424000118/goog-20240930.htm"
+     ],
+     "yoy_pct": 25.7
+    },
+    {
+     "fy": 2024,
+     "fq": 1,
+     "value": 9574000000.0,
+     "unit": "usd",
+     "method": "direct",
+     "sources": [
+      "https://www.sec.gov/Archives/edgar/data/1652044/000165204425000043/goog-20250331.htm"
+     ],
+     "yoy_pct": 28.4
+    },
+    {
+     "fy": 2024,
+     "fq": 2,
+     "value": 10347000000.0,
+     "unit": "usd",
+     "method": "direct",
+     "sources": [
+      "https://www.sec.gov/Archives/edgar/data/1652044/000165204425000062/goog-20250630.htm"
+     ],
+     "yoy_pct": 28.8
+    },
+    {
+     "fy": 2024,
+     "fq": 3,
+     "value": 11353000000.0,
+     "unit": "usd",
+     "method": "direct",
+     "sources": [
+      "https://www.sec.gov/Archives/edgar/data/1652044/000165204425000091/goog-20250930.htm"
+     ],
+     "yoy_pct": 35.0
+    },
+    {
+     "fy": 2024,
+     "fq": 4,
+     "value": 11955000000.0,
+     "unit": "usd",
+     "method": "annual_minus_ytd",
+     "sources": [
+      "https://www.sec.gov/Archives/edgar/data/1652044/000165204426000018/goog-20251231.htm",
+      "https://www.sec.gov/Archives/edgar/data/1652044/000165204425000091/goog-20250930.htm"
+     ],
+     "yoy_pct": 30.1
+    },
+    {
+     "fy": 2025,
+     "fq": 1,
+     "value": 12260000000.0,
+     "unit": "usd",
+     "method": "direct",
+     "sources": [
+      "https://www.sec.gov/Archives/edgar/data/1652044/000165204426000048/goog-20260331.htm"
+     ],
+     "yoy_pct": 28.1
+    },
+    {
+     "fy": 2025,
+     "fq": 2,
+     "value": 13624000000.0,
+     "unit": "usd",
+     "method": "direct",
+     "sources": [
+      "https://www.sec.gov/Archives/edgar/data/1652044/000165204426000071/goog-20260630.htm"
+     ],
+     "yoy_pct": 31.7
+    },
+    {
+     "fy": 2025,
+     "fq": 3,
+     "value": 15157000000.0,
+     "unit": "usd",
+     "method": "direct",
+     "sources": [
+      "https://www.sec.gov/Archives/edgar/data/1652044/000165204425000091/goog-20250930.htm"
+     ],
+     "yoy_pct": 33.5
+    },
+    {
+     "fy": 2025,
+     "fq": 4,
+     "value": 17664000000.0,
+     "unit": "usd",
+     "method": "annual_minus_ytd",
+     "sources": [
+      "https://www.sec.gov/Archives/edgar/data/1652044/000165204426000018/goog-20251231.htm",
+      "https://www.sec.gov/Archives/edgar/data/1652044/000165204425000091/goog-20250930.htm"
+     ],
+     "yoy_pct": 47.8
+    },
+    {
+     "fy": 2026,
+     "fq": 1,
+     "value": 20028000000.0,
+     "unit": "usd",
+     "method": "direct",
+     "sources": [
+      "https://www.sec.gov/Archives/edgar/data/1652044/000165204426000048/goog-20260331.htm"
+     ],
+     "yoy_pct": 63.4
+    },
+    {
+     "fy": 2026,
+     "fq": 2,
+     "value": 24768000000.0,
+     "unit": "usd",
+     "method": "direct",
+     "sources": [
+      "https://www.sec.gov/Archives/edgar/data/1652044/000165204426000071/goog-20260630.htm"
+     ],
+     "yoy_pct": 81.8
+    }
+   ],
+   "years": [
+    {
+     "fy": 2021,
+     "value": 19206000000.0,
+     "unit": "usd",
+     "sources": [
+      "https://www.sec.gov/Archives/edgar/data/1652044/000165204424000022/goog-20231231.htm"
+     ],
+     "yoy_pct": null
+    },
+    {
+     "fy": 2022,
+     "value": 26280000000.0,
+     "unit": "usd",
+     "sources": [
+      "https://www.sec.gov/Archives/edgar/data/1652044/000165204425000014/goog-20241231.htm"
+     ],
+     "yoy_pct": 36.8
+    },
+    {
+     "fy": 2023,
+     "value": 33088000000.0,
+     "unit": "usd",
+     "sources": [
+      "https://www.sec.gov/Archives/edgar/data/1652044/000165204426000018/goog-20251231.htm"
+     ],
+     "yoy_pct": 25.9
+    },
+    {
+     "fy": 2024,
+     "value": 43229000000.0,
+     "unit": "usd",
+     "sources": [
+      "https://www.sec.gov/Archives/edgar/data/1652044/000165204426000018/goog-20251231.htm"
+     ],
+     "yoy_pct": 30.6
+    },
+    {
+     "fy": 2025,
+     "value": 58705000000.0,
+     "unit": "usd",
+     "sources": [
+      "https://www.sec.gov/Archives/edgar/data/1652044/000165204426000018/goog-20251231.htm"
+     ],
+     "yoy_pct": 35.8
+    }
+   ]
+  },
+  "amazon": {
+   "kind": "ixbrl_amount",
+   "label": "AWS segment net sales",
+   "quarters": [
+    {
+     "fy": 2022,
+     "fq": 1,
+     "value": 18441000000.0,
+     "unit": "usd",
+     "method": "direct",
+     "sources": [
+      "https://www.sec.gov/Archives/edgar/data/1018724/000101872423000008/amzn-20230331.htm"
+     ],
+     "yoy_pct": null
+    },
+    {
+     "fy": 2022,
+     "fq": 2,
+     "value": 19739000000.0,
+     "unit": "usd",
+     "method": "direct",
+     "sources": [
+      "https://www.sec.gov/Archives/edgar/data/1018724/000101872423000012/amzn-20230630.htm"
+     ],
+     "yoy_pct": null
+    },
+    {
+     "fy": 2022,
+     "fq": 3,
+     "value": 20538000000.0,
+     "unit": "usd",
+     "method": "direct",
+     "sources": [
+      "https://www.sec.gov/Archives/edgar/data/1018724/000101872423000018/amzn-20230930.htm"
+     ],
+     "yoy_pct": null
+    },
+    {
+     "fy": 2022,
+     "fq": 4,
+     "value": 21378000000.0,
+     "unit": "usd",
+     "method": "annual_minus_ytd",
+     "sources": [
+      "https://www.sec.gov/Archives/edgar/data/1018724/000101872425000004/amzn-20241231.htm",
+      "https://www.sec.gov/Archives/edgar/data/1018724/000101872423000018/amzn-20230930.htm"
+     ],
+     "yoy_pct": null
+    },
+    {
+     "fy": 2023,
+     "fq": 1,
+     "value": 21354000000.0,
+     "unit": "usd",
+     "method": "direct",
+     "sources": [
+      "https://www.sec.gov/Archives/edgar/data/1018724/000101872424000083/amzn-20240331.htm"
+     ],
+     "yoy_pct": 15.8
+    },
+    {
+     "fy": 2023,
+     "fq": 2,
+     "value": 22140000000.0,
+     "unit": "usd",
+     "method": "direct",
+     "sources": [
+      "https://www.sec.gov/Archives/edgar/data/1018724/000101872424000130/amzn-20240630.htm"
+     ],
+     "yoy_pct": 12.2
+    },
+    {
+     "fy": 2023,
+     "fq": 3,
+     "value": 23059000000.0,
+     "unit": "usd",
+     "method": "direct",
+     "sources": [
+      "https://www.sec.gov/Archives/edgar/data/1018724/000101872424000161/amzn-20240930.htm"
+     ],
+     "yoy_pct": 12.3
+    },
+    {
+     "fy": 2023,
+     "fq": 4,
+     "value": 24204000000.0,
+     "unit": "usd",
+     "method": "annual_minus_ytd",
+     "sources": [
+      "https://www.sec.gov/Archives/edgar/data/1018724/000101872426000004/amzn-20251231.htm",
+      "https://www.sec.gov/Archives/edgar/data/1018724/000101872424000161/amzn-20240930.htm"
+     ],
+     "yoy_pct": 13.2
+    },
+    {
+     "fy": 2024,
+     "fq": 1,
+     "value": 25037000000.0,
+     "unit": "usd",
+     "method": "direct",
+     "sources": [
+      "https://www.sec.gov/Archives/edgar/data/1018724/000101872425000036/amzn-20250331.htm"
+     ],
+     "yoy_pct": 17.2
+    },
+    {
+     "fy": 2024,
+     "fq": 2,
+     "value": 26281000000.0,
+     "unit": "usd",
+     "method": "direct",
+     "sources": [
+      "https://www.sec.gov/Archives/edgar/data/1018724/000101872425000086/amzn-20250630.htm"
+     ],
+     "yoy_pct": 18.7
+    },
+    {
+     "fy": 2024,
+     "fq": 3,
+     "value": 27452000000.0,
+     "unit": "usd",
+     "method": "direct",
+     "sources": [
+      "https://www.sec.gov/Archives/edgar/data/1018724/000101872425000123/amzn-20250930.htm"
+     ],
+     "yoy_pct": 19.1
+    },
+    {
+     "fy": 2024,
+     "fq": 4,
+     "value": 28786000000.0,
+     "unit": "usd",
+     "method": "annual_minus_ytd",
+     "sources": [
+      "https://www.sec.gov/Archives/edgar/data/1018724/000101872426000004/amzn-20251231.htm",
+      "https://www.sec.gov/Archives/edgar/data/1018724/000101872425000123/amzn-20250930.htm"
+     ],
+     "yoy_pct": 18.9
+    },
+    {
+     "fy": 2025,
+     "fq": 1,
+     "value": 29267000000.0,
+     "unit": "usd",
+     "method": "direct",
+     "sources": [
+      "https://www.sec.gov/Archives/edgar/data/1018724/000101872426000014/amzn-20260331.htm"
+     ],
+     "yoy_pct": 16.9
+    },
+    {
+     "fy": 2025,
+     "fq": 2,
+     "value": 30873000000.0,
+     "unit": "usd",
+     "method": "direct",
+     "sources": [
+      "https://www.sec.gov/Archives/edgar/data/1018724/000101872426000026/amzn-20260630.htm"
+     ],
+     "yoy_pct": 17.5
+    },
+    {
+     "fy": 2025,
+     "fq": 3,
+     "value": 33006000000.0,
+     "unit": "usd",
+     "method": "direct",
+     "sources": [
+      "https://www.sec.gov/Archives/edgar/data/1018724/000101872425000123/amzn-20250930.htm"
+     ],
+     "yoy_pct": 20.2
+    },
+    {
+     "fy": 2025,
+     "fq": 4,
+     "value": 35579000000.0,
+     "unit": "usd",
+     "method": "annual_minus_ytd",
+     "sources": [
+      "https://www.sec.gov/Archives/edgar/data/1018724/000101872426000004/amzn-20251231.htm",
+      "https://www.sec.gov/Archives/edgar/data/1018724/000101872425000123/amzn-20250930.htm"
+     ],
+     "yoy_pct": 23.6
+    },
+    {
+     "fy": 2026,
+     "fq": 1,
+     "value": 37587000000.0,
+     "unit": "usd",
+     "method": "direct",
+     "sources": [
+      "https://www.sec.gov/Archives/edgar/data/1018724/000101872426000014/amzn-20260331.htm"
+     ],
+     "yoy_pct": 28.4
+    },
+    {
+     "fy": 2026,
+     "fq": 2,
+     "value": 42232000000.0,
+     "unit": "usd",
+     "method": "direct",
+     "sources": [
+      "https://www.sec.gov/Archives/edgar/data/1018724/000101872426000026/amzn-20260630.htm"
+     ],
+     "yoy_pct": 36.8
+    }
+   ],
+   "years": [
+    {
+     "fy": 2021,
+     "value": 62202000000.0,
+     "unit": "usd",
+     "sources": [
+      "https://www.sec.gov/Archives/edgar/data/1018724/000101872424000008/amzn-20231231.htm"
+     ],
+     "yoy_pct": null
+    },
+    {
+     "fy": 2022,
+     "value": 80096000000.0,
+     "unit": "usd",
+     "sources": [
+      "https://www.sec.gov/Archives/edgar/data/1018724/000101872425000004/amzn-20241231.htm"
+     ],
+     "yoy_pct": 28.8
+    },
+    {
+     "fy": 2023,
+     "value": 90757000000.0,
+     "unit": "usd",
+     "sources": [
+      "https://www.sec.gov/Archives/edgar/data/1018724/000101872426000004/amzn-20251231.htm"
+     ],
+     "yoy_pct": 13.3
+    },
+    {
+     "fy": 2024,
+     "value": 107556000000.0,
+     "unit": "usd",
+     "sources": [
+      "https://www.sec.gov/Archives/edgar/data/1018724/000101872426000004/amzn-20251231.htm"
+     ],
+     "yoy_pct": 18.5
+    },
+    {
+     "fy": 2025,
+     "value": 128725000000.0,
+     "unit": "usd",
+     "sources": [
+      "https://www.sec.gov/Archives/edgar/data/1018724/000101872426000004/amzn-20251231.htm"
+     ],
+     "yoy_pct": 19.7
+    }
+   ]
+  },
+  "oracle": {
+   "kind": "ixbrl_amount",
+   "label": "Cloud revenues (IaaS + SaaS)",
+   "quarters": [
+    {
+     "fy": 2025,
+     "fq": 1,
+     "value": 5623000000.0,
+     "unit": "usd",
+     "method": "direct",
+     "sources": [
+      "https://www.sec.gov/Archives/edgar/data/1341439/000119312525200095/orcl-20250831.htm"
+     ],
+     "yoy_pct": null
+    },
+    {
+     "fy": 2025,
+     "fq": 2,
+     "value": 5937000000.0,
+     "unit": "usd",
+     "method": "direct",
+     "sources": [
+      "https://www.sec.gov/Archives/edgar/data/1341439/000119312525315925/orcl-20251130.htm"
+     ],
+     "yoy_pct": null
+    },
+    {
+     "fy": 2025,
+     "fq": 3,
+     "value": 6210000000.0,
+     "unit": "usd",
+     "method": "direct",
+     "sources": [
+      "https://www.sec.gov/Archives/edgar/data/1341439/000119312526101045/orcl-20260228.htm"
+     ],
+     "yoy_pct": null
+    },
+    {
+     "fy": 2025,
+     "fq": 4,
+     "value": 6737000000.0,
+     "unit": "usd",
+     "method": "annual_minus_ytd",
+     "sources": [
+      "https://www.sec.gov/Archives/edgar/data/1341439/000119312526277521/orcl-20260531.htm",
+      "https://www.sec.gov/Archives/edgar/data/1341439/000119312526101045/orcl-20260228.htm"
+     ],
+     "yoy_pct": null
+    },
+    {
+     "fy": 2026,
+     "fq": 1,
+     "value": 7186000000.0,
+     "unit": "usd",
+     "method": "direct",
+     "sources": [
+      "https://www.sec.gov/Archives/edgar/data/1341439/000119312526389274/orcl-20260831.htm"
+     ],
+     "yoy_pct": 27.8
+    },
+    {
+     "fy": 2026,
+     "fq": 2,
+     "value": 7977000000.0,
+     "unit": "usd",
+     "method": "direct",
+     "sources": [
+      "https://www.sec.gov/Archives/edgar/data/1341439/000119312525315925/orcl-20251130.htm"
+     ],
+     "yoy_pct": 34.4
+    },
+    {
+     "fy": 2026,
+     "fq": 3,
+     "value": 8914000000.0,
+     "unit": "usd",
+     "method": "direct",
+     "sources": [
+      "https://www.sec.gov/Archives/edgar/data/1341439/000119312526101045/orcl-20260228.htm"
+     ],
+     "yoy_pct": 43.5
+    },
+    {
+     "fy": 2026,
+     "fq": 4,
+     "value": 9913000000.0,
+     "unit": "usd",
+     "method": "annual_minus_ytd",
+     "sources": [
+      "https://www.sec.gov/Archives/edgar/data/1341439/000119312526277521/orcl-20260531.htm",
+      "https://www.sec.gov/Archives/edgar/data/1341439/000119312526101045/orcl-20260228.htm"
+     ],
+     "yoy_pct": 47.1
+    },
+    {
+     "fy": 2027,
+     "fq": 1,
+     "value": 11607000000.0,
+     "unit": "usd",
+     "method": "direct",
+     "sources": [
+      "https://www.sec.gov/Archives/edgar/data/1341439/000119312526389274/orcl-20260831.htm"
+     ],
+     "yoy_pct": 61.5
+    }
+   ],
+   "years": [
+    {
+     "fy": 2024,
+     "value": 19774000000.0,
+     "unit": "usd",
+     "sources": [
+      "https://www.sec.gov/Archives/edgar/data/1341439/000119312526277521/orcl-20260531.htm"
+     ],
+     "yoy_pct": null
+    },
+    {
+     "fy": 2025,
+     "value": 24506000000.0,
+     "unit": "usd",
+     "sources": [
+      "https://www.sec.gov/Archives/edgar/data/1341439/000119312526277521/orcl-20260531.htm"
+     ],
+     "yoy_pct": 23.9
+    },
+    {
+     "fy": 2026,
+     "value": 33989000000.0,
+     "unit": "usd",
+     "sources": [
+      "https://www.sec.gov/Archives/edgar/data/1341439/000119312526277521/orcl-20260531.htm"
+     ],
+     "yoy_pct": 38.7
+    }
+   ]
+  },
+  "microsoft": {
+   "kind": "text_growth",
+   "label": "Azure and other cloud services revenue growth (%)",
+   "quarters": [
+    {
+     "fy": 2023,
+     "fq": 1,
+     "yoy_pct": 35.0,
+     "unit": "pct_yoy",
+     "quote": "Azure and other cloud services revenue grew 35% driven by growth in our consumption-based services.",
+     "sources": [
+      "https://www.sec.gov/Archives/edgar/data/789019/000156459022035087/msft-10q_20220930.htm"
+     ]
+    },
+    {
+     "fy": 2023,
+     "fq": 2,
+     "yoy_pct": 31.0,
+     "unit": "pct_yoy",
+     "quote": "Azure and other cloud services revenue grew 31% driven by growth in our consumption-based services.",
+     "sources": [
+      "https://www.sec.gov/Archives/edgar/data/789019/000156459023000733/msft-10q_20221231.htm"
+     ]
+    },
+    {
+     "fy": 2023,
+     "fq": 3,
+     "yoy_pct": 27.0,
+     "unit": "pct_yoy",
+     "quote": "Azure and other cloud services revenue grew 27% driven by growth in our consumption-based services.",
+     "sources": [
+      "https://www.sec.gov/Archives/edgar/data/789019/000095017023014423/msft-20230331.htm"
+     ]
+    },
+    {
+     "fy": 2024,
+     "fq": 1,
+     "yoy_pct": 29.0,
+     "unit": "pct_yoy",
+     "quote": "Azure and other cloud services revenue grew 29% driven by growth in our consumption-based services.",
+     "sources": [
+      "https://www.sec.gov/Archives/edgar/data/789019/000095017023054855/msft-20230930.htm"
+     ]
+    },
+    {
+     "fy": 2024,
+     "fq": 2,
+     "yoy_pct": 30.0,
+     "unit": "pct_yoy",
+     "quote": "Azure and other cloud services revenue grew 30% driven by growth in our consumption-based services.",
+     "sources": [
+      "https://www.sec.gov/Archives/edgar/data/789019/000095017024008814/msft-20231231.htm"
+     ]
+    },
+    {
+     "fy": 2024,
+     "fq": 3,
+     "yoy_pct": 31.0,
+     "unit": "pct_yoy",
+     "quote": "Azure and other cloud services revenue grew 31% driven by growth in our consumption-based services.",
+     "sources": [
+      "https://www.sec.gov/Archives/edgar/data/789019/000095017024048288/msft-20240331.htm"
+     ]
+    },
+    {
+     "fy": 2025,
+     "fq": 1,
+     "yoy_pct": 33.0,
+     "unit": "pct_yoy",
+     "quote": "Azure and other cloud services revenue grew 33% driven by demand for our portfolio of services, including 12 points from our AI services.",
+     "sources": [
+      "https://www.sec.gov/Archives/edgar/data/789019/000095017024118967/msft-20240930.htm"
+     ]
+    },
+    {
+     "fy": 2025,
+     "fq": 2,
+     "yoy_pct": 31.0,
+     "unit": "pct_yoy",
+     "quote": "Azure and other cloud services revenue grew 31% driven by demand for our portfolio of services, including 13 points from our AI services which grew 157%.",
+     "sources": [
+      "https://www.sec.gov/Archives/edgar/data/789019/000095017025010491/msft-20241231.htm"
+     ]
+    },
+    {
+     "fy": 2025,
+     "fq": 3,
+     "yoy_pct": 33.0,
+     "unit": "pct_yoy",
+     "quote": "Azure and other cloud services revenue grew 33% driven by demand for our portfolio of services, including 16 points from our AI services.",
+     "sources": [
+      "https://www.sec.gov/Archives/edgar/data/789019/000095017025061046/msft-20250331.htm"
+     ]
+    },
+    {
+     "fy": 2026,
+     "fq": 1,
+     "yoy_pct": 40.0,
+     "unit": "pct_yoy",
+     "quote": "Azure and other cloud services revenue increased 40%.",
+     "sources": [
+      "https://www.sec.gov/Archives/edgar/data/789019/000119312525256321/msft-20250930.htm"
+     ]
+    },
+    {
+     "fy": 2026,
+     "fq": 2,
+     "yoy_pct": 39.0,
+     "unit": "pct_yoy",
+     "quote": "Azure and other cloud services revenue increased 39%.",
+     "sources": [
+      "https://www.sec.gov/Archives/edgar/data/789019/000119312526027207/msft-20251231.htm"
+     ]
+    },
+    {
+     "fy": 2026,
+     "fq": 3,
+     "yoy_pct": 40.0,
+     "unit": "pct_yoy",
+     "quote": "Azure and other cloud services revenue increased 40%.",
+     "sources": [
+      "https://www.sec.gov/Archives/edgar/data/789019/000119312526191507/msft-20260331.htm"
+     ]
+    }
+   ],
+   "years": [
+    {
+     "fy": 2023,
+     "yoy_pct": 29.0,
+     "unit": "pct_yoy",
+     "quote": "Azure and other cloud services revenue grew 29% driven by growth in our consumption-based services.",
+     "sources": [
+      "https://www.sec.gov/Archives/edgar/data/789019/000095017023035122/msft-20230630.htm"
+     ]
+    },
+    {
+     "fy": 2024,
+     "yoy_pct": 30.0,
+     "unit": "pct_yoy",
+     "quote": "Azure and other cloud services revenue grew 30% driven by growth in our consumption-based services.",
+     "sources": [
+      "https://www.sec.gov/Archives/edgar/data/789019/000095017024087843/msft-20240630.htm"
+     ]
+    },
+    {
+     "fy": 2025,
+     "yoy_pct": 34.0,
+     "unit": "pct_yoy",
+     "quote": "Azure and other cloud services revenue grew 34% driven by demand for our portfolio of services.",
+     "sources": [
+      "https://www.sec.gov/Archives/edgar/data/789019/000095017025100235/msft-20250630.htm"
+     ]
+    },
+    {
+     "fy": 2026,
+     "yoy_pct": 41.0,
+     "unit": "pct_yoy",
+     "quote": "Azure and other cloud services revenue increased 41%.",
+     "sources": [
+      "https://www.sec.gov/Archives/edgar/data/789019/000119312526323660/msft-20260630.htm"
+     ]
+    }
+   ]
+  },
+  "coreweave": {
+   "kind": "total_revenue",
+   "label": "Total revenue (all of CoreWeave's revenue is AI cloud)",
+   "quarters": [],
+   "years": []
+  }
+ }
+}

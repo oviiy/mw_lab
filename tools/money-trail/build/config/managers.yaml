@@ -1,0 +1,223 @@
+managers:
+  - cik: 1067983
+    name: Berkshire Hathaway
+    person: Warren Buffett / Greg Abel
+    style: [价值, 长期持有]
+    founded: null
+    bio:
+      - Warren Buffett 自 1965 年起掌控伯克希尔，把一家纺织企业改造成以保险为核心的控股集团。
+      - Greg Abel 于 2026 年 1 月 1 日接任 CEO，Buffett 继续担任董事长。
+    bio_en:
+      - "Warren Buffett took control of Berkshire in 1965 and turned a textile mill into an insurance-centred holding company."
+      - "Greg Abel became CEO on January 1, 2026; Buffett remains chairman."
+    sources:
+      - {label: Wikipedia · Berkshire Hathaway, url: "https://en.wikipedia.org/wiki/Berkshire_Hathaway"}
+  - cik: 1336528
+    name: Pershing Square
+    person: Bill Ackman
+    style: [激进投资, 集中持仓]
+    founded: 2004
+    bio:
+      - Bill Ackman 于 2004 年创立，以少数集中持仓和公开推动公司变革著称。
+    bio_en:
+      - "Founded by Bill Ackman in 2004; known for a handful of concentrated positions and public campaigns for corporate change."
+    sources:
+      - {label: Wikipedia · Pershing Square, url: "https://en.wikipedia.org/wiki/Pershing_Square_Capital_Management"}
+  - cik: 1656456
+    name: Appaloosa
+    person: David Tepper
+    style: [困境投资, 宏观]
+    founded: 1993
+    bio:
+      - David Tepper 于 1993 年创立 Appaloosa，以 2009 年押注美国银行股复苏闻名。
+    bio_en:
+      - "Founded by David Tepper in 1993; famous for betting on the recovery of US bank stocks in 2009."
+    sources:
+      - {label: Wikipedia · David Tepper, url: "https://en.wikipedia.org/wiki/David_Tepper"}
+  - cik: 1536411
+    name: Duquesne Family Office
+    person: Stanley Druckenmiller
+    style: [宏观, 成长]
+    founded: 2010
+    bio:
+      - Druckenmiller 于 1981 年创立 Duquesne Capital，2010 年关闭对外基金，转为家族办公室。
+    bio_en:
+      - "Druckenmiller founded Duquesne Capital in 1981 and turned it into a family office in 2010 after returning outside money."
+    sources:
+      - {label: Wikipedia · Stanley Druckenmiller, url: "https://en.wikipedia.org/wiki/Stanley_Druckenmiller"}
+  - cik: 1350694
+    name: Bridgewater Associates
+    person: Ray Dalio（创始人）
+    style: [宏观, 系统化]
+    founded: 1975
+    bio:
+      - Ray Dalio 于 1975 年创立，是全球规模最大的对冲基金之一。
+    bio_en:
+      - "Founded by Ray Dalio in 1975; one of the largest hedge funds in the world."
+    sources:
+      - {label: Wikipedia · Bridgewater Associates, url: "https://en.wikipedia.org/wiki/Bridgewater_Associates"}
+  - cik: 1037389
+    name: Renaissance Technologies
+    person: Jim Simons（创始人）
+    style: [量化]
+    founded: 1982
+    bio:
+      - 数学家 Jim Simons 创立的量化投资公司，旗下 Medallion 基金以长期极高收益著称。
+    bio_en:
+      - "Quantitative firm founded by mathematician Jim Simons; its Medallion fund is known for exceptional long-run returns."
+    sources:
+      - {label: Wikipedia · Renaissance Technologies, url: "https://en.wikipedia.org/wiki/Renaissance_Technologies"}
+  - cik: 1061768
+    name: Baupost Group
+    person: Seth Klarman
+    style: [价值, 安全边际]
+    founded: 1982
+    bio:
+      - Seth Klarman 于 1982 年创立，著有价值投资经典《安全边际》（Margin of Safety，1991）。
+    bio_en:
+      - "Founded by Seth Klarman in 1982; Klarman wrote the value-investing classic Margin of Safety (1991)."
+    sources:
+      - {label: Wikipedia · Baupost Group, url: "https://en.wikipedia.org/wiki/Baupost_Group"}
+  - cik: 1040273
+    name: Third Point
+    person: Dan Loeb
+    style: [事件驱动, 激进投资]
+    founded: 1995
+    bio:
+      - Dan Loeb 于 1995 年创立，以致董事会的公开信推动公司变革著称。
+    bio_en:
+      - "Founded by Dan Loeb in 1995; known for pointed public letters to boards pushing for change."
+    sources:
+      - {label: Wikipedia · Third Point, url: "https://en.wikipedia.org/wiki/Third_Point_Management"}
+  - cik: 1167483
+    name: Tiger Global
+    person: Chase Coleman
+    style: [成长, 科技]
+    founded: 2001
+    bio:
+      - Chase Coleman 于 2001 年创立，出身 Julian Robertson 的老虎基金（"小老虎"之一）。
+    bio_en:
+      - "Founded by Chase Coleman in 2001; a 'Tiger cub' who trained at Julian Robertson's Tiger Management."
+    sources:
+      - {label: Wikipedia · Tiger Global, url: "https://en.wikipedia.org/wiki/Tiger_Global_Management"}
+  - cik: 1135730
+    name: Coatue Management
+    person: Philippe Laffont
+    style: [科技, 成长]
+    founded: 1999
+    bio:
+      - Philippe Laffont 于 1999 年创立，出身老虎基金，专注科技股。
+    bio_en:
+      - "Founded by Philippe Laffont in 1999; a Tiger Management alumnus focused on technology."
+    sources:
+      - {label: Wikipedia · Coatue Management, url: "https://en.wikipedia.org/wiki/Coatue_Management"}
+  - cik: 1061165
+    name: Lone Pine Capital
+    person: Stephen Mandel（创始人）
+    style: [成长, 多空]
+    founded: 1997
+    bio:
+      - Stephen Mandel 于 1997 年创立，出身老虎基金。
+    bio_en:
+      - "Founded by Stephen Mandel in 1997; Mandel trained at Tiger Management."
+    sources:
+      - {label: Wikipedia · Lone Pine Capital, url: "https://en.wikipedia.org/wiki/Lone_Pine_Capital"}
+  - cik: 1103804
+    name: Viking Global
+    person: Andreas Halvorsen
+    style: [多空, 基本面]
+    founded: 1999
+    bio:
+      - Andreas Halvorsen 于 1999 年创立，出身老虎基金。
+    bio_en:
+      - "Founded by Andreas Halvorsen in 1999; Halvorsen trained at Tiger Management."
+    sources:
+      - {label: Wikipedia · Viking Global Investors, url: "https://en.wikipedia.org/wiki/Viking_Global_Investors"}
+  - cik: 1709323
+    name: Himalaya Capital
+    person: 李录 Li Lu
+    style: [价值, 长期持有]
+    founded: 1997
+    bio:
+      - 李录于 1997 年创立；查理·芒格曾把部分家族资产交给他管理。
+    bio_en:
+      - "Founded by Li Lu in 1997; Charlie Munger entrusted part of his family's assets to him."
+    sources:
+      - {label: Wikipedia · Li Lu, url: "https://en.wikipedia.org/wiki/Li_Lu"}
+  - cik: 1549575
+    name: Dalal Street (Pabrai)
+    person: Mohnish Pabrai
+    style: [价值, 集中持仓]
+    founded: 1999
+    bio:
+      - Mohnish Pabrai 的投资管理公司；Pabrai 投资基金成立于 1999 年。他著有《憨夺型投资者》（The Dhandho Investor）。
+    bio_en:
+      - "Mohnish Pabrai's investment firm; the Pabrai Investment Funds started in 1999. He wrote The Dhandho Investor."
+    sources:
+      - {label: Wikipedia · Mohnish Pabrai, url: "https://en.wikipedia.org/wiki/Mohnish_Pabrai"}
+  - cik: 1569205
+    name: Fundsmith
+    person: Terry Smith
+    style: [质量成长, 长期持有]
+    founded: 2010
+    bio:
+      - Terry Smith 于 2010 年在伦敦创立，投资信条是"买好公司、别买贵、什么都不做"。
+    bio_en:
+      - "Founded by Terry Smith in London in 2010; motto: buy good companies, don't overpay, do nothing."
+    sources:
+      - {label: Wikipedia · Fundsmith, url: "https://en.wikipedia.org/wiki/Fundsmith"}
+  - cik: 1112520
+    name: Akre Capital Management
+    person: Chuck Akre（创始人）
+    style: [质量复利, 长期持有]
+    founded: 1989
+    bio:
+      - Chuck Akre 于 1989 年创立，以长期持有"复利机器"型公司著称。
+    bio_en:
+      - "Founded by Chuck Akre in 1989; known for owning 'compounding machines' for the long term."
+    sources:
+      - {label: Wikipedia · Chuck Akre, url: "https://en.wikipedia.org/wiki/Chuck_Akre"}
+  - cik: 921669
+    name: Carl Icahn
+    person: Carl Icahn
+    style: [激进投资]
+    founded: null
+    bio:
+      - 美国最早一批激进投资者之一，13F 以其个人名义（ICAHN CARL C）申报。
+    bio_en:
+      - "One of the earliest American activist investors; files its 13F under his own name (ICAHN CARL C)."
+    sources:
+      - {label: Wikipedia · Carl Icahn, url: "https://en.wikipedia.org/wiki/Carl_Icahn"}
+  - cik: 1791786
+    name: Elliott Investment Management
+    person: Paul Singer
+    style: [激进投资, 困境投资]
+    founded: 1977
+    bio:
+      - Paul Singer 于 1977 年创立，以激进投资和困境债务投资著称。
+    bio_en:
+      - "Founded by Paul Singer in 1977; known for activism and distressed-debt investing."
+    sources:
+      - {label: Wikipedia · Elliott Investment Management, url: "https://en.wikipedia.org/wiki/Elliott_Investment_Management"}
+  - cik: 1029160
+    name: Soros Fund Management
+    person: George Soros
+    style: [宏观]
+    founded: 1970
+    bio:
+      - George Soros 于 1970 年创立，以 1992 年做空英镑闻名，2011 年转为家族办公室。
+    bio_en:
+      - "Founded by George Soros in 1970; famous for shorting the British pound in 1992; a family office since 2011."
+    sources:
+      - {label: Wikipedia · Soros Fund Management, url: "https://en.wikipedia.org/wiki/Soros_Fund_Management"}
+  - cik: 1418814
+    name: ValueAct Capital
+    person: Mason Morfit
+    style: [激进投资, 价值]
+    founded: 2000
+    bio:
+      - Jeffrey Ubben 等人于 2000 年创立，以进入董事会推动变革的"建设性激进"著称。
+    bio_en:
+      - "Co-founded by Jeffrey Ubben in 2000; known for 'constructive activism' from inside the boardroom."
+    sources:
+      - {label: Wikipedia · ValueAct Capital, url: "https://en.wikipedia.org/wiki/ValueAct_Capital"}

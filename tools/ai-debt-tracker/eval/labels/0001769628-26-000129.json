@@ -1,0 +1,8 @@
+{
+  "accession": "0001769628-26-000129",
+  "is_new_debt": true,
+  "tranches": [
+    {"currency": "USD", "amount": 8500000000, "maturity_date": "2032-03-31", "coupon_pct": null, "spread_bp": null}
+  ],
+  "notes": "CoreWeave 8-K (Items 1.01/2.03): $8.5bn delayed draw term loan facility ('DDTL 4.0') borrowed by subsidiary CoreWeave Compute Acquisition Co. VIII, LLC; maturity March 31, 2032; draws available until June 2027. Amount is the commitment, not funded. Pricing: SOFR loans = daily compounded SOFR + 2.25% (base rate loans +1.25%); fixed-rate loan option = 2.00% + blended UST rate (~3.14yr WAL) with no fixed number stated -> coupon_pct null, spread_bp null per loan convention. Undrawn fee 0.50%."
+}

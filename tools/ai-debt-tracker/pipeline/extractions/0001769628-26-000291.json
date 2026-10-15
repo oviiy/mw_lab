@@ -1,0 +1,54 @@
+{
+  "accession": "0001769628-26-000291",
+  "is_new_debt": true,
+  "doc_kind": "closing_8k",
+  "skip_reason": null,
+  "trade_date": null,
+  "settlement_date": "2026-06-18",
+  "tranches": [
+    {
+      "name": "9.625% Senior Notes due 2032 (USD)",
+      "instrument_type": "senior_notes",
+      "currency": "USD",
+      "amount": 1250000000,
+      "coupon_pct": 9.625,
+      "floating_spread_bp": null,
+      "maturity_date": "2032-07-15",
+      "price_pct": null,
+      "ytm_pct": null,
+      "spread_bp": null,
+      "benchmark": null,
+      "benchmark_yield_pct": null,
+      "cusip": null,
+      "isin": null,
+      "secured_by": null,
+      "quote": "$1,250 million in aggregate principal amount of its dollar-denominated 9.625% Senior Notes due 2032 (the “USD Notes”)"
+    },
+    {
+      "name": "8.500% Senior Notes due 2032 (EUR)",
+      "instrument_type": "senior_notes",
+      "currency": "EUR",
+      "amount": 2000000000,
+      "coupon_pct": 8.5,
+      "floating_spread_bp": null,
+      "maturity_date": "2032-07-15",
+      "price_pct": null,
+      "ytm_pct": null,
+      "spread_bp": null,
+      "benchmark": null,
+      "benchmark_yield_pct": null,
+      "cusip": null,
+      "isin": null,
+      "secured_by": null,
+      "quote": "€2,000 million in aggregate principal amount of its euro-denominated 8.500% Senior Notes due 2032 (the “EUR Notes”"
+    }
+  ],
+  "proceeds": {
+    "ai_flag": "general",
+    "quote": "CoreWeave intends to use the proceeds from the offering of the Senior Notes for general corporate purposes, including, without limitation, repayment of outstanding indebtedness, and to pay fees, costs and expenses in connection with the offering of the Senior Notes."
+  },
+  "_meta": {
+    "bundle_hash": "9cfae6885ec7d856",
+    "extractor": "claude-sonnet-5-5 via Claude Code agents, 2026-10-14"
+  }
+}

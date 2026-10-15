@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#0b0d12">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>HEXLOOP</title>
+<style>
+:root{--bg:#0b0d12;--line:#1c2230;--dim:#5a6478;--txt:#d7deea;--cy:#3de8ff;--mg:#ff3d7f;--am:#ffb23d;--gr:#5dffa0;--panel:#10141c;--edge:#232b3a}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:var(--bg);color:var(--txt);font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;overflow:hidden;user-select:none;-webkit-user-select:none}
+button{font:inherit;color:inherit}
+#app{position:fixed;inset:0;display:flex;flex-direction:column;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+#top{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:12px 14px 4px;gap:8px}
+#hp{font-size:18px;letter-spacing:3px;color:#262e3d;white-space:nowrap}
+#hp .on{color:var(--cy);text-shadow:0 0 8px rgba(61,232,255,.55)}
+#mid{text-align:center}
+.lbl{font-size:10px;letter-spacing:3px;color:var(--dim)}
+.val{font-size:14px;letter-spacing:2px}
+#right{display:flex;justify-content:flex-end;align-items:center;gap:10px;text-align:right}
+#combo{color:var(--am)}
+.ib{background:none;border:1px solid var(--edge);border-radius:8px;padding:7px 10px;font-size:12px;letter-spacing:2px;cursor:pointer;color:var(--txt)}
+.ib:hover{border-color:#3a4660}
+#stage{flex:1;position:relative;min-height:0}
+#cv{position:absolute;inset:0;touch-action:none;display:block}
+#bot{display:flex;align-items:center;justify-content:space-between;padding:4px 14px 14px;gap:10px;min-height:52px}
+#mods{display:flex;flex-wrap:wrap;gap:6px;min-width:0}
+.chip{display:inline-flex;align-items:center;justify-content:center;min-width:30px;height:30px;padding:0 7px;border:1px solid var(--edge);border-radius:8px;font-size:14px;color:var(--cy);cursor:pointer;background:none}
+.chip sup{font-size:9px;color:var(--dim);margin-left:2px}
+#info{font-size:11px;letter-spacing:2px;color:var(--dim);white-space:nowrap;text-align:right}
+#info b{color:var(--cy);font-weight:normal}
+#toast{position:absolute;left:50%;top:10px;transform:translate(-50%,-6px);background:rgba(16,20,28,.94);border:1px solid var(--edge);border-radius:10px;padding:8px 14px;font-size:12px;letter-spacing:1px;opacity:0;transition:opacity .2s,transform .2s;pointer-events:none;max-width:88%;text-align:center}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+.ov{position:fixed;inset:0;background:rgba(7,9,13,.86);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;z-index:10;padding:16px;overflow:auto}
+.hidden{display:none!important}
+.card{width:100%;max-width:400px;background:var(--panel);border:1px solid var(--edge);border-radius:16px;padding:22px;margin:auto}
+.title{font-size:34px;letter-spacing:10px;color:var(--cy);text-shadow:0 0 18px rgba(61,232,255,.45);text-align:center;margin:6px 0 2px}
+.tag{text-align:center;color:var(--dim);font-size:11px;letter-spacing:4px;margin-bottom:18px}
+h2{font-size:15px;letter-spacing:4px;font-weight:normal;margin-bottom:12px}
+.kick{font-size:11px;letter-spacing:3px;color:var(--am);margin-bottom:6px}
+.btn{display:block;width:100%;padding:13px;margin-top:9px;background:none;border:1px solid #2a3344;border-radius:10px;letter-spacing:3px;font-size:13px;cursor:pointer;text-align:center}
+.btn:hover{border-color:#44506a}
+.btn.pri{border-color:var(--cy);color:var(--cy)}
+.btn.am{border-color:var(--am);color:var(--am)}
+.btn.mg{border-color:var(--mg);color:var(--mg)}
+.btn:disabled{opacity:.35;cursor:default}
+.row{display:flex;gap:9px}.row .btn{flex:1}
+.foot{margin-top:16px;text-align:center;font-size:11px;color:var(--dim);letter-spacing:2px;line-height:1.7}
+.mod{display:flex;gap:14px;align-items:center;width:100%;text-align:left;padding:13px;margin-top:9px;background:none;border:1px solid #2a3344;border-radius:12px;cursor:pointer}
+.mod:hover{border-color:var(--am)}
+.mi{flex:0 0 40px;height:40px;border:1px solid var(--edge);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--cy)}
+.mod b{display:block;font-weight:normal;letter-spacing:2px;font-size:13px;margin-bottom:3px}
+.mod small{color:var(--dim);font-size:11px;line-height:1.45}
+.help p{font-size:12px;line-height:1.6;color:#aab3c2;margin-bottom:9px}
+.help .k{color:var(--txt)}
+.cy{color:var(--cy)}.mg{color:var(--mg)}.am{color:var(--am)}.gr{color:var(--gr)}
+.stat{display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-bottom:1px solid #1a202b;letter-spacing:1px}
+.stat span:first-child{color:var(--dim)}
+textarea{width:100%;height:84px;background:#0b0e14;border:1px solid var(--edge);border-radius:8px;color:var(--txt);font:11px ui-monospace,Menlo,monospace;padding:8px;margin-top:9px;resize:none}
+.core{border:1px solid #2a3344;border-radius:12px;padding:12px 13px;margin-top:9px}
+.core.sel{border-color:var(--cy)}
+.core b{font-weight:normal;letter-spacing:3px}
+.core small{display:block;color:var(--dim);font-size:11px;margin:4px 0 8px;line-height:1.45}
+.core .btn{margin-top:0;padding:9px}
+.big{font-size:22px;letter-spacing:3px;text-align:center;margin:4px 0 4px}
+.emo{text-align:center;font-size:16px;letter-spacing:2px;margin:10px 0 2px}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="top">
+    <div id="hp"></div>
+    <div id="mid"><div class="lbl" id="secL">SECTOR</div><div class="val" id="secV">—</div></div>
+    <div id="right"><div><div class="lbl">SCORE <span id="combo"></span></div><div class="val" id="score">0</div></div><button class="ib" id="menuBtn" aria-label="Menu">☰</button></div>
+  </div>
+  <div id="stage"><canvas id="cv"></canvas><div id="toast"></div></div>
+  <div id="bot">
+    <div id="mods"></div>
+    <div id="info"></div>
+    <button class="ib" id="waitBtn">WAIT</button>
+  </div>
+</div>
+<div id="ov" class="ov hidden"></div>
+<script>
+'use strict';
+// ================================================================ hex grid
+const R = 4, SQ3 = Math.sqrt(3), FINAL = 12;
+const DIRS = [[1,0],[1,-1],[0,-1],[-1,0],[-1,1],[0,1]]; // E NE NW W SW SE (pointy-top)
+const K = (q, r) => q + ',' + r;
+const P = k => k.split(',').map(Number);
+const inB = (q, r) => Math.max(Math.abs(q), Math.abs(r), Math.abs(q + r)) <= R;
+const hd = (aq, ar, bq, br) => (Math.abs(aq - bq) + Math.abs(ar - br) + Math.abs(aq + ar - bq - br)) / 2;
+const KEYS = [], NB = {};
+for (let q = -R; q <= R; q++) for (let r = -R; r <= R; r++) if (inB(q, r)) KEYS.push(K(q, r));
+for (const k of KEYS) { const [q, r] = P(k); NB[k] = DIRS.map(([dq, dr]) => [q + dq, r + dr]).filter(([a, b]) => inB(a, b)).map(([a, b]) => K(a, b)); }
+
+// ================================================================ content
+const MODS = {
+  fuse:      { n: 'Long Fuse',      i: '∞', d: 'Your trail lasts 4 more turns.', s: 1 },
+  chain:     { n: 'Chain Reaction', i: '✶', d: 'Loops also destroy enemies touching the loop from outside.' },
+  plating:   { n: 'Plating',        i: '+', d: '+1 max HP and heal 1.', s: 1 },
+  overclock: { n: 'Overclock',      i: '»', d: 'Each loop that destroys something charges a Dash: move 2 hexes in a straight line.' },
+  thorns:    { n: 'Thorns',         i: '✕', d: 'Drones and Brutes that hit you are destroyed.' },
+  shield:    { n: 'Aegis',          i: '◈', d: 'Block the first hit every sector.' },
+  greed:     { n: 'Greed',          i: '◆', d: '+1 extra shard from every shard.', s: 1 },
+  siphon:    { n: 'Siphon',         i: '♥', d: 'A loop that destroys 3+ enemies heals 1.' },
+  secondwind:{ n: 'Second Wind',    i: '↺', d: 'Once per sector, survive a lethal hit with 1 HP.' },
+  strike:    { n: 'Phase Strike',   i: '⚡', d: 'Once per sector, move onto an enemy to destroy it.' },
+};
+const CORES = [
+  { id: 'spark',   n: 'SPARK',   cost: 0,   hp: 3, life: 8, mods: {},                      d: '3 HP · trail 8. The standard core.' },
+  { id: 'prism',   n: 'PRISM',   cost: 40,  hp: 2, life: 8, mods: { chain: 1 },            d: '2 HP · trail 8. Starts with Chain Reaction.' },
+  { id: 'bulwark', n: 'BULWARK', cost: 80,  hp: 5, life: 6, mods: {},                      d: '5 HP · trail 6. Hard to kill, short reach.' },
+  { id: 'phantom', n: 'PHANTOM', cost: 150, hp: 3, life: 8, mods: { overclock: 1, strike: 1 }, dash: 1, d: '3 HP · trail 8. Starts with Overclock (1 Dash) and Phase Strike.' },
+];
+const coreOf = id => CORES.find(c => c.id === id) || CORES[0];
+
+// ================================================================ save
+const SKEY = 'hexloop.v1';
+let meta, run = null, wallSet = new Set();
+function defMeta() { return { shards: 0, unlocked: ['spark'], core: 'spark', best: 0, bestSector: 0, runs: 0, daily: null, seenHelp: false, muted: false }; }
+function load() {
+  meta = defMeta(); run = null;
+  try { const s = JSON.parse(localStorage.getItem(SKEY) || 'null'); if (s && s.meta) { meta = Object.assign(defMeta(), s.meta); run = s.run || null; } } catch (_) {}
+  if (run && (run.phase === 'dead' || run.phase === 'won')) run = null;
+  wallSet = new Set(run ? run.walls : []);
+}
+function save() { try { localStorage.setItem(SKEY, JSON.stringify({ v: 1, meta, run })); } catch (_) {} }
+function todayStr() { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+
+// ================================================================ rng (state lives in run, so reloads can't reroll)
+function rnd() { run.rng = (run.rng + 0x6D2B79F5) | 0; let t = run.rng; t = Math.imul(t ^ t >>> 15, t | 1); t ^= t + Math.imul(t ^ t >>> 7, t | 61); return ((t ^ t >>> 14) >>> 0) / 4294967296; }
+const ri = n => Math.floor(rnd() * n);
+function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = ri(i + 1); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function hashStr(s) { let h = 2166136261; for (const c of s) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); } return h | 0; }
+
+// ================================================================ hooks the renderer fills in (no-ops headless)
+const hooks = { sfx() {}, fx() {}, float() {}, shake() {}, onClear() {}, onEnd() {}, toast() {} };
+
+// ================================================================ rules
+const trailLife = () => coreOf(run.core).life + 4 * (run.mods.fuse || 0);
+const spawnEvery = () => run.boss ? 4 : Math.max(3, 7 - Math.floor(run.sector / 3));
+const pk = () => K(run.player[0], run.player[1]);
+function occ() { const m = new Map(); for (const e of run.enemies) m.set(K(e.q, e.r), e); return m; }
+
+function newRun(daily, coreId) {
+  const core = daily ? CORES[0] : coreOf(coreId || meta.core), date = todayStr();
+  run = { v: 1, daily: !!daily, date, core: core.id, rng: daily ? hashStr('hexloop:' + date) : (Math.random() * 2 ** 31) | 0,
+    sector: 0, score: 0, kills: 0, shardsRun: 0, hp: core.hp, maxHp: core.hp, mods: Object.assign({}, core.mods), dash: core.dash || 0,
+    turn: 0, combo: 0, lastCap: -99, walls: [], trail: {}, player: [0, 0], enemies: [], nextId: 1, pickups: {}, spawns: [],
+    quota: 0, spawned: 0, nextSpawn: 0, boss: false, phase: 'play', choices: null, log: [] };
+  meta.runs++;
+  if (daily) meta.daily = { date, score: 0, sector: 0, done: false, log: [] };
+  nextSector();
+}
+
+function addEnemy(type, q, r) { const e = { id: run.nextId++, type, q, r, hp: 1, aim: -1, cd: type === 'lancer' ? 1 : 0 }; run.enemies.push(e); return e; }
+function pickType() { const s = run.sector, x = rnd(); if (s >= 3 && x < 0.15) return 'eater'; if (s >= 3 && x < 0.33) return 'brute'; if (s >= 2 && x < 0.55) return 'lancer'; return 'drone'; }
+function randFree(pred) {
+  const o = occ(), p = pk(), sp = new Set(run.spawns.map(s => K(s.q, s.r)));
+  const c = KEYS.filter(k => !wallSet.has(k) && !o.has(k) && !run.pickups[k] && k !== p && !sp.has(k) && (!pred || pred(P(k))));
+  if (!c.length) return pred ? randFree(null) : null;
+  return P(c[ri(c.length)]);
+}
+function components(bar) {
+  const seen = new Set(), comps = [];
+  for (const k of KEYS) {
+    if (bar.has(k) || seen.has(k)) continue;
+    const comp = [], st = [k]; seen.add(k);
+    while (st.length) { const c = st.pop(); comp.push(c); for (const n of NB[c]) if (!bar.has(n) && !seen.has(n)) { seen.add(n); st.push(n); } }
+    comps.push(comp);
+  }
+  return comps;
+}
+function nextSector() {
+  run.sector++;
+  const s = run.sector;
+  Object.assign(run, { turn: 0, trail: {}, player: [0, 0], enemies: [], pickups: {}, spawns: [], shieldUsed: false, swUsed: false, strikeUsed: false,
+    combo: 0, lastCap: -99, phase: 'play', choices: null, boss: s % 4 === 0 });
+  for (let t = 0; t < 80; t++) {
+    const n = 3 + ri(4), ws = new Set(), cand = shuffle(KEYS.filter(k => { const [q, r] = P(k); return hd(q, r, 0, 0) >= 2; }));
+    for (const k of cand) {
+      if (ws.size >= n) break;
+      ws.add(k);
+      if (rnd() < 0.45 && ws.size < n) { const [q, r] = P(k), [dq, dr] = DIRS[ri(6)]; if (inB(q + dq, r + dr) && hd(q + dq, r + dr, 0, 0) >= 2) ws.add(K(q + dq, r + dr)); }
+    }
+    run.walls = [...ws]; wallSet = new Set(ws);
+    const bar = new Set(ws); bar.add('0,0');
+    if (components(bar).length === 1) break;
+  }
+  const far = ([q, r]) => hd(q, r, 0, 0) >= 3;
+  if (run.boss) {
+    const h = randFree(([q, r]) => hd(q, r, 0, 0) === 3);
+    addEnemy('hive', h[0], h[1]).hp = 2 + s / 4;
+    run.quota = 0; run.spawned = 0; run.nextSpawn = 2;
+    const d = randFree(far); if (d) addEnemy('drone', d[0], d[1]);
+  } else {
+    run.quota = 3 + s;
+    const init = Math.min(run.quota, 2 + Math.floor(s / 2));
+    for (let i = 0; i < init; i++) { const h = randFree(far); if (h) addEnemy(i === 0 ? 'drone' : pickType(), h[0], h[1]); }
+    run.spawned = init; run.nextSpawn = spawnEvery();
+  }
+  const ns = 3 + ri(2);
+  for (let i = 0; i < ns; i++) { const h = randFree(([q, r]) => hd(q, r, 0, 0) >= 2); if (h) run.pickups[K(h[0], h[1])] = 'shard'; }
+  if (rnd() < (run.hp < run.maxHp ? 0.5 : 0.15)) { const h = randFree(([q, r]) => hd(q, r, 0, 0) >= 2); if (h) run.pickups[K(h[0], h[1])] = 'heart'; }
+  computeIntents();
+}
+
+function beam(e, d) { const out = []; let q = e.q, r = e.r; const [dq, dr] = DIRS[d]; for (;;) { q += dq; r += dr; if (!inB(q, r) || wallSet.has(K(q, r))) break; out.push(K(q, r)); } return out; }
+function alignDir(e) {
+  const [pq, pr] = run.player;
+  for (let d = 0; d < 6; d++) { const [dq, dr] = DIRS[d]; let q = e.q, r = e.r;
+    for (let k = 1; k <= 6; k++) { q += dq; r += dr; if (!inB(q, r) || wallSet.has(K(q, r))) break; if (q === pq && r === pr) return d; } }
+  return -1;
+}
+function computeIntents() {
+  const p = pk();
+  for (const e of run.enemies) {
+    if (e.type === 'lancer') e.aim = e.cd === 0 ? alignDir(e) : -1;
+    else if (e.type === 'drone') e.tg = NB[K(e.q, e.r)].includes(p) ? p : bfsStep(e, new Set(NB[p]));
+  }
+}
+function threatMap() {
+  const m = new Map(), add = (k, e) => { if (!m.has(k)) m.set(k, []); m.get(k).push(e); };
+  for (const e of run.enemies) {
+    if (e.type === 'drone') { if (e.tg) add(e.tg, e); }
+    else if (e.type === 'brute') for (const n of NB[K(e.q, e.r)]) add(n, e);
+    else if (e.type === 'lancer' && e.aim >= 0) for (const h of beam(e, e.aim)) add(h, e);
+  }
+  return m;
+}
+function moves() {
+  const o = occ(), [pq, pr] = run.player, res = [];
+  const open = (q, r) => inB(q, r) && !wallSet.has(K(q, r)) && !o.has(K(q, r));
+  for (const [dq, dr] of DIRS) {
+    const q = pq + dq, r = pr + dr, k = K(q, r);
+    if (open(q, r)) { res.push({ q, r }); if (run.dash > 0 && open(q + dq, r + dr)) res.push({ q: q + dq, r: r + dr, via: k, dash: 1 }); }
+    else if (run.mods.strike && !run.strikeUsed && o.has(k) && o.get(k).type !== 'hive') res.push({ q, r, strike: 1 });
+  }
+  return res;
+}
+function decay(t, nt) { const life = trailLife(); for (const k in t) if (nt - t[k] >= life) delete t[k]; }
+function simTrail(m) { const t = Object.assign({}, run.trail), nt = run.turn + 1; t[pk()] = nt; if (m.via) t[m.via] = nt; delete t[K(m.q, m.r)]; decay(t, nt); return t; }
+
+// Board edge acts as a wall. Barrier = walls + trail + you. When the barrier splits the
+// open board, every piece except the biggest that touches your trail is captured.
+function findCaptures(trail, p) {
+  const bar = new Set(run.walls); for (const k in trail) bar.add(k); bar.add(p);
+  const comps = components(bar);
+  if (comps.length < 2) return [];
+  let big = comps[0]; for (const c of comps) if (c.length > big.length) big = c;
+  return comps.filter(c => c !== big && c.some(h => NB[h].some(n => n in trail)));
+}
+
+function gainShards(n) { meta.shards += n; run.shardsRun += n; }
+function collect(k) {
+  const t = run.pickups[k]; delete run.pickups[k];
+  if (t === 'shard') { const n = 1 + (run.mods.greed || 0); gainShards(n); run.score += 25; hooks.float(P(k), '+' + n + '◆', '#ffb23d'); hooks.sfx('shard'); }
+  else if (t === 'heart') { if (run.hp < run.maxHp) run.hp++; hooks.float(P(k), '+1 ♥', '#5dffa0'); hooks.sfx('heal'); }
+}
+function killEnemy(e) {
+  const i = run.enemies.indexOf(e); if (i < 0) return;
+  run.enemies.splice(i, 1); run.kills++;
+  hooks.fx({ t: 'burst', q: e.q, r: e.r, big: e.type === 'hive' });
+  if (e.type === 'hive') {
+    for (const o of run.enemies) { run.kills++; hooks.fx({ t: 'burst', q: o.q, r: o.r }); }
+    run.enemies = []; run.spawns = [];
+  }
+}
+function dmgEnemy(e) { e.hp--; if (e.hp <= 0) { killEnemy(e); return true; } hooks.fx({ t: 'burst', q: e.q, r: e.r }); return false; }
+
+function doCapture() {
+  const caps = findCaptures(run.trail, pk());
+  if (!caps.length) return 0;
+  const region = new Set(); for (const c of caps) for (const h of c) region.add(h);
+  const border = Object.keys(run.trail).filter(k => NB[k].some(n => region.has(n))), bset = new Set(border);
+  let hits = 0;
+  for (const e of run.enemies.slice()) {
+    if (!run.enemies.includes(e)) continue;
+    const ek = K(e.q, e.r), inside = region.has(ek);
+    if (inside || (run.mods.chain && NB[ek].some(n => bset.has(n)))) { dmgEnemy(e); hits++; }
+  }
+  for (const h of region) if (run.pickups[h]) collect(h);
+  run.spawns = run.spawns.filter(s => { if (region.has(K(s.q, s.r))) { if (!s.x) run.spawned--; return false; } return true; });
+  for (const k of border) delete run.trail[k];
+  hooks.fx({ t: 'cap', hs: [...region], b: border });
+  if (hits) {
+    run.combo = run.turn - run.lastCap <= 5 ? Math.min(5, run.combo + 1) : 1; run.lastCap = run.turn;
+    const pts = (region.size * 10 + hits * 50) * run.combo; run.score += pts;
+    let cq = 0, cr = 0; for (const h of region) { const [q, r] = P(h); cq += q; cr += r; }
+    hooks.float([cq / region.size, cr / region.size], '+' + pts + (run.combo > 1 ? ' ×' + run.combo : ''), '#ffb23d', true);
+    if (run.mods.overclock) run.dash = Math.min(2, run.dash + 1);
+    if (run.mods.siphon && hits >= 3 && run.hp < run.maxHp) { run.hp++; hooks.float(run.player, '+1 ♥', '#5dffa0'); }
+    hooks.shake(3); hooks.sfx('loop', hits);
+  } else hooks.sfx('loop0');
+  return hits;
+}
+
+function hurt(e) {
+  if (run.mods.shield && !run.shieldUsed) { run.shieldUsed = true; hooks.float(run.player, 'BLOCKED', '#3de8ff'); hooks.sfx('block'); return; }
+  run.hp--; hooks.shake(7); hooks.float(run.player, '−1', '#ff3d7f'); hooks.sfx('hit');
+  if (run.mods.thorns && (e.type === 'drone' || e.type === 'brute')) killEnemy(e);
+  if (run.hp <= 0) {
+    if (run.mods.secondwind && !run.swUsed) { run.swUsed = true; run.hp = 1; hooks.float(run.player, 'SECOND WIND', '#ffb23d'); }
+    else endRun(false);
+  }
+}
+
+function checkClear() {
+  const done = run.boss ? !run.enemies.some(e => e.type === 'hive') : (run.spawned >= run.quota && !run.enemies.length && !run.spawns.length);
+  if (!done) return false;
+  run.phase = 'pick';
+  gainShards(run.boss ? 5 : 2);
+  run.score += run.sector * 100;
+  run.log.push(run.boss ? '🟨' : '🟦');
+  if (run.boss) run.hp = Math.min(run.maxHp, run.hp + 1);
+  hooks.sfx('clear');
+  if (run.sector >= FINAL) endRun(true);
+  else { run.choices = shuffle(Object.keys(MODS).filter(id => MODS[id].s || !run.mods[id])).slice(0, 3); hooks.onClear(); }
+  return true;
+}
+function endRun(won) {
+  run.phase = won ? 'won' : 'dead';
+  run.log.push(won ? '🏆' : '🟥');
+  run.newBest = run.score > meta.best;
+  if (run.newBest) meta.best = run.score;
+  meta.bestSector = Math.max(meta.bestSector, run.sector);
+  if (run.daily && meta.daily && meta.daily.date === run.date && !meta.daily.done)
+    Object.assign(meta.daily, { score: run.score, sector: run.sector, done: true, log: run.log.slice(), won });
+  hooks.sfx(won ? 'clear' : 'die'); hooks.onEnd(won);
+}
+
+function bfsStep(e, goals) {
+  const s = K(e.q, e.r); if (goals.has(s)) return null;
+  const o = occ(), p = pk();
+  const pass = k => !wallSet.has(k) && k !== p && !o.has(k) && (e.type === 'eater' || !(k in run.trail));
+  const prev = new Map([[s, null]]), qu = [s];
+  for (let i = 0; i < qu.length; i++) {
+    for (const n of NB[qu[i]]) {
+      if (prev.has(n) || !pass(n)) continue;
+      prev.set(n, qu[i]);
+      if (goals.has(n)) { let x = n; while (prev.get(x) !== s) x = prev.get(x); return x; }
+      qu.push(n);
+    }
+  }
+  let best = null, bd = hd(e.q, e.r, run.player[0], run.player[1]);
+  for (const n of NB[s]) { if (!pass(n)) continue; const [q, r] = P(n), d = hd(q, r, run.player[0], run.player[1]); if (d < bd) { bd = d; best = n; } }
+  return best;
+}
+function moveEnemy(e) {
+  if (e.type === 'hive') return;
+  const p = pk(), [pq, pr] = run.player;
+  let goals;
+  if (e.type === 'lancer') {
+    if (e.cd > 0) e.cd--;
+    if (e.cd === 0 && alignDir(e) >= 0) return;
+    goals = new Set();
+    for (const [dq, dr] of DIRS) { let q = pq, r = pr; for (let k = 1; k <= 6; k++) { q += dq; r += dr; if (!inB(q, r) || wallSet.has(K(q, r))) break; if (k >= 2) goals.add(K(q, r)); } }
+  } else if (e.type === 'eater') { const ks = Object.keys(run.trail); goals = new Set(ks.length ? ks : NB[p]); }
+  else if (e.type === 'brute') { if (e.cd > 0) { e.cd--; return; } e.cd = 1; goals = new Set(NB[p]); }
+  else goals = new Set(NB[p]);
+  const step = bfsStep(e, goals);
+  if (!step) return;
+  hooks.fx({ t: 'move', id: e.id, fq: e.q, fr: e.r });
+  [e.q, e.r] = P(step);
+  if (e.type === 'eater' && step in run.trail) { delete run.trail[step]; hooks.sfx('chomp'); }
+}
+function enemyPhase() {
+  const p = pk(), [pq, pr] = run.player, o = occ();
+  run.spawns = run.spawns.filter(s => {
+    if (s.at > run.turn) return true;
+    const k = K(s.q, s.r); if (k === p || o.has(k)) return true;
+    delete run.trail[k]; const e = addEnemy(s.ty, s.q, s.r); e.fresh = 1; o.set(k, e); hooks.fx({ t: 'spawn', q: s.q, r: s.r });
+    return false;
+  });
+  const order = run.enemies.slice().sort((a, b) => hd(a.q, a.r, pq, pr) - hd(b.q, b.r, pq, pr));
+  for (const e of order) { if (e.fresh) { delete e.fresh; continue; } moveEnemy(e); }
+  if (run.boss) {
+    const hv = run.enemies.find(e => e.type === 'hive');
+    if (hv && run.turn >= run.nextSpawn) {
+      if (run.enemies.length + run.spawns.length < 6) { const h = randFree(([q, r]) => hd(q, r, hv.q, hv.r) <= 2 && hd(q, r, pq, pr) >= 2); if (h) run.spawns.push({ q: h[0], r: h[1], ty: pickType(), at: run.turn + 1, x: 1 }); }
+      run.nextSpawn = run.turn + spawnEvery();
+    }
+  } else if (run.spawned < run.quota && (run.turn >= run.nextSpawn || (!run.enemies.length && !run.spawns.length))) {
+    const h = randFree(([q, r]) => hd(q, r, pq, pr) >= 3);
+    if (h) { run.spawns.push({ q: h[0], r: h[1], ty: pickType(), at: run.turn + 1 }); run.spawned++; run.nextSpawn = run.turn + spawnEvery(); }
+  }
+}
+
+// One full turn: you move → loops resolve → red hexes hurt → lancers fire → enemies act.
+function doMove(m) {
+  if (!run || run.phase !== 'play') return false;
+  const from = run.player.slice(), fk = K(from[0], from[1]), wait = m.q === from[0] && m.r === from[1];
+  run.turn++;
+  if (!wait) {
+    if (m.strike) { const e = occ().get(K(m.q, m.r)); if (!e) return false; run.strikeUsed = true; killEnemy(e); hooks.sfx('kill'); }
+    run.trail[fk] = run.turn; if (m.via) run.trail[m.via] = run.turn; if (m.dash) run.dash--;
+    run.player = [m.q, m.r];
+    const k = pk(); delete run.trail[k];
+    hooks.fx({ t: 'pmove', fq: from[0], fr: from[1] });
+    if (run.pickups[k]) collect(k);
+    hooks.sfx('move');
+  } else hooks.sfx('wait');
+  decay(run.trail, run.turn);
+  doCapture();
+  if (checkClear()) return true;
+  for (const e of threatMap().get(pk()) || []) { hurt(e); if (run.phase !== 'play') return true; }
+  for (const e of run.enemies) if (e.type === 'lancer' && e.aim >= 0) {
+    const hs = beam(e, e.aim); for (const h of hs) delete run.trail[h];
+    hooks.fx({ t: 'beam', q: e.q, r: e.r, hs }); hooks.sfx('beam'); e.aim = -1; e.cd = 2;
+  }
+  if (checkClear()) return true;
+  enemyPhase();
+  computeIntents();
+  return true;
+}
+function chooseMod(id) {
+  if (!run || run.phase !== 'pick') return;
+  if (id === 'repair') run.hp = Math.min(run.maxHp, run.hp + 1);
+  else { run.mods[id] = (run.mods[id] || 0) + 1; if (id === 'plating') { run.maxHp++; run.hp++; } if (id === 'overclock' && run.dash < 1) run.dash = 1; }
+  nextSector();
+}
+
+globalThis.__GAME = { get run() { return run; }, set run(v) { run = v; wallSet = new Set(v ? v.walls : []); }, get meta() { return meta; }, set meta(v) { meta = v; },
+  newRun, nextSector, doMove, computeIntents, moves, threatMap, findCaptures, simTrail, chooseMod, checkClear, defMeta, K, P, hd, KEYS, NB, DIRS, hooks, MODS, CORES, trailLife };
+
+// ================================================================ browser layer
+if (typeof document !== 'undefined' && document.getElementById('cv')) (function () {
+  const $ = id => document.getElementById(id);
+  const cv = $('cv'), ctx = cv.getContext('2d'), ov = $('ov');
+  let W = 0, H = 0, dpr = 1, size = 20, ox = 0, oy = 0;
+  const ui = { moves: [], threat: new Map(), hover: null };
+  const anim = {}, fx = [], floats = [];
+  let pAnim = null, shakeT = 0, shakeA = 0;
+  const now = () => performance.now();
+
+  // ---------- sound
+  let AC = null;
+  function tone(f, d, type = 'sine', v = 0.05, delay = 0, f2) {
+    if (meta.muted) return;
+    try {
+      AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+      if (AC.state === 'suspended') AC.resume();
+      const t = AC.currentTime + delay, o = AC.createOscillator(), g = AC.createGain();
+      o.type = type; o.frequency.setValueAtTime(f, t); if (f2) o.frequency.exponentialRampToValueAtTime(f2, t + d);
+      g.gain.setValueAtTime(v, t); g.gain.exponentialRampToValueAtTime(0.0001, t + d);
+      o.connect(g).connect(AC.destination); o.start(t); o.stop(t + d + 0.03);
+    } catch (_) {}
+  }
+  hooks.sfx = (n, x) => {
+    switch (n) {
+      case 'move': tone(620, 0.05, 'sine', 0.03); break;
+      case 'wait': tone(310, 0.07, 'sine', 0.03); break;
+      case 'loop': [523, 659, 784, 1047].forEach((f, i) => tone(f * (1 + 0.06 * Math.min(x || 1, 5)), 0.16, 'triangle', 0.05, i * 0.05)); break;
+      case 'loop0': tone(440, 0.09, 'triangle', 0.03); break;
+      case 'hit': tone(170, 0.25, 'sawtooth', 0.07, 0, 55); try { navigator.vibrate && navigator.vibrate(60); } catch (_) {} break;
+      case 'block': tone(980, 0.12, 'square', 0.03); break;
+      case 'beam': tone(1300, 0.2, 'sawtooth', 0.025, 0, 220); break;
+      case 'shard': tone(1320, 0.07, 'sine', 0.04); tone(1760, 0.09, 'sine', 0.03, 0.05); break;
+      case 'heal': tone(700, 0.1, 'sine', 0.04); tone(1050, 0.12, 'sine', 0.04, 0.06); break;
+      case 'kill': tone(240, 0.14, 'square', 0.04, 0, 80); break;
+      case 'chomp': tone(140, 0.06, 'square', 0.03); break;
+      case 'clear': [392, 523, 659, 784, 1047].forEach((f, i) => tone(f, 0.2, 'triangle', 0.05, i * 0.07)); break;
+      case 'die': [392, 294, 220, 147].forEach((f, i) => tone(f, 0.28, 'sawtooth', 0.045, i * 0.13)); break;
+      case 'ui': tone(880, 0.03, 'sine', 0.02); break;
+    }
+  };
+  hooks.fx = f => {
+    f.t0 = now();
+    if (f.t === 'move') { anim[f.id] = f; return; }
+    if (f.t === 'pmove') { pAnim = f; return; }
+    fx.push(f);
+  };
+  hooks.float = (pos, text, color, big) => floats.push({ q: pos[0], r: pos[1], text, color, big, t0: now() });
+  hooks.shake = a => { shakeT = now(); shakeA = a; };
+  hooks.onClear = () => setTimeout(showPick, 700);
+  hooks.onEnd = won => setTimeout(() => showOver(won), won ? 700 : 900);
+  hooks.toast = toast;
+
+  // ---------- geometry
+  function layout() {
+    const st = $('stage'); W = st.clientWidth; H = st.clientHeight; dpr = Math.min(window.devicePixelRatio || 1, 2);
+    cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); cv.style.width = W + 'px'; cv.style.height = H + 'px';
+    size = Math.min(W / (SQ3 * (2 * R + 1) + 0.3), H / (3 * R + 2 + 0.3), 52); ox = W / 2; oy = H / 2;
+  }
+  const px = (q, r) => [ox + size * SQ3 * (q + r / 2), oy + size * 1.5 * r];
+  function hexPath(x, y, s) { ctx.beginPath(); for (let i = 0; i < 6; i++) { const a = Math.PI / 180 * (60 * i - 30); ctx.lineTo(x + s * Math.cos(a), y + s * Math.sin(a)); } ctx.closePath(); }
+  function pix2hex(x, y) {
+    const a = (x - ox) / size, b = (y - oy) / size, q = SQ3 / 3 * a - b / 3, r = 2 / 3 * b, s = -q - r;
+    let rq = Math.round(q), rr = Math.round(r); const rs = Math.round(s);
+    const dq = Math.abs(rq - q), dr = Math.abs(rr - r), ds = Math.abs(rs - s);
+    if (dq > dr && dq > ds) rq = -rr - rs; else if (dr > ds) rr = -rq - rs;
+    return inB(rq, rr) ? [rq, rr] : null;
+  }
+  const ease = x => 1 - (1 - x) * (1 - x);
+  function lerpPos(a, q, r, t) {
+    const [x1, y1] = px(q, r); if (!a) return [x1, y1];
+    const k = (t - a.t0) / 130; if (k >= 1) return [x1, y1];
+    const [x0, y0] = px(a.fq, a.fr), e = ease(k); return [x0 + (x1 - x0) * e, y0 + (y1 - y0) * e];
+  }
+
+  // ---------- state → ui
+  function refresh() {
+    if (!run) { ui.moves = []; ui.threat = new Map(); hud(); return; }
+    ui.threat = threatMap();
+    ui.moves = run.phase === 'play' ? moves().map(m => { const c = findCaptures(simTrail(m), K(m.q, m.r)); if (c.length) m.region = new Set(c.flat()); return m; }) : [];
+    hud();
+  }
+  function hud() {
+    if (!run) { $('hp').innerHTML = ''; $('secV').textContent = '—'; $('score').textContent = '0'; $('mods').innerHTML = ''; $('info').innerHTML = ''; $('combo').textContent = ''; return; }
+    let h = ''; for (let i = 0; i < run.maxHp; i++) h += `<span class="${i < run.hp ? 'on' : ''}">♥</span>`;
+    $('hp').innerHTML = h;
+    $('secL').textContent = (run.boss ? 'BOSS ' : 'SECTOR ') + run.sector + '/' + FINAL;
+    if (run.boss) { const hv = run.enemies.find(e => e.type === 'hive'); $('secV').innerHTML = hv ? `<span class="mg">HIVE ${'■'.repeat(hv.hp)}</span>` : 'CLEAR'; }
+    else { const left = run.quota - run.spawned + run.spawns.length + run.enemies.length; $('secV').textContent = left ? left + ' LEFT' : 'CLEAR'; }
+    $('score').textContent = run.score.toLocaleString();
+    $('combo').textContent = run.combo > 1 && run.turn - run.lastCap <= 5 ? '×' + run.combo : '';
+    $('mods').innerHTML = Object.keys(run.mods).map(id => `<button class="chip" data-mod="${id}" title="${MODS[id].n}: ${MODS[id].d}">${MODS[id].i}${run.mods[id] > 1 ? '<sup>' + run.mods[id] + '</sup>' : ''}</button>`).join('');
+    $('info').innerHTML = `TRAIL <b>${trailLife()}</b>` + (run.dash ? ` · DASH <b>${'»'.repeat(run.dash)}</b>` : '') + (run.daily ? ' · <span class="am">DAILY</span>' : '');
+  }
+  let toastT = 0;
+  function toast(msg, ms = 1800) { const t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), ms); }
+
+  // ---------- render
+  const COL = { cy: '61,232,255', mg: '255,61,127', am: '255,178,61', gr: '93,255,160' };
+  function draw() {
+    const t = now();
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, W, H);
+    if (!run) { drawIdle(t); return; }
+    const st = t - shakeT;
+    if (st < 260) { const a = (1 - st / 260) * shakeA; ctx.translate((Math.random() - 0.5) * a, (Math.random() - 0.5) * a); }
+    const life = trailLife(), mv = new Map(ui.moves.map(m => [K(m.q, m.r), m])), hov = ui.hover && mv.get(ui.hover);
+    const S = size * 0.93;
+    for (const k of KEYS) {
+      const [q, r] = P(k), [x, y] = px(q, r);
+      if (wallSet.has(k)) { hexPath(x, y, S); ctx.fillStyle = '#151a24'; ctx.fill(); ctx.strokeStyle = '#272f3f'; ctx.lineWidth = 1; ctx.stroke(); hexPath(x, y, S * 0.42); ctx.fillStyle = '#202837'; ctx.fill(); continue; }
+      hexPath(x, y, S);
+      if (k in run.trail) {
+        const age = run.turn - run.trail[k], f = 1 - age / life, last = age >= life - 1;
+        ctx.fillStyle = `rgba(${COL.cy},${0.07 + 0.3 * f})`; ctx.fill();
+        ctx.strokeStyle = `rgba(${COL.cy},${last ? 0.18 + 0.15 * Math.sin(t / 90) : 0.25 + 0.6 * f})`; ctx.lineWidth = 1.5; ctx.stroke();
+      } else { ctx.strokeStyle = '#1c2230'; ctx.lineWidth = 1; ctx.stroke(); }
+      const th = ui.threat.get(k);
+      if (th) { hexPath(x, y, S); ctx.fillStyle = `rgba(${COL.mg},${Math.min(0.3, 0.09 + 0.08 * th.length)})`; ctx.fill(); }
+      if (hov && hov.region && hov.region.has(k)) { hexPath(x, y, S); ctx.fillStyle = `rgba(${COL.am},.18)`; ctx.fill(); }
+    }
+    // legal moves
+    for (const m of ui.moves) {
+      const k = K(m.q, m.r), [x, y] = px(m.q, m.r), danger = ui.threat.has(k);
+      hexPath(x, y, size * 0.8);
+      ctx.lineWidth = m === hov ? 2.6 : 1.6;
+      if (m.dash) ctx.setLineDash([3, 4]);
+      ctx.strokeStyle = m.region ? '#ffb23d' : m.strike ? '#ffb23d' : danger ? `rgba(${COL.mg},.8)` : m.dash ? `rgba(${COL.cy},.55)` : 'rgba(215,222,234,.4)';
+      if (m.region) { ctx.shadowColor = '#ffb23d'; ctx.shadowBlur = 9 + 5 * Math.sin(t / 170); }
+      ctx.stroke(); ctx.shadowBlur = 0; ctx.setLineDash([]);
+      if (danger && !m.region) { ctx.fillStyle = `rgba(${COL.mg},.85)`; ctx.font = `bold ${Math.round(size * 0.34)}px ui-monospace,Menlo,monospace`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('!', x, y + size * 0.48); }
+    }
+    // lancer sights
+    for (const e of run.enemies) if (e.type === 'lancer' && e.aim >= 0) {
+      const hs = beam(e, e.aim); if (!hs.length) continue;
+      const [x0, y0] = lerpPos(anim[e.id], e.q, e.r, t), [x1, y1] = px(...P(hs[hs.length - 1]));
+      ctx.strokeStyle = `rgba(${COL.mg},${0.45 + 0.3 * Math.sin(t / 110)})`; ctx.lineWidth = 2; ctx.setLineDash([5, 6]);
+      ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke(); ctx.setLineDash([]);
+    }
+    // pickups
+    for (const k in run.pickups) {
+      const [x, y] = px(...P(k)), b = Math.sin(t / 300 + x) * size * 0.04;
+      if (run.pickups[k] === 'shard') {
+        const s = size * 0.2; ctx.beginPath(); ctx.moveTo(x, y - s * 1.3 + b); ctx.lineTo(x + s, y + b); ctx.lineTo(x, y + s * 1.3 + b); ctx.lineTo(x - s, y + b); ctx.closePath();
+        ctx.fillStyle = '#ffb23d'; ctx.shadowColor = '#ffb23d'; ctx.shadowBlur = 8; ctx.fill(); ctx.shadowBlur = 0;
+      } else { ctx.fillStyle = '#5dffa0'; ctx.font = `${Math.round(size * 0.55)}px ui-monospace,Menlo,monospace`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('♥', x, y + b); }
+    }
+    // spawn warnings
+    for (const s of run.spawns) {
+      const [x, y] = px(s.q, s.r); ctx.save(); ctx.translate(x, y); ctx.rotate(t / 600);
+      ctx.strokeStyle = `rgba(${COL.mg},${0.5 + 0.3 * Math.sin(t / 120)})`; ctx.lineWidth = 1.6; ctx.setLineDash([3, 4]);
+      ctx.beginPath(); ctx.arc(0, 0, size * 0.42, 0, 7); ctx.stroke(); ctx.setLineDash([]); ctx.restore();
+    }
+    for (const e of run.enemies) drawEnemy(e, t);
+    drawPlayer(t);
+    drawFx(t);
+  }
+  function drawEnemy(e, t) {
+    const [x, y] = lerpPos(anim[e.id], e.q, e.r, t), s = size;
+    ctx.save(); ctx.translate(x, y);
+    ctx.shadowColor = '#ff3d7f'; ctx.shadowBlur = 10;
+    if (e.type === 'drone') {
+      ctx.fillStyle = '#ff3d7f'; ctx.beginPath(); ctx.arc(0, 0, s * 0.32, 0, 7); ctx.fill();
+      ctx.shadowBlur = 0; ctx.fillStyle = '#0b0d12'; ctx.beginPath(); ctx.arc(0, 0, s * 0.12, 0, 7); ctx.fill();
+      if (e.tg) { const [tx, ty] = px(...P(e.tg)), a = Math.atan2(ty - y, tx - x); ctx.rotate(a); ctx.fillStyle = '#ff3d7f'; ctx.beginPath(); ctx.moveTo(s * 0.66, 0); ctx.lineTo(s * 0.4, s * 0.2); ctx.lineTo(s * 0.4, -s * 0.2); ctx.closePath(); ctx.fill(); }
+    } else if (e.type === 'brute') {
+      const rest = e.cd > 0; ctx.beginPath(); const rr = s * 0.4; ctx.rect(-rr * 0.8, -rr * 0.8, rr * 1.6, rr * 1.6);
+      ctx.lineWidth = 3; ctx.strokeStyle = '#ff3d7f'; ctx.stroke(); if (!rest) { ctx.fillStyle = '#ff3d7f'; ctx.fill(); }
+      ctx.shadowBlur = 0; ctx.fillStyle = rest ? '#ff3d7f' : '#0b0d12'; ctx.fillRect(-s * 0.09, -s * 0.09, s * 0.18, s * 0.18);
+    } else if (e.type === 'lancer') {
+      let ang;
+      if (e.aim >= 0) { const [dq, dr] = DIRS[e.aim]; ang = Math.atan2(1.5 * dr, SQ3 * (dq + dr / 2)); }
+      else { const [px_, py_] = px(...run.player); ang = Math.atan2(py_ - y, px_ - x); }
+      ctx.rotate(ang); ctx.beginPath(); ctx.moveTo(s * 0.42, 0); ctx.lineTo(-s * 0.28, s * 0.3); ctx.lineTo(-s * 0.16, 0); ctx.lineTo(-s * 0.28, -s * 0.3); ctx.closePath();
+      ctx.fillStyle = e.aim >= 0 ? '#ff3d7f' : `rgba(${COL.mg},.25)`; ctx.fill(); ctx.strokeStyle = '#ff3d7f'; ctx.lineWidth = 2; ctx.stroke();
+    } else if (e.type === 'eater') {
+      const mo = 0.25 + 0.35 * Math.abs(Math.sin(t / 160)), a = anim[e.id] ? Math.atan2(y - px(anim[e.id].fq, anim[e.id].fr)[1], x - px(anim[e.id].fq, anim[e.id].fr)[0]) : 0;
+      ctx.rotate(a); ctx.fillStyle = '#ff3d7f'; ctx.beginPath(); ctx.moveTo(0, 0); ctx.arc(0, 0, s * 0.34, mo, Math.PI * 2 - mo); ctx.closePath(); ctx.fill();
+    } else if (e.type === 'hive') {
+      hexPath(0, 0, s * 0.7); ctx.fillStyle = `rgba(${COL.mg},.16)`; ctx.fill(); ctx.strokeStyle = '#ff3d7f'; ctx.lineWidth = 2.5; ctx.stroke();
+      const p = 1 + 0.08 * Math.sin(t / 200); hexPath(0, 0, s * 0.32 * p); ctx.fillStyle = '#ff3d7f'; ctx.fill();
+      ctx.shadowBlur = 0; ctx.fillStyle = '#0b0d12'; ctx.font = `bold ${Math.round(s * 0.34)}px ui-monospace,Menlo,monospace`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(e.hp, 0, 1);
+    }
+    ctx.restore();
+  }
+  function drawPlayer(t) {
+    const [x, y] = lerpPos(pAnim, run.player[0], run.player[1], t);
+    const p = 1 + 0.06 * Math.sin(t / 260);
+    ctx.save(); ctx.shadowColor = '#3de8ff'; ctx.shadowBlur = 18;
+    ctx.fillStyle = '#3de8ff'; ctx.beginPath(); ctx.arc(x, y, size * 0.3 * p, 0, 7); ctx.fill();
+    ctx.shadowBlur = 0; ctx.fillStyle = '#e9fdff'; ctx.beginPath(); ctx.arc(x, y, size * 0.11, 0, 7); ctx.fill();
+    for (let i = 0; i < run.dash; i++) { ctx.fillStyle = '#3de8ff'; ctx.beginPath(); ctx.arc(x - size * 0.1 + i * size * 0.2, y - size * 0.5, size * 0.06, 0, 7); ctx.fill(); }
+    ctx.restore();
+  }
+  function drawFx(t) {
+    for (let i = fx.length - 1; i >= 0; i--) {
+      const f = fx[i], d = f.t === 'cap' ? 700 : f.t === 'beam' ? 380 : 480, k = (t - f.t0) / d;
+      if (k >= 1) { fx.splice(i, 1); continue; }
+      if (f.t === 'cap') {
+        for (const h of f.hs) { const [x, y] = px(...P(h)); hexPath(x, y, size * 0.93); ctx.fillStyle = `rgba(${COL.am},${0.55 * (1 - k)})`; ctx.fill(); }
+        for (const h of f.b) { const [x, y] = px(...P(h)); hexPath(x, y, size * 0.93); ctx.strokeStyle = `rgba(255,255,255,${0.8 * (1 - k)})`; ctx.lineWidth = 2; ctx.stroke(); }
+      } else if (f.t === 'burst' || f.t === 'spawn') {
+        const [x, y] = px(f.q, f.r), rad = f.t === 'spawn' ? size * (0.9 - 0.6 * k) : size * (0.3 + (f.big ? 1.6 : 0.8) * ease(k));
+        ctx.strokeStyle = `rgba(${COL.mg},${1 - k})`; ctx.lineWidth = f.big ? 4 : 2.5; ctx.beginPath(); ctx.arc(x, y, rad, 0, 7); ctx.stroke();
+      } else if (f.t === 'beam' && f.hs.length) {
+        const [x0, y0] = px(f.q, f.r), [x1, y1] = px(...P(f.hs[f.hs.length - 1]));
+        ctx.save(); ctx.strokeStyle = `rgba(${COL.mg},${1 - k})`; ctx.shadowColor = '#ff3d7f'; ctx.shadowBlur = 16; ctx.lineWidth = size * 0.22 * (1 - k) + 1;
+        ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke(); ctx.restore();
+      }
+    }
+    for (let i = floats.length - 1; i >= 0; i--) {
+      const f = floats[i], k = (t - f.t0) / 1100; if (k >= 1) { floats.splice(i, 1); continue; }
+      const [x, y] = px(f.q, f.r);
+      ctx.globalAlpha = 1 - k * k; ctx.fillStyle = f.color; ctx.font = `bold ${Math.round(size * (f.big ? 0.5 : 0.36))}px ui-monospace,Menlo,monospace`;
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(f.text, x, y - size * 0.5 - k * size * 0.9); ctx.globalAlpha = 1;
+    }
+  }
+  function drawIdle(t) {
+    for (const k of KEYS) {
+      const [q, r] = P(k), [x, y] = px(q, r), w = 0.5 + 0.5 * Math.sin(t / 700 - hd(q, r, 0, 0) * 0.9);
+      hexPath(x, y, size * 0.93); ctx.strokeStyle = `rgba(${COL.cy},${0.05 + 0.12 * w})`; ctx.lineWidth = 1; ctx.stroke();
+    }
+  }
+  function loop() { draw(); requestAnimationFrame(loop); }
+
+  // ---------- input
+  function act(m) { if (doMove(m)) { refresh(); save(); } }
+  cv.addEventListener('pointerdown', ev => {
+    if (!run || run.phase !== 'play' || !ov.classList.contains('hidden')) return;
+    const b = cv.getBoundingClientRect(), h = pix2hex(ev.clientX - b.left, ev.clientY - b.top); if (!h) return;
+    const k = K(h[0], h[1]);
+    if (k === pk()) { act({ q: h[0], r: h[1] }); return; }
+    const m = ui.moves.find(m => K(m.q, m.r) === k);
+    if (m) act(m);
+    else if (occ().has(k)) { const e = occ().get(k); toast(ENEMY_INFO[e.type], 2400); }
+  });
+  cv.addEventListener('pointermove', ev => { if (ev.pointerType !== 'mouse') return; const b = cv.getBoundingClientRect(), h = pix2hex(ev.clientX - b.left, ev.clientY - b.top); ui.hover = h ? K(h[0], h[1]) : null; });
+  cv.addEventListener('pointerleave', () => { ui.hover = null; });
+  $('waitBtn').onclick = () => { if (run && run.phase === 'play') act({ q: run.player[0], r: run.player[1] }); };
+  $('menuBtn').onclick = () => { hooks.sfx('ui'); showMenu(); };
+  $('mods').onclick = ev => { const b = ev.target.closest('[data-mod]'); if (b) { const m = MODS[b.dataset.mod]; toast(m.n + ' — ' + m.d, 2600); } };
+  const KEYDIR = { d: 0, e: 1, q: 2, a: 3, z: 4, c: 5 };
+  addEventListener('keydown', ev => {
+    if (ev.target && ev.target.tagName === 'TEXTAREA') return;
+    const k = ev.key.toLowerCase();
+    if (k === 'escape') { if (ov.classList.contains('hidden')) { if (run && run.phase === 'play') showMenu(); } else if (run && run.phase === 'play' && ov.dataset.screen !== 'title') hideOv(); return; }
+    if (!ov.classList.contains('hidden') || !run || run.phase !== 'play') return;
+    const [pq, pr] = run.player;
+    if (k in KEYDIR) { const [dq, dr] = DIRS[KEYDIR[k]], n = ev.shiftKey ? 2 : 1, m = ui.moves.find(m => m.q === pq + dq * n && m.r === pr + dr * n); if (m) act(m); ev.preventDefault(); }
+    else if (k === 's' || k === ' ') { act({ q: pq, r: pr }); ev.preventDefault(); }
+  });
+  const ENEMY_INFO = {
+    drone: 'DRONE — lunges at the hex its arrow points to. Keep moving. Cannot cross your trail.',
+    brute: 'BRUTE — hurts every hex around it. Moves every other turn (hollow = resting).',
+    lancer: 'LANCER — lines up with you, then fires down the dashed line. Burns trail.',
+    eater: 'EATER — harmless, but eats your trail.',
+    hive: 'HIVE — boss. Each loop around it deals 1 damage. Spawns enemies.',
+  };
+
+  // ---------- screens
+  function showOv(html, screen) { ov.innerHTML = '<div class="card">' + html + '</div>'; ov.dataset.screen = screen || ''; ov.classList.remove('hidden'); }
+  function hideOv() { ov.classList.add('hidden'); ov.dataset.screen = ''; }
+  const fmt = n => n.toLocaleString();
+  const liveRun = () => run && (run.phase === 'play' || run.phase === 'pick');
+  function showTitle() {
+    const d = meta.daily, today = todayStr(), dDone = d && d.date === today && d.done, dLive = liveRun() && run.daily && run.date === today;
+    showOv(`<div class="title">HEXLOOP</div><div class="tag">CLOSE THE LOOP</div>
+      ${liveRun() ? `<button class="btn pri" data-act="continue">CONTINUE · SECTOR ${run.sector}${run.daily ? ' · DAILY' : ''}</button>` : ''}
+      <button class="btn ${liveRun() ? '' : 'pri'}" data-act="new">NEW RUN · ${coreOf(meta.core).n}</button>
+      ${dDone ? `<button class="btn am" data-act="share">DAILY ✓ ${fmt(d.score)} · SHARE</button>` : dLive ? '' : `<button class="btn am" data-act="daily">DAILY RUN · ${today.slice(5)}</button>`}
+      <div class="row"><button class="btn" data-act="cores">CORES ◆${meta.shards}</button><button class="btn" data-act="help">HOW TO</button></div>
+      <button class="btn" data-act="settings">SETTINGS</button>
+      <div class="foot">BEST ${fmt(meta.best)} · SECTOR ${meta.bestSector}/${FINAL} · RUNS ${meta.runs}</div>`, 'title');
+  }
+  function showMenu() {
+    if (!run) return showTitle();
+    showOv(`<h2>PAUSED</h2>
+      <button class="btn pri" data-act="resume">RESUME</button>
+      <button class="btn" data-act="help">HOW TO PLAY</button>
+      <button class="btn" data-act="mute">SOUND: ${meta.muted ? 'OFF' : 'ON'}</button>
+      <button class="btn" data-act="title">MAIN MENU</button>
+      <button class="btn mg" data-act="abandon">ABANDON RUN</button>
+      <div class="foot">Progress is saved after every move.</div>`, 'menu');
+  }
+  function showHelp(next) {
+    showOv(`<h2>HOW TO PLAY</h2><div class="help">
+      <p><span class="k">Tap a hex next to you</span> to move. Keys: <span class="k">Q E A D Z C</span>, <span class="k">S</span> to wait, Shift to dash.</p>
+      <p>You leave a <span class="cy">cyan trail</span> that fades after a few turns. Enemies can't cross it.</p>
+      <p><span class="am">Cut off a pocket of the board</span> with your trail. Walls and the board edge count too. Everything inside is destroyed. An <span class="am">amber</span> outline means that move closes a loop.</p>
+      <p><span class="mg">Red hexes hurt.</span> End your move on one and you lose 1 HP. Loops resolve first, so closing a loop on a red hex is safe if it kills the attacker.</p>
+      <p><span class="mg">●</span> Drone lunges where its arrow points · <span class="mg">■</span> Brute hurts all hexes around it, moves every other turn · <span class="mg">▲</span> Lancer fires down its dashed line · <span class="mg">◐</span> Eater eats your trail · <span class="mg">⬡</span> Hive boss, loop it repeatedly.</p>
+      <p>Clear a sector to pick a mod. Collect <span class="am">◆ shards</span> to unlock new cores. Beat sector ${FINAL} to win.</p></div>
+      <button class="btn pri" data-act="${next || 'back'}">GOT IT</button>`, 'help');
+  }
+  function showCores() {
+    const list = CORES.map(c => {
+      const own = meta.unlocked.includes(c.id), sel = meta.core === c.id;
+      const b = sel ? `<button class="btn" disabled>SELECTED</button>` : own ? `<button class="btn pri" data-act="pickcore" data-arg="${c.id}">SELECT</button>`
+        : `<button class="btn am" data-act="buycore" data-arg="${c.id}" ${meta.shards < c.cost ? 'disabled' : ''}>UNLOCK ◆${c.cost}</button>`;
+      return `<div class="core ${sel ? 'sel' : ''}"><b>${c.n}</b><small>${c.d}</small>${b}</div>`;
+    }).join('');
+    showOv(`<h2>CORES · <span class="am">◆${meta.shards}</span></h2>${list}<button class="btn" data-act="title">BACK</button>`, 'cores');
+  }
+  function showSettings(msg) {
+    showOv(`<h2>SETTINGS</h2>
+      <button class="btn" data-act="mute">SOUND: ${meta.muted ? 'OFF' : 'ON'}</button>
+      <div class="foot" style="text-align:left;margin-top:14px">MOVE SAVE TO ANOTHER DEVICE</div>
+      <textarea id="saveTxt" placeholder="Paste a save code here, then tap IMPORT"></textarea>
+      <div class="row"><button class="btn" data-act="export">EXPORT</button><button class="btn" data-act="import">IMPORT</button></div>
+      ${msg ? `<div class="foot am">${msg}</div>` : ''}
+      <button class="btn mg" data-act="reset">RESET ALL PROGRESS</button>
+      <button class="btn" data-act="title">BACK</button>`, 'settings');
+  }
+  function showPick() {
+    if (!run || run.phase !== 'pick') return;
+    const cards = run.choices.map(id => `<button class="mod" data-act="choose" data-arg="${id}"><span class="mi">${MODS[id].i}</span><span><b>${MODS[id].n}${run.mods[id] ? ' +' : ''}</b><small>${MODS[id].d}</small></span></button>`).join('');
+    showOv(`<div class="kick">SECTOR ${run.sector} CLEAR · +${run.boss ? 5 : 2}◆</div><h2>CHOOSE A MOD</h2>${cards}
+      ${run.hp < run.maxHp ? `<button class="btn gr" style="border-color:var(--gr);color:var(--gr)" data-act="choose" data-arg="repair">OR REPAIR · +1 HP</button>` : ''}
+      <div class="foot">NEXT: ${(run.sector + 1) % 4 === 0 ? '<span class="mg">BOSS — THE HIVE</span>' : 'SECTOR ' + (run.sector + 1)}</div>`, 'pick');
+  }
+  function showOver(won) {
+    if (!run) return;
+    const r = run;
+    showOv(`<div class="kick" style="text-align:center;color:${won ? 'var(--am)' : 'var(--mg)'}">${won ? 'ALL SECTORS CLEAR' : 'SIGNAL LOST'}</div>
+      <div class="big">${fmt(r.score)}</div>${r.newBest ? '<div class="foot am" style="margin:0">NEW BEST</div>' : ''}
+      <div class="emo">${r.log.join('')}</div>
+      <div class="stat"><span>SECTOR</span><span>${r.sector}/${FINAL}</span></div>
+      <div class="stat"><span>DESTROYED</span><span>${r.kills}</span></div>
+      <div class="stat"><span>SHARDS</span><span class="am">+${r.shardsRun} ◆ (${meta.shards})</span></div>
+      ${r.daily ? '<button class="btn am" data-act="share">SHARE DAILY</button>' : `<button class="btn pri" data-act="again">RUN AGAIN</button>`}
+      <button class="btn" data-act="title">MENU</button>`, 'over');
+  }
+  function startRun(daily) {
+    newRun(daily); refresh(); save(); hideOv();
+    if (!meta.seenHelp) { meta.seenHelp = true; save(); showHelp('back'); }
+    else toast(daily ? 'DAILY RUN · same board for everyone today' : 'SECTOR 1 · cut off the drones');
+  }
+  function confirmAbandon(then) {
+    showOv(`<h2>ABANDON RUN?</h2><div class="help"><p>Your current run (sector ${run.sector}, ${fmt(run.score)} pts) will end.${run.daily ? ' This is your daily attempt.' : ''}</p></div>
+      <button class="btn mg" data-act="${then}">ABANDON</button><button class="btn" data-act="title">BACK</button>`, 'confirm');
+  }
+  function abandon() { if (liveRun()) { endRunQuiet(); } }
+  function endRunQuiet() {
+    run.log.push('🟥');
+    if (run.daily && meta.daily && meta.daily.date === run.date && !meta.daily.done) Object.assign(meta.daily, { score: run.score, sector: run.sector, done: true, log: run.log.slice() });
+    if (run.score > meta.best) meta.best = run.score;
+    meta.bestSector = Math.max(meta.bestSector, run.sector);
+    run = null; wallSet = new Set(); save(); refresh();
+  }
+  function share() {
+    const d = meta.daily; if (!d) return;
+    const txt = `HEXLOOP Daily ${d.date}\n${(d.log || []).join('')}\nSector ${d.sector} · ${fmt(d.score)} pts`;
+    const copy = () => { try { navigator.clipboard.writeText(txt).then(() => toast('Result copied'), () => toast(txt, 4000)); } catch (_) { toast(txt, 4000); } };
+    if (navigator.share) navigator.share({ text: txt }).catch(copy); else copy();
+  }
+  function exportSave() {
+    const code = 'HXL1.' + btoa(unescape(encodeURIComponent(JSON.stringify({ meta, run }))));
+    const ta = $('saveTxt'); ta.value = code; ta.select();
+    try { navigator.clipboard.writeText(code).then(() => toast('Save code copied'), () => toast('Code selected — copy it manually')); } catch (_) {}
+  }
+  function importSave() {
+    const raw = ($('saveTxt').value || '').trim();
+    try {
+      const o = JSON.parse(decodeURIComponent(escape(atob(raw.replace(/^HXL1\./, '')))));
+      if (!o || !o.meta) throw 0;
+      meta = Object.assign(defMeta(), o.meta); run = o.run && (o.run.phase === 'play' || o.run.phase === 'pick') ? o.run : null;
+      wallSet = new Set(run ? run.walls : []); save(); refresh(); showSettings('Save imported.');
+    } catch (_) { showSettings('That code is not a valid save.'); }
+  }
+  let resetArm = false;
+  ov.addEventListener('click', ev => {
+    const b = ev.target.closest('[data-act]'); if (!b) return;
+    const a = b.dataset.act, arg = b.dataset.arg; hooks.sfx('ui');
+    switch (a) {
+      case 'continue': case 'resume': case 'back':
+        if (run && run.phase === 'pick') showPick(); else if (liveRun()) hideOv(); else showTitle(); break;
+      case 'new': if (liveRun()) confirmAbandon('newgo'); else startRun(false); break;
+      case 'newgo': abandon(); startRun(false); break;
+      case 'daily': if (liveRun()) confirmAbandon('dailygo'); else startRun(true); break;
+      case 'dailygo': abandon(); startRun(true); break;
+      case 'again': run = null; startRun(false); break;
+      case 'share': share(); break;
+      case 'cores': showCores(); break;
+      case 'pickcore': meta.core = arg; save(); showCores(); break;
+      case 'buycore': { const c = coreOf(arg); if (meta.shards >= c.cost && !meta.unlocked.includes(arg)) { meta.shards -= c.cost; meta.unlocked.push(arg); meta.core = arg; save(); toast(c.n + ' unlocked'); } showCores(); break; }
+      case 'help': showHelp(ov.dataset.screen === 'menu' ? 'resume' : 'title'); break;
+      case 'settings': resetArm = false; showSettings(); break;
+      case 'mute': meta.muted = !meta.muted; save(); ov.dataset.screen === 'menu' ? showMenu() : showSettings(); break;
+      case 'export': exportSave(); break;
+      case 'import': importSave(); break;
+      case 'reset':
+        if (!resetArm) { resetArm = true; b.textContent = 'TAP AGAIN TO ERASE EVERYTHING'; break; }
+        meta = defMeta(); run = null; wallSet = new Set(); save(); refresh(); resetArm = false; showTitle(); break;
+      case 'title': if (run && !liveRun()) { run = null; wallSet = new Set(); refresh(); } showTitle(); break;
+      case 'abandon': confirmAbandon('abandongo'); break;
+      case 'abandongo': abandon(); showTitle(); break;
+      case 'choose': chooseMod(arg); refresh(); save(); hideOv(); toast(run.boss ? 'BOSS · loop the Hive to damage it' : 'SECTOR ' + run.sector); break;
+    }
+  });
+
+  // ---------- boot
+  load();
+  addEventListener('resize', layout);
+  document.addEventListener('visibilitychange', () => { if (document.hidden) save(); });
+  layout(); refresh(); showTitle(); loop();
+})();
+</script>
+</body>
+</html>

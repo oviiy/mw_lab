@@ -1,0 +1,90 @@
+{
+  "accession": "0001193125-25-100802",
+  "is_new_debt": true,
+  "doc_kind": "pricing_term_sheet",
+  "skip_reason": null,
+  "trade_date": "2025-04-28",
+  "settlement_date": "2025-05-01",
+  "tranches": [
+    {
+      "name": "4.000% Notes due 2030",
+      "instrument_type": "senior_notes",
+      "currency": "USD",
+      "amount": 750000000,
+      "coupon_pct": 4.0,
+      "floating_spread_bp": null,
+      "maturity_date": "2030-05-15",
+      "price_pct": 99.417,
+      "ytm_pct": 4.129,
+      "spread_bp": 32,
+      "benchmark": "U.S. Treasury 3.875% due April 30, 2030",
+      "benchmark_yield_pct": 3.809,
+      "cusip": "02079K AK3",
+      "isin": "US02079KAK34",
+      "secured_by": null,
+      "quote": "2030 Notes: $750,000,000"
+    },
+    {
+      "name": "4.500% Notes due 2035",
+      "instrument_type": "senior_notes",
+      "currency": "USD",
+      "amount": 1250000000,
+      "coupon_pct": 4.5,
+      "floating_spread_bp": null,
+      "maturity_date": "2035-05-15",
+      "price_pct": 98.585,
+      "ytm_pct": 4.678,
+      "spread_bp": 47,
+      "benchmark": "U.S. Treasury 4.625% due February 15, 2035",
+      "benchmark_yield_pct": 4.208,
+      "cusip": "02079K AL1",
+      "isin": "US02079KAL17",
+      "secured_by": null,
+      "quote": "2035 Notes:\n$1,250,000,000"
+    },
+    {
+      "name": "5.250% Notes due 2055",
+      "instrument_type": "senior_notes",
+      "currency": "USD",
+      "amount": 1500000000,
+      "coupon_pct": 5.25,
+      "floating_spread_bp": null,
+      "maturity_date": "2055-05-15",
+      "price_pct": 99.042,
+      "ytm_pct": 5.314,
+      "spread_bp": 62,
+      "benchmark": "U.S. Treasury 4.500% due November 15, 2054",
+      "benchmark_yield_pct": 4.694,
+      "cusip": "02079K AM9",
+      "isin": "US02079KAM99",
+      "secured_by": null,
+      "quote": "2055 Notes: $1,500,000,000"
+    },
+    {
+      "name": "5.300% Notes due 2065",
+      "instrument_type": "senior_notes",
+      "currency": "USD",
+      "amount": 1500000000,
+      "coupon_pct": 5.3,
+      "floating_spread_bp": null,
+      "maturity_date": "2065-05-15",
+      "price_pct": 98.461,
+      "ytm_pct": 5.394,
+      "spread_bp": 70,
+      "benchmark": "U.S. Treasury 4.500% due November 15, 2054",
+      "benchmark_yield_pct": 4.694,
+      "cusip": "02079K AN7",
+      "isin": "US02079KAN72",
+      "secured_by": null,
+      "quote": "2065 Notes:\n$1,500,000,000"
+    }
+  ],
+  "proceeds": {
+    "ai_flag": "general",
+    "quote": "We estimate the net proceeds from the sale of the notes will be approximately $4.9 billion in the aggregate, after deducting underwriting discounts and\nestimated offering expenses payable by us. We intend to use the net proceeds from these sales, together with the proceeds from the Concurrent Euro Notes Offering, for general corporate purposes, which may include the repayment of outstanding debt."
+  },
+  "_meta": {
+    "bundle_hash": "3182c84612337401",
+    "extractor": "claude-sonnet-5-5 via Claude Code agents, 2026-10-14"
+  }
+}

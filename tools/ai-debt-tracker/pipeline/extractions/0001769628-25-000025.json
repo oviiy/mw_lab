@@ -1,0 +1,36 @@
+{
+  "accession": "0001769628-25-000025",
+  "is_new_debt": true,
+  "doc_kind": "closing_8k",
+  "skip_reason": null,
+  "trade_date": "2025-05-27",
+  "settlement_date": "2025-05-27",
+  "tranches": [
+    {
+      "name": "9.250% Senior Notes due 2030",
+      "instrument_type": "senior_notes",
+      "currency": "USD",
+      "amount": 2000000000,
+      "coupon_pct": 9.25,
+      "floating_spread_bp": null,
+      "maturity_date": "2030-06-01",
+      "price_pct": null,
+      "ytm_pct": null,
+      "spread_bp": null,
+      "benchmark": null,
+      "benchmark_yield_pct": null,
+      "cusip": null,
+      "isin": null,
+      "secured_by": null,
+      "quote": "issued $2,000 million in aggregate principal amount of 9.250% Senior Notes due 2030 (the “Notes”)."
+    }
+  ],
+  "proceeds": {
+    "ai_flag": "general",
+    "quote": "The Company intends to use the proceeds from the offering of the Notes for general corporate purposes, including, without limitation, repayment of outstanding indebtedness, and to pay fees, costs and expenses in connection with the offering of the Notes."
+  },
+  "_meta": {
+    "bundle_hash": "3619fe5d333a2a3a",
+    "extractor": "claude-sonnet-5-5 via Claude Code agents, 2026-10-14"
+  }
+}

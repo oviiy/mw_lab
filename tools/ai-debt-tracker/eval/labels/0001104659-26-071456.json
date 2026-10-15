@@ -1,0 +1,12 @@
+{
+  "accession": "0001104659-26-071456",
+  "is_new_debt": true,
+  "tranches": [
+    {"currency": "CAD", "amount": 1250000000, "maturity_date": "2029-06-12", "coupon_pct": 3.4, "spread_bp": 43.4},
+    {"currency": "CAD", "amount": 2500000000, "maturity_date": "2031-06-12", "coupon_pct": 3.7, "spread_bp": 50.2},
+    {"currency": "CAD", "amount": 2000000000, "maturity_date": "2033-06-12", "coupon_pct": 4.0, "spread_bp": 65.2},
+    {"currency": "CAD", "amount": 3500000000, "maturity_date": "2036-06-12", "coupon_pct": 4.35, "spread_bp": 80.1},
+    {"currency": "CAD", "amount": 4750000000, "maturity_date": "2056-06-12", "coupon_pct": 5.0, "spread_bp": 110}
+  ],
+  "notes": "Amazon.com CAD (Maple) notes, 5 tranches totaling CAD 14.0bn. spread_bp uses the re-offer spread vs the stated Benchmark Bond (includes curve adjustment); GoC Curve spreads are 40/50/65/80 bps for 2029-2036 (2056 quoted only vs Benchmark Bond, +110)."
+}

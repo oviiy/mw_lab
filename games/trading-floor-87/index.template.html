@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+<title>Open Outcry — Black Monday 1987</title>
+<meta name="description" content="Open Outcry: traders shout deals at you in the S&P futures pit on Black Monday. Take the good ones, keep your book small, survive the crash. One HTML file, everything procedural." />
+<meta name="theme-color" content="#0c0a08" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%230c0a08'/%3E%3Cpath d='M8 14 L22 26 L32 20 L44 40 L56 52' stroke='%23ff3b2f' stroke-width='6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E" />
+<style>
+
+:root{--ink:#0c0a08;--paper:#f3ecd6;--paper2:#e9dfc0;--amber:#ffb52e;--amber2:#9c7a3c;--red:#ff3b2f;--green:#3dff6e;--blue:#1b2a6b;--mono:"Courier New",Courier,monospace;--hand:"Bradley Hand","Comic Sans MS",cursive;--ui:-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color-scheme:dark;}
+*{box-sizing:border-box;}
+[hidden]{display:none !important;}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--ink);color:#fff;font-family:var(--ui);-webkit-font-smoothing:antialiased;user-select:none;-webkit-user-select:none;}
+#app,#app canvas{position:fixed;inset:0;width:100%;height:100%;display:block;}
+#hud{position:fixed;inset:0;pointer-events:none;}
+body:not(.playing) #hud{opacity:0;}
+#vignette{position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,transparent 45%,rgba(160,0,0,.55) 100%);opacity:0;transition:opacity .3s;}
+
+body.playing #app canvas{cursor:crosshair;}
+/* Clock */
+#clock{position:absolute;right:18px;top:142px;width:260px;box-sizing:border-box;text-align:center;background:rgba(5,4,3,.82);border:1px solid #2a2218;padding:6px 18px 8px;border-radius:4px;min-width:250px;}
+#clock .time{font:700 30px var(--mono);color:var(--amber);letter-spacing:.04em;text-shadow:0 0 12px rgba(255,181,46,.45);}
+#clock .phase{font:700 12px var(--mono);color:var(--amber2);letter-spacing:.2em;}
+#clock .px{font:700 20px var(--mono);margin-top:2px;}
+#timebar{height:3px;background:#2a2218;margin-top:5px;} #timebar i{display:block;height:100%;background:var(--amber);}
+#spark{position:absolute;right:18px;top:16px;width:260px;height:116px;background:rgba(5,4,3,.82);border:1px solid #2a2218;border-radius:4px;}
+/* Cash */
+#cashbox{position:absolute;left:18px;top:16px;background:rgba(5,4,3,.82);border:1px solid #2a2218;border-radius:4px;padding:8px 16px 10px;}
+#cashbox .lbl{font:700 11px var(--mono);letter-spacing:.2em;color:var(--amber2);}
+#cash{font:900 38px var(--mono);letter-spacing:-.01em;}
+#cash.up{color:var(--green);} #cash.dn{color:var(--red);}
+#cash-sub{font:11px var(--mono);color:#8a7a60;max-width:300px;line-height:1.4;}
+/* Tube + heat */
+#tube{position:absolute;left:24px;top:50%;transform:translateY(-50%);display:flex;gap:10px;align-items:center;}
+#tube-cells{display:flex;flex-direction:column;gap:3px;padding:6px;background:rgba(5,4,3,.82);border:1px solid #3a3024;border-radius:20px;}
+#tube-cells i{display:block;width:34px;height:20px;border-radius:5px;background:#1d1812;transition:background .15s;}
+#tube-cells i.mid{height:6px;background:#5a4a30;}
+#tube-cells i.long{background:var(--green);box-shadow:0 0 10px rgba(61,255,110,.5);}
+#tube-cells i.short{background:var(--red);box-shadow:0 0 10px rgba(255,59,47,.5);}
+#tube-info{font-family:var(--mono);width:170px;background:rgba(5,4,3,.82);border:1px solid #2a2218;border-radius:6px;padding:10px 12px;}
+#tube-lbl{font:900 22px var(--mono);}
+#tube-pnl{font:700 18px var(--mono);margin-top:2px;}
+#tube-avg{font:12px var(--mono);color:#8a7a60;}
+#heat{margin-top:14px;}
+#heat .lbl{font:700 10px var(--mono);letter-spacing:.16em;color:var(--amber2);}
+#heat .bar{width:150px;height:10px;background:#1d1812;border-radius:5px;overflow:hidden;margin-top:3px;}
+#heat-fill{display:block;height:100%;width:0%;}
+#heat.hot .lbl{color:var(--red);animation:blink .4s steps(2) infinite;}
+@keyframes blink{50%{opacity:.3}}
+#heat .help{font:11px var(--ui);color:#8a7a60;margin-top:3px;line-height:1.3;}
+/* Deal bubbles */
+#deals{position:fixed;inset:0;pointer-events:none;}
+.deal{position:absolute;left:0;top:0;pointer-events:auto;cursor:pointer;border:none;border-radius:10px;padding:8px 14px 9px;min-width:150px;font-family:var(--mono);color:#fff;text-align:center;box-shadow:0 8px 22px rgba(0,0,0,.55);transition:filter .1s, opacity .18s;animation:pop .22s ease-out;}
+.deal::after{content:"";position:absolute;left:50%;bottom:-8px;margin-left:-8px;border:8px solid transparent;border-bottom:0;border-top-color:inherit;}
+.deal.buy{background:#1f8f43;border-top-color:#1f8f43;} .deal.sell{background:#b8261c;border-top-color:#b8261c;}
+.deal.bad{filter:saturate(.25) brightness(.75);}
+.deal.good{outline:3px solid #ffd23a;outline-offset:2px;}
+.deal:hover{filter:brightness(1.2);} .deal.bad:hover{filter:saturate(.45) brightness(.95);}
+.deal b{display:block;font:900 20px var(--mono);letter-spacing:.04em;}
+.deal .px{display:block;font:700 18px var(--mono);}
+.deal .edge{display:block;font:700 11px var(--mono);letter-spacing:.06em;margin-top:2px;opacity:.95;}
+.deal.good .edge{color:#ffe680;}
+.deal .ring{position:absolute;left:8px;right:8px;bottom:4px;height:3px;border-radius:2px;background:linear-gradient(90deg,#fff calc(var(--t)*100%),rgba(255,255,255,.15) 0);}
+.deal.hurry .ring{background:linear-gradient(90deg,#ffd23a calc(var(--t)*100%),rgba(255,255,255,.15) 0);}
+.deal.gone{opacity:0;}
+@keyframes pop{from{scale:.6}}
+#floats{position:fixed;inset:0;pointer-events:none;}
+.float{position:absolute;transform:translate(-50%,-50%);font:900 24px var(--mono);text-shadow:0 2px 0 #000,0 0 14px rgba(0,0,0,.9);animation:rise 1.4s ease-out forwards;white-space:nowrap;}
+.float.big{font-size:38px;}
+@keyframes rise{0%{opacity:1;transform:translate(-50%,-30%) scale(1.2)}75%{opacity:1}100%{opacity:0;transform:translate(-50%,-220%)}}
+#prompt{position:absolute;left:50%;bottom:92px;transform:translateX(-50%);width:560px;max-width:92vw;background:rgba(12,10,8,.95);border:2px solid var(--amber);border-radius:8px;padding:12px 18px;font:16px/1.5 var(--ui);color:#eee;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.6);}
+#prompt b{color:var(--amber);} #prompt .g{color:var(--green);font-weight:700;} #prompt .r{color:#ff6a5a;font-weight:700;}
+#hintline{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);font:700 12px var(--mono);letter-spacing:.08em;color:#c9b48a;background:rgba(5,4,3,.7);padding:6px 14px;border-radius:4px;white-space:nowrap;}
+#hintline b{color:var(--amber);}
+#banner{position:absolute;left:50%;top:30%;transform:translate(-50%,-50%);background:rgba(5,4,3,.72);padding:10px 26px 12px;border-radius:6px;font:900 40px "Arial Black",Impact,sans-serif;letter-spacing:.06em;text-align:center;text-shadow:0 4px 0 #000;opacity:0;transition:opacity .35s;white-space:nowrap;pointer-events:none;}
+#banner small{display:block;font:700 16px var(--mono);letter-spacing:.2em;margin-top:6px;color:var(--amber);}
+#banner.show{opacity:1;} #banner.red{color:var(--red);} #banner.amber{color:var(--amber);}
+/* Overlays */
+.overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 30%,rgba(30,22,12,.9),rgba(5,4,3,.97));z-index:10;overflow:auto;}
+.panel{max-width:820px;width:92%;padding:34px 40px;}
+.title{font:900 66px "Arial Black",Impact,sans-serif;letter-spacing:.02em;line-height:.95;color:var(--amber);text-shadow:0 0 30px rgba(255,181,46,.25);}
+.title span{color:var(--red);}
+.sub{font:700 15px var(--mono);color:var(--amber2);letter-spacing:.2em;margin:10px 0 18px;}
+.story{font:17px/1.55 Georgia,serif;color:#e8dcc0;max-width:660px;}
+.story b{color:#fff;}
+.rules{display:grid;grid-template-columns:auto 1fr;gap:10px 16px;margin:22px 0 26px;font:15px/1.4 var(--ui);color:#ddd;max-width:640px;}
+.rules .ic{font:900 15px var(--mono);padding:3px 10px;border-radius:5px;text-align:center;align-self:start;}
+.btn{pointer-events:auto;cursor:pointer;font:900 20px "Arial Black",Impact,sans-serif;letter-spacing:.08em;background:var(--amber);color:#111;border:none;padding:14px 30px;border-radius:4px;box-shadow:0 5px 0 #8a5a10;}
+.btn:hover{filter:brightness(1.08);} .btn:active{transform:translateY(3px);box-shadow:0 2px 0 #8a5a10;}
+.btn.ghost{background:transparent;color:var(--amber);box-shadow:inset 0 0 0 2px var(--amber);margin-left:10px;}
+.meta{font:12px var(--mono);color:#7a6a50;margin-top:16px;}
+#end .grade{font:900 120px "Arial Black",Impact,sans-serif;line-height:1;float:right;margin:-6px 0 0 20px;}
+#end .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0;}
+#end .stat{background:rgba(255,255,255,.04);border:1px solid #2a2218;padding:10px 12px;border-radius:4px;}
+#end .stat .k{font:700 10px var(--mono);letter-spacing:.16em;color:var(--amber2);}
+#end .stat .v{font:700 22px var(--mono);margin-top:3px;}
+#endchart{width:100%;height:220px;background:#050403;border:1px solid #2a2218;border-radius:4px;}
+
+/* Streak */
+#streakbox{position:absolute;left:50%;bottom:58px;transform:translateX(-50%);text-align:center;pointer-events:none;opacity:0;transition:opacity .25s, transform .25s;background:rgba(5,4,3,.8);border:1px solid #3a2a18;border-radius:10px;padding:8px 22px 10px;}
+#streakbox.on{opacity:1;}
+#streakbox.pump{animation:pump .35s ease-out;}
+@keyframes pump{0%{transform:translateX(-50%) scale(1.35)}100%{transform:translateX(-50%) scale(1)}}
+#streak-n{font:900 46px "Arial Black",Impact,sans-serif;line-height:1;color:#fff;text-shadow:0 3px 0 #000,0 0 22px rgba(255,140,40,.8);}
+#streak-n small{font-size:20px;letter-spacing:.06em;margin-left:4px;}
+#streak-tier{font:900 15px var(--mono);letter-spacing:.3em;margin-top:2px;}
+#streakbox.t1 #streak-tier{color:#ffb52e;} #streakbox.t2 #streak-tier{color:#ff6a2a;} #streakbox.t3 #streak-tier{color:#ff3bd2;text-shadow:0 0 12px #ff3bd2;}
+#streak-next{font:11px var(--mono);color:#c9b48a;margin-top:2px;}
+#streakbox .flames{height:6px;width:220px;margin:5px auto 0;border-radius:3px;background:linear-gradient(90deg,#ffb52e,#ff6a2a,#ff3bd2);box-shadow:0 0 14px rgba(255,106,42,.8);transform-origin:center;}
+/* Augments owned */
+#augs{position:absolute;left:18px;top:118px;display:flex;gap:6px;}
+#augs span{width:34px;height:34px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:18px;background:#15110c;border:2px solid #555;cursor:help;pointer-events:auto;}
+#augs span.silver{border-color:#c9d3dc;} #augs span.gold{border-color:#ffc94a;box-shadow:0 0 8px rgba(255,201,74,.5);} #augs span.prismatic{border-color:#d98bff;box-shadow:0 0 10px rgba(217,139,255,.7);}
+/* Augment picker */
+#augpick{position:fixed;inset:0;z-index:12;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(ellipse at center,rgba(20,14,8,.78),rgba(5,4,3,.94));}
+#augpick h2{margin:0;font:900 44px "Arial Black",Impact,sans-serif;color:var(--amber);letter-spacing:.04em;text-shadow:0 0 30px rgba(255,181,46,.35);}
+#augpick .sub{margin:6px 0 26px;}
+#augcards{display:flex;gap:22px;}
+.aug{width:250px;min-height:330px;border-radius:14px;padding:22px 18px;background:linear-gradient(170deg,#2a2218,#100c08);border:3px solid #555;cursor:pointer;text-align:center;color:#eee;font-family:var(--ui);transition:transform .15s, box-shadow .15s;animation:deal .45s cubic-bezier(.2,1.4,.4,1) backwards;position:relative;overflow:hidden;}
+.aug:nth-child(2){animation-delay:.08s} .aug:nth-child(3){animation-delay:.16s}
+@keyframes deal{from{transform:translateY(60px) rotate(-6deg) scale(.8);opacity:0}}
+.aug:hover{transform:translateY(-10px) scale(1.04);}
+.aug.silver{border-color:#c9d3dc;} .aug.silver:hover{box-shadow:0 0 30px rgba(201,211,220,.5);}
+.aug.gold{border-color:#ffc94a;background:linear-gradient(170deg,#3a2c12,#120c04);} .aug.gold:hover{box-shadow:0 0 36px rgba(255,201,74,.7);}
+.aug.prismatic{border-color:#d98bff;background:linear-gradient(170deg,#2c1838,#0c0610);} .aug.prismatic:hover{box-shadow:0 0 44px rgba(217,139,255,.85);}
+.aug.prismatic::before{content:"";position:absolute;inset:-50%;background:conic-gradient(from 0deg,transparent,rgba(217,139,255,.18),transparent,rgba(120,220,255,.15),transparent);animation:spin 6s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.aug > *{position:relative;}
+.aug .ico{font-size:64px;line-height:1.2;margin:8px 0 6px;filter:drop-shadow(0 4px 10px rgba(0,0,0,.6));}
+.aug .tier{font:700 11px var(--mono);letter-spacing:.3em;}
+.aug .nm{font:900 22px "Arial Black",Impact,sans-serif;letter-spacing:.02em;margin:10px 0 10px;}
+.aug .ds{font:15px/1.45 var(--ui);color:#d8cdb4;}
+.aug .key{position:absolute;left:0;right:0;bottom:12px;font:700 11px var(--mono);color:#8a7a60;}
+/* Celebrations */
+#flash{position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,rgba(255,210,58,.0),rgba(255,180,40,.35));opacity:0;}
+#flash.go{animation:flash .5s ease-out;}
+@keyframes flash{0%{opacity:1}100%{opacity:0}}
+.confetti{position:fixed;width:10px;height:6px;pointer-events:none;z-index:11;animation:conf 1.6s ease-in forwards;}
+@keyframes conf{to{transform:translate(var(--dx),110vh) rotate(var(--r));opacity:.8}}
+.deal .tape{position:absolute;top:-10px;right:-10px;background:#ffd23a;color:#111;font:900 12px var(--mono);border-radius:10px;padding:2px 6px;box-shadow:0 2px 6px rgba(0,0,0,.5);}
+#end .augrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;}
+#end .augrow span{font:13px var(--ui);padding:4px 10px;border-radius:12px;border:2px solid #555;}
+
+/* Teletype + Dow */
+#wire{position:absolute;left:0;right:0;top:0;height:28px;background:#0b0906;border-bottom:1px solid #3a2a18;display:flex;align-items:center;overflow:hidden;font:700 13px var(--mono);letter-spacing:.06em;z-index:2;}
+#wire .lbl{flex:none;background:var(--amber);color:#111;padding:0 10px;height:100%;display:flex;align-items:center;font-weight:900;}
+#wire .lbl.hot{background:var(--red);color:#fff;animation:blink .5s steps(2) infinite;}
+#wire-track{flex:1;overflow:hidden;white-space:nowrap;position:relative;height:100%;}
+#wire-text{position:absolute;left:0;top:0;line-height:28px;color:#ffd9a0;white-space:nowrap;will-change:transform;}
+#dowbox{flex:none;padding:0 14px;height:100%;display:flex;align-items:center;gap:10px;background:#140f0a;border-left:1px solid #3a2a18;}
+#dowbox .n{color:#eee;font-size:15px;} #dowbox .c{color:var(--red);font-size:15px;}
+body.playing #cashbox,body.playing #spark{top:40px;} body.playing #clock{top:166px;} body.playing #augs{top:142px;}
+/* Newspaper */
+#paper{position:fixed;inset:0;z-index:13;display:flex;align-items:center;justify-content:center;background:rgba(5,4,3,.88);cursor:pointer;}
+#paper .sheet{width:min(780px,92vw);background:#f1ead8;color:#1a1612;padding:26px 34px 22px;box-shadow:0 30px 80px rgba(0,0,0,.7);transform:rotate(-2deg);animation:paperin .9s cubic-bezier(.2,1.2,.4,1);font-family:Georgia,'Times New Roman',serif;background-image:radial-gradient(ellipse at 30% 20%,rgba(255,255,255,.5),transparent 60%),repeating-linear-gradient(0deg,rgba(0,0,0,.015) 0 2px,transparent 2px 4px);}
+@keyframes paperin{from{transform:rotate(-540deg) scale(.05);opacity:0}}
+#paper .mast{text-align:center;font:900 46px 'Old English Text MT','UnifrakturMaguntia',Georgia,serif;letter-spacing:.01em;border-bottom:3px double #1a1612;padding-bottom:4px;}
+#paper .dateline{display:flex;justify-content:space-between;font:700 11px Georgia,serif;letter-spacing:.1em;border-bottom:1px solid #1a1612;padding:4px 0;margin-bottom:10px;}
+#paper .head{font:900 54px/1 'Times New Roman',Georgia,serif;text-align:center;letter-spacing:-.01em;margin:10px 0 6px;text-transform:uppercase;}
+#paper .deck{font:italic 19px Georgia,serif;text-align:center;margin-bottom:12px;}
+#paper .cols{display:grid;grid-template-columns:1.25fr 1fr;gap:20px;font:13px/1.45 Georgia,serif;text-align:justify;}
+#paper .cols h4{font:900 17px Georgia,serif;margin:0 0 4px;text-align:left;}
+#paper .box{border:2px solid #1a1612;padding:8px 10px;}
+#paper .chart{width:100%;height:120px;background:#e8dfc8;border:1px solid #1a1612;margin:6px 0;}
+#paper .tap{text-align:center;font:700 11px var(--mono);color:#7a6a50;margin-top:12px;letter-spacing:.2em;}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="vignette"></div>
+<div id="deals"></div>
+<div id="floats"></div>
+<div id="flash"></div>
+<div id="hud">
+  <div id="wire"><span class="lbl" id="wire-lbl">DJ NEWS WIRE</span><div id="wire-track"><div id="wire-text"></div></div><div id="dowbox"><span style="color:#9c7a3c">DOW JONES INDUS.</span><span class="n" id="dow-n">2246.74</span><span class="c" id="dow-c"></span></div></div>
+  <div id="streakbox"><div id="streak-n">0</div><div id="streak-tier"></div><div class="flames"></div><div id="streak-next"></div></div>
+  <div id="augs"></div>
+  <div id="cashbox"><div class="lbl">TODAY</div><div id="cash" class="up">+$0</div><div id="cash-sub"></div></div>
+  <div id="clock"><div class="phase" id="k-phase">OPENING GAP</div><div class="time" id="k-time">08:30</div><div class="px" id="k-px">—</div><div id="timebar"><i id="k-bar" style="width:0%"></i></div></div>
+  <canvas id="spark" width="520" height="232"></canvas>
+  <div id="tube">
+    <div id="tube-cells"></div>
+    <div id="tube-info">
+      <div id="tube-lbl">FLAT</div><div id="tube-pnl"></div><div id="tube-avg"></div>
+      <div id="heat"><div class="lbl">HEAT</div><div class="bar"><i id="heat-fill"></i></div><div class="help">Holding contracts heats up. Full = the risk desk dumps you.</div></div>
+    </div>
+  </div>
+  <div id="prompt" hidden></div>
+  <div id="banner"></div>
+  <div id="hintline"><b>CLICK</b> a deal to take it · <b style="color:#ffd23a">★ GOLD</b> = good price · <b>HOLD SPACE</b> dump everything · <b>P</b> pause · <b>M</b> mute</div>
+</div>
+
+<div id="augpick" hidden>
+  <h2 id="ap-title">CHOOSE YOUR EDGE</h2>
+  <div class="sub" id="ap-sub"></div>
+  <div id="augcards"></div>
+</div>
+
+<div id="paper" hidden><div class="sheet">
+  <div class="mast">The Chicago Ledger</div>
+  <div class="dateline"><span>TUESDAY, OCTOBER 20, 1987</span><span>FINAL EDITION · 25¢</span></div>
+  <div class="head" id="pp-head">STOCKS PLUNGE 508 POINTS</div>
+  <div class="deck" id="pp-deck"></div>
+  <div class="cols">
+    <div><h4>Panic in the pits</h4><p id="pp-story"></p></div>
+    <div><canvas class="chart" id="pp-chart" width="600" height="240"></canvas><div class="box"><h4 id="pp-side-h"></h4><p id="pp-side" style="margin:0"></p></div></div>
+  </div>
+  <div class="tap">CLICK TO SEE YOUR SCORECARD</div>
+</div></div>
+
+<div id="start" class="overlay"><div class="panel">
+  <div class="title">OPEN <span>OUTCRY</span></div>
+  <div class="sub">BLACK MONDAY · OCTOBER 19, 1987 · S&amp;P FUTURES PIT</div>
+  <div class="story">You're a trader on the floor with $400,000. Traders will shout deals at you all day. <b>By the closing bell the market will crash almost 30%.</b> Make money anyway.</div>
+  <div class="rules">
+    <span class="ic" style="background:#1f8f43">BUY 5</span><span>A trader will <b>sell you</b> 5 contracts. Profitable if the price then goes <b>up</b>.</span>
+    <span class="ic" style="background:#b8261c">SELL 5</span><span>A trader will <b>buy from you</b>. Profitable if the price then goes <b>down</b>.</span>
+    <span class="ic" style="outline:3px solid #ffd23a;color:#ffd23a">★</span><span>Gold border = a <b>good price</b> compared to the big board. Grey = a bad price, only worth it to get out.</span>
+    <span class="ic" style="background:#2a2218;color:var(--green)">TUBE</span><span>Your position. Keep it small, because holding heats up and the <b>risk desk</b> will dump you at a bad price.</span>
+    <span class="ic" style="background:#3a1a08;color:#ff8a2a">🔥 STREAK</span><span>Close trades at a profit back to back. <b>HOT → ON FIRE → LEGEND</b>: your desk pays a growing bonus on every win.</span>
+    <span class="ic" style="background:#2c1838;color:#d98bff">AUGMENTS</span><span>When each phase of the day begins the floor freezes and you <b>pick 1 of 3 augments</b> (silver, gold or prismatic) that bend the rules.</span>
+  </div>
+  <button class="btn" id="go">START TRADING</button><button class="btn ghost" id="go2">SKIP INTRO</button>
+  <div class="meta" id="startmeta"></div>
+</div></div>
+
+<div id="pause" class="overlay" hidden><div class="panel" style="text-align:center">
+  <div class="title" style="font-size:48px">PAUSED</div>
+  <button class="btn" id="resume">BACK TO THE PIT</button>
+</div></div>
+
+<div id="end" class="overlay" hidden><div class="panel">
+  <div class="grade" id="e-grade">A</div>
+  <div class="title" id="e-title" style="font-size:48px">CLOSING BELL</div>
+  <div class="sub" id="e-sub"></div>
+  <canvas id="endchart" width="1560" height="440"></canvas>
+  <div id="e-why" style="font:700 12px var(--mono);color:#c9b48a;margin-top:10px"></div>
+  <div class="augrow" id="e-augs"></div>
+  <div class="stats" id="e-stats"></div>
+  <div class="story" id="e-note" style="font-size:15px;margin-bottom:20px"></div>
+  <button class="btn" id="again">NEW DAY</button><button class="btn ghost" id="replay">REPLAY THIS DAY</button>
+</div></div>
+
+<script>/*APP_JS*/</script>
+</body>
+</html>

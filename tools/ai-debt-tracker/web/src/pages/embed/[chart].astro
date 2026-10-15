@@ -1,0 +1,81 @@
+---
+/**
+ * One chart per page, for iframes. Same components as the story, final state,
+ * no share controls (the embed is already the shared thing).
+ */
+import Base from "../../layouts/Base.astro";
+import ChartFrame from "../../components/ChartFrame";
+import Cumulative from "../../components/charts/Cumulative";
+import Deals from "../../components/charts/Deals";
+import Funding from "../../components/charts/Funding";
+import Mismatch from "../../components/charts/Mismatch";
+import Spreads from "../../components/charts/Spreads";
+import Threads from "../../components/charts/Threads";
+import Wall from "../../components/charts/Wall";
+import Gap from "../../components/charts/Gap";
+import CreditCurves from "../../components/charts/CreditCurves";
+import CapexQuarterly from "../../components/charts/CapexQuarterly";
+import Waterfall from "../../components/charts/Waterfall";
+import Growth from "../../components/charts/Growth";
+import Coverage from "../../components/charts/Coverage";
+import DepWave from "../../components/charts/DepWave";
+import { bondsInFiscalYear, deals, funding, headline, issuerMeta, medianMaturity, metrics, segmentLabels, slim } from "../../lib/data";
+import * as copy from "../../story/copy";
+
+export function getStaticPaths() {
+  const charts: Record<string, string> = {
+    threads: "Every AI-era bond and loan, from pricing to maturity",
+    cumulative: "Cumulative AI-era borrowing, by company",
+    deals: "Every deal since 2024, sized by amount",
+    spreads: "Spread over Treasuries on new ten-year bonds, in basis points",
+    funding: "Capital spending vs cash from operations, by fiscal year",
+    mismatch: "How long the servers last vs how long the debt is owed",
+    wall: "When the AI-era debt comes due",
+    gap: "Debt outstanding vs the remaining book value of what it financed",
+    curves: "New-issue credit curves: spread over Treasuries by maturity",
+    capex: "Capital spending by quarter, and as a share of revenue",
+    waterfall: "From operating cash to the funding gap, and what filled it",
+    growth: "Capital spending growth vs cloud revenue growth, year over year",
+    coverage: "Interest coverage: operating income ÷ interest expense, trailing four quarters",
+    depreciation: "The depreciation wave: depreciation of capex already spent (illustrative)",
+  };
+  return Object.entries(charts).map(([chart, title]) => ({ params: { chart }, props: { title } }));
+}
+
+const { chart } = Astro.params;
+const { title } = Astro.props;
+const today = metrics.meta.generated_at;
+const bonds = headline.map(slim);
+const borrowing = issuerMeta.filter((i) => headline.some((b) => b.issuer_id === i.id));
+const home = import.meta.env.BASE_URL;
+const source = "AI Debt Tracker, from SEC EDGAR and FRED";
+---
+<Base title={`${title} | AI Debt Tracker`} description={title} bare>
+  <ChartFrame client:load id={chart!} title={title} source={source} bare>
+    {chart === "threads" && <Threads client:load bonds={bonds} issuers={issuerMeta} today={today} median={medianMaturity()} />}
+    {chart === "cumulative" && <Cumulative client:load cumulative={metrics.cumulative} issuers={borrowing} today={today} />}
+    {chart === "deals" && <Deals client:load deals={deals()} issuers={issuerMeta} today={today} notes={copy.whoBorrows.notes} />}
+    {chart === "spreads" && (
+      <Spreads client:load bonds={bonds} issuers={borrowing} today={today} tenor={[8, 12]} highlight="oracle"
+        index={{ ig: metrics.index_oas_bp.ig, bbb: metrics.index_oas_bp.bbb }} />
+    )}
+    {chart === "funding" && <Funding client:load rows={funding()} issuers={issuerMeta} />}
+    {chart === "mismatch" && <Mismatch client:load rows={metrics.mismatch} issuers={issuerMeta} stage={2} />}
+    {chart === "gap" && <Gap client:load bonds={bonds} issuers={issuerMeta} today={today} />}
+    {chart === "curves" && <CreditCurves client:load bonds={bonds} issuers={borrowing} />}
+    {chart === "capex" && (
+      <CapexQuarterly client:load rows={Object.fromEntries(Object.entries(metrics.capex_intensity).map(([k, v]) => [k, v.quarters]))} issuers={issuerMeta} />
+    )}
+    {chart === "waterfall" && <Waterfall client:load years={metrics.funding_gap.years} issuers={issuerMeta} bondsInYear={bondsInFiscalYear()} />}
+    {chart === "growth" && (
+      <Growth client:load growth={metrics.capex_vs_cloud_growth} issuers={issuerMeta}
+        labels={Object.fromEntries(Object.entries(segmentLabels).map(([k, v]) => [k, v.label.replace(/ \(.*\)$/, "")]))} />
+    )}
+    {chart === "coverage" && <Coverage client:load coverage={metrics.interest_coverage} issuers={issuerMeta} />}
+    {chart === "depreciation" && <DepWave client:load wave={metrics.depreciation_wave.issuers} issuers={issuerMeta} />}
+    {chart === "wall" && <Wall client:load wall={metrics.maturity_wall} issuers={issuerMeta} writtenOffBy={copy.wallNote.writtenOffBy} />}
+  </ChartFrame>
+  <p class="sans" style="font-size: 13px; margin-top: 0.5rem;">
+    <a href={`${home}#${chart}`} target="_top">Read the full story and get the data</a>
+  </p>
+</Base>

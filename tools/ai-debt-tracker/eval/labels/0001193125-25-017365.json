@@ -1,0 +1,13 @@
+{
+  "accession": "0001193125-25-017365",
+  "is_new_debt": true,
+  "tranches": [
+    {"currency": "USD", "amount": 500000000, "maturity_date": "2028-08-03", "coupon_pct": null, "spread_bp": null},
+    {"currency": "USD", "amount": 1500000000, "maturity_date": "2028-08-03", "coupon_pct": 4.8, "spread_bp": 57},
+    {"currency": "USD", "amount": 1250000000, "maturity_date": "2032-02-03", "coupon_pct": 5.25, "spread_bp": 87},
+    {"currency": "USD", "amount": 1750000000, "maturity_date": "2035-08-03", "coupon_pct": 5.5, "spread_bp": 97},
+    {"currency": "USD", "amount": 1750000000, "maturity_date": "2055-08-03", "coupon_pct": 6.0, "spread_bp": 122},
+    {"currency": "USD", "amount": 1000000000, "maturity_date": "2065-08-03", "coupon_pct": 6.125, "spread_bp": 135}
+  ],
+  "notes": "Oracle final pricing term sheet, 6 tranches totaling USD 7.75bn. Floating Rate Notes due 2028 pay Compounded SOFR + 0.760% -> coupon/spread null. Proceeds partly used to refinance existing 2025/2026 notes (the existing notes listed in use of proceeds, incl. EUR 750m 3.125% July 2025 notes, are NOT new tranches)."
+}

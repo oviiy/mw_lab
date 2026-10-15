@@ -1,0 +1,16 @@
+{
+  "name": "neon-heist",
+  "version": "1.0.0",
+  "description": "Neon Heist — a 3D open-world crime sandbox: drive, shoot, evade the cops.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "dev": "node build.mjs --dev"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "esbuild": "^0.28.2",
+    "three": "^0.186.0"
+  }
+}

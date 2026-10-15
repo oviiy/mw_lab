@@ -1,0 +1,15 @@
+{
+  "accession": "0001193125-26-033882",
+  "is_new_debt": true,
+  "tranches": [
+    {"currency": "USD", "amount": 500000000, "maturity_date": "2029-02-04", "coupon_pct": null, "spread_bp": null},
+    {"currency": "USD", "amount": 3000000000, "maturity_date": "2029-02-04", "coupon_pct": 4.55, "spread_bp": 95},
+    {"currency": "USD", "amount": 3500000000, "maturity_date": "2031-02-04", "coupon_pct": 4.95, "spread_bp": 115},
+    {"currency": "USD", "amount": 3000000000, "maturity_date": "2033-05-04", "coupon_pct": 5.35, "spread_bp": 130},
+    {"currency": "USD", "amount": 5000000000, "maturity_date": "2036-02-04", "coupon_pct": 5.7, "spread_bp": 145},
+    {"currency": "USD", "amount": 2250000000, "maturity_date": "2046-02-04", "coupon_pct": 6.55, "spread_bp": 170},
+    {"currency": "USD", "amount": 5000000000, "maturity_date": "2056-02-04", "coupon_pct": 6.7, "spread_bp": 180},
+    {"currency": "USD", "amount": 2750000000, "maturity_date": "2066-02-04", "coupon_pct": 6.85, "spread_bp": 195}
+  ],
+  "notes": "Oracle 'Investment Grade Notes Offering', 8 tranches totaling USD 25.0bn. Floating Rate Notes due 2029 pay Compounded SOFR + 1.11% (111bp over SOFR, not a Treasury spread) -> coupon/spread null. 2033 notes mature May 4 (not Feb 4). Appended docs also reference a separate up-to-$20bn common stock ATM program (equity, not labeled)."
+}

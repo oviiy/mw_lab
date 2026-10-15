@@ -1,0 +1,15 @@
+{
+  "accession": "0001104659-26-026393",
+  "is_new_debt": true,
+  "tranches": [
+    {"currency": "EUR", "amount": 1750000000, "maturity_date": "2028-03-16", "coupon_pct": null, "spread_bp": null},
+    {"currency": "EUR", "amount": 1250000000, "maturity_date": "2028-03-16", "coupon_pct": 2.8, "spread_bp": 48.2},
+    {"currency": "EUR", "amount": 2000000000, "maturity_date": "2030-03-16", "coupon_pct": 3.1, "spread_bp": 63.3},
+    {"currency": "EUR", "amount": 2250000000, "maturity_date": "2032-03-16", "coupon_pct": 3.35, "spread_bp": 74.2},
+    {"currency": "EUR", "amount": 2500000000, "maturity_date": "2035-03-16", "coupon_pct": 3.7, "spread_bp": 86.3},
+    {"currency": "EUR", "amount": 2250000000, "maturity_date": "2039-03-16", "coupon_pct": 4.05, "spread_bp": 94.2},
+    {"currency": "EUR", "amount": 1250000000, "maturity_date": "2045-03-16", "coupon_pct": 4.45, "spread_bp": 112.2},
+    {"currency": "EUR", "amount": 1250000000, "maturity_date": "2064-03-16", "coupon_pct": 4.85, "spread_bp": 136.1}
+  ],
+  "notes": "Amazon.com EUR notes offering, 8 tranches totaling EUR 14.5bn. spread_bp is the stated spread to Benchmark Bund (fractional bps as stated); spreads to mid-swap also given (30/48/63/83/103/135/188 bps) but not used. Floating Rate Notes due 2028 = 3M EURIBOR + 0.35% (floored at zero) -> coupon/spread null. Use of proceeds references a 'Concurrent USD Notes Offering' that is not described in this FWP (not labeled here)."
+}

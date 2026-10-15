@@ -1,0 +1,46 @@
+# Cloud / AI segment revenue, as each company actually discloses it.
+# The SEC companyconcept API carries no segment (dimensional) data, so these numbers
+# are read from the 10-Q / 10-K documents themselves:
+#   kind: ixbrl_amount   -> an inline-XBRL revenue fact whose context has exactly this
+#                           segment / product member (plus, at most, the operating-segments
+#                           consolidation member); quote = the table row it sits in
+#   kind: text_growth    -> a growth percentage matched in the filing text; quote = the sentence
+#   kind: total_revenue  -> the company's total revenue from XBRL (no segment needed)
+#   kind: not_applicable -> no cloud segment; growth charts fall back to total revenue
+# Every extracted value goes to data/review/segments_queue.json first and is published
+# only if its quote is found verbatim in the filing and contains the number.
+
+since_fy: 2023
+
+issuers:
+  amazon:
+    kind: ixbrl_amount
+    label: "AWS segment net sales"
+    tags: [RevenueFromContractWithCustomerExcludingAssessedTax, Revenues]
+    member: ["us-gaap:StatementBusinessSegmentsAxis", "amzn:AmazonWebServicesSegmentMember"]
+
+  alphabet:
+    kind: ixbrl_amount
+    label: "Google Cloud segment revenues"
+    tags: [Revenues, RevenueFromContractWithCustomerExcludingAssessedTax]
+    member: ["us-gaap:StatementBusinessSegmentsAxis", "goog:GoogleCloudMember"]
+
+  oracle:
+    kind: ixbrl_amount
+    label: "Cloud revenues (IaaS + SaaS)"
+    tags: [RevenueFromContractWithCustomerExcludingAssessedTax, Revenues]
+    member: ["srt:ProductOrServiceAxis", "orcl:CloudRevenuesMember"]
+
+  microsoft:
+    kind: text_growth
+    label: "Azure and other cloud services revenue growth (%)"
+    # Microsoft does not disclose Azure revenue in dollars; we store the percentage as stated.
+    pattern: "Azure and other cloud services revenue (?:increased|grew) (\\d+(?:\\.\\d+)?)%"
+
+  coreweave:
+    kind: total_revenue
+    label: "Total revenue (all of CoreWeave's revenue is AI cloud)"
+
+  meta:
+    kind: not_applicable
+    label: "Total revenue (no cloud segment)"

@@ -1,0 +1,36 @@
+{
+  "accession": "0001193125-25-227562",
+  "is_new_debt": true,
+  "doc_kind": "amendment",
+  "skip_reason": null,
+  "trade_date": "2025-09-29",
+  "settlement_date": null,
+  "tranches": [
+    {
+      "name": "Fifth Amendment DDTL (incremental delayed draw term loans under DDTL 2.0 Credit Agreement)",
+      "instrument_type": "term_loan",
+      "currency": "USD",
+      "amount": 3000000000,
+      "coupon_pct": null,
+      "floating_spread_bp": 425,
+      "maturity_date": null,
+      "price_pct": null,
+      "ytm_pct": null,
+      "spread_bp": null,
+      "benchmark": "Term SOFR (3-month)",
+      "benchmark_yield_pct": null,
+      "cusip": null,
+      "isin": null,
+      "secured_by": null,
+      "quote": "The Fifth Amendment adds an incremental $3.0 billion tranche of delayed draw term loans (the “Fifth Amendment DDTL”) to the DDTL 2.0 Credit Agreement."
+    }
+  ],
+  "proceeds": {
+    "ai_flag": "general",
+    "quote": "CCAC IV intends to use borrowings under the Fifth Amendment DDTL to fund the purchase and maintenance of certain equipment, hardware, infrastructure and other systems to be utilized to provide both investment grade and unrated strategic customers of the Parent with certain services ordered by such strategic customers."
+  },
+  "_meta": {
+    "bundle_hash": "c0c3ef59a9ea59a1",
+    "extractor": "claude-sonnet-5-5 via Claude Code agents, 2026-10-14"
+  }
+}

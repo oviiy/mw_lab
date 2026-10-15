@@ -1,0 +1,17 @@
+{
+  "accession": "0001193125-26-251733",
+  "is_new_debt": false,
+  "doc_kind": "equity_offering",
+  "skip_reason": "Launch announcement of an $80 billion equity capital raise (Class A/C stock, depositary shares of mandatory convertible preferred stock, ATM program, Berkshire private placement); no new debt.",
+  "trade_date": "2026-06-01",
+  "settlement_date": null,
+  "tranches": [],
+  "proceeds": {
+    "ai_flag": "explicit",
+    "quote": "general corporate purposes,\nincluding capital expenditures to scale AI infrastructure and global compute."
+  },
+  "_meta": {
+    "bundle_hash": "da7d6d9b10f59101",
+    "extractor": "claude-sonnet-5-5 via Claude Code agents, 2026-10-14"
+  }
+}

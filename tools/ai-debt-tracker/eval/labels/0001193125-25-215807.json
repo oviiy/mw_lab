@@ -1,0 +1,13 @@
+{
+  "accession": "0001193125-25-215807",
+  "is_new_debt": true,
+  "tranches": [
+    {"currency": "USD", "amount": 3000000000, "maturity_date": "2030-09-26", "coupon_pct": 4.45, "spread_bp": 75},
+    {"currency": "USD", "amount": 3000000000, "maturity_date": "2032-09-26", "coupon_pct": 4.8, "spread_bp": 90},
+    {"currency": "USD", "amount": 4000000000, "maturity_date": "2035-09-26", "coupon_pct": 5.2, "spread_bp": 105},
+    {"currency": "USD", "amount": 2500000000, "maturity_date": "2045-09-26", "coupon_pct": 5.875, "spread_bp": 115},
+    {"currency": "USD", "amount": 3500000000, "maturity_date": "2055-09-26", "coupon_pct": 5.95, "spread_bp": 125},
+    {"currency": "USD", "amount": 2000000000, "maturity_date": "2065-09-26", "coupon_pct": 6.1, "spread_bp": 137}
+  ],
+  "notes": "Oracle final pricing term sheet, 6 fixed-rate tranches totaling USD 18.0bn. The appended preliminary prospectus supplement (d37885d424b2 from 214032) capitalization table mentions 'Floating Rate Notes offered hereby' and '2030 Fixed Rate Notes', but the final FWP lists no floating-rate tranche and the final 424B2 capitalization lists '2030 Notes'; floating tranche apparently dropped - not labeled."
+}

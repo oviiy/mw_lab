@@ -1,0 +1,36 @@
+{
+  "accession": "0001769628-26-000129",
+  "is_new_debt": true,
+  "doc_kind": "closing_8k",
+  "skip_reason": null,
+  "trade_date": "2026-03-30",
+  "settlement_date": null,
+  "tranches": [
+    {
+      "name": "DDTL 4.0 Facility (delayed draw term loan)",
+      "instrument_type": "term_loan",
+      "currency": "USD",
+      "amount": 8500000000,
+      "coupon_pct": null,
+      "floating_spread_bp": 225,
+      "maturity_date": "2032-03-31",
+      "price_pct": null,
+      "ytm_pct": null,
+      "spread_bp": null,
+      "benchmark": null,
+      "benchmark_yield_pct": null,
+      "cusip": null,
+      "isin": null,
+      "secured_by": "Substantially all assets of CCAC VIII and its subsidiaries and a pledge of 100% of the equity interests in CCAC VIII held by CCAC VIII Holdco LLC; limited recourse parent guarantee",
+      "quote": "providing for an $8.5 billion delayed draw term loan facility (the “DDTL 4.0 Facility”). The DDTL 4.0 Facility was entered into primarily to finance capital expenditures required to perform a customer contract, including the acquisition of GPU servers and related infrastructure."
+    }
+  ],
+  "proceeds": {
+    "ai_flag": "explicit",
+    "quote": "The DDTL 4.0 Facility was entered into primarily to finance capital expenditures required to perform a customer contract, including the acquisition of GPU servers and related infrastructure."
+  },
+  "_meta": {
+    "bundle_hash": "2c717ad8b2a5febc",
+    "extractor": "claude-sonnet-5-5 via Claude Code agents, 2026-10-14"
+  }
+}

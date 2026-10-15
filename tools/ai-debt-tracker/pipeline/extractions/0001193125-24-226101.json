@@ -1,0 +1,90 @@
+{
+  "accession": "0001193125-24-226101",
+  "is_new_debt": true,
+  "doc_kind": "pricing_term_sheet",
+  "skip_reason": null,
+  "trade_date": "2024-09-25",
+  "settlement_date": "2024-09-27",
+  "tranches": [
+    {
+      "name": "4.200% Notes due 2029",
+      "instrument_type": "senior_notes",
+      "currency": "USD",
+      "amount": 1500000000,
+      "coupon_pct": 4.2,
+      "floating_spread_bp": null,
+      "maturity_date": "2029-09-27",
+      "price_pct": 99.902,
+      "ytm_pct": 4.222,
+      "spread_bp": 70,
+      "benchmark": "3.625% due August 31, 2029",
+      "benchmark_yield_pct": 3.522,
+      "cusip": "68389XCS2",
+      "isin": "US68389XCS27",
+      "secured_by": null,
+      "quote": "Principal Amount: | $1,500,000,000 | Maturity: | September 27, 2029"
+    },
+    {
+      "name": "4.700% Notes due 2034",
+      "instrument_type": "senior_notes",
+      "currency": "USD",
+      "amount": 1750000000,
+      "coupon_pct": 4.7,
+      "floating_spread_bp": null,
+      "maturity_date": "2034-09-27",
+      "price_pct": 99.708,
+      "ytm_pct": 4.737,
+      "spread_bp": 95,
+      "benchmark": "3.875% due August 15, 2034",
+      "benchmark_yield_pct": 3.787,
+      "cusip": "68389XCT0",
+      "isin": "US68389XCT00",
+      "secured_by": null,
+      "quote": "Principal Amount: | $1,750,000,000 | Maturity: | September 27, 2034"
+    },
+    {
+      "name": "5.375% Notes due 2054",
+      "instrument_type": "senior_notes",
+      "currency": "USD",
+      "amount": 1750000000,
+      "coupon_pct": 5.375,
+      "floating_spread_bp": null,
+      "maturity_date": "2054-09-27",
+      "price_pct": 99.719,
+      "ytm_pct": 5.394,
+      "spread_bp": 125,
+      "benchmark": "4.625% due May 15, 2054",
+      "benchmark_yield_pct": 4.144,
+      "cusip": "68389XCU7",
+      "isin": "US68389XCU72",
+      "secured_by": null,
+      "quote": "Principal Amount: | $1,750,000,000 | Maturity: | September 27, 2054"
+    },
+    {
+      "name": "5.500% Notes due 2064",
+      "instrument_type": "senior_notes",
+      "currency": "USD",
+      "amount": 1250000000,
+      "coupon_pct": 5.5,
+      "floating_spread_bp": null,
+      "maturity_date": "2064-09-27",
+      "price_pct": 99.615,
+      "ytm_pct": 5.524,
+      "spread_bp": 138,
+      "benchmark": "4.625% due May 15, 2054",
+      "benchmark_yield_pct": 4.144,
+      "cusip": "68389XCV5",
+      "isin": "US68389XCV55",
+      "secured_by": null,
+      "quote": "Principal Amount: | $1,250,000,000 | Maturity: | September 27, 2064"
+    }
+  ],
+  "proceeds": {
+    "ai_flag": "general",
+    "quote": "We intend to use a portion of the net proceeds of this offering to repay all or a portion of our 2.95% Notes due November 2024"
+  },
+  "_meta": {
+    "bundle_hash": "913265d48bd25250",
+    "extractor": "claude-sonnet-5-5 via Claude Code agents, 2026-10-14"
+  }
+}

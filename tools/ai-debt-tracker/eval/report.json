@@ -1,0 +1,143 @@
+{
+ "documents": 16,
+ "gold_tranches": 87,
+ "tranche_precision": 1.0,
+ "tranche_recall": 1.0,
+ "field_accuracy": {
+  "amount": 1.0,
+  "maturity_date": 1.0,
+  "coupon_pct": 1.0,
+  "spread_bp": 1.0
+ },
+ "matched_tranches": 87,
+ "docs": [
+  {
+   "accession": "0001104659-25-113283",
+   "gold": 6,
+   "pred": 6,
+   "missing": [],
+   "extra": [],
+   "field_errors": []
+  },
+  {
+   "accession": "0001104659-26-026393",
+   "gold": 8,
+   "pred": 8,
+   "missing": [],
+   "extra": [],
+   "field_errors": []
+  },
+  {
+   "accession": "0001104659-26-071456",
+   "gold": 5,
+   "pred": 5,
+   "missing": [],
+   "extra": [],
+   "field_errors": []
+  },
+  {
+   "accession": "0001104659-26-106322",
+   "gold": 4,
+   "pred": 4,
+   "missing": [],
+   "extra": [],
+   "field_errors": []
+  },
+  {
+   "accession": "0001193125-24-196020",
+   "gold": 5,
+   "pred": 5,
+   "missing": [],
+   "extra": [],
+   "field_errors": []
+  },
+  {
+   "accession": "0001193125-25-017365",
+   "gold": 6,
+   "pred": 6,
+   "missing": [],
+   "extra": [],
+   "field_errors": []
+  },
+  {
+   "accession": "0001193125-25-215807",
+   "gold": 6,
+   "pred": 6,
+   "missing": [],
+   "extra": [],
+   "field_errors": []
+  },
+  {
+   "accession": "0001193125-25-258837",
+   "gold": 6,
+   "pred": 6,
+   "missing": [],
+   "extra": [],
+   "field_errors": []
+  },
+  {
+   "accession": "0001193125-25-263045",
+   "gold": 8,
+   "pred": 8,
+   "missing": [],
+   "extra": [],
+   "field_errors": []
+  },
+  {
+   "accession": "0001193125-26-033882",
+   "gold": 8,
+   "pred": 8,
+   "missing": [],
+   "extra": [],
+   "field_errors": []
+  },
+  {
+   "accession": "0001193125-26-044473",
+   "gold": 5,
+   "pred": 5,
+   "missing": [],
+   "extra": [],
+   "field_errors": []
+  },
+  {
+   "accession": "0001193125-26-225046",
+   "gold": 7,
+   "pred": 7,
+   "missing": [],
+   "extra": [],
+   "field_errors": []
+  },
+  {
+   "accession": "0001193125-26-338750",
+   "gold": 10,
+   "pred": 10,
+   "missing": [],
+   "extra": [],
+   "field_errors": []
+  },
+  {
+   "accession": "0001769628-25-000019",
+   "gold": 1,
+   "pred": 1,
+   "missing": [],
+   "extra": [],
+   "field_errors": []
+  },
+  {
+   "accession": "0001769628-25-000105",
+   "gold": 1,
+   "pred": 1,
+   "missing": [],
+   "extra": [],
+   "field_errors": []
+  },
+  {
+   "accession": "0001769628-26-000129",
+   "gold": 1,
+   "pred": 1,
+   "missing": [],
+   "extra": [],
+   "field_errors": []
+  }
+ ]
+}

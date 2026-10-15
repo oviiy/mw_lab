@@ -1,0 +1,16 @@
+{
+  "name": "dragon-turf",
+  "version": "1.0.0",
+  "description": "Dragon Turf — a top-down Chinatown gang war sandbox. ES modules in src/, bundled into one HTML file with esbuild.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "python3 tools/serve.py 8780",
+    "build": "node build.mjs",
+    "check": "node tools/check.mjs"
+  },
+  "license": "ISC",
+  "devDependencies": {
+    "esbuild": "^0.25.0"
+  }
+}

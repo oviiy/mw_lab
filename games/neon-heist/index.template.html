@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+<title>Neon Heist — Los Santitos</title>
+<meta name="description" content="A 3D open-world crime sandbox in one HTML file: hijack cars, shoot your way out, shake the cops, run courier jobs. Everything is procedural." />
+<meta name="theme-color" content="#0b0a12" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%230b0a12'/%3E%3Cpath d='M32 8l6 16 17 1-13 11 5 17-15-10-15 10 5-17L9 25l17-1z' fill='%23ffd23a'/%3E%3C/svg%3E" />
+<style>
+:root{--ink:#07060d;--gold:#ffd23a;--hot:#ff5a2a;--ok:#7ed957;--font:"Arial Black","Helvetica Neue",Impact,sans-serif;--ui:-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color-scheme:dark;}
+*{box-sizing:border-box;}
+[hidden]{display:none !important;}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--ink);color:#fff;font-family:var(--ui);-webkit-font-smoothing:antialiased;user-select:none;-webkit-user-select:none;}
+#app,#app canvas{position:fixed;inset:0;width:100%;height:100%;display:block;}
+#hud{position:fixed;inset:0;pointer-events:none;font-family:var(--font);}
+.o{text-shadow:2px 2px 0 #000,-1px -1px 0 #000,1px -1px 0 #000,-1px 1px 0 #000;}
+body:not(.started) #hud{opacity:0;}
+#money{position:absolute;right:26px;top:16px;font-size:36px;color:var(--ok);letter-spacing:1px;}
+#stars{position:absolute;right:26px;top:62px;font-size:30px;letter-spacing:4px;}
+#stars b{color:rgba(255,255,255,.22);font-weight:normal;text-shadow:0 0 0 #000,2px 2px 0 #000;}
+#stars b.on{color:var(--gold);}
+#stars.flash b.on{animation:fl .38s steps(2) infinite;}
+@keyframes fl{50%{color:#e0302a;}}
+#wpn{position:absolute;right:26px;top:104px;font-size:15px;color:#e8e8e8;letter-spacing:.5px;}
+#clock{position:absolute;right:26px;top:128px;font-size:13px;color:#aab;}
+#mini{position:absolute;left:22px;bottom:22px;width:170px;height:170px;border-radius:50%;border:4px solid #0a0a0e;box-shadow:0 0 0 2px #8a8a92,0 6px 20px #000a;background:#111;}
+#bars{position:absolute;left:206px;bottom:30px;width:190px;}
+.bar{height:13px;background:#0009;border:2px solid #000;margin-bottom:6px;}
+.bar i{display:block;height:100%;width:100%;background:linear-gradient(#e44,#a11);transition:width .12s;}
+#radio{position:absolute;left:206px;bottom:100px;font-size:12px;color:#cfd;opacity:.85;}
+#speed{position:absolute;right:30px;bottom:26px;font-size:34px;color:#fff;font-style:italic;}
+#mission{position:absolute;left:50%;top:18px;transform:translateX(-50%);font-size:17px;color:var(--gold);text-align:center;max-width:56vw;}
+#sub{position:absolute;left:50%;bottom:140px;transform:translateX(-50%) translateY(8px);font-size:20px;text-align:center;max-width:70vw;opacity:0;transition:opacity .25s,transform .25s;}
+#sub.show{opacity:1;transform:translateX(-50%);}
+#hint{position:absolute;left:50%;bottom:90px;transform:translateX(-50%);font-size:18px;color:#fff;text-align:center;}
+#big{position:absolute;left:0;right:0;top:36%;text-align:center;font-size:clamp(46px,10vw,130px);letter-spacing:6px;opacity:0;transition:opacity .4s;color:#c21;}
+#big.show{opacity:1;}
+#vig{position:absolute;inset:0;box-shadow:inset 0 0 180px 50px #f00;opacity:0;}
+#wastedFade{position:absolute;inset:0;background:radial-gradient(circle,rgba(0,0,0,.2),rgba(0,0,0,.92));opacity:0;}
+#cross{position:absolute;left:50%;top:50%;width:26px;height:26px;margin:-13px 0 0 -13px;display:none;}
+#cross::before,#cross::after{content:"";position:absolute;background:rgba(255,255,255,.9);box-shadow:0 0 3px #000;}
+#cross::before{left:12px;top:0;width:2px;height:26px;-webkit-mask:linear-gradient(#000 35%,transparent 35% 65%,#000 65%);mask:linear-gradient(#000 35%,transparent 35% 65%,#000 65%);}
+#cross::after{top:12px;left:0;height:2px;width:26px;-webkit-mask:linear-gradient(90deg,#000 35%,transparent 35% 65%,#000 65%);mask:linear-gradient(90deg,#000 35%,transparent 35% 65%,#000 65%);}
+#cross.hot::before,#cross.hot::after{background:#ff6a4a;}
+#cross.hit{transform:scale(1.35) rotate(45deg);}#cross.hit::before,#cross.hit::after{background:#fff;box-shadow:0 0 6px #f44;}
+#dmgdir{position:absolute;left:50%;top:50%;width:46vmin;height:46vmin;border-radius:50%;border-top:10px solid rgba(255,40,30,.85);opacity:0;transition:opacity .35s;pointer-events:none;filter:blur(1px);}
+
+.overlay{position:fixed;inset:0;z-index:40;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;overflow-y:auto;}
+#intro{background:radial-gradient(120% 90% at 50% 0%,rgba(255,120,40,.22),transparent 55%),linear-gradient(180deg,rgba(6,5,12,.5),rgba(5,4,10,.9));transition:opacity .8s,visibility .8s;cursor:pointer;}
+body.started #intro{opacity:0;visibility:hidden;pointer-events:none;}
+h1{margin:0;font-family:var(--font);font-size:clamp(34px,8vw,96px);letter-spacing:.04em;background:linear-gradient(#ffe36a,#ff7a2a 70%,#d8321a);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 5px 0 #000) drop-shadow(0 0 24px rgba(255,120,40,.35));}
+.tag{margin:8px 0 26px;letter-spacing:.5em;color:#9bd;font-size:clamp(12px,2.2vw,22px);font-family:var(--font);}
+table{font-size:15px;border-spacing:16px 5px;color:#d6d8e4;margin:0 auto;}
+td:first-child{text-align:right;color:var(--gold);font-weight:700;white-space:nowrap;}
+td:last-child{text-align:left;}
+.go{margin-top:26px;font-family:var(--font);font-size:22px;letter-spacing:.2em;animation:bl 1.1s steps(2) infinite;}
+@keyframes bl{50%{opacity:.25;}}
+.fine{margin-top:14px;color:#8a8ca0;font-size:12px;max-width:560px;line-height:1.5;}
+#pause{display:none;background:rgba(5,4,10,.78);backdrop-filter:blur(4px);}
+#pause.on{display:flex;}
+#pause h2{font-family:var(--font);font-size:44px;margin:0 0 12px;letter-spacing:.1em;}
+#pauseStats{color:#cfd2e2;line-height:1.8;font-size:15px;margin-bottom:20px;}
+button{font:inherit;font-family:var(--font);letter-spacing:.12em;padding:12px 28px;border:2px solid var(--gold);background:rgba(255,210,58,.1);color:var(--gold);cursor:pointer;font-size:16px;}
+button:hover{background:var(--gold);color:#000;}
+
+#speech{position:absolute;inset:0;overflow:hidden;font-family:var(--ui);}
+.bubble{position:absolute;left:0;top:0;max-width:210px;padding:6px 11px;border-radius:12px;background:rgba(250,250,246,.94);color:#16161a;font-size:14px;font-weight:600;line-height:1.25;text-align:center;box-shadow:0 3px 10px rgba(0,0,0,.4);transition:opacity .25s;will-change:transform;}
+.bubble::after{content:"";position:absolute;left:50%;bottom:-6px;margin-left:-6px;border:6px solid transparent;border-top-color:rgba(250,250,246,.94);border-bottom:0;}
+.bubble.cop{background:rgba(32,60,150,.95);color:#fff;}.bubble.cop::after{border-top-color:rgba(32,60,150,.95);}
+.bubble.me{background:rgba(255,214,70,.96);}.bubble.me::after{border-top-color:rgba(255,214,70,.96);}
+#wpnbox{position:absolute;right:26px;top:96px;display:flex;align-items:center;gap:10px;flex-direction:row-reverse;}
+#wpnIcon{width:96px;height:56px;filter:drop-shadow(2px 2px 0 #000);}
+#wpn{position:static !important;text-align:right;font-size:14px;line-height:1.3;}
+#wheel{position:absolute;inset:0;display:none;background:radial-gradient(circle at 50% 50%,rgba(0,0,0,.18),rgba(0,0,0,.62));}
+#wheel.on{display:block;}
+#wheel .slot{position:absolute;width:132px;height:84px;margin:-42px 0 0 -66px;border:2px solid rgba(255,255,255,.28);border-radius:12px;background:rgba(10,12,18,.72);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;font-size:12px;transition:transform .08s,background .08s,border-color .08s;}
+#wheel .slot canvas{width:78px;height:46px;}
+#wheel .slot.sel{transform:scale(1.18);background:rgba(255,200,40,.92);border-color:#fff;color:#000;}
+#wheel .slot.sel canvas{filter:invert(1);}
+#wheel .slot.locked{opacity:.32;}
+#wheel .slot b{font-weight:400;font-size:11px;opacity:.9;}
+#wheelName{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);text-align:center;font-size:20px;color:#fff;width:200px;}
+#wheelName small{display:block;font-size:13px;color:#ffd23a;margin-top:6px;}
+
+#fade{position:fixed;inset:0;background:#000;opacity:0;transition:opacity .38s;pointer-events:none;z-index:30;}
+#shop,#cheats{position:fixed;right:6vw;top:50%;transform:translateY(-50%);min-width:min(420px,88vw);max-width:92vw;background:rgba(10,12,18,.92);border:2px solid #ffd23a;border-radius:14px;padding:18px 22px;z-index:25;display:none;font-family:var(--ui);color:#fff;pointer-events:auto;box-shadow:0 10px 40px #000a;}
+#shop.on,#cheats.on{display:block;}
+#shop h3,#cheats h3{margin:0 0 4px;font-family:var(--font);color:#ffd23a;letter-spacing:.08em;font-size:20px;}
+#shop .cash{color:#7ed957;font-weight:700;margin-bottom:10px;}
+#shop .row,#cheats .row{display:flex;align-items:center;gap:12px;padding:9px 10px;border-radius:8px;cursor:pointer;border:1px solid transparent;}
+#shop .row:hover,#cheats .row:hover{background:rgba(255,210,58,.12);border-color:rgba(255,210,58,.4);}
+#shop .row .k,#cheats .row .k{display:inline-flex;width:24px;height:24px;align-items:center;justify-content:center;background:#ffd23a;color:#000;border-radius:5px;font-weight:700;font-size:13px;}
+#shop .row .n,#cheats .row .n{flex:1;font-weight:600;}
+#shop .row small,#cheats .row small{display:block;color:#9aa0b4;font-weight:400;font-size:12px;margin-top:1px;}
+#shop .row .p,#cheats .row .p{color:#7ed957;font-weight:700;}
+#shop .row.poor .p,#cheats .row.poor .p{color:#ff6b6b;}#shop .row.off{opacity:.4;}
+#cheats{border-color:#ff2d95;left:6vw;right:auto;}#cheats h3{color:#ff2d95;}#cheats .row .k{background:#ff2d95;color:#fff;}#cheats .row:hover{background:rgba(255,45,149,.12);border-color:rgba(255,45,149,.45);}
+#shop .foot,#cheats .foot{margin-top:10px;font-size:12px;color:#8a8ca0;}
+body.shopping #cross,body.shopping #hint{display:none !important;}
+body.wheelopen #sub,body.wheelopen #hint,body.wheelopen #mission{opacity:0 !important;}
+#scope{position:absolute;inset:0;display:none;background:radial-gradient(circle at 50% 50%,transparent 0,transparent 26vmin,#000 26.4vmin);}
+#scope::before,#scope::after{content:"";position:absolute;background:#000;}
+#scope::before{left:50%;top:calc(50% - 26vmin);width:1px;height:52vmin;}
+#scope::after{top:50%;left:calc(50% - 26vmin);height:1px;width:52vmin;}
+#scope.on{display:block;}
+@media (max-width:760px){#mini{width:120px;height:120px;left:12px;bottom:12px}#bars{left:140px;width:120px}#radio{left:140px;bottom:62px}#money{font-size:26px}#stars{font-size:22px;top:50px}#wpn{top:84px}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="hud">
+  <div id="vig"></div>
+  <div id="scope"></div>
+  <div id="cross"></div>
+  <div id="dmgdir"></div>
+  <div id="speech"></div>
+  <div id="wheel"><div id="wheelName"></div></div>
+  <div id="money" class="o">$0</div>
+  <div id="stars" class="o"></div>
+  <div id="wpnbox"><canvas id="wpnIcon" width="96" height="56"></canvas><div id="wpn" class="o"></div></div>
+  <div id="clock" class="o"></div>
+  <div id="mission" class="o"></div>
+  <div id="sub" class="o"></div>
+  <div id="hint" class="o"></div>
+  <canvas id="mini" width="170" height="170"></canvas>
+  <div id="bars"><div class="bar"><i id="hp"></i></div><div class="bar" id="armorbar" style="display:none"><i id="armor" style="background:linear-gradient(#5ab0ff,#1f62c8)"></i></div><div class="bar" id="carbarw" style="display:none"><i id="carhp" style="background:linear-gradient(#fb4,#c80)"></i></div></div>
+  <div id="radio" class="o">♫ Los Santitos FM</div>
+  <div id="speed" class="o"></div>
+  <div id="wastedFade"></div>
+  <div id="big" class="o"></div>
+  <div id="stats" hidden></div>
+</div>
+<div id="shop"></div>
+<div id="fade"></div>
+<div id="intro" class="overlay">
+  <h1>NEON HEIST</h1>
+  <div class="tag">LOS SANTITOS</div>
+  <table>
+    <tr><td>W A S D</td><td>Move on foot · Drive</td></tr>
+    <tr><td>Mouse</td><td>Look · Left click: shoot (right-drag also looks)</td></tr>
+    <tr><td>E / F</td><td>Enter · Exit · Hijack a vehicle</td></tr>
+    <tr><td>Shift · Space</td><td>Sprint · Jump / Handbrake</td></tr>
+    <tr><td>Hold Q / Tab</td><td>Weapon wheel (also 1–8 · scroll wheel)</td></tr>
+    <tr><td>E (on foot)</td><td>Talk to people · rob them while aiming (right-click) · enter shops</td></tr>
+    <tr><td>C · H · R · L</td><td>Camera · Horn · Radio · Cop siren</td></tr>
+    <tr><td>O</td><td>Ambient occlusion on/off (GPU heavy)</td></tr>
+    <tr><td>Left click in a car</td><td>Drive-by with pistol / SMG (aim with the mouse)</td></tr>
+    <tr><td>Story</td><td>Drive to Vinnie at the docks — the yellow ★ on the map</td></tr>
+    <tr><td>~ (backquote)</td><td>Cheat menu — god mode, infinite ammo, all weapons, cash, rampages…</td></tr>
+    <tr><td>Extras</td><td>Red markers = rampages · Police HQ lobby = bounties &amp; fines · Tipsy Taxi bar</td></tr>
+    <tr><td>P / Esc</td><td>Pause · progress saves automatically</td></tr>
+  </table>
+  <div class="go">CLICK TO START</div>
+  <div class="fine">Everything — PBR textures, normal maps, city, cars, people, sky, sound and music — is generated by code at runtime. No image or audio files.</div>
+</div>
+<div id="cheats"></div>
+<div id="pause" class="overlay"><h2>PAUSED</h2><div id="pauseStats"></div><button id="btnResume">RESUME</button><button id="btnCheats" style="margin-top:12px;border-color:#ff2d95;color:#ff2d95;background:transparent">CHEATS</button><button id="btnNew" style="margin-top:12px;border-color:#888;color:#bbb;background:transparent;font-size:12px">NEW GAME (erase save)</button></div>
+<script>/*APP_JS*/</script>
+</body>
+</html>

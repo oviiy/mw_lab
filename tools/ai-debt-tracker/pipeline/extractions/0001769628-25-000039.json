@@ -1,0 +1,17 @@
+{
+  "accession": "0001769628-25-000039",
+  "is_new_debt": false,
+  "doc_kind": "earnings",
+  "skip_reason": "Q2 2025 earnings release / lock-up expiry notice; no new borrowing.",
+  "trade_date": null,
+  "settlement_date": null,
+  "tranches": [],
+  "proceeds": {
+    "ai_flag": "general",
+    "quote": null
+  },
+  "_meta": {
+    "bundle_hash": "d94f8f480ccd7291",
+    "extractor": "claude-sonnet-5-5 via Claude Code agents, 2026-10-14"
+  }
+}

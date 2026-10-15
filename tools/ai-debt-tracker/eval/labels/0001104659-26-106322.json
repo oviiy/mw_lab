@@ -1,0 +1,11 @@
+{
+  "accession": "0001104659-26-106322",
+  "is_new_debt": true,
+  "tranches": [
+    {"currency": "GBP", "amount": 1250000000, "maturity_date": "2029-09-14", "coupon_pct": 5.2, "spread_bp": 53},
+    {"currency": "GBP", "amount": 1000000000, "maturity_date": "2032-09-14", "coupon_pct": 5.55, "spread_bp": 75},
+    {"currency": "GBP", "amount": 1000000000, "maturity_date": "2038-09-14", "coupon_pct": 6.25, "spread_bp": 90},
+    {"currency": "GBP", "amount": 1000000000, "maturity_date": "2045-09-14", "coupon_pct": 6.65, "spread_bp": 93}
+  ],
+  "notes": "Amazon.com GBP notes, 4 tranches totaling GBP 4.25bn. spread_bp = spread to Benchmark Gilt."
+}

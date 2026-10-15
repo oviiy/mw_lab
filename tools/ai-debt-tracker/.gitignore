@@ -1,0 +1,16 @@
+# dependencies and builds
+node_modules/
+web/dist/
+web/.astro/
+web/public/data/
+__pycache__/
+.pytest_cache/
+*.pyc
+
+# HTTP and text caches (rebuilt from SEC/FRED on demand)
+data/cache/
+
+# local tooling
+.DS_Store
+.superpowers/
+.claude/

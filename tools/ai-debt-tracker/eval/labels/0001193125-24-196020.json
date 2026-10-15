@@ -1,0 +1,12 @@
+{
+  "accession": "0001193125-24-196020",
+  "is_new_debt": true,
+  "tranches": [
+    {"currency": "USD", "amount": 1000000000, "maturity_date": "2029-08-15", "coupon_pct": 4.3, "spread_bp": 55},
+    {"currency": "USD", "amount": 1000000000, "maturity_date": "2031-08-15", "coupon_pct": 4.55, "spread_bp": 70},
+    {"currency": "USD", "amount": 2500000000, "maturity_date": "2034-08-15", "coupon_pct": 4.75, "spread_bp": 80},
+    {"currency": "USD", "amount": 3250000000, "maturity_date": "2054-08-15", "coupon_pct": 5.4, "spread_bp": 115},
+    {"currency": "USD", "amount": 2750000000, "maturity_date": "2064-08-15", "coupon_pct": 5.55, "spread_bp": 130}
+  ],
+  "notes": "Meta Platforms pricing term sheet, 5 senior note tranches totaling USD 10.5bn."
+}

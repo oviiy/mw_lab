@@ -1,0 +1,17 @@
+{
+  "accession": "0001769628-26-000429",
+  "is_new_debt": false,
+  "doc_kind": "launch_announcement",
+  "skip_reason": "Launch announcement of proposed $3.0 billion convertible senior notes due 2033 offering (no final coupon/pricing); also discloses an at-the-market equity distribution agreement (equity, not debt).",
+  "trade_date": "2026-09-17",
+  "settlement_date": null,
+  "tranches": [],
+  "proceeds": {
+    "ai_flag": "general",
+    "quote": "The Company intends to use a portion of the net proceeds from the Convertible Notes Offering to fund the cost of entering into the capped call transactions described above and the remainder of the net proceeds from the Convertible Notes Offering for general corporate purposes."
+  },
+  "_meta": {
+    "bundle_hash": "de96f8ba0f24cf07",
+    "extractor": "claude-sonnet-5-5 via Claude Code agents, 2026-10-14"
+  }
+}

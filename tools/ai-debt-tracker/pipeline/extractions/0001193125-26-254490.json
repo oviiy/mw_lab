@@ -1,0 +1,17 @@
+{
+  "accession": "0001193125-26-254490",
+  "is_new_debt": false,
+  "doc_kind": "equity_offering",
+  "skip_reason": "Pricing announcement of upsized $84.75 billion equity raise (common/capital stock, 6.25% mandatory convertible preferred depositary shares, ATM, private placement); not debt.",
+  "trade_date": "2026-06-02",
+  "settlement_date": "2026-06-04",
+  "tranches": [],
+  "proceeds": {
+    "ai_flag": "explicit",
+    "quote": "general corporate purposes, including capital expenditures to scale AI infrastructure and global compute."
+  },
+  "_meta": {
+    "bundle_hash": "5fd13a2017bd6991",
+    "extractor": "claude-sonnet-5-5 via Claude Code agents, 2026-10-14"
+  }
+}

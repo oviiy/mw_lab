@@ -1,0 +1,17 @@
+{
+  "accession": "0001193125-26-148912",
+  "is_new_debt": false,
+  "doc_kind": "launch_announcement",
+  "skip_reason": "Launch announcement of proposed senior notes and convertible notes offerings; no final terms (pricing, coupon, maturity date) stated.",
+  "trade_date": "2026-04-09",
+  "settlement_date": null,
+  "tranches": [],
+  "proceeds": {
+    "ai_flag": "general",
+    "quote": "The Company intends to use the proceeds from the Senior Notes Offering for general corporate purposes, including, without limitation, repayment of outstanding indebtedness, and to pay fees, costs and expenses in connection with the Senior Notes Offering."
+  },
+  "_meta": {
+    "bundle_hash": "3c1544aba318cc1a",
+    "extractor": "claude-sonnet-5-5 via Claude Code agents, 2026-10-14"
+  }
+}

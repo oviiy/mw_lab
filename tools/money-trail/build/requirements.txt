@@ -1,0 +1,9 @@
+duckdb>=1.1
+pandas>=2.2
+pyarrow>=16
+requests>=2.32
+pyyaml>=6
+yfinance>=1.2
+jsonschema>=4.22
+pytest>=8
+pypdf>=4

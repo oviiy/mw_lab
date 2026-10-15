@@ -1,0 +1,17 @@
+{
+  "accession": "0001193125-26-032650",
+  "is_new_debt": false,
+  "doc_kind": "launch_announcement",
+  "skip_reason": "Rule 163 press release announcing Oracle's 2026 funding plan (planned debt and equity issuance); no final terms or priced debt.",
+  "trade_date": null,
+  "settlement_date": null,
+  "tranches": [],
+  "proceeds": {
+    "ai_flag": "explicit",
+    "quote": "Oracle is raising money in order to build additional capacity to meet the contracted demand from our largest Oracle Cloud Infrastructure customers"
+  },
+  "_meta": {
+    "bundle_hash": "846f2edb5c81fe22",
+    "extractor": "claude-sonnet-5-5 via Claude Code agents, 2026-10-14"
+  }
+}

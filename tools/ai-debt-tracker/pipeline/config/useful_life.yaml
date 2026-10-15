@@ -1,0 +1,86 @@
+# Depreciation life of servers / AI compute, as disclosed in each issuer's latest 10-K.
+# `years` is the figure used on the chart; `range` is the disclosed range where one is given.
+# Quotes are verbatim from the linked filing.
+#
+# history: disclosed changes in the estimate. `from_years` is the life before the change
+# (only when the filing states it). Optional `earnings_impact_usd` is the effect the company
+# itself reported, with `impact_quote` / `impact_url`; positive = higher profit. The
+# depreciation-wave model uses the life in force in the year each capex vintage was spent.
+
+meta:
+  years: 5.5
+  source_url: https://www.sec.gov/Archives/edgar/data/1326801/000162828026003942/meta-20251231.htm
+  quote: "an increase in the estimated useful lives of most servers and network assets to 5.5 years"
+  history:
+    - effective: "2025-01-01"
+      years: 5.5
+      earnings_impact_usd: 2920000000
+      impact_metric: "reduction in 2025 depreciation expense"
+      impact_url: https://www.sec.gov/Archives/edgar/data/1326801/000162828026003942/meta-20251231.htm
+      impact_quote: "the financial impact of this change in estimate included a reduction in depreciation expense of $ 2.92 billion and an increase in net income of $ 2.59 billion"
+
+alphabet:
+  years: 6
+  source_url: https://www.sec.gov/Archives/edgar/data/1652044/000165204426000018/goog-20251231.htm
+  quote: "We depreciate servers and network equipment generally over a period of six years"
+  history:
+    - effective: "2023-01-01"
+      years: 6
+      from_years: 4
+      earnings_impact_usd: 3900000000
+      impact_metric: "reduction in 2023 depreciation expense"
+      impact_url: https://www.sec.gov/Archives/edgar/data/1652044/000165204424000022/goog-20231231.htm
+      impact_quote: "the effect of this change in estimate was a reduction in depreciation expense of $ 3.9 billion and an increase in net income of $ 3.0 billion"
+
+amazon:
+  years: 5
+  range: [5, 6]
+  source_url: https://www.sec.gov/Archives/edgar/data/1018724/000101872426000004/amzn-20251231.htm
+  quote: "effective January 1, 2025, we changed our estimate of the useful lives of a subset of our servers and networking equipment from six years to five years"
+  history:
+    - effective: "2024-01-01"
+      years: 6
+      from_years: 5
+      earnings_impact_usd: 3100000000
+      impact_metric: "anticipated increase in 2024 operating income"
+      impact_url: https://www.sec.gov/Archives/edgar/data/1018724/000101872424000008/amzn-20231231.htm
+      impact_quote: "are increasing the useful life from five years to six years in January 2024, which, based on servers that are included in “Property and equipment, net” as of December 31, 2023, will have an anticipated impact to our 2024 operating income of $ 3.1 billion"
+    - effective: "2025-01-01"
+      years: 5
+      from_years: 6
+      earnings_impact_usd: -700000000
+      impact_metric: "anticipated decrease in 2025 operating income (subset of servers)"
+      impact_url: https://www.sec.gov/Archives/edgar/data/1018724/000101872425000004/amzn-20241231.htm
+      impact_quote: "we anticipate a decrease in 2025 operating income of approximately $ 0.7 billion"
+
+oracle:
+  years: 6
+  source_url: https://www.sec.gov/Archives/edgar/data/1341439/000119312526277521/orcl-20260531.htm
+  quote: "servers and networking equipment with estimated useful life of six years"
+
+microsoft:
+  years: 6
+  range: [2, 6]
+  source_url: https://www.sec.gov/Archives/edgar/data/789019/000119312526323660/msft-20260630.htm
+  quote: "servers and network equipment, two to six years"
+  history:
+    - effective: "2022-07-01"
+      years: 6
+      from_years: 4
+      earnings_impact_usd: 3700000000
+      impact_metric: "increase in FY2023 operating income"
+      impact_url: https://www.sec.gov/Archives/edgar/data/789019/000095017023035122/msft-20230630.htm
+      impact_quote: "the effect of this change in estimate for fiscal year 2023 was an increase in operating income of $3.7 billion and net income of $3.0 billion"
+
+coreweave:
+  years: 6
+  source_url: https://www.sec.gov/Archives/edgar/data/1769628/000176962826000104/crwv-20251231.htm
+  quote: "Technology equipment | 6 years"
+  history:
+    - effective: "2023-01-01"
+      years: 6
+      from_years: 5
+      earnings_impact_usd: 20000000
+      impact_metric: "reduction in 2023 total expenses"
+      impact_url: https://www.sec.gov/Archives/edgar/data/1769628/000176962826000104/crwv-20251231.htm
+      impact_quote: "was a reduction in total expenses of $ 20 million"

@@ -1,0 +1,13 @@
+{
+  "accession": "0001104659-25-113283",
+  "is_new_debt": true,
+  "tranches": [
+    {"currency": "USD", "amount": 2500000000, "maturity_date": "2028-11-20", "coupon_pct": 3.9, "spread_bp": 30},
+    {"currency": "USD", "amount": 2500000000, "maturity_date": "2030-11-20", "coupon_pct": 4.1, "spread_bp": 40},
+    {"currency": "USD", "amount": 1500000000, "maturity_date": "2033-03-20", "coupon_pct": 4.35, "spread_bp": 47},
+    {"currency": "USD", "amount": 3500000000, "maturity_date": "2035-11-20", "coupon_pct": 4.65, "spread_bp": 55},
+    {"currency": "USD", "amount": 3000000000, "maturity_date": "2055-11-20", "coupon_pct": 5.45, "spread_bp": 75},
+    {"currency": "USD", "amount": 2000000000, "maturity_date": "2065-11-20", "coupon_pct": 5.55, "spread_bp": 85}
+  ],
+  "notes": "Amazon.com final term sheet, 6 tranches totaling USD 15.0bn. 2033 notes mature March 20, 2033 (off-cycle vs Nov 20 for the others)."
+}
