@@ -12,9 +12,6 @@ Browser games, research tools, and knowledge pages. The [homepage](https://oviiy
 | Mathematical Finance Map | [Read](./knowledge/math-finance-map.html) |
 | AI Industry Encyclopedia | [Read](./knowledge/ai-industry-chain-encyclopedia.html) |
 | Theorem Library | [Read](./knowledge/theorem-library.html) |
-| Treasury Factor Loadings, an interactive technical note | [Open](./knowledge/treasury-factors/) |
-
-The older research material in [`knowledge/private/`](./knowledge/private/README.md) remains available by direct link.
 
 ## Tools
 
@@ -39,8 +36,6 @@ The older research material in [`knowledge/private/`](./knowledge/private/README
 | Particell | [Play](./games/Particell.html) |
 | Blitz | [Play](./games/Blitz.html) |
 | Catrun | [Play](./games/Catrun.html) |
-| Crimewave | [Play](./games/Crimewave.html) |
-| Neon District | [Play](./games/NeonDistrict/) |
 | Three Body | [Play](./games/ThreeBody.html) |
 | Tiny Gods | [Play](./games/tiny-gods.html) |
 | Dragon Turf | [Play](./games/dragon-turf/) · [Source](./games/dragon-turf/README.md) |
@@ -52,4 +47,4 @@ The older research material in [`knowledge/private/`](./knowledge/private/README
 
 The game builds under `dist/` are checked in so Pages can serve them directly. AI Debt Tracker is an Astro site; its checked-in `web/dist/` build uses `/mw_lab/tools/ai-debt-tracker/web/dist/` as its base path. To rebuild it, run `npm ci` in `tools/ai-debt-tracker/web`, run `node scripts/copy-data.mjs`, then build with `SITE=https://oviiy.github.io` and `BASE_PATH=/mw_lab/tools/ai-debt-tracker/web/dist/`.
 
-Money Trail is a static site backed by checked-in public JSON. Its data pipeline and AI Debt Tracker's data pipeline can be updated separately; neither runs during Pages deployment. No private `.env` file or embedded repository metadata is published.
+Money Trail is a static site backed by checked-in public JSON. Its data pipeline and AI Debt Tracker's data pipeline can be updated separately; neither runs during Pages deployment. Local `.env` files and embedded repository metadata are excluded.

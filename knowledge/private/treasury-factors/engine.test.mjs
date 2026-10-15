@@ -34,22 +34,21 @@ test('principal angles: identical subspaces → 0, orthogonal → 90°', () => {
   close(E.principalAnglesDeg([[1], [0], [0]], C)[0], 90, 1e-8, 'orthogonal');
 });
 
-test('Su–Wang J reproduces the thesis Python results on the GSW+FRED panel', () => {
-  const ds = D.datasets.find(d => d.id === 'gsw');
-  const X = E.standardize(ds.yields).Z;
-  const expected = Object.fromEntries(D.thesis.tests.map(t => [t.R, t]));
-  const K = E.kernel(X.length, X[0].length);
-  close(K.h, D.thesis.sample.h, 1e-12, 'bandwidth h');
-  for (const R of [3, 4, 5]) {
-    const fit = E.suWangFit(X, R, K);
-    const s = E.suWangStat(X, fit, K);
-    close(s.M, expected[R].M, 1e-9 * Math.max(1, expected[R].M) + 1e-12, `M R=${R}`);
-    close(s.J, expected[R].J, 1e-6 * Math.abs(expected[R].J), `J R=${R}`);
+test('J reproduces the thesis full-sample statistics on JKV and Treasury', () => {
+  for (const ds of D.datasets) {
+    const X = E.standardize(ds.yields).Z;
+    const K = E.kernel(X.length, X[0].length);
+    const period = ds.id === 'jkv' ? 'JKV 1970–2009' : 'Treasury 1981–2026';
+    for (const d of [3, 4, 5]) {
+      const ref = D.results.periods.find(h => h.period === period && h.d === d);
+      const s = E.suWangStat(X, E.suWangFit(X, d, K), K);
+      close(s.J, ref.J, 1e-6 * Math.abs(ref.J) + 6e-5, `${ds.id} J d=${d}`);
+    }
   }
 });
 
 test('bootstrap is reproducible from the seed and gives a sane null', () => {
-  const ds = D.datasets.find(d => d.id === 'gsw');
+  const ds = D.datasets.find(d => d.id === 'treasury');
   const X = E.standardize(ds.yields.slice(0, 120)).Z;
   const a = E.suWangBootstrap(X, 3, { reps: 5, seed: 7 });
   const b = E.suWangBootstrap(X, 3, { reps: 5, seed: 7 });
@@ -60,10 +59,10 @@ test('bootstrap is reproducible from the seed and gives a sane null', () => {
 
 test('rolling PCA returns sign-aligned loadings and angles for every window end', () => {
   const ds = D.datasets.find(d => d.id === 'treasury');
-  const Y = ds.yields.map(r => ds.core.map(i => r[i]));
+  const Y = ds.yields;
   const out = E.rollingPCA(Y, 60, 3);
   assert.equal(out.ends.length, Y.length - 60 + 1);
-  assert.equal(out.loadings[0].length, ds.core.length);
+  assert.equal(out.loadings[0].length, ds.maturities.length);
   assert.ok(out.angles.every(a => a.length === 3 && a.every(v => v >= 0 && v <= 90.0001)));
   // level factor keeps a positive overall sign in every window (individual short-end
   // loadings can legitimately turn negative at the zero lower bound)

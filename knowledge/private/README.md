@@ -2,4 +2,4 @@
 This folder is intentionally not linked from the public README.
 Direct URLs only.
 
-- `treasury-factors/` — earlier copy of the interactive yield-curve technical note. The updated public copy is at [`../treasury-factors/`](../treasury-factors/).
+- `treasury-factors/` — interactive technical note on whether yield-curve factor loadings stay constant. Open `index.html`.

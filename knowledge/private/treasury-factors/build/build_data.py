@@ -1,24 +1,17 @@
-"""Build data.js for the Treasury factor dashboard from the thesis repository.
+"""Build data.js for the technical note from the thesis repository.
 
 Usage:  python3 build/build_data.py [/path/to/time-varying-treasury-factors-main]
 
-Every series in the main panel comes from exactly one published source over
-its whole history. Nothing is interpolated and nothing is spliced:
-
-  3M, 6M          H.15 Treasury bill secondary-market rate (discount basis),
-                  converted to bond-equivalent yield with a closed-form formula
-                  applied identically on every date (1970 -> now).
-  1M ... 30Y      H.15 Treasury constant-maturity (CMT) yields, shown only in
-                  months the series was published; gaps stay blank.
-
-Month-end observation = last business-day value in the calendar month.
-The zero-coupon panels used by the thesis (JKV 1970-2009, GSW+FRED 2006-2026)
-are passed through unchanged as separate datasets.
+Datasets are exactly the thesis's two main panels, never pooled:
+  jkv        JKV (2014) unsmoothed Fama–Bliss zero yields, Jan 1970 – Dec 2009, 17 maturities.
+  treasury   Official Treasury CMT yields (Fed H.15), Sep 1981 – Aug 2026, the 8 maturities
+             3M–10Y that are complete over the whole span (no interpolation).
+Results are read from the thesis's saved outputs (wk5/, wk6/, wk7/results); nothing is re-estimated here.
 """
+import ast
+import glob
 import json
-import re
 import sys
-import zipfile
 from pathlib import Path
 
 import numpy as np
@@ -28,197 +21,146 @@ HERE = Path(__file__).resolve().parent
 OUT = HERE.parent / "data.js"
 THESIS = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(
     "/Users/michael.wang/MW/Personal/thesis/time-varying-treasury-factors-main")
-
-START, END = "1970-01-01", "2026-08-31"  # last complete month in the H.15 snapshot
-BILL_DAYS = {"m3": 91, "m6": 182}
-
-
-def r(x, nd=3):
-    return None if x is None or not np.isfinite(x) else round(float(x), nd)
+R5, R6, R7 = THESIS / "wk5/results", THESIS / "wk6/results", THESIS / "wk7/results"
+TSY_COLS = ["m3", "m6", "m12", "m24", "m36", "m60", "m84", "m120"]
 
 
-def h15_series(xml, name):
-    block = re.search(r'<kf:Series[^>]*SERIES_NAME="%s"[^>]*>(.*?)</kf:Series>' % re.escape(name), xml, re.S)
-    rows = re.findall(r'<frb:Obs[^>]*?/>', block.group(1))
-    out = {}
-    for row in rows:
-        v = re.search(r'OBS_VALUE="([^"]+)"', row).group(1)
-        d = re.search(r'TIME_PERIOD="([^"]+)"', row).group(1)
-        v = float(v)
-        if v > -9000:
-            out[pd.Timestamp(d)] = v
-    return pd.Series(out).sort_index()
+def r(x, nd=4):
+    if x is None:
+        return None
+    try:
+        x = float(x)
+    except (TypeError, ValueError):
+        return x
+    return None if not np.isfinite(x) else round(x, nd)
 
 
-def bond_equivalent(discount_pct, days):
-    """Discount-basis bill rate -> bond-equivalent (investment) yield, bills <= 182 days."""
-    d = discount_pct / 100
-    return 100 * 365 * d / (360 - d * days)
+def rows(df, nd=4):
+    return [{k: (r(v, nd) if isinstance(v, (float, np.floating, int, np.integer)) and not isinstance(v, (bool, np.bool_)) else
+                 (bool(v) if isinstance(v, (bool, np.bool_)) else (None if pd.isna(v) else v)))
+             for k, v in rec.items()} for rec in df.to_dict("records")]
 
 
-def month_end(s):
-    s = s.dropna()
-    return s.groupby(s.index.to_period("M")).last()
+def hist(draws, bins=60):
+    d = np.asarray(draws, float)
+    d = d[np.isfinite(d)]
+    lo, hi = float(np.quantile(d, .0005)), float(np.quantile(d, .9995))
+    c, e = np.histogram(np.clip(d, lo, hi), bins=bins, range=(lo, hi))
+    return {"edges": [r(v, 3) for v in e], "counts": c.tolist(), "n": int(d.size),
+            "q99": r(np.quantile(d, .99), 3), "median": r(np.median(d), 3)}
 
 
-def build_treasury():
-    with zipfile.ZipFile(THESIS / "data/raw/h15_cmt/H15_ddp_all_20260925.zip") as z:
-        xml = z.read("H15_data.xml").decode("utf-8")
-    cmt = pd.read_csv(THESIS / "data/raw/h15_cmt/h15_cmt_daily_1962_2026.csv", index_col=0, parse_dates=True)
-    daily = {}
-    for col, code in (("m3", "RIFSGFSM03_N.B"), ("m6", "RIFSGFSM06_N.B")):
-        daily[col] = bond_equivalent(h15_series(xml, code), BILL_DAYS[col])
-    for col in ("m1", "m12", "m24", "m36", "m60", "m84", "m120", "m240", "m360"):
-        daily[col] = cmt[col]
-    # Treasury suspended the 30Y CMT 2002-02-18 -> 2006-02-08; H.15 carries an
-    # extrapolated value there. The official Treasury file is blank, so are we.
-    s30 = daily["m360"].copy()
-    s30[(s30.index >= "2002-02-18") & (s30.index < "2006-02-09")] = np.nan
-    daily["m360"] = s30
-
-    cols = ["m1", "m3", "m6", "m12", "m24", "m36", "m60", "m84", "m120", "m240", "m360"]
-    periods = pd.period_range(START, END, freq="M")
-    panel = pd.DataFrame({c: month_end(daily[c][START:END]) for c in cols}).reindex(periods)
-    # month-end date label = last business day actually observed in that month
-    any_obs = pd.concat([daily[c][START:END] for c in cols], axis=1).dropna(how="all")
-    last_day = any_obs.groupby(any_obs.index.to_period("M")).apply(lambda g: g.index.max())
-    dates = [last_day[p].strftime("%Y-%m-%d") for p in periods]
-
-    # T-bill (BEY) vs 3M/6M CMT on the overlap: documentation only, never used to splice.
-    splice = {}
-    for col in ("m3", "m6"):
-        j = pd.concat([daily[col].rename("bill"), cmt[col].rename("cmt")], axis=1).dropna()
-        diff = (j.bill - j.cmt) * 100
-        mdiff = diff.groupby(diff.index.to_period("M")).mean()
-        splice[col] = {
-            "overlap_start": j.index[0].strftime("%Y-%m-%d"), "n_days": int(len(diff)),
-            "mean_bp": r(diff.mean(), 2), "sd_bp": r(diff.std(), 2),
-            "p95_abs_bp": r(diff.abs().quantile(.95), 2),
-            "corr_levels": r(np.corrcoef(j.bill, j.cmt)[0, 1], 5),
-            "monthly_dates": [str(p) for p in mdiff.index], "monthly_bp": [r(v, 1) for v in mdiff],
-        }
-
-    coverage = {}
-    for c in cols:
-        s = panel[c]
-        runs, on, start = [], False, None
-        for p, v in s.items():
-            if np.isfinite(v) and not on:
-                on, start = True, p
-            elif not np.isfinite(v) and on:
-                runs.append([str(start), str(p - 1)]); on = False
-        if on:
-            runs.append([str(start), str(s.index[-1])])
-        coverage[c] = runs
-
-    return {
-        "id": "treasury", "label": "Treasury observed (1970–2026)",
-        "short": "Treasury observed", "kind": "par",
-        "maturities": [1, 3, 6, 12, 24, 36, 60, 84, 120, 240, 360],
-        "dates": dates,
-        "yields": [[r(v, 3) for v in row] for row in panel[cols].to_numpy()],
-        "core": [1, 2, 3, 5, 6, 7, 8],  # 3M,6M,1Y,3Y,5Y,7Y,10Y: balanced Jan-1970 -> now
-        "source": {c: ("H.15 T-bill secondary market, discount → bond-equivalent" if c in BILL_DAYS
-                       else "H.15 / Treasury constant-maturity (CMT)") for c in cols},
-        "coverage": coverage, "splice_diagnostics": splice,
-    }
+# ---------------- datasets ----------------
+def datasets():
+    jkv = pd.read_csv(THESIS / "references/JKV2014-data/UnsmFB_70-09.csv")
+    jd = pd.to_datetime(jkv["date"].astype(str), format="%Y%m%d")
+    tsy = pd.read_csv(THESIS / "data/derived/treasury_cmt_h15_monthly_1962_2026.csv", parse_dates=["date"])
+    tsy = tsy[(tsy.date >= "1981-09-01") & (tsy.date <= "2026-08-31")].reset_index(drop=True)
+    assert tsy[TSY_COLS].isna().sum().sum() == 0
+    return [
+        {"id": "jkv", "label": "JKV zero-coupon, 1970–2009", "short": "JKV", "kind": "zero",
+         "maturities": [int(c) for c in jkv.columns[1:]], "dates": [d.strftime("%Y-%m-%d") for d in jd],
+         "yields": [[r(v, 6) for v in row] for row in jkv.iloc[:, 1:].to_numpy()]},
+        {"id": "treasury", "label": "Treasury CMT (H.15), 1981–2026", "short": "Treasury", "kind": "par",
+         "maturities": [int(c[1:]) for c in TSY_COLS], "dates": [d.strftime("%Y-%m-%d") for d in tsy.date],
+         "yields": [[r(v, 2) for v in row] for row in tsy[TSY_COLS].to_numpy()]},
+    ]
 
 
-def build_zero(path, ident, label, short, date_fmt=None, note=""):
-    df = pd.read_csv(path)
-    d = df.columns[0]
-    dates = pd.to_datetime(df[d].astype(str), format=date_fmt)
-    mats = [int(str(c).lstrip("m")) for c in df.columns[1:]]
-    return {
-        "id": ident, "label": label, "short": short, "kind": "zero", "maturities": mats,
-        "dates": [x.strftime("%Y-%m-%d") for x in dates],
-        "yields": [[r(v, 8) for v in row] for row in df.iloc[:, 1:].to_numpy()],
-        "core": list(range(len(mats))), "note": note,
-    }
-
-
-def build_macro():
-    def fred(name):
-        s = pd.read_csv(THESIS / f"data/raw/fred_{name}.csv", index_col=0, parse_dates=True).iloc[:, 0]
-        return s
+def macro():
+    def fred(n):
+        return pd.read_csv(THESIS / f"data/raw/fred_{n}.csv", index_col=0, parse_dates=True).iloc[:, 0]
     cpi = fred("CPIAUCSL")
-    cpi_yoy = (cpi / cpi.shift(12) - 1) * 100
-    ff, ur = fred("FEDFUNDS"), fred("UNRATE")
-    idx = pd.period_range(START, END, freq="M")
+    idx = pd.period_range("1970-01", "2026-08", freq="M")
     pick = lambda s: [r(v, 2) for v in s.groupby(s.index.to_period("M")).last().reindex(idx)]
-    return {"months": [str(p) for p in idx], "fedfunds": pick(ff), "cpi_yoy": pick(cpi_yoy), "unrate": pick(ur)}
+    return {"months": [str(p) for p in idx], "fedfunds": pick(fred("FEDFUNDS")),
+            "cpi_yoy": pick((cpi / cpi.shift(12) - 1) * 100), "unrate": pick(fred("UNRATE"))}
 
 
-def histogram(draws, obs, bins=90):
-    lo, hi = float(np.quantile(draws, .0005)), float(np.quantile(draws, .9995))
-    counts, edges = np.histogram(np.clip(draws, lo, hi), bins=bins, range=(lo, hi))
-    return {"edges": [r(e, 4) for e in edges], "counts": counts.tolist(),
-            "q": {str(q): r(np.quantile(draws, q), 4) for q in (.5, .9, .95, .99)},
-            "min": r(draws.min(), 4), "max": r(draws.max(), 4), "n": int(draws.size)}
+def history():
+    """Presidents, Fed chairs, policy cycles and fiscal milestones exactly as drawn on the thesis slides."""
+    tree = ast.parse((THESIS / "wk5/scripts/wk5_extra.py").read_text())
+    out = {}
+    for node in tree.body:
+        if isinstance(node, ast.Assign) and isinstance(node.targets[0], ast.Name) and node.targets[0].id in (
+                "PRESIDENTS", "FISCAL", "CHAIRS", "HIKES", "CUTS"):
+            out[node.targets[0].id.lower()] = ast.literal_eval(node.value)
+    return out
 
 
-def build_thesis():
-    res = json.loads((THESIS / "results/monthly_results.json").read_text())
-    tests = []
-    for t in res["tests"]:
-        draws = np.load(THESIS / f"results/bootstrap_J_R{t['R']}.npy")
-        tests.append({k: t[k] for k in ("R", "J", "M", "bias", "variance", "B", "exceedances",
-                                         "bootstrap_p_add_one", "critical_90", "critical_95", "critical_99",
-                                         "reject_1pct", "static_residual_mse", "local_residual_mse")}
-                     | {"hist": histogram(draws, t["J"])})
+# ---------------- results ----------------
+def scan(ds, d, suffix="_mw60_restart60"):
+    m = json.loads((R5 / f"multibreak_{ds}_d{d}{suffix}.json").read_text())
+    segs = []
+    for s in m["segments"]:
+        traj = [{"date": t["end_date"][:7], "J": r(t["J"], 3), "crit": r(t["critical_99"], 3), "p": r(t["p"], 4),
+                 "reject": bool(t["reject"]), "stage": t.get("stage"), "Th": r(t.get("Th_months"), 1)}
+                for t in s.get("trajectory", []) if t.get("end_date")]
+        segs.append({"start": s["start_date"][:7], "break": (s["break_date"] or "")[:7] or None, "p": r(s.get("break_p"), 4),
+                     "retreated": bool(s.get("retreated")), "edge": bool(s.get("rejected_at_min_window")), "traj": traj})
+    sp = m["spec"]
+    return {"spec": {"T": sp["T"], "N": sp["N"], "sample": [x[:7] for x in sp["sample"]], "min_window": sp["min_window"],
+                     "restart": sp.get("restart_min_window"), "screen": sp["screen_reps"], "confirm": sp["confirm_reps"]},
+            "segments": segs}
 
-    def segs(path, keep_traj=True):
-        d = json.loads((THESIS / path).read_text())
-        out = []
-        for s in d["segments"]:
-            traj = [{"end_date": p.get("end_date"), "J": r(p["J"], 3), "crit": r(p["critical_99"], 3),
-                     "p": r(p.get("p"), 5), "reject": bool(p["reject"]), "stage": p.get("stage")}
-                    for p in s.get("trajectory", [])] if keep_traj else []
-            out.append({"start": s["start_date"], "break": s["break_date"], "p": s.get("break_p"),
-                        "rejected_at_min_window": s.get("rejected_at_min_window"),
-                        "retreated": s.get("retreated", False), "trajectory": traj})
-        spec = {k: v for k, v in d["spec"].items()}
-        return {"spec": spec, "segments": out}
 
-    jkv = segs("wk6/results/multibreak_jkv_d3_mw60_restart24.json")
-    par = json.loads((THESIS / "followup/results/todo3_treasury_breakdates.json").read_text())
-    par_out = {"spec": par["spec"], "ranks": {}}
-    for rank, v in par["results"].items():
-        par_out["ranks"][rank] = {
-            "windows_tested": v["windows_tested"],
-            "breaks": [{"date": b["break_date"], "J": r(b["screen_J"], 3), "crit": r(b["screen_critical_99"], 3),
-                        "confirm": [{"date": c["date"], "wlen": c["wlen"], "J": r(c["J"], 3),
-                                     "crit": r(c["critical_99"], 3),
-                                     "p": r(c.get("bootstrap_p_add_one", c.get("p")), 5)} for c in b["confirm_windows"]]}
-                       for b in v["breaks"]],
-            "trajectory": [{"date": p["date"], "wlen": p["wlen"], "J": r(p["J"], 3), "crit": r(p["critical_99"], 3),
-                            "reject": bool(p["reject_1pct"])} for p in v.get("trajectory", [])],
-        }
-    return {"sample": res["sample"], "tests": tests, "method": res["method"],
-            "qualification": res["qualification"],
-            "fixed_approx": res.get("fixed_approximation_of_local_three_factor_common"),
-            "breaks": {"jkv": jkv, "treasury_par_2006": par_out}}
+def results():
+    head = pd.read_csv(R5 / "headline_tests.csv")
+    z = np.load(R5 / "j_distribution_draws.npz")
+    nulls = {}
+    for key, panel in (("jkv", "JKV 1970-2009"), ("tsy", "Treasury CMT (H.15) 1981-09-2026-08")):
+        for d in (3, 4, 5):
+            row = head[(head.panel == panel) & (head.d == d)].iloc[0]
+            draws = z[f"{key}_d{d}"]
+            nulls[f"{'jkv' if key == 'jkv' else 'treasury'}_{d}"] = {
+                **hist(draws), "J": r(row.J, 3), "crit": r(row.critical_99, 3), "p": r(row.p, 4),
+                "p_from_draws": r((1 + (draws >= row.J).sum()) / (1 + draws.size), 4)}
+
+    nd = pd.read_csv(R5 / "jkv_1970s_null_draws.csv")
+    nobs = pd.read_csv(R5 / "jkv_1970s_null_obs.csv").set_index("sample")
+    null7080 = {c: {**hist(nd[c]), "J": r(nobs.loc[c, "J"], 3), "crit": r(nobs.loc[c, "critical_99"], 3),
+                    "p": r(nobs.loc[c, "p"], 4)} for c in nd.columns}
+    mis = pd.read_csv(R5 / "jkv_1970s_monthly_misfit.csv")
+
+    ev = pd.read_csv(R5 / "wk5_break_events.csv")
+    ev = ev[ev.panel.isin(["JKV 1970–2009", "Treasury 1981–2026"])]
+    sim = pd.read_csv(R5 / "sim_size_power.csv", dtype={"dgp": str})
+    simg = sim.groupby(["dgp", "N", "T"]).rej05.mean().mul(100).round(1).reset_index()
+    diag = pd.read_csv(glob.glob(str(R5 / "diag5_bootstrap_errors_1_17_480*rep5000*.csv"))[0], dtype={"dgp": str})
+    diagg = diag.groupby(["dgp", "N", "T", "config"]).rej05.mean().mul(100).round(1).reset_index()
+
+    return {
+        "headline": rows(head.drop(columns=["resid_lag1_median"])),
+        "nulls": nulls,
+        "periods": rows(pd.read_csv(R5 / "period_replication.csv")),
+        "bw_mult": rows(pd.read_csv(R5 / "robust_bandwidth.csv")),
+        "bw_fixed": rows(pd.read_csv(R7 / "full_sample_bw.csv")),
+        "sweep": rows(pd.read_csv(R5 / "jkv_puzzle_sweep.csv").drop(columns=["static_variance_share"])),
+        "shares": rows(pd.read_csv(R5 / "jkv_1970s_shares.csv")),
+        "misfit": {"dates": [d[:7] for d in mis.date], "rss": [r(v, 5) for v in mis.rss]},
+        "null7080": null7080,
+        "controls": rows(pd.read_csv(R5 / "jkv_puzzle_controls.csv")[["spec", "T", "Th_months", "J", "critical_99", "null_median", "p", "reject"]]),
+        "scans": {f"{ds}_{d}": scan("jkv" if ds == "jkv" else "treasury_cmt", d) for ds in ("jkv", "treasury") for d in (3, 4, 5)},
+        "grid": rows(pd.read_csv(R6 / "grid_configs.csv").fillna("")),
+        "bw_breaks": rows(pd.read_csv(R7 / "bw_compare.csv")),
+        "bw_audit": rows(pd.read_csv(R7 / "bandwidth_audit.csv")),
+        "events": rows(ev),
+        "sim_size_power": rows(simg),
+        "bootstrap_versions": rows(diagg),
+        "planted": rows(pd.read_csv(R7 / "sim_summary.csv")),
+    }
 
 
 def main():
-    data = {
-        "built": pd.Timestamp.now().strftime("%Y-%m-%d"),
-        "datasets": [
-            build_treasury(),
-            build_zero(THESIS / "data/derived/monthly_yields_2006_2026.csv", "gsw",
-                       "Thesis panel (GSW + FRED zeros, 2006–2026)", "Thesis panel", None,
-                       "3M/6M FRED CMT; 9M = midpoint of 6M and GSW 12M (supervisor's construction); 12M+ evaluated from GSW Svensson parameters."),
-        ],
-        "thesis": build_thesis(),
-    }
-    js = "/* generated by build/build_data.py — do not edit */\nwindow.YC_DATA = " + json.dumps(data, separators=(",", ":"), allow_nan=False) + ";\n"
-    OUT.write_text(js, encoding="utf-8")
-    t = data["datasets"][0]
-    print(f"wrote {OUT} ({OUT.stat().st_size/1e3:.0f} kB); treasury {t['dates'][0]} -> {t['dates'][-1]}, T={len(t['dates'])}")
-    core = np.array([[row[i] for i in t["core"]] for row in t["yields"]], dtype=float)
-    print("treasury core NaNs:", int(np.isnan(core).sum()))
-    for k, v in t["splice_diagnostics"].items():
-        print(k, {kk: vv for kk, vv in v.items() if not kk.startswith("monthly")})
+    data = {"built": pd.Timestamp.now().strftime("%Y-%m-%d"), "datasets": datasets(), "macro": macro(),
+            "history": history(), "results": results()}
+    OUT.write_text("/* generated by build/build_data.py — do not edit */\nwindow.YC_DATA = " +
+                   json.dumps(data, separators=(",", ":"), allow_nan=False, ensure_ascii=False) + ";\n", encoding="utf-8")
+    print(f"wrote {OUT} ({OUT.stat().st_size / 1e3:.0f} kB)")
+    for k, v in data["results"]["nulls"].items():
+        print(f"  null {k}: J={v['J']} crit={v['crit']} p={v['p']} p_from_draws={v['p_from_draws']} q99(draws)={v['q99']}")
+    for k, v in data["results"]["scans"].items():
+        print(f"  scan {k}: {[s['break'] for s in v['segments']]}")
 
 
 if __name__ == "__main__":

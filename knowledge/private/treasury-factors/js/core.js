@@ -50,12 +50,11 @@
   YC.monthsBetween = (a, b) => (+b.slice(0, 4) - +a.slice(0, 4)) * 12 + (+b.slice(5, 7) - +a.slice(5, 7));
   YC.idxForMonth = (ds, ym) => { let best = 0; for (let i = 0; i < ds.dates.length; i++) if (ds.dates[i].slice(0, 7) <= ym) best = i; return best; };
   YC.core = (ds, from = 0, to = ds.dates.length - 1) => ({
-    Y: ds.yields.slice(from, to + 1).map(r => ds.core.map(i => r[i])),
-    mats: ds.core.map(i => ds.maturities[i]), dates: ds.dates.slice(from, to + 1),
+    Y: ds.yields.slice(from, to + 1), mats: ds.maturities, dates: ds.dates.slice(from, to + 1),
   });
   YC.col = (ds, m) => { const i = ds.maturities.indexOf(m); return ds.yields.map(r => r[i]); };
   YC.matTicks = (mats) => {
-    const nice = [1, 3, 6, 12, 24, 36, 60, 84, 120, 240, 360];
+    const nice = [3, 6, 12, 24, 36, 60, 120, 240, 360];
     const pick = mats.length > 9 ? mats.filter(m => nice.includes(m)) : mats;
     return { tickvals: pick.map(m => m / 12), ticktext: pick.map(YC.matLabel) };
   };
@@ -112,6 +111,16 @@
     }
   }, { rootMargin: '400px 0px' }) : null;
   YC.lazy = (el, init) => { if (!io) { init(); return; } pending.set(el, init); io.observe(el); };
+  // fallback: some environments deliver IntersectionObserver late; also check on scroll
+  const sweep = () => {
+    for (const [el, fn] of [...pending]) {
+      const r = el.getBoundingClientRect();
+      if (r.bottom > -400 && r.top < innerHeight + 400) { pending.delete(el); io && io.unobserve(el); fn(); }
+    }
+  };
+  let ticking = false;
+  addEventListener('scroll', () => { if (!ticking) { ticking = true; setTimeout(() => { ticking = false; sweep(); }, 120); } }, { passive: true });
+  addEventListener('load', () => setTimeout(sweep, 50));
 
   // ---------- bootstrap in a worker ----------
   YC.runBootstrap = (X, R, opts, onProgress) => new Promise((resolve, reject) => {
