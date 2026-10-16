@@ -424,6 +424,14 @@ const MAPS=[
 const PUZ=window.PROVERB_PUZZLES||{};
 const KEY=id=>'proverbs-v4-map'+id,SUM='proverbs-v4-summary';
 const getSum=()=>{try{return JSON.parse(localStorage.getItem(SUM))||{}}catch(e){return{}}};
+const formatPct=p=>p>0&&p<.01?'<0.01%':Number(p.toFixed(2))+'%';
+function savedPct(p,id){
+  try{const d=JSON.parse(localStorage.getItem(KEY(id))),s=atob(d.st),mask=atob(p.mask),given=atob(p.given),n=p.W*p.H;
+    if(s.length!==n)return 0;
+    let correct=0,available=0;
+    for(let i=0;i<n;i++){if((given.charCodeAt(i>>3)>>(i&7))&1)continue;
+      available++;if(s.charCodeAt(i)===((mask.charCodeAt(i>>3)>>(i&7))&1?1:2))correct++}
+    return available?correct/available*100:100}catch(e){return 0}}
 const $=id=>document.getElementById(id);
 const mapId=+((location.hash.match(/map=(\d)/)||[])[1]||0);
 addEventListener('hashchange',()=>location.reload());
@@ -437,9 +445,9 @@ $('fImport').onchange=e=>{const f=e.target.files[0];if(!f)return;f.text().then(t
 function showGallery(){
   document.querySelector('header').style.display='none';$('wrap').style.display='none';$('gallery').classList.add('show');
   const sum=getSum(),box=$('cards');
-  MAPS.forEach(m=>{const p=PUZ[m.id];if(!p)return;const s=sum[m.id]||{};
+  MAPS.forEach(m=>{const p=PUZ[m.id];if(!p)return;const s=sum[m.id]||{},pct=savedPct(p,m.id);
     const el=document.createElement('div');el.className='frame';
-    el.innerHTML=`<div class="gild"><canvas width="${p.W}" height="${p.H}"></canvas></div><div class="plate"><b>${m.name}</b><span>${p.W}×${p.H} · ${'★'.repeat(m.stars)}${'☆'.repeat(5-m.stars)} · ${s.pct||0}% restored</span><div class="bar"><i style="width:${s.pct||0}%"></i></div></div><div style="color:#c9b089;font-style:italic;margin-top:6px;font-size:14px">${m.sub}</div>`;
+    el.innerHTML=`<div class="gild"><canvas width="${p.W}" height="${p.H}"></canvas></div><div class="plate"><b>${m.name}</b><span>${p.W}×${p.H} · ${'★'.repeat(m.stars)}${'☆'.repeat(5-m.stars)} · ${formatPct(pct)} restored</span><div class="bar"><i style="width:${pct}%"></i></div></div><div style="color:#c9b089;font-style:italic;margin-top:6px;font-size:14px">${m.sub}</div>`;
     el.onclick=()=>{location.hash='map='+m.id};box.appendChild(el);
     const cv=el.querySelector('canvas'),cx=cv.getContext('2d');
     if(s.thumb){const im=new Image();im.onload=()=>cx.drawImage(im,0,0,p.W,p.H);im.src=s.thumb}
@@ -458,6 +466,7 @@ $('title').innerHTML='Proverbs<em>'+MAP.name.toLowerCase()+'</em>';document.titl
 const G=painter(W,H,MAP.seed);MAP.paint(G);const col=G.col,PALC=G.PALC,V=G.V;
 const unb=s=>{const b=atob(s),o=new Uint8Array(N);for(let i=0;i<N;i++)o[i]=(b.charCodeAt(i>>3)>>(i&7))&1;return o};
 const mask=unb(P.mask),hasClue=unb(P.clue),isGiven=unb(P.given);
+const givenCount=isGiven.reduce((n,v)=>n+v,0);
 const rnd=mkRng(MAP.seed*7919+13);
 
 /* ---- regions come with the puzzle (run-length pairs: id, length) ---- */
@@ -498,8 +507,9 @@ function setCell(i,v,silent){const o=st[i];if(o===v)return;
   for(const j of NB[i]){if(o)mcnt[j]--;if(v)mcnt[j]++;if(o===1)fcnt[j]--;if(v===1)fcnt[j]++}
   const r=region[i],t=truth(i);if(o===t)corr[r]--;if(v===t)corr[r]++;st[i]=v;
   if(corr[r]===rtotal[r]&&!done[r]){done[r]=1;doneCount++;gold+=reward(r);if(!silent)completed(r,i)}}
+const progressPct=()=>{let correct=0;for(let r=0;r<NR;r++)correct+=corr[r];return (correct-givenCount)/(N-givenCount)*100};
 function save(){try{let s='';for(let i=0;i<N;i+=8192)s+=String.fromCharCode.apply(null,st.subarray(i,i+8192));localStorage.setItem(KEY(mapId),JSON.stringify({st:btoa(s),h:hints}));
-  const sum=getSum();let n=0;for(let r=0;r<NR;r++)if(done[r])n+=rtotal[r];sum[mapId]={pct:Math.floor(n/N*100),gold,regions:doneCount+'/'+NR,thumb:mini.toDataURL('image/png')};localStorage.setItem(SUM,JSON.stringify(sum))}catch(e){}}
+  const sum=getSum();sum[mapId]={pct:progressPct(),gold,regions:doneCount+'/'+NR,thumb:mini.toDataURL('image/png')};localStorage.setItem(SUM,JSON.stringify(sum))}catch(e){}}
 let saveT=0;const saveSoon=()=>{clearTimeout(saveT);saveT=setTimeout(save,500)};
 function load(){try{const d=JSON.parse(localStorage.getItem(KEY(mapId)));if(!d)return false;const s=atob(d.st);if(s.length!==N)return false;
   for(let i=0;i<N;i++){const v=s.charCodeAt(i);st[i]=v===1||v===2?v:0}for(let i=0;i<N;i++)if(isGiven[i])st[i]=truth(i);hints=d.h|0;rebuild();return true}catch(e){return false}}
@@ -527,7 +537,7 @@ function buildList(){
 let uiT=0;
 function updateUI(){$('sGold').textContent=gold;$('sReg').textContent=doneCount+'/'+NR;
   let sy=0;for(let k=0;k<V.length;k++)if(done[sayRegion[k]])sy++;$('sSay').textContent=sy+'/'+V.length;
-  let n=0;for(let r=0;r<NR;r++)if(done[r])n+=rtotal[r];$('sPct').textContent=Math.floor(n/N*100)+'% painted';
+  $('sPct').textContent=formatPct(progressPct())+' painted';
   if($('panel').classList.contains('open'))buildList()}
 const uiSoon=()=>{if(!uiT)uiT=requestAnimationFrame(()=>{uiT=0;updateUI()})};
 let fillMode=1;
