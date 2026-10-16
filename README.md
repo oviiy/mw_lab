@@ -48,3 +48,5 @@ Browser games, research tools, and knowledge pages. The [file browser](https://o
 The game builds under `dist/` are checked in so Pages can serve them directly. AI Debt Tracker is an Astro site; its checked-in `web/dist/` build uses `/mw_lab/tools/ai-debt-tracker/web/dist/` as its base path. To rebuild it, run `npm ci` in `tools/ai-debt-tracker/web`, run `node scripts/copy-data.mjs`, then build with `SITE=https://oviiy.github.io` and `BASE_PATH=/mw_lab/tools/ai-debt-tracker/web/dist/`.
 
 Money Trail is a static site backed by checked-in public JSON. Its data pipeline and AI Debt Tracker's data pipeline can be updated separately; neither runs during Pages deployment. Local `.env` files and embedded repository metadata are excluded.
+
+US Style Analysis uses checked-in FRED economic history in [`tools/us_rotation_econ.json`](./tools/us_rotation_econ.json). The Pages workflow refreshes it on deployment and weekly. Price and Treasury history still comes from the embedded FMP snapshot unless a visitor supplies an FMP API key and refreshes it.

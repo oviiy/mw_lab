@@ -46,7 +46,7 @@ header.top{display:flex;align-items:center;justify-content:space-between;gap:16p
 .kpi{font-size:40px;font-weight:800;letter-spacing:-1px;line-height:1}
 .kpi.small{font-size:26px}
 .dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:middle}
-.dot.live{background:#2e9e6b}.dot.proxy{background:#e6a72e}.dot.unavailable{background:#c14b4b}
+.dot.live,.dot.fred{background:#2e9e6b}.dot.proxy{background:#e6a72e}.dot.unavailable{background:#c14b4b}
 .legend{display:flex;gap:14px;align-items:center;flex-wrap:wrap;font-size:12px;color:var(--muted)}
 table{border-collapse:collapse;width:100%;font-size:12.5px}
 th,td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--line)}
@@ -130,7 +130,8 @@ code.k{background:#eef2fb;border-radius:6px;padding:1px 6px;font-size:11.5px;col
       <h3>Factor heat map</h3>
       <div class="cap">Final score → Type (Cycle / Sentiment / Value) → Sub-type → Indicator. Every level is colored by its aggregated tilt — <span style="color:var(--growth);font-weight:700">red = Growth</span>, grey = neutral, <span style="color:var(--value);font-weight:700">green = Value</span>.</div>
       <div class="legend" style="margin-bottom:10px">
-        <span><span class="dot live"></span>live</span>
+        <span><span class="dot live"></span>FMP data</span>
+        <span><span class="dot fred"></span>FRED history</span>
         <span><span class="dot proxy"></span>proxy (basket)</span>
         <span><span class="dot unavailable"></span>unavailable</span>
         <span style="margin-left:auto" class="hm-scale"><i style="background:rgb(165,15,21)"></i><i style="background:rgb(239,101,72)"></i><i style="background:rgb(255,241,181)"></i><i style="background:rgb(145,207,96)"></i><i style="background:rgb(26,152,80)"></i> Growth→Value</span>
@@ -143,7 +144,7 @@ code.k{background:#eef2fb;border-radius:6px;padding:1px 6px;font-size:11.5px;col
   <section class="view" id="view-indicators">
     <div class="card">
       <h3>Examine an indicator</h3>
-      <div class="cap">Raw series, LT/ST moving averages, crossover markers, signal history, params &amp; FMP source.</div>
+      <div class="cap">Raw series, LT/ST moving averages, crossover markers, signal history, parameters, and data source.</div>
       <div style="max-width:420px;margin-bottom:14px">
         <label class="fld">Indicator</label>
         <select id="indPick"></select>
@@ -206,7 +207,7 @@ code.k{background:#eef2fb;border-radius:6px;padding:1px 6px;font-size:11.5px;col
     </div>
     <div class="card" style="margin-top:16px">
       <h3>Provenance</h3>
-      <div class="cap">Per-indicator data source status. <b>live</b> = direct FMP series; <b>proxy</b> = built from live prices as a stand-in (V/G baskets, energy = XOM+CVX for commodities). Realized volatility replaces VIX; energy trend replaces crude oil.</div>
+      <div class="cap">Per-indicator data source status. <b>FMP</b> = direct FMP data from the last pull or embedded snapshot; <b>FRED</b> = official economic history refreshed with the site; <b>proxy</b> = built from prices as a stand-in (V/G baskets, energy = XOM+CVX for commodities). Realized volatility replaces VIX; energy trend replaces crude oil.</div>
       <div id="provRefreshed" class="pill" style="margin:4px 0 10px">Data as of 8/5/2026, 4:26:24 PM (0.2h ago)</div>
       <div id="provList" class="prov-list"></div>
     </div>
@@ -218,6 +219,7 @@ code.k{background:#eef2fb;border-radius:6px;padding:1px 6px;font-size:11.5px;col
         Quote <code class="k">/quote?symbol=</code> ·
         Treasury <code class="k">/treasury-rates?from=&amp;to=</code> ·
         Economic <code class="k">/economic-indicators?name=&amp;from=&amp;to=</code>
+        <br>Economic history <a href="https://fred.stlouisfed.org/" target="_blank" rel="noopener">Federal Reserve Economic Data (FRED)</a>
       </div>
     </div>
   </section>
@@ -236,6 +238,7 @@ code.k{background:#eef2fb;border-radius:6px;padding:1px 6px;font-size:11.5px;col
    src types: econ|treasury|ratio  (baskets feed the ratio)
    ============================================================ */
 const FMP_BASE = "https://financialmodelingprep.com/stable";
+let OFFICIAL_ECON = null;
 
 // Static offline fallback: the exact shape pullAll() produces (meta/prices/caps/treasury/econ/provenance),
 // baked in at commit time via the "Bake into HTML" button in Settings. Ships as `null` until baked, so a
@@ -415,6 +418,21 @@ async function fmpGet(path){
 }
 async function safe(fn){ try{ return {ok:true,data:await fn()}; }catch(e){ return {ok:false,error:String(e.message||e)}; } }
 
+async function loadOfficialEcon(){
+  try{
+    const response=await fetch("us_rotation_econ.json",{cache:"no-cache"});
+    if(!response.ok) throw new Error("HTTP "+response.status);
+    const payload=await response.json();
+    const names=[...new Set(flatIndicators().filter(i=>i.src.econ).map(i=>i.src.econ))];
+    if(!payload.econ || !names.every(n=>payload.econ[n] &&
+        payload.econ[n].dates.length>=15 &&
+        payload.econ[n].dates.length===payload.econ[n].vals.length)){
+      throw new Error("incomplete economic history");
+    }
+    OFFICIAL_ECON=payload;
+  }catch(error){ console.warn("FRED history unavailable; using cached economic data",error); }
+}
+
 async function fetchPrices(sym,from,to){
   const j=await fmpGet(`/historical-price-eod/light?symbol=${sym}&from=${from}&to=${to}`);
   if(!Array.isArray(j)) throw new Error("bad price payload");
@@ -526,6 +544,12 @@ async function pullAll(onProgress,prior){
   const econFrom=ymd(daysAgo(Math.round((CONFIG.years+2)*365)));
   const econNames=[...new Set(flatIndicators().filter(i=>i.src.econ).map(i=>i.src.econ))];
   for(const n of econNames){
+    if(OFFICIAL_ECON && OFFICIAL_ECON.econ[n]){
+      data.econ[n]=OFFICIAL_ECON.econ[n];
+      data.provenance["econ:"+n]="fred";
+      data.meta.reusedEcon++;
+      continue;
+    }
     const cached=prior&&prior.econ?prior.econ[n]:null;
     // must both be time-throttled AND already span the required lookback window
     const coversEcon = cached && cached.dates && cached.dates.length && cached.dates[0] <= econFrom.slice(0,7)+"-99";
@@ -638,6 +662,7 @@ function aggregate(data,ratioObj){
     let prov="live";
     if(ind.src.ratio) prov="proxy"; // basket-derived
     else if(ind.src.derived==="energy") prov="proxy"; // energy-equity stands in for commodities
+    else if(ind.src.econ) prov=data.provenance["econ:"+ind.src.econ]||"live";
     perInd[ind.id]={ind,available:sig.last!=null,provenance:sig.last==null?"unavailable":prov,sig};
   }
   // aggregate contributions with renormalized weights within subtype
@@ -777,10 +802,10 @@ function renderOverview(){
   const vEl=$("#verdict"); vEl.innerHTML=vtxt; vEl.className="gauge-verdict "+vcls;
 
   // provenance tally
-  let live=0,proxy=0,un=0;
-  if(agg) for(const k in agg.perInd){ const p=agg.perInd[k].provenance; if(p==="live")live++;else if(p==="proxy")proxy++;else un++;}
+  let live=0,fred=0,proxy=0,un=0;
+  if(agg) for(const k in agg.perInd){ const p=agg.perInd[k].provenance; if(p==="live")live++;else if(p==="fred")fred++;else if(p==="proxy")proxy++;else un++;}
   un += CONFIG.droppedUnavailable.length;
-  $("#scoreMeta").innerHTML=`<span class="dot live"></span>${live} live &nbsp; <span class="dot proxy"></span>${proxy} proxy &nbsp; <span class="dot unavailable"></span>${un} unavailable`;
+  $("#scoreMeta").innerHTML=`<span class="dot live"></span>${live} FMP &nbsp; <span class="dot fred"></span>${fred} FRED &nbsp; <span class="dot proxy"></span>${proxy} proxy &nbsp; <span class="dot unavailable"></span>${un} unavailable`;
 
   // large interactive score-over-time chart
   if(hist&&hist.score&&hist.score.some(v=>v!=null)){
@@ -839,7 +864,7 @@ function renderHeatmap(){
         row+=`<td>${it.ind.name}</td>
           <td><span class="cell-score" style="${cell(s)}">${s!=null&&isFinite(s)?s.toFixed(2):"n/a"}</span></td>
           <td>${(it.ind.w*100).toFixed(0)}%</td>
-          <td><span class="dot ${it.provenance}"></span>${it.provenance}</td></tr>`;
+          <td><span class="dot ${it.provenance}"></span>${it.provenance==="live"?"FMP":it.provenance==="fred"?"FRED":it.provenance}</td></tr>`;
         html+=row;
       }
     }
@@ -1017,6 +1042,7 @@ function renderSettings(){
     const c=EMBEDDED_SNAPSHOT, age=(Date.now()-c.meta.pulledAt)/3600000;
     st=`No live cache — showing the snapshot <b>baked into this file</b> from ${new Date(c.meta.pulledAt).toLocaleString()} (${age.toFixed(0)}h ago). Range ${c.meta.from} → ${c.meta.to}. Add an API key and Refresh for live data.`;
   }
+  if(OFFICIAL_ECON) st+=` Economic history: FRED, refreshed ${new Date(OFFICIAL_ECON.updatedAt).toLocaleDateString()}.`;
   $("#cacheStatus").innerHTML=st;
   // provenance: show the latest refresh date of the data currently displayed
   const pr=$("#provRefreshed");
@@ -1032,7 +1058,7 @@ function renderSettings(){
     for(const [type,subs] of Object.entries(CONFIG.types))
       for(const [sub,arr] of Object.entries(subs))
         for(const ind of arr){ const p=agg.perInd[ind.id];
-          pl.innerHTML+=`<div><span class="dot ${p.provenance}"></span>${ind.name} <span class="small-muted">— ${p.provenance}</span></div>`; }
+          pl.innerHTML+=`<div><span class="dot ${p.provenance}"></span>${ind.name} <span class="small-muted">— ${p.provenance==="live"?"FMP":p.provenance==="fred"?"FRED":p.provenance}</span></div>`; }
   }
   for(const d of CONFIG.droppedUnavailable)
     pl.innerHTML+=`<div><span class="dot unavailable"></span>${d.name} <span class="small-muted">— unavailable (${d.reason})</span></div>`;
@@ -1042,10 +1068,33 @@ function renderSettings(){
    Orchestration
    ============================================================ */
 function computeFromData(data){
-  const ratio=deriveRatio(data);
-  const agg=aggregate(data,ratio);
-  const hist=scoreHistory(data,ratio,agg);
-  STATE={data,ratio,agg,hist};
+  const viewData={...data,econ:{...(data.econ||{})},provenance:{...(data.provenance||{})}};
+  const spy=data.prices&&data.prices.SPY;
+  const marketEnd=(spy&&spy.dates&&spy.dates[spy.dates.length-1])||(data.meta&&data.meta.to);
+  if(OFFICIAL_ECON){
+    for(const [name,series] of Object.entries(OFFICIAL_ECON.econ)){
+      const cached=viewData.econ[name];
+      if(!cached || !cached.dates || cached.dates.length<15 ||
+          cached.dates[cached.dates.length-1]<series.dates[series.dates.length-1]){
+        viewData.econ[name]=series;
+        viewData.provenance["econ:"+name]="fred";
+      }
+    }
+  }
+  // Never let newer macro releases look ahead of the market-price snapshot.
+  if(marketEnd){
+    for(const [name,series] of Object.entries(viewData.econ)){
+      if(!series||!series.dates) continue;
+      const firstFuture=series.dates.findIndex(date=>date>marketEnd);
+      if(firstFuture>=0) viewData.econ[name]={...series,
+        dates:series.dates.slice(0,firstFuture),vals:series.vals.slice(0,firstFuture)};
+    }
+  }
+  viewData.marketEnd=marketEnd;
+  const ratio=deriveRatio(viewData);
+  const agg=aggregate(viewData,ratio);
+  const hist=scoreHistory(viewData,ratio,agg);
+  STATE={data:viewData,ratio,agg,hist};
 }
 function renderAll(){
   renderOverview();renderHeatmap();renderIndicators();renderBacktest();renderSettings();
@@ -1068,6 +1117,10 @@ function updateLastUpdated(){
     bn.innerHTML+=`<div class="banner info">Showing the data snapshot <b>baked into this file</b> as of ${new Date(d).toLocaleString()} (${age<48?age.toFixed(0)+"h":Math.round(age/24)+"d"} ago). Static until you add an FMP key in <b>Settings</b> and hit Refresh.</div>`;
   } else {
     $("#lastUpdated").textContent="no data";
+  }
+  if(OFFICIAL_ECON){
+    const asOf=STATE.data&&STATE.data.marketEnd;
+    bn.innerHTML+=`<div class="banner info">Economic history from FRED was refreshed ${new Date(OFFICIAL_ECON.updatedAt).toLocaleDateString()}${asOf?` and aligned to the market-price date ${asOf}`:""}. Market prices and Treasury data follow the snapshot or your FMP refresh.</div>`;
   }
 }
 
@@ -1134,9 +1187,9 @@ function resetDynamicDOMForBake(){
 }
 
 function doBakeExport(){
-  const raw=localStorage.getItem("us_rot_cache");
+  const raw=STATE.data?JSON.stringify(STATE.data):localStorage.getItem("us_rot_cache");
   if(!raw){
-    $("#banners").innerHTML=`<div class="banner err">No live cached data to bake yet — add an API key in Settings and click Refresh first.</div>`;
+    $("#banners").innerHTML=`<div class="banner err">No data to bake yet — load the snapshot or refresh first.</div>`;
     return;
   }
   try{
@@ -1214,7 +1267,7 @@ function runSelfTest(){
 /* ============================================================
    Init
    ============================================================ */
-function init(){
+async function init(){
   const params=new URLSearchParams(location.search);
   if(params.get("apikey")){ localStorage.setItem("fmp_api_key",params.get("apikey")); }
 
@@ -1233,6 +1286,7 @@ function init(){
   // snapshot baked into this file (if any) so the dashboard shows data with zero setup.
   const localCache=loadCache();
   const cache=localCache||EMBEDDED_SNAPSHOT;
+  await loadOfficialEcon();
   if(cache){ try{ computeFromData(cache); }catch(e){ console.warn("compute from cache failed",e); } }
   renderAll();
 
