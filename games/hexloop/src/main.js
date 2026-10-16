@@ -14,8 +14,13 @@ const vibrate = (p) => { try { navigator.vibrate && navigator.vibrate(p); } catc
 function load() {
   S.meta = G.defMeta(); let run = null;
   try { const s = JSON.parse(localStorage.getItem(SKEY) || 'null'); if (s && s.meta) { S.meta = Object.assign(G.defMeta(), s.meta); run = s.run || null; } } catch (_) {}
+  if (run) { // migrate saves from older versions
+    if (run.boss && !run.bossType) run.bossType = (run.enemies.find((e) => G.isBoss(e.type)) || { type: 'hive' }).type;
+    run.lava = run.lava || []; run.hedge = run.hedge || []; run.mods = run.mods || {};
+    for (const id of Object.keys(run.mods)) if (!G.MODS[id]) delete run.mods[id];
+    if (run.choices) run.choices = run.choices.filter((id) => id === 'repair' || G.MODS[id]);
+  }
   G.setRun(run);
-  if (run && run.phase === 'won') G.finalizeRun();
 }
 function save() { try { localStorage.setItem(SKEY, JSON.stringify({ v: 2, meta: S.meta, run: S.run })); } catch (_) {} }
 load();
@@ -26,11 +31,12 @@ try { board = new Board($('#app'), { low: S.meta.gfx === 'low' }); }
 catch (e) { $('#fallback').hidden = false; throw e; }
 const ui = new UI();
 const audio = new Audio(); audio.muted = S.meta.muted; audio.musicOn = S.meta.music;
-const view = { legal: new Map(), threat: new Map(), pressed: null, preview: null, tailLen: 8 };
+const view = { legal: new Map(), threat: new Map(), pressed: null, preview: null, tailLen: 8, path: [], pathSet: null };
+let walkQ = [];
 let queue = [], busy = false, pending = null, enemyQueue = [];
 const DEMO = { rad: 4, walls: ['2,-2', '-2,2', '-3,0', '3,-1'], tail: [], player: [0, 0], enemies: [], pickups: {}, spawns: [] };
 
-const live = () => !!(S.run && S.run.mode !== 'tutorial' && ['play', 'pick', 'dead'].includes(S.run.phase));
+const live = () => !!(S.run && S.run.mode !== 'tutorial' && ['play', 'pick', 'dead', 'won'].includes(S.run.phase));
 const canInput = () => S.run && S.run.phase === 'play' && !ui.open && !busy;
 
 // ---------------------------------------------------------------- view
@@ -40,8 +46,17 @@ function computeView() {
   if (!r) return;
   view.tailLen = G.tailLen(); view.threat = G.threatMap();
   if (r.phase === 'play' && !busy) for (const m of G.moves()) { const k = K(m.q, m.r), pv = G.preview(m); view.legal.set(k, { m, pv, live: pv.live, danger: view.threat.has(k) }); }
-  if (view.pressed && view.legal.has(view.pressed)) view.preview = view.legal.get(view.pressed).pv;
-  else view.pressed = null;
+  // guidance: suggested loop, cached per turn
+  const sk = r.sector + ':' + r.turn + ':' + r.tail.length + ':' + r.enemies.length + ':' + r.phase;
+  if (sk !== view.sugKey) { view.sugKey = sk; const prev = view.sug && view.sug.loop && view.lastPlayer && K(...r.player) === view.sug.path[0] ? { ...view.sug, path: view.sug.path.slice(1) } : view.sug;
+    view.sug = r.ghost || r.phase !== 'play' ? null : G.suggest(prev); view.lastPlayer = K(...r.player); }
+  view.suggest = view.sug && !view.path.length ? view.sug.path : null;
+  // drawn / hovered path: keep only the part that is still walkable, preview the loop it closes
+  if (view.path.length && r.phase === 'play' && !busy && view.legal.has(view.path[0])) {
+    view.preview = G.previewPath(view.path);
+    view.pathSet = new Set(view.path);
+    view.pressed = view.path[view.path.length - 1];
+  } else { view.path = []; view.pathSet = null; view.pressed = null; view.preview = null; }
 }
 function refresh(snap = false) {
   computeView();
@@ -60,34 +75,38 @@ function hud() {
 function hintFor() {
   const r = S.run;
   if (!r || r.phase !== 'play') return '';
-  if (r.mode === 'tutorial') return r.hint;
-  if (view.pressed) {
-    const lm = view.legal.get(view.pressed);
-    if (lm && lm.live) return '<b>Lift to close the loop!</b>';
-    if (lm && lm.danger) return '<span class="d">That hex is red: you will take 1 damage.</span>';
+  if (r.mode === 'tutorial' && (r.ghost || r.goal === 'collect' || r.turn < 2)) return r.hint;
+  if (r.dazed && !view.path.length) return 'Enemies are <b>dazed</b>. Loop one while they sleep!';
+  if (view.path.length) {
+    if (view.preview && view.preview.live) return '<b>Let go to close the loop!</b>';
+    if (view.threat.has(view.path[0])) return '<span class="d">First step is red: you will take 1 damage.</span>';
+    return 'Let go to walk this path.';
   }
-  if (view.threat.has(K(r.player[0], r.player[1]))) return '<span class="d">You\'re on red. Move!</span>';
-  if ([...view.legal.values()].some((l) => l.live && l.pv.victims.length)) return 'An <b>amber</b> hex closes a loop. Go!';
+  const onRed = view.threat.has(K(r.player[0], r.player[1]));
+  if (view.sug && view.sug.loop) return `${onRed ? '<span class="d">Keep moving!</span> ' : ''}Trace the <b>gold hexes</b> to loop ${view.sug.v > 1 ? view.sug.v + ' enemies' : 'it'}.`;
+  if (onRed) return '<span class="d">You\'re on red. Move!</span>';
+  if ([...view.legal.values()].some((l) => l.live && l.pv.victims.length)) return 'An <b>amber</b> hex closes a loop. Tap it!';
+  if (view.sug && view.sug.loop) return `Trace the <b>gold hexes</b> to loop ${view.sug.v > 1 ? view.sug.v + ' enemies' : 'it'}.`;
+  if (view.sug) return 'Follow the <b>gold hexes</b> to get next to an enemy.';
   if (r.turn < 4) return r.hint;
   if (r.tail.length >= G.tailLen()) return 'Tail full: your oldest segment drops each move.';
-  return r.boss ? 'Loop the Hive to damage it.' : `Loop them. ${G.enemiesLeft()} left.`;
+  return r.boss ? 'Draw loops around the Hive to damage it.' : `Drag a circle around enemies. ${G.enemiesLeft()} left.`;
 }
 function updateChip() {
-  if (!view.pressed || !S.run) { ui.previewChip(); return; }
-  const lm = view.legal.get(view.pressed); if (!lm) { ui.previewChip(); return; }
-  if (lm.live) {
-    let q = 0, r = 0; for (const k of lm.pv.inside) { const [a, b] = P(k); q += a; r += b; }
-    const n = lm.pv.inside.length, [x, y] = board.screenOf(q / n, r / n, 1.2), v = lm.pv.victims.length;
+  const pv = view.preview;
+  if (!S.run || !view.path.length) { ui.previewChip(); return; }
+  if (pv && pv.live) {
+    let q = 0, r = 0; for (const k of pv.inside) { const [a, b] = P(k); q += a; r += b; }
+    const n = pv.inside.length, [x, y] = board.screenOf(q / n, r / n, 1.2), v = pv.victims.length;
     ui.previewChip(x, y, v ? `LOOP ×${v}` : 'LOOP · LOOT');
-  } else if (lm.danger) { const [x, y] = board.screenOf(lm.m.q, lm.m.r, 1.1); ui.previewChip(x, y, '−1 HP', 'hurt'); }
+  } else if (view.threat.has(view.path[0])) { const [q, r] = P(view.path[0]); const [x, y] = board.screenOf(q, r, 1.1); ui.previewChip(x, y, '−1 HP', 'hurt'); }
   else ui.previewChip();
 }
-function setPressed(k) {
-  if (view.pressed === k) return;
-  view.pressed = k;
-  const lm = k && view.legal.get(k);
-  if (lm && lm.live) audio.play('ready');
+function setPath(p) {
+  const wasLive = !!(view.preview && view.preview.live);
+  view.path = p ? p.slice(0, 16) : [];
   refresh();
+  if (!wasLive && view.preview && view.preview.live) { audio.play('ready'); vibrate(8); }
 }
 
 // ---------------------------------------------------------------- turns
@@ -147,6 +166,13 @@ function playEvents(evs) {
       case 'chomp': at(t + 0.12, () => { board.onChomp(ev.k); audio.play('chomp'); }); break;
       case 'spawn': at(t, () => { board.onSpawn(ev); audio.play('spawn'); }); break;
       case 'warn': at(t, () => audio.play('charge')); break;
+      case 'teleport': at(Math.max(0, t - 0.1), () => { board.onTeleport(ev); audio.play('spawn'); }); break;
+      case 'blast': at(t, () => { board.onBlast(ev); audio.play('hit'); vibrate(40); }); t += 0.25; break;
+      case 'freeze': at(Math.max(0, t - 0.1), () => { board.onFreeze(); audio.play('block'); }); break;
+      case 'shrine': at(t, () => { const m = G.MODS[ev.id], [q, r] = P(ev.k); board.onShard(ev.k); audio.play('pick'); floatAt(q, r, m.n, '#c08bff', { big: true }); ui.toast(`Shrine blessing: <b>${m.n}</b> — ${m.d}`, 3200); }); break;
+      case 'phoenix': at(t, () => { const p = S.run.player; floatAt(p[0], p[1], 'PHOENIX!', '#ffb547', { big: true }); board.celebrate(); audio.play('heal'); }); break;
+      case 'daze': at(t + 0.2, () => { ui.banner('SAFETY NET', 'Enemies dazed'); ui.toast('Enemies are dazed and can\'t hurt you. Follow the <b>gold hexes</b> to loop one!', 3200); audio.play('block'); }); break;
+      case 'wake': at(t + 0.3, () => ui.toast('Nice loop! Enemies are waking up.')); break;
       case 'newEnemy': newEnemies.push(ev.type); break;
       case 'dead': at(t + 0.35, () => { audio.play('die'); showOver(); }); t += 0.4; break;
       case 'clear': at(t + 0.2, () => { board.celebrate(); audio.play('clear'); vibrate([30, 50, 30]); }); at(t + 1.5, () => ui.pick(S.run)); break;
@@ -154,9 +180,12 @@ function playEvents(evs) {
       case 'tutwin': at(t + 0.15, () => { board.celebrate(); audio.play('clear'); ui.banner('', 'Nice!'); }); at(t + 1.5, () => advanceTutorial()); break;
     }
   }
+  const interrupt = evs.some((e) => ['capture', 'hurt', 'block', 'dead', 'clear', 'won', 'tutwin', 'newEnemy'].includes(e.t));
   at(t + (moved ? 0.22 : 0.02), () => {
     busy = false; refresh(); save();
+    if (interrupt) walkQ = [];
     if (newEnemies.length && S.run && S.run.phase === 'play') { enemyQueue.push(...newEnemies); showEnemyCard(); }
+    else if (walkQ.length) stepWalk();
     else if (pending) { const m = pending; pending = null; commit(m); }
   });
 }
@@ -170,12 +199,13 @@ function measure() {
 }
 function enterLevel(evs = []) {
   ui.hide(); document.body.classList.add('playing');
+  board.setPlayerColor(G.coreOf(S.run.core).color);
   board.setLevel(S.run);
   ui.resetScore(S.run.score);
   view.pressed = null; refresh(true); measure();
   const r = S.run;
   if (r.mode === 'tutorial') ui.banner(`LESSON ${r.tut + 1} / ${TUTORIAL.length}`, r.title);
-  else ui.banner(r.boss ? 'BOSS' : `SECTOR ${r.sector}`, r.boss ? 'The Hive' : r.sector === 1 ? 'Go!' : 'Engage');
+  else { const act = G.actInfo(r.sector); ui.banner(r.boss ? `BOSS · ${act.n.toUpperCase()}` : `ACT ${G.actOf(r.sector) + 1} · SECTOR ${r.sector}${r.endless ? ' · ENDLESS' : ''}`, r.boss ? 'The ' + G.ENEMY_INFO[r.bossType].n : (r.sector - 1) % 3 === 0 ? act.n : 'Engage'); }
   const fresh = evs.filter((e) => e.t === 'newEnemy').map((e) => e.type);
   if (fresh.length && r.mode !== 'tutorial') { enemyQueue.push(...fresh); setTimeout(() => { if (!ui.open) showEnemyCard(); }, 1100); }
   save();
@@ -193,7 +223,7 @@ function advanceTutorial() {
   enterLevel(evs);
 }
 function toTitle() {
-  if (S.run && S.run.phase === 'dead') G.finalizeRun();
+  if (S.run && (S.run.phase === 'dead' || S.run.phase === 'won')) G.finalizeRun();
   if (S.run && S.run.mode === 'tutorial') { G.setRun(null); }
   save();
   document.body.classList.remove('playing');
@@ -206,7 +236,7 @@ function resume() {
   if (ui.current === 'pause') { ui.hide(); return; }
   enterLevel();
   if (r.phase === 'pick') ui.pick(r);
-  else if (r.phase === 'dead') showOver();
+  else if (r.phase === 'dead' || r.phase === 'won') showOver();
   else if (r.phase === 'tutwin') advanceTutorial();
 }
 function showOver() {
@@ -216,11 +246,11 @@ function showOver() {
     return;
   }
   const won = r.phase === 'won';
-  const sum = { mode: r.mode, score: r.score, sector: r.sector, kills: r.kills, shards: r.shardsRun, log: won ? r.log : [...r.log, '🟥'], won, newBest: r.score > S.meta.best };
+  const sum = { mode: r.mode, score: r.score, sector: r.sector, kills: r.kills, shards: r.shardsRun, log: won ? r.log : [...r.log, '🟥'], won, endless: r.endless, newBest: r.score > S.meta.best,
+    heatUnlocked: (won || r.endless) && r.mode === 'run' && (r.heat || 0) >= (S.meta.heat || 0) && (S.meta.heat || 0) < G.HEAT.length - 1 ? (r.heat || 0) + 1 : 0 };
   const nu = G.nextUnlock(), unlock = nu ? { core: nu.core, have: S.meta.shards + r.shardsRun, need: nu.need } : null;
   const canUndo = !won && G.canUndo();
-  if (won) { G.finalizeRun(); save(); }
-  ui.over(sum, unlock, canUndo, r.undoLeft);
+  ui.over(sum, unlock, canUndo, r.undoLeft, won && r.mode === 'run');
 }
 function share() {
   const d = S.meta.daily; if (!d) return;
@@ -239,10 +269,13 @@ ui.onAction = (a, v) => {
     case 'resume': ui.hide(); break;
     case 'new': if (live()) { backTo = toTitle; ui.confirm('Abandon your current run and start fresh?', 'newGo', 'ABANDON'); } else startGame('run'); break;
     case 'newGo': case 'again': startGame('run'); break;
+    case 'endless': if (G.continueEndless()) { save(); ui.pick(S.run); } break;
+    case 'heat': S.meta.heatSel = Math.max(0, Math.min(S.meta.heat || 0, +v)); save(); ui.title(S.meta, live(), S.run, G.utcDate()); break;
+    case 'codex': ui.codex(S.meta); break;
     case 'daily': if (live()) { backTo = toTitle; ui.confirm('Abandon your current run to play today\'s Daily?', 'dailyGo', 'ABANDON'); } else startGame('daily'); break;
     case 'dailyGo': startGame('daily'); break;
     case 'share': share(); break;
-    case 'cores': if (S.run && S.run.phase === 'dead') G.finalizeRun(); save(); ui.cores(S.meta); break;
+    case 'cores': if (S.run && (S.run.phase === 'dead' || S.run.phase === 'won')) G.finalizeRun(); save(); ui.cores(S.meta); break;
     case 'pickcore': S.meta.core = v; save(); ui.cores(S.meta); break;
     case 'buycore': { const c = G.CORES.find((x) => x.id === v); if (c && S.meta.shards >= c.cost && !S.meta.unlocked.includes(v)) { S.meta.shards -= c.cost; S.meta.unlocked.push(v); S.meta.core = v; save(); audio.play('pick'); ui.toast(`<b>${c.n}</b> unlocked!`); } ui.cores(S.meta); break; }
     case 'settings': ui.settings(S.meta); break;
@@ -281,29 +314,73 @@ function doUndo() {
 }
 
 // ---------------------------------------------------------------- input
+// Drag from your spark to draw a path (circle enemies to loop them), or tap/click any hex to walk there.
 const cv = board.renderer.domElement;
-let down = false;
-function pointAt(e, isDown) {
-  const k = board.pick(e.clientX, e.clientY);
-  if (k && view.legal.has(k)) { setPressed(k); return; }
-  setPressed(null);
-  if (!isDown || !k || !S.run) return;
-  const r = S.run, e2 = r.enemies.find((x) => K(x.q, x.r) === k);
-  if (k === K(r.player[0], r.player[1])) ui.toast('Tap <b>WAIT</b> to stay in place.');
-  else if (e2) ui.toast(`<b>${G.ENEMY_INFO[e2.type].n}</b>: ${G.ENEMY_INFO[e2.type].d}`, 2800);
-  else if (r.walls.includes(k)) ui.toast('Rocks block movement, but count as part of a loop.');
-  else ui.toast('Move one hex at a time: tap a glowing neighbour.');
+let drawing = false;
+const free = (k) => S.run && !!S.grid.nb[k] && !S.walls.has(k) && !S.run.enemies.some((e) => K(e.q, e.r) === k);
+function bridge(from, to) { // short straight-ish fill when the finger skips hexes
+  const out = []; let cur = from;
+  for (let i = 0; i < 4 && cur !== to; i++) {
+    const [tq, tr] = P(to), nx = S.grid.nb[cur].filter(free).sort((x, y) => hd(...P(x), tq, tr) - hd(...P(y), tq, tr))[0];
+    if (!nx || hd(...P(nx), tq, tr) >= hd(...P(cur), tq, tr)) return null;
+    out.push(nx); cur = nx;
+  }
+  return cur === to ? out : null;
 }
-cv.addEventListener('pointerdown', (e) => { audio.start(); if (!canInput()) return; down = true; try { cv.setPointerCapture(e.pointerId); } catch (_) {} pointAt(e, true); });
-cv.addEventListener('pointermove', (e) => { if (!canInput()) return; if (down || e.pointerType === 'mouse') pointAt(e, false); });
-cv.addEventListener('pointerup', (e) => {
-  if (!down) return; down = false;
-  const lm = view.pressed && view.legal.get(view.pressed);
-  if (lm && canInput()) commit(lm.m);
-  else if (e.pointerType !== 'mouse') setPressed(null);
+function extendTo(k) {
+  if (!k || !S.run) return;
+  const p = view.path.slice(), me = pk(), last = p.length ? p[p.length - 1] : me;
+  if (k === last) return;
+  if (k === me) { setPath([]); return; }
+  const i = p.indexOf(k);
+  if (i >= 0) { setPath(p.slice(0, i + 1)); return; } // drag back to shorten
+  if (!free(k)) return;
+  if (S.grid.nb[last].includes(k)) p.push(k);
+  else { const seg = bridge(last, k); if (!seg) return; p.push(...seg); }
+  setPath(p);
+}
+const pk = () => K(S.run.player[0], S.run.player[1]);
+function info(k) {
+  const r = S.run, e2 = r.enemies.find((x) => K(x.q, x.r) === k);
+  if (e2) ui.toast(`<b>${G.ENEMY_INFO[e2.type].n}</b>: ${G.ENEMY_INFO[e2.type].d}`, 2800);
+  else if (r.walls.includes(k)) ui.toast('Rocks block you, but they count as part of a loop.');
+}
+function startWalk() {
+  let p = view.path.slice();
+  if (view.preview && view.preview.live) p = p.slice(0, view.preview.step + 1); // stop where the loop closes
+  setPath([]);
+  walkQ = p; stepWalk(true);
+}
+function stepWalk(first = false) {
+  if (!walkQ.length || !S.run || S.run.phase !== 'play' || ui.open) { walkQ = []; return; }
+  const lm = view.legal.get(walkQ[0]);
+  if (!lm) { walkQ = []; ui.toast('Path blocked: draw a new one.'); return; }
+  if (!first && lm.danger && !(lm.pv.live && lm.pv.victims.length)) { walkQ = []; ui.toast('Stopped before a red hex.'); audio.play('bump'); return; }
+  walkQ.shift(); commit(lm.m);
+}
+cv.addEventListener('pointerdown', (e) => {
+  audio.start(); walkQ = [];
+  if (!canInput()) return;
+  try { cv.setPointerCapture(e.pointerId); } catch (_) {}
+  const k = board.pick(e.clientX, e.clientY); if (!k) return;
+  if (k === pk()) { drawing = true; setPath([]); return; }
+  if (view.legal.has(k)) { drawing = true; setPath([k]); return; }
+  const route = G.routeTo(k);
+  if (route) { drawing = true; setPath(route); } else info(k);
 });
-cv.addEventListener('pointercancel', () => { down = false; setPressed(null); });
-cv.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse' && !down) setPressed(null); });
+cv.addEventListener('pointermove', (e) => {
+  if (!canInput()) return;
+  const k = board.pick(e.clientX, e.clientY);
+  if (drawing) extendTo(k);
+  else if (e.pointerType === 'mouse') setPath(k && k !== pk() ? G.routeTo(k) || [] : []);
+});
+cv.addEventListener('pointerup', (e) => {
+  if (!drawing) return; drawing = false;
+  if (view.path.length && canInput()) startWalk();
+  else if (!view.path.length && e.pointerType !== 'mouse') ui.toast('Drag from your spark to draw a path, or tap a hex.');
+});
+cv.addEventListener('pointercancel', () => { drawing = false; setPath([]); });
+cv.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse' && !drawing) setPath([]); });
 $('#waitBtn').addEventListener('click', () => { audio.start(); if (canInput() || busy) commitWait(); });
 $('#undoBtn').addEventListener('click', () => { audio.start(); if (!ui.open) doUndo(); });
 $('#pauseBtn').addEventListener('click', () => { audio.start(); audio.play('ui'); if (S.run && !ui.open) ui.pause(S.meta); });
@@ -335,9 +412,9 @@ function frame(dt) {
     if (due.length) { queue = queue.filter((q) => q.at > board.gameTime); due.sort((a, b) => a.at - b.at).forEach((q) => q.fn()); }
   }
   ui.tick(dt);
-  if (view.pressed) updateChip();
+  if (view.path.length) updateChip();
 }
-function loop(now) { const dt = Math.min(0.1, (now - last) / 1000); last = now; frame(dt); requestAnimationFrame(loop); }
+function loop(now) { const dt = Math.max(0, Math.min(0.1, (now - last) / 1000)); last = Math.max(last, now); frame(dt); requestAnimationFrame(loop); }
 // debug: advance the simulation by hand (used by headless playtests)
 const tick = (sec) => { for (let t = 0; t < sec; t += 1 / 60) frame(1 / 60); };
 toTitle();

@@ -1,4 +1,4 @@
-import { MODS, CORES, ENEMY_INFO, FINAL, BOSS_EVERY, coreOf } from './game.js';
+import { MODS, TIER, CORES, ENEMY_INFO, FINAL, BOSS_EVERY, coreOf, HEAT, actOf, actInfo } from './game.js';
 import { MOD_ICON, ENEMY_ICON, UI_ICON, hexPip } from './icons.js';
 import { TUTORIAL } from './levels.js';
 
@@ -29,11 +29,11 @@ export class UI {
     // sector
     let bar = '';
     if (tut) { for (let i = 0; i < TUTORIAL.length; i++) bar += `<i class="${i < run.tut ? 'done' : i === run.tut ? 'cur' : ''}"></i>`; }
-    else for (let s = 1; s <= FINAL; s++) bar += `<i class="${s % BOSS_EVERY === 0 ? 'boss ' : ''}${s < run.sector ? 'done' : s === run.sector ? 'cur' : ''}"></i>`;
+    else { const base = Math.floor((run.sector - 1) / FINAL) * FINAL; for (let s = base + 1; s <= base + FINAL; s++) bar += `<i class="${s % BOSS_EVERY === 0 ? 'boss ' : ''}${s < run.sector ? 'done' : s === run.sector ? 'cur' : ''}"></i>`; }
     $('#secBar').innerHTML = bar;
     $('#secLabel').innerHTML = tut ? `TUTORIAL <em>${run.tut + 1}/${TUTORIAL.length}</em>`
-      : run.boss ? `<span class="boss">BOSS</span> <em>· HIVE ${'◆'.repeat(Math.max(0, enemiesLeft))}</em>`
-      : `SECTOR ${run.sector} <em>· ${enemiesLeft} left</em>`;
+      : run.boss ? `<span class="boss">BOSS</span> <em>· ${(ENEMY_INFO[run.bossType] || ENEMY_INFO.hive).n.toUpperCase()} ${'◆'.repeat(Math.max(0, Math.min(9, enemiesLeft)))}</em>`
+      : `ACT ${actOf(run.sector) + 1} · ${run.sector} <em>· ${enemiesLeft} left</em>`;
     this.score = run.score;
     // tail meter
     const n = run.tail.length;
@@ -109,8 +109,9 @@ export class UI {
         ${dailyDone ? `<button class="btn gold" data-a="share">${UI_ICON.calendar} ${fmt(d.score)} ${streak}</button>` : dailyLive ? '' : `<button class="btn gold" data-a="daily">${UI_ICON.calendar} DAILY ${streak}</button>`}
         <button class="btn" data-a="cores">${UI_ICON.core} CORES <small>${UI_ICON.shard.replace('<svg', '<svg style="width:12px;height:12px;display:inline;color:#ffb547"')}${meta.shards}</small></button>
       </div>
-      <div class="row"><button class="btn" data-a="tutorial">HOW TO PLAY</button><button class="btn" data-a="settings">${UI_ICON.gear}</button></div>
-      <div class="foot">BEST ${fmt(meta.best)} · SECTOR ${meta.bestSector}/${FINAL}</div>
+      ${meta.heat ? `<div class="heat-row">${HEAT.slice(0, meta.heat + 1).map((h, i) => `<button class="heat ${i === (meta.heatSel || 0) ? 'on' : ''}" data-a="heat" data-v="${i}" title="${h.d}">${i ? '🔥' + i : 'NORMAL'}</button>`).join('')}</div>` : ''}
+      <div class="row"><button class="btn" data-a="tutorial">HOW TO PLAY</button><button class="btn" data-a="codex">${UI_ICON.book} CODEX</button><button class="btn" data-a="settings">${UI_ICON.gear}</button></div>
+      <div class="foot">BEST ${fmt(meta.best)} · SECTOR ${meta.bestSector}${meta.bestEndless ? ` · ENDLESS ${meta.bestEndless}` : ''}${meta.heat ? ` · HEAT ${meta.heatSel || 0}: ${HEAT[meta.heatSel || 0].d}` : ''}</div>
     </div>`, { dim: true, name: 'title' });
   }
   pause(meta) {
@@ -120,31 +121,33 @@ export class UI {
       <button class="btn" data-a="tutorial">REPLAY TUTORIAL</button>
       <button class="btn" data-a="title">MAIN MENU</button>
       <button class="btn danger" data-a="abandon">ABANDON RUN</button>
-      <div class="foot">Saved after every move · Keys: Q E A D Z C · S wait · U undo</div></div>`, { name: 'pause' });
+      <div class="foot">Drag to draw a path · Tap a hex to walk there · Saved after every move</div></div>`, { name: 'pause' });
   }
   pick(run) {
-    const cards = run.choices.map((id) => `<button class="mod-card" data-a="choose" data-v="${id}"><span class="mi">${MOD_ICON[id]}</span><span><b>${MODS[id].n}${run.mods[id] ? ' +' : ''}</b><span class="d">${MODS[id].d}</span></span></button>`).join('');
-    const next = run.sector + 1;
-    this.show(`<div class="card glass"><div class="kicker">SECTOR ${run.sector} CLEARED</div><h2>Choose an upgrade</h2>
+    const cards = run.choices.map((id) => `<button class="mod-card tier-${MODS[id].t}" data-a="choose" data-v="${id}"><span class="mi">${MOD_ICON[id]}</span><span><small class="tl">${TIER[MODS[id].t].n}</small><b>${MODS[id].n}${run.mods[id] ? ' +' : ''}</b><span class="d">${MODS[id].d}</span></span></button>`).join('');
+    const next = run.sector + 1, tier = TIER[run.choiceTier || 'silver'];
+    this.show(`<div class="card glass"><div class="kicker">SECTOR ${run.sector} CLEARED</div><h2>Choose a <span style="color:${tier.c}">${tier.n.toLowerCase()}</span> augment</h2>
       <div>${cards}
       ${run.hp < run.maxHp ? `<button class="mod-card heal" data-a="choose" data-v="repair"><span class="mi">${MOD_ICON.repair}</span><span><b>Repair</b><span class="d">Restore 1 HP instead.</span></span></button>` : ''}</div>
-      <div class="foot">NEXT · ${next % BOSS_EVERY === 0 ? '<span style="color:var(--danger)">BOSS: THE HIVE</span>' : 'SECTOR ' + next}</div></div>`, { name: 'pick' });
+      <div class="foot">NEXT · ${next % BOSS_EVERY === 0 ? `<span style="color:var(--danger)">BOSS: THE ${ENEMY_INFO[actInfo(next).boss].n.toUpperCase()}</span>` : `ACT ${actOf(next) + 1} · ${actInfo(next).n.toUpperCase()} · SECTOR ${next}`}</div></div>`, { name: 'pick' });
   }
   enemy(type) {
     const info = ENEMY_INFO[type];
     this.show(`<div class="card glass enemy-card"><div class="kicker d">NEW THREAT</div><div class="ei ${type === 'eater' ? 'purple' : ''}">${ENEMY_ICON[type]}</div>
       <h2>${info.n}</h2><p class="lead">${info.d}</p><button class="btn primary" data-a="enemyOk">GOT IT</button></div>`, { name: 'enemy' });
   }
-  over(sum, unlock, canUndo, undoLeft) {
+  over(sum, unlock, canUndo, undoLeft, canEndless = false) {
     const pct = unlock ? Math.min(100, (unlock.have / unlock.need) * 100) : 100;
     const ready = unlock && unlock.have >= unlock.need;
     this.show(`<div class="card glass">
-      <div class="kicker ${sum.won ? '' : 'd'}" style="text-align:center">${sum.won ? 'ALL SECTORS CLEAR' : 'LOOP BROKEN'}</div>
+      <div class="kicker ${sum.won ? '' : 'd'}" style="text-align:center">${sum.won ? 'ALL SECTORS CLEAR' : sum.endless ? `ENDLESS · REACHED SECTOR ${sum.sector}` : 'LOOP BROKEN'}</div>
       <div class="big-score" id="overScore">0</div>
       ${sum.newBest ? '<div style="text-align:center"><span class="badge-new">NEW BEST</span></div>' : ''}
+      ${sum.heatUnlocked ? `<div style="text-align:center;margin-top:6px"><span class="badge-new" style="background:var(--danger);color:#fff">🔥 HEAT ${sum.heatUnlocked} UNLOCKED</span></div>` : ''}
       <div class="emo">${sum.log.join('')}</div>
       <div class="stats"><div class="stat"><b>${sum.sector}</b><span>SECTOR</span></div><div class="stat"><b>${sum.kills}</b><span>POPPED</span></div><div class="stat"><b style="color:var(--amber)">+${sum.shards}</b><span>SHARDS</span></div></div>
       ${unlock ? `<div class="unlock"><div class="ut"><span>${ready ? 'Ready to unlock' : 'Next core'}: <b>${unlock.core.n}</b></span><span>${Math.min(unlock.have, unlock.need)}/${unlock.need}</span></div><div class="bar"><i id="ubar" style="width:0%"></i></div></div>` : ''}
+      ${canEndless ? '<button class="btn gold" data-a="endless">∞ CONTINUE IN ENDLESS</button>' : ''}
       ${canUndo ? `<button class="btn" data-a="undoDeath">${UI_ICON.undo} UNDO LAST MOVE <small>${undoLeft} left</small></button>` : ''}
       ${sum.mode === 'daily' ? `<button class="btn gold" data-a="share">SHARE DAILY</button>` : `<button class="btn primary" data-a="again">RUN AGAIN</button>`}
       <div class="row">${ready ? '<button class="btn gold" data-a="cores">UNLOCK</button>' : ''}<button class="btn" data-a="title">MENU</button></div>
@@ -164,9 +167,16 @@ export class UI {
       const own = meta.unlocked.includes(c.id), sel = meta.core === c.id;
       const b = sel ? '<button class="btn" disabled>IN USE</button>' : own ? `<button class="btn" data-a="pickcore" data-v="${c.id}">USE</button>`
         : `<button class="btn gold" data-a="buycore" data-v="${c.id}" ${meta.shards < c.cost ? 'disabled' : ''}>◆ ${c.cost}</button>`;
-      return `<div class="core-card ${sel ? 'sel' : ''}"><div class="ci">${UI_ICON.core}</div><div class="cb"><b>${c.n}</b><p>${c.d}</p></div>${b}</div>`;
+      return `<div class="core-card ${sel ? 'sel' : ''}"><div class="ci" style="color:${c.color};background:${c.color}22">${UI_ICON.core}</div><div class="cb"><b>${c.n}</b><p>${c.d}</p></div>${b}</div>`;
     }).join('');
     this.show(`<div class="card glass"><div class="kicker">CORES · ◆ ${meta.shards}</div><h2>Choose your spark</h2>${list}<button class="btn" data-a="title">BACK</button></div>`, { name: 'cores' });
+  }
+  codex(meta) {
+    const en = Object.keys(ENEMY_INFO).map((t) => { const seen = meta.seen.includes(t); return `<div class="cx ${seen ? '' : 'locked'}"><span class="ci2" style="color:${t === 'eater' ? 'var(--purple)' : 'var(--danger)'}">${ENEMY_ICON[t]}</span><span><b>${seen ? ENEMY_INFO[t].n : '???'}</b><small>${seen ? ENEMY_INFO[t].d : 'Not met yet.'}</small></span></div>`; }).join('');
+    const mods = ['silver', 'gold', 'prism'].map((tier) => `<div class="cx-h" style="color:${TIER[tier].c}">${TIER[tier].n}</div>` + Object.keys(MODS).filter((id) => MODS[id].t === tier).map((id) => { const seen = (meta.seenMods || []).includes(id); return `<div class="cx ${seen ? '' : 'locked'}"><span class="ci2" style="color:${TIER[tier].c}">${MOD_ICON[id]}</span><span><b>${seen ? MODS[id].n : '???'}</b><small>${seen ? MODS[id].d : 'Find it in a run.'}</small></span></div>`; }).join('')).join('');
+    const nEn = meta.seen.length, nMods = (meta.seenMods || []).length;
+    this.show(`<div class="card glass codex"><div class="kicker">CODEX</div><h2>Enemies ${nEn}/${Object.keys(ENEMY_INFO).length} · Augments ${nMods}/${Object.keys(MODS).length}</h2>
+      <div class="cx-h">ENEMIES & BOSSES</div>${en}<div class="cx-h" style="margin-top:14px">HEX AUGMENTS</div>${mods}<button class="btn" data-a="title">BACK</button></div>`, { name: 'codex' });
   }
   settings(meta, msg = '') {
     this.show(`<div class="card glass"><div class="kicker">SETTINGS</div><h2>Options</h2>

@@ -151,3 +151,21 @@ textarea { width: 100%; height: 76px; margin-top: 10px; border-radius: 14px; pad
 @keyframes banner { 0% { opacity: 0; transform: translate(-50%, -40%) scale(.9); } 15% { opacity: 1; transform: translate(-50%, -50%) scale(1); } 80% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, -60%); } }
 #fallback { position: fixed; inset: 0; display: grid; place-items: center; z-index: 50; padding: 20px; }
 @media (min-width: 900px) { .hint { font-size: 15px; } .segs { max-width: 280px; } }
+
+.mod-card .tl { display: block; font-size: 10px; font-weight: 900; letter-spacing: .16em; opacity: .75; margin-bottom: 2px; }
+.mod-card.tier-silver { border-color: rgba(201, 214, 234, .35); }
+.mod-card.tier-silver .mi, .mod-card.tier-silver .tl { color: #c9d6ea; border-color: rgba(201, 214, 234, .4); background: rgba(201, 214, 234, .08); }
+.mod-card.tier-gold { border-color: rgba(255, 201, 77, .45); box-shadow: inset 0 0 24px rgba(255, 201, 77, .06); }
+.mod-card.tier-gold .mi, .mod-card.tier-gold .tl { color: #ffc94d; }
+.mod-card.tier-prism { border: 1px solid transparent; background: linear-gradient(rgba(20, 24, 40, .95), rgba(20, 24, 40, .95)) padding-box, linear-gradient(120deg, #3de8ff, #c08bff, #ffb547, #ff6b8e) border-box; box-shadow: 0 0 26px rgba(192, 139, 255, .25); }
+.mod-card.tier-prism .mi, .mod-card.tier-prism .tl { color: #d9b8ff; border-color: rgba(192, 139, 255, .5); background: radial-gradient(circle at 30% 25%, rgba(192, 139, 255, .35), rgba(61, 232, 255, .08)); }
+.heat-row { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; margin-top: 12px; }
+.heat { padding: 8px 12px; border-radius: 999px; font-weight: 900; font-size: 12px; letter-spacing: .06em; background: rgba(255, 255, 255, .05); border: 1px solid var(--stroke); }
+.heat.on { background: rgba(255, 61, 110, .18); border-color: var(--danger); color: #fff; }
+.codex { max-height: 88vh; overflow-y: auto; }
+.cx-h { font-size: 11px; font-weight: 900; letter-spacing: .18em; color: var(--muted); margin: 12px 0 4px; }
+.cx { display: flex; gap: 12px; align-items: center; padding: 9px 0; border-bottom: 1px solid rgba(255, 255, 255, .05); }
+.cx .ci2 { flex: 0 0 34px; height: 34px; padding: 7px; border-radius: 10px; background: rgba(255, 255, 255, .05); }
+.cx b { display: block; font-size: 14px; font-weight: 900; }
+.cx small { display: block; color: var(--muted); font-size: 12px; font-weight: 600; line-height: 1.35; }
+.cx.locked { opacity: .45; }
