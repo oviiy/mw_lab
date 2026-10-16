@@ -46,7 +46,7 @@ Browser games, research tools, and knowledge pages. The [file browser](https://o
 
 ## Publishing
 
-For future ZIP uploads and where to unpack them, see [`doc/README.md`](./doc/README.md). Upload directly to `mw_lab/doc/`; MWPrivate is no longer needed for this handoff.
+For future ZIP uploads and where to unpack them, see [`docker/README.md`](./docker/README.md). Upload directly to `mw_lab/docker/`; MWPrivate is no longer needed for this handoff.
 
 The game builds under `dist/` are checked in so Pages can serve them directly. AI Debt Tracker is an Astro site; its checked-in `web/dist/` build uses `/mw_lab/tools/ai-debt-tracker/web/dist/` as its base path. To rebuild it, run `npm ci` in `tools/ai-debt-tracker/web`, run `node scripts/copy-data.mjs`, then build with `SITE=https://oviiy.github.io` and `BASE_PATH=/mw_lab/tools/ai-debt-tracker/web/dist/`.
 
