@@ -31,6 +31,7 @@ a:focus-visible, input:focus-visible { outline: 2px solid var(--link); outline-o
 }
 .brand { color: var(--text); font-size: 18px; font-weight: 650; letter-spacing: -.02em; }
 .header-label { color: var(--muted); padding-left: 14px; border-left: 1px solid var(--border); }
+.personal-home { margin-left: auto; white-space: nowrap; }
 .breadcrumbs {
   display: flex;
   align-items: center;

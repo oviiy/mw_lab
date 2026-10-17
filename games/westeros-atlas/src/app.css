@@ -45,6 +45,8 @@ button,input,select{touch-action:manipulation}
 .q-k{font-size:11px;color:var(--gold);opacity:.85;white-space:nowrap}
 .q-empty{color:var(--muted);cursor:default!important}
 .top-tools{display:flex;align-items:center;gap:8px;margin-left:auto}
+.site-home{display:inline-flex;align-items:center;justify-content:center;height:36px;padding:0 11px;border:1px solid var(--line);border-radius:999px;background:rgba(16,26,34,.78);color:var(--gold-hi);font-size:12px;white-space:nowrap;text-decoration:none;backdrop-filter:blur(8px)}
+.site-home:hover{background:rgba(214,179,106,.18);border-color:var(--gold)}
 .icon-btn{width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:rgba(16,26,34,.78);color:var(--gold-hi);font-size:16px;display:inline-grid;place-items:center;backdrop-filter:blur(8px);transition:background .2s,border-color .2s,transform .15s}
 .icon-btn:hover{background:rgba(214,179,106,.18);border-color:var(--gold)}
 .icon-btn:active{transform:scale(.94)}
@@ -171,6 +173,7 @@ details.src{border-top:1px solid var(--line);margin-top:12px;padding-top:10px}de
 @media (max-width:760px){
   :root{--topbar:54px}
   .brand-t{display:none}.search{margin-left:0}.top-tools{gap:6px}.icon-btn{width:36px;height:36px}.lang button{padding:0 9px;height:34px}
+  .site-home{width:34px;height:34px;padding:0;font-size:0}.site-home::before{content:"↖";font-size:20px}
   .top-tools .icon-btn:nth-of-type(n+3){display:none}
   .card{left:8px;right:8px;width:auto;top:auto;bottom:calc(64px + var(--safe-b));max-height:46vh;overflow:auto}
   .legend{bottom:calc(14px + var(--safe-b));left:10px}.map-tools{bottom:calc(14px + var(--safe-b));right:10px}.compass{display:none}
