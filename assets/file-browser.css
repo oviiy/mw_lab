@@ -132,5 +132,4 @@ input::placeholder { color: var(--muted); }
   .file-list-header, .file-row { grid-template-columns: minmax(0, 1fr) auto; gap: 8px; padding: 10px 12px; }
   .file-list-header span:nth-child(2), .type-cell { display: none; }
   .action-cell { gap: 8px; }
-  .launch-link { display: none; }
 }
