@@ -77,6 +77,8 @@
     if (isFolder) {
       const entry = item.node.files.includes("index.html")
         ? `${path}/index.html`
+        : item.node.folders.get("dist")?.files.includes("index.html")
+          ? `${path}/dist/index.html`
         : null;
       if (entry) actionCell.append(link("Launch ↗", fileUrl(entry), "launch-link"));
       actionCell.append(link("Browse →", browseUrl(path)));
@@ -149,7 +151,9 @@
   }
 
   setMessage("Loading files…");
-  fetch(new URL("file-index.json", rootUrl))
+  const fileIndexUrl = new URL("file-index.json", rootUrl);
+  fileIndexUrl.searchParams.set("v", Date.now().toString());
+  fetch(fileIndexUrl, { cache: "no-store" })
     .then((response) => {
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       return response.json();
