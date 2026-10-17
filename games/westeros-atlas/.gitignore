@@ -1,0 +1,6 @@
+node_modules/
+.mapview/
+.appdev/
+.preview/
+.DS_Store
+src/generated/.atlas-index.*.js

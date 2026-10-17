@@ -1,0 +1,53 @@
+// Meereen — bilingual content. Source codes: ASOS, ADWD (Daenerys's rule in Meereen), TWOIAF, AWOIAF index.
+const P = (en, zh) => ({ en, zh });
+const L = (name, desc, tour, conf, refs, book, unknown, interp, spoiler) => ({
+  name: P(...name), desc: P(...desc), tour: P(...tour), ...(spoiler ? { spoiler: P(...spoiler) } : {}),
+  source: { confidence: conf, refs, book: P(...book), unknown: P(...unknown), interpretation: P(...interp) },
+});
+
+export default {
+  id: 'meereen',
+  intro: {
+    en: 'The largest and proudest of the Slaver cities, built of many-coloured brick where the Skahazadhan meets Slaver\'s Bay. Its stepped pyramids house the old families, and the Great Pyramid towers over them all.',
+    zh: '奴隶城邦中最大、也最骄傲的一座，以五彩砖石建在斯卡哈扎丹河汇入奴隶湾之处。阶梯金字塔里住着古老家族，大金字塔则凌驾于一切之上。',
+  },
+  notes: {
+    en: 'From the books: many-coloured brick, the Great Pyramid with a bronze harpy on top and apartments and a terrace garden at its apex, the pyramids of other houses (Hazkar, Loraq), the fighting pits with Daznak\'s Pit the greatest, the golden-domed Temple of the Graces, the Plaza of Purification with its own bronze harpy, the Skahazadhan and the brick sewers that drain into it. Invented here: the plan, scale, walls and gates, the number and placement of pyramids, the river\'s course, the harbour and every architectural detail. Pyramid heights are scaled well down from the book\'s figures, and the pit cutaway is an interpretation.',
+    zh: '书中可据：五彩砖石；顶立青铜鹰身女妖、塔顶有居所与露台花园的大金字塔；其他家族的金字塔（哈兹卡、洛拉克）；以达兹纳克竞技场为最大的诸多角斗场；金色圆顶的美惠神庙；另立一尊青铜鹰身女妖的净化广场；斯卡哈扎丹河及通入河中的砖砌下水道。本场景自拟：城市平面、比例、城墙与城门、金字塔的数量与位置、河道走向、港口及全部建筑细节。金字塔高度较书中数字大幅缩小，竞技场剖面亦属推想。',
+  },
+  tour: ['city-walls', 'harbour', 'great-pyramid', 'harpy-statue', 'apex-garden', 'daznak-pit', 'temple-of-graces', 'plaza-of-purification', 'pyramid-of-hazkar', 'skahazadhan'],
+  sources: [
+    { ref: 'adwd', checked: 'memory', note: P('Meereen is the main setting of Daenerys\'s chapters in A Dance with Dragons; pyramids, pits, temple and plaza recalled, not re-read.', '弥林是《魔龙的狂舞》中丹妮莉丝章节的主要舞台；金字塔、角斗场、神庙与广场均凭记忆，未重读原文。') },
+    { ref: 'asos', checked: 'memory', note: P('The first sight of the city, its walls and the entry through the sewers, from A Storm of Swords.', '城市初貌、城墙以及经由下水道入城一节，见于《冰雨的风暴》。') },
+    { ref: 'awoiaf', checked: 'search-snippet', note: P('Search summaries of the wiki: Daznak\'s Pit and the golden-domed Temple of the Graces both west of the Great Pyramid (the temple visible from its terrace), a great bronze harpy in the Plaza of Purification separate from the one on the pyramid, and the Hazkar and Loraq pyramids. The wiki notes that part of its Meereen material draws on an unpublished Winds of Winter sample chapter, which is not used here. Pages could not be fetched.', '经维基搜索摘要印证：达兹纳克竞技场与金色圆顶的美惠神庙都在大金字塔以西（从塔顶露台可望见神庙）；净化广场另有一尊巨大的青铜鹰身女妖，与塔顶那尊不同；以及哈兹卡与洛拉克的金字塔。维基注明其部分弥林资料出自尚未出版的《凛冬的寒风》试读章节，本场景不予采用。页面本身无法打开。') },
+    { ref: 'twoiaf', checked: 'not-accessed', note: P('The city\'s founding and history were not consulted.', '未查阅城市的建立与历史。') },
+  ],
+  landmarks: {
+    'great-pyramid': L(['Great Pyramid', '大金字塔'], ['The immense stepped pyramid of many-coloured brick at the heart of Meereen, far taller than anything around it.', '弥林中心那座五彩砖砌的巨大阶梯金字塔，远高于周围的一切。'], ['Everything in Meereen is measured against the Great Pyramid and its bands of coloured brick.', '弥林的一切都以这座彩砖层叠的大金字塔为尺度。'], 'high', ['asos', 'adwd'],
+      ['The largest pyramid in the city, with apartments and a terrace garden at its top.', '城中最大的金字塔，塔顶有居所与露台花园。'], ['Its exact form, number of tiers and colour pattern.', '确切形制、层数与配色。'], ['Nine tiers, scaled far down so the whole city fits one scene; colours alternate by tier.', '九层，为使全城纳入一个场景而大幅缩小；各层颜色交替。']),
+    'harpy-statue': L(['Bronze Harpy', '青铜鹰身女妖'], ['A huge bronze harpy on the apex of the Great Pyramid, emblem of Old Ghis.', '大金字塔顶上巨大的青铜鹰身女妖，古吉斯的徽记。'], ['From the summit, the bronze harpy of Ghis watches over the city.', '吉斯的青铜鹰身女妖从塔顶俯瞰全城。'], 'high', ['asos', 'awoiaf'],
+      ['A great bronze harpy stands atop the Great Pyramid when Daenerys arrives.', '丹妮莉丝到来时，大金字塔顶上立着一尊巨大的青铜鹰身女妖。'], ['Its exact size and pose.', '确切大小与姿态。'], ['A winged, clawed figure on a plinth; the pose is invented.', '立于基座上的有翼带爪人形；姿态为自拟。'], ['After taking the city, Daenerys has the harpy pulled down and makes the pyramid her seat.', '攻下弥林后，丹妮莉丝下令推倒这尊鹰身女妖，并以大金字塔为居所。']),
+    'apex-garden': L(['Summit Terrace', '塔顶花园'], ['A garden terrace with a pool, trees and pavilions near the top of the Great Pyramid.', '大金字塔顶部的露台花园，有水池、树木与亭阁。'], ['High above the city lie the queen\'s rooms, a terrace garden and a bathing pool.', '女王的居室、露台花园与浴池，高悬在全城之上。'], 'high', ['adwd', 'awoiaf'],
+      ['Apartments and a terrace garden with trees and a pool at the top of the Great Pyramid.', '大金字塔顶部有居室，以及种着树木、设有水池的露台花园。'], ['The layout of rooms and plantings.', '房间与植栽的布局。'], ['One pavilion, a pool and a few palms on a plastered roof terrace.', '抹灰的屋顶露台上，一座亭阁、一池清水与几株棕榈。']),
+    'pyramid-of-hazkar': L(['Pyramid of Hazkar', '哈兹卡金字塔'], ['The pyramid of an old Meereenese house, drawn here in red and yellow stripes in the south-east.', '弥林一个古老家族的金字塔，本场景画作红黄条纹，置于东南。'], ['The great families each live in a pyramid of their own.', '各大家族各居一座金字塔。'], 'medium', ['adwd', 'awoiaf'],
+      ['A pyramid of Hazkar is named in the city.', '书中提到城中有哈兹卡金字塔。'], ['Its look and position.', '外观与位置。'], ['Seven tiers in alternating red and yellow, south-east of the plaza; invented.', '七层红黄相间，置于广场东南；为自拟。']),
+    'pyramid-of-loraq': L(['Pyramid of Loraq', '洛拉克金字塔'], ['The pyramid of House Loraq, drawn here in blue and cream in the south-west.', '洛拉克家族的金字塔，本场景画作蓝白相间，置于西南。'], ['House Loraq, one of the oldest families, keeps its own pyramid.', '最古老的家族之一洛拉克家族，拥有自己的金字塔。'], 'medium', ['adwd', 'awoiaf'],
+      ['House Loraq is a prominent old family with a pyramid in the city.', '洛拉克家族是城中显赫的古老家族，拥有一座金字塔。'], ['Its look and position.', '外观与位置。'], ['Form, colour and position are entirely invented.', '形制、颜色与位置完全为自拟。']),
+    'daznak-pit': L(['Daznak\'s Pit', '达兹纳克竞技场'], ['The greatest of Meereen\'s fighting pits, a ringed brick bowl west of the Great Pyramid. A cutaway shows the seats and sand.', '弥林最大的角斗场，位于大金字塔以西，是一座环形砖砌看台。可打开剖面查看座席与沙地。'], ['Daznak\'s Pit is the greatest of the city\'s arenas, its tiers climbing to the rim.', '达兹纳克竞技场是城中最大的角斗场，座席层层升向场沿。'], 'medium', ['adwd', 'awoiaf'],
+      ['The largest fighting pit, west of the Great Pyramid, with tiered seating for great crowds.', '最大的角斗场，在大金字塔以西，层层座席可容纳大批观众。'], ['Its size, number of tiers and interior.', '规模、层数与内部结构。'], ['Eleven tiers, a royal box, tunnels and a sand floor; all interior detail is invented.', '十一层座席、王室看台、通道与沙地；内部细节均为自拟。'], ['At the reopening games here, Drogon descends on the sands and Daenerys flies off on his back.', '竞技场重开之日，卓耿从天而降落在沙地上，丹妮莉丝骑着它飞离。']),
+    'temple-of-graces': L(['Temple of the Graces', '美惠神庙'], ['A great temple crowned with golden domes, home of the priestesses called the Graces.', '一座金色圆顶的宏伟神庙，名为“美惠”的女祭司们居于其中。'], ['Golden domes rise among the brick: the temple of the Graces, seen from the queen\'s terrace.', '金色圆顶在砖色中升起：这便是从女王露台上望见的美惠神庙。'], 'high', ['adwd', 'awoiaf'],
+      ['A huge temple with golden domes, west of the Great Pyramid and visible from its terrace.', '一座金色圆顶的巨大神庙，在大金字塔以西，从塔顶露台可以望见。'], ['Its plan and interior.', '平面与内部布置。'], ['A colonnaded platform with a central domed hall; the shape is invented.', '带柱廊的台基，中央为圆顶大殿；形制为自拟。']),
+    'plaza-of-purification': L(['Plaza of Purification', '净化广场'], ['A paved square with a great bronze harpy of its own.', '一座铺石广场，另立着一尊巨大的青铜鹰身女妖。'], ['The plaza keeps its own bronze harpy; a sculptor offers to give it the queen\'s face.', '广场另有一尊青铜鹰身女妖；曾有雕刻师提出把它的头换成女王的模样。'], 'medium', ['adwd', 'awoiaf'],
+      ['A plaza with a great bronze harpy; Daenerys refuses a sculptor\'s offer to recast its head in her likeness.', '一座立有巨大青铜鹰身女妖的广场；丹妮莉丝拒绝了雕刻师按她的容貌重铸雕像头部的提议。'], ['Its size and location.', '规模与位置。'], ['Placed east of the Great Pyramid; paving, posts and fountain are invented.', '置于大金字塔以东；铺地、立柱与喷泉均为自拟。']),
+    'city-walls': L(['City Walls', '城墙'], ['Thick walls of many-coloured brick with great towers and gates.', '五彩砖砌的厚重城墙，配有高大的塔楼与城门。'], ['Thick walls of coloured brick ring the largest city on the bay.', '五彩砖砌的厚墙，环绕着海湾畔最大的城市。'], 'medium', ['asos', 'adwd'],
+      ['Meereen is walled and gated; Daenerys besieges it before taking it.', '弥林有城墙与城门；丹妮莉丝围城之后将其攻下。'], ['Height, thickness, number of towers and gates.', '高度、厚度、塔楼与城门数量。'], ['A large ring of 36 segments, one colour each, with four gates.', '由三十六段组成的大环，每段一色，设四座城门。']),
+    'harbour': L(['Harbour', '海港'], ['A long quay with seven piers on Slaver\'s Bay, crowded with cogs and galleys.', '奴隶湾畔一道长长的码头，七座栈桥边挤满柯克船与桨帆船。'], ['The largest of the Slaver cities looks out across the bay.', '奴隶城邦中最大的一座，面朝海湾。'], 'medium', ['adwd'],
+      ['Meereen lies on the bay and has a harbour used by trading ships and war fleets.', '弥林濒临海湾，港口有商船往来，也有舰队出没。'], ['Layout and number of docks.', '布局与码头数量。'], ['A straight quay with piers and two jetties; invented.', '一道笔直码头，加上栈桥与两道突堤；均为自拟。']),
+    'skahazadhan': L(['Skahazadhan', '斯卡哈扎丹河'], ['The river that runs past the city into the bay, with barges and green fields.', '流经城边、汇入海湾的河流，河上有驳船，岸边是绿田。'], ['The Skahazadhan brings water and green fields to a dusty coast.', '斯卡哈扎丹河为干燥的海岸带来水源与绿野。'], 'high', ['asos', 'adwd'],
+      ['Meereen stands at the Skahazadhan\'s mouth; the city\'s sewers drain into it.', '弥林坐落在斯卡哈扎丹河口；城中下水道排入河中。'], ['The river\'s exact course and width near the city.', '河流在城边的确切走向与宽度。'], ['A winding river on the east side; width and bends are invented.', '城东一条蜿蜒的河；宽度与弯道均为自拟。']),
+    'lower-city': L(['Lower City', '下城'], ['Flat-roofed brick houses in every colour, markets and winding lanes between the pyramids.', '五颜六色的平顶砖屋、集市，以及金字塔之间曲折的小巷。'], ['Between the pyramids lies the ordinary city, in every colour of brick.', '金字塔之间便是寻常市井，砖色五彩斑斓。'], 'low', ['adwd'],
+      ['The ordinary city is not mapped in detail.', '寻常街区并无详细描绘。'], ['Everything about the ordinary quarters.', '平民街区的一切。'], ['Random houses in coloured brick, plus a small market near the east road.', '随机布置的彩砖房屋，另在东路旁设一处小市场。']),
+    'sewer-outfalls': L(['Brick Sewers', '砖砌下水道'], ['Large brick outfalls that carry the city\'s waste into the Skahazadhan.', '大型砖砌排水口，把城中污水排入斯卡哈扎丹河。'], ['Great brick sewers empty into the river. Daenerys\'s men once crept in this way.', '宏大的砖砌下水道通入河中。丹妮莉丝的人马曾由此潜入城中。'], 'high', ['asos', 'awoiaf'],
+      ['Meereen\'s brick sewers drain into the Skahazadhan; Daenerys\'s fighters enter the city through them during the siege.', '弥林的砖砌下水道排入斯卡哈扎丹河；围城期间，丹妮莉丝的战士经由下水道潜入城内。'], ['Their routes and number.', '走向与数量。'], ['Three small outfalls, as a symbol only.', '三处小排水口，仅作象征。']),
+  },
+};

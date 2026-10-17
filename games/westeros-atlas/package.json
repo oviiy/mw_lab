@@ -1,0 +1,18 @@
+{
+  "name": "westeros-atlas",
+  "version": "1.0.0",
+  "description": "Bilingual (EN / 中文) interactive atlas of the known world of A Song of Ice and Fire — 2D map that dives into lazy-loaded Three.js location scenes.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node build.mjs --dev",
+    "build": "node build.mjs",
+    "test": "node tools/test-data.mjs",
+    "shot": "node tools/shot.mjs"
+  },
+  "dependencies": {
+    "esbuild": "^0.25.0",
+    "playwright-core": "^1.50.0",
+    "three": "^0.170.0"
+  }
+}

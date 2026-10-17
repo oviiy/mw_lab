@@ -43,6 +43,7 @@ Browser games, research tools, and knowledge pages. The [file browser](https://o
 | Proverbs: Four Paintings | [Play](./games/proverbs/) · [Source](./games/proverbs/) |
 | Neon Heist | [Play](./games/neon-heist/dist/) · [Source](./games/neon-heist/README.md) |
 | Open Outcry: 1987 | [Play](./games/trading-floor-87/dist/) · [Source](./games/trading-floor-87/README.md) |
+| Atlas of Ice & Fire | [Play](./games/westeros-atlas/dist/) · [Source](./games/westeros-atlas/README.md) |
 
 ## Publishing
 
