@@ -1,1025 +1,2181 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#02040a">
-<meta name="description" content="三体 · 天体模拟 — 清晰星空 + 高性能三体引力仿真">
-<title>三体 · 天体模拟</title>
+<meta name="theme-color" content="#030407">
+<meta name="description" content="三体 · 文明存续 — Keep a civilization alive under three suns">
+<title>三体 · Three-Body</title>
 <style>
 :root{
-  --bg:#02040a; --panel:rgba(8,12,24,.82);
-  --line:rgba(140,170,255,.16); --line-hi:rgba(180,200,255,.4);
-  --txt:#eef2ff; --dim:#8b96b8;
-  --acc:#7ecbff; --gold:#ffd27a; --rose:#ff7aa8; --mint:#5dffc2;
-  --radius:14px; --shadow:0 22px 60px rgba(0,0,0,.6);
-  --font:"Segoe UI",system-ui,"PingFang SC","Microsoft YaHei",sans-serif;
-  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --bg:#030407; --ink:#ebe5d6; --dim:#8d8877; --faint:#4b4941;
+  --amber:#f2b04c; --amber-l:rgba(242,176,76,.16); --amber-m:rgba(242,176,76,.38);
+  --cold:#8fd3ff; --hot:#ff5a36; --ok:#7fe0b0; --violet:#c9a6ff;
+  --panel:rgba(6,7,10,.62);
+  --serif-zh:"Songti SC","STSong","Noto Serif SC","Source Han Serif SC","SimSun",serif;
+  --serif:var(--serif-zh);
+  --mono:"SF Mono","JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  --sans:"PingFang SC","Hiragino Sans GB",system-ui,sans-serif;
 }
+body.en{--serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,"Songti SC",serif;--sans:system-ui,-apple-system,"Segoe UI",sans-serif}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--txt);
-  font:13px/1.45 var(--font);user-select:none}
-#app{position:fixed;inset:0}
-canvas#space{display:block;width:100%;height:100%;cursor:grab;touch-action:none;background:#02040a}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--ink);
+  font:13px/1.5 var(--sans);user-select:none;-webkit-user-select:none}
+canvas#space{position:fixed;inset:0;width:100%;height:100%;display:block;cursor:grab;touch-action:none}
 canvas#space.grabbing{cursor:grabbing}
+button{font:inherit;color:inherit}
+kbd{font:600 10px var(--mono);border:1px solid var(--amber-m);padding:1px 5px;color:var(--amber)}
 
-.hud{position:absolute;inset:0;pointer-events:none;z-index:5}
+/* ── HUD shell ── */
+.hud{position:fixed;inset:0;pointer-events:none;z-index:5;opacity:1;transition:opacity .5s}
 .hud>*{pointer-events:auto}
-.topbar{
-  position:absolute;top:0;left:0;right:0;padding:14px 16px 32px;
-  display:flex;align-items:flex-start;gap:10px;flex-wrap:wrap;
-  background:linear-gradient(180deg,rgba(2,4,10,.88),transparent);
-}
-.brand{display:flex;flex-direction:column;gap:2px;min-width:0}
-.brand .logo{
-  font-weight:900;letter-spacing:4px;font-size:clamp(15px,2.4vw,20px);
-  background:linear-gradient(110deg,#9ad8ff 0%,#c4a8ff 45%,#ff9ec4 100%);
-  -webkit-background-clip:text;background-clip:text;color:transparent;
-  filter:drop-shadow(0 0 18px rgba(130,200,255,.28));
-}
-.brand .tag{font-size:10px;letter-spacing:2.5px;color:var(--dim);text-transform:uppercase}
-.spacer{flex:1}
-.chips{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
-.chip{
-  background:var(--panel);border:1px solid var(--line);border-radius:999px;
-  padding:6px 11px;font-size:11px;font-variant-numeric:tabular-nums;
-  backdrop-filter:blur(12px);box-shadow:0 4px 16px rgba(0,0,0,.28);
-}
-.chip b{color:var(--acc);font-weight:700}
-.chip .warn{color:var(--rose)}
-.chip .ok{color:var(--mint)}
+body.m-menu .hud{opacity:0}
+body:not(.m-game) .g-only{display:none!important}
+body:not(.m-sandbox) .s-only{display:none!important}
 
-.panel{
-  position:absolute;top:72px;right:14px;width:min(320px,calc(100vw - 28px));
-  max-height:calc(100vh - 100px);overflow:auto;z-index:10;
-  background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
-  backdrop-filter:blur(16px) saturate(1.2);box-shadow:var(--shadow);
-  transform:translateX(calc(100% + 24px));opacity:0;
-  transition:transform .32s cubic-bezier(.2,.8,.2,1),opacity .28s;
-}
-.panel.open{transform:translateX(0);opacity:1}
-.panel::-webkit-scrollbar{width:8px}
-.panel::-webkit-scrollbar-thumb{background:rgba(120,150,255,.22);border-radius:8px}
-.panel-head{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:12px 14px;border-bottom:1px solid var(--line);position:sticky;top:0;
-  background:rgba(8,12,24,.94);backdrop-filter:blur(12px);z-index:1;
-}
-.panel-head h2{margin:0;font-size:12px;letter-spacing:2px;color:var(--gold);font-weight:800}
-.panel-body{padding:12px 14px 16px;display:flex;flex-direction:column;gap:12px}
-.section{display:flex;flex-direction:column;gap:8px}
-.section h3{
-  margin:0;font-size:10px;letter-spacing:1.8px;color:var(--dim);
-  text-transform:uppercase;font-weight:700;
-}
-.presets{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-.preset{
-  border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--txt);
-  border-radius:10px;padding:9px 8px;cursor:pointer;font:inherit;text-align:left;
-  transition:border-color .15s,background .15s,transform .08s;
-}
-.preset:hover{border-color:var(--line-hi);background:rgba(126,203,255,.08)}
-.preset:active{transform:scale(.98)}
-.preset.on{border-color:rgba(126,203,255,.55);background:rgba(126,203,255,.12)}
-.preset .n{display:block;font-weight:700;font-size:12px;margin-bottom:2px}
-.preset .d{display:block;font-size:10px;color:var(--dim);line-height:1.35}
+.frame{position:absolute;background:var(--panel);border:1px solid rgba(242,176,76,.11);
+  backdrop-filter:blur(10px) saturate(1.1);-webkit-backdrop-filter:blur(10px) saturate(1.1)}
+.frame::before,.frame::after{content:"";position:absolute;width:9px;height:9px;border:1px solid var(--amber);opacity:.85;pointer-events:none}
+.frame::before{top:-1px;left:-1px;border-right:0;border-bottom:0}
+.frame::after{bottom:-1px;right:-1px;border-left:0;border-top:0}
+.lbl{font:600 9px/1 var(--mono);letter-spacing:.24em;color:var(--dim);text-transform:uppercase}
+.lbl-row{display:flex;justify-content:space-between;align-items:center}
+.divider{height:1px;background:linear-gradient(90deg,var(--amber-l),transparent);margin:12px 0 8px}
 
-.row{display:flex;align-items:center;gap:8px}
-.row label{width:72px;flex:none;color:var(--dim);font-size:11px}
-.row .val{width:42px;text-align:right;color:var(--acc);font-family:var(--mono);font-size:11px}
-input[type=range]{flex:1;height:4px;accent-color:var(--acc);cursor:pointer;background:transparent}
-.btns{display:flex;gap:6px;flex-wrap:wrap}
-.btn{
-  flex:1;min-width:0;border:1px solid var(--line);background:rgba(255,255,255,.04);
-  color:var(--txt);border-radius:10px;padding:9px 10px;cursor:pointer;font:inherit;
-  font-weight:700;letter-spacing:.5px;font-size:12px;
-  transition:background .12s,border-color .12s,transform .08s;
-}
-.btn:hover{background:rgba(126,203,255,.1);border-color:var(--line-hi)}
-.btn:active{transform:translateY(1px)}
-.btn.primary{background:linear-gradient(135deg,rgba(126,203,255,.3),rgba(184,156,255,.22));
-  border-color:rgba(126,203,255,.4);color:#eef6ff}
-.btn.danger:hover{background:rgba(255,122,168,.12);border-color:rgba(255,122,168,.4)}
-.btn.on{background:rgba(93,255,194,.15);border-color:rgba(93,255,194,.4);color:var(--mint)}
+/* civilization */
+#civBox{top:18px;left:18px;width:272px;padding:14px 16px 14px}
+.civ-no{font:600 22px/1.2 var(--serif);margin:9px 0 3px;letter-spacing:.05em}
+.civ-no b{color:var(--amber);font-weight:700;font-family:var(--mono);font-size:20px}
+.tier{display:flex;align-items:baseline;gap:9px;font:16px/1.3 var(--serif)}
+.tier em{font:600 9px var(--mono);letter-spacing:.18em;color:var(--dim);font-style:normal;text-transform:uppercase}
+.bar{height:3px;background:rgba(255,255,255,.07);margin-top:7px;position:relative;overflow:hidden}
+.bar i{position:absolute;top:0;bottom:0;left:0;width:0;background:linear-gradient(90deg,#9c6c25,var(--amber));
+  box-shadow:0 0 10px var(--amber);transition:width .3s}
+.bar.hp i{background:linear-gradient(90deg,#2d8a68,var(--ok));box-shadow:0 0 10px rgba(127,224,176,.55)}
+.bar.ord i{background:linear-gradient(90deg,#6b4fa8,var(--violet));box-shadow:0 0 10px rgba(201,166,255,.5)}
+.bar.res i{background:linear-gradient(90deg,#2f6f9a,var(--cold));box-shadow:0 0 10px rgba(143,211,255,.5)}
+.meter.low .bar i{background:linear-gradient(90deg,#8a2a14,var(--hot));box-shadow:0 0 10px var(--hot)}
+.sub-row{display:flex;justify-content:space-between;margin-top:6px;font:10.5px var(--sans);color:var(--dim)}
+.sub-row span:last-child{font-family:var(--mono);color:var(--amber)}
+.meter{margin-top:8px}
+.meter.bump{animation:bump .6s}
+@keyframes bump{30%{transform:scale(1.04);filter:brightness(1.6)}}
+.mrow{display:flex;align-items:baseline;justify-content:space-between;font-size:11px;color:var(--dim)}
+.mrow b{font:500 13px var(--mono);color:var(--ink)}
+.st-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px;align-items:center}
+.tag{font:600 9.5px var(--mono);letter-spacing:.1em;padding:3px 7px;border:1px solid currentColor;color:var(--ok)}
+.tag.dry{color:var(--cold)} .tag.trans{color:var(--amber);animation:blink .6s steps(2) infinite}
+.buff{font:600 9.5px var(--mono);padding:3px 6px;color:var(--cold);background:rgba(143,211,255,.08);border:1px solid rgba(143,211,255,.25)}
 
-.bodies{display:flex;flex-direction:column;gap:8px}
-.body-card{border:1px solid var(--line);border-radius:12px;padding:10px;background:rgba(0,0,0,.22)}
-.body-card .hdr{display:flex;align-items:center;gap:8px;margin-bottom:8px}
-.dot{width:10px;height:10px;border-radius:50%;box-shadow:0 0 10px currentColor}
-.body-card .name{font-weight:800;font-size:12px}
-.body-card .mass{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--dim)}
+/* era banner */
+#eraBox{position:absolute;top:22px;left:50%;transform:translateX(-50%);text-align:center;pointer-events:none;white-space:nowrap}
+.era-name{font:700 46px/1 var(--serif);letter-spacing:.38em;padding-left:.38em;color:var(--ink);
+  text-shadow:0 0 34px rgba(242,176,76,.35),0 2px 0 rgba(0,0,0,.6);transition:color .4s}
+body.en .era-name{letter-spacing:.1em;padding-left:.1em;font-size:40px}
+body.chaos .era-name{color:#ff7a52;text-shadow:0 0 26px rgba(255,90,54,.65);animation:flick 3s infinite}
+.era-sub{font:600 9.5px var(--mono);letter-spacing:.3em;color:var(--dim);margin-top:10px}
+.era-name.flip{animation:flip .9s cubic-bezier(.2,.9,.2,1)}
+@keyframes flip{0%{opacity:0;filter:blur(8px);transform:scale(1.2)}100%{opacity:1;filter:none;transform:none}}
+@keyframes flick{0%,100%{opacity:1}46%{opacity:1}48%{opacity:.55}50%{opacity:1}72%{opacity:.85}}
+@keyframes blink{50%{opacity:.35}}
 
-.toggle{
-  display:flex;align-items:center;justify-content:space-between;
-  border:1px solid var(--line);border-radius:10px;padding:8px 10px;
-  background:rgba(255,255,255,.02);cursor:pointer;
-}
-.toggle span{color:var(--dim);font-size:12px}
-.toggle .sw{
-  width:36px;height:20px;border-radius:999px;background:rgba(255,255,255,.08);
-  border:1px solid var(--line);position:relative;transition:.2s;
-}
-.toggle .sw i{
-  position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;
-  background:var(--dim);transition:.2s;
-}
-.toggle.on .sw{background:rgba(93,255,194,.2);border-color:rgba(93,255,194,.45)}
-.toggle.on .sw i{left:18px;background:var(--mint)}
-.toggle.on span{color:var(--txt)}
+#warn{position:absolute;top:108px;left:50%;transform:translateX(-50%);font:600 11px var(--mono);letter-spacing:.1em;
+  color:var(--hot);padding:6px 12px;border:1px solid rgba(255,90,54,.45);background:rgba(40,8,4,.55);
+  opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap}
+#warn.show{opacity:1;animation:blink 1s steps(2) infinite}
+#warn.cold{color:var(--cold);border-color:rgba(143,211,255,.45);background:rgba(4,16,30,.55)}
 
-.hint-bar{
-  position:absolute;left:50%;bottom:16px;transform:translateX(-50%);
-  background:var(--panel);border:1px solid var(--line);border-radius:999px;
-  padding:8px 16px;font-size:11px;color:var(--dim);white-space:nowrap;
-  max-width:min(92vw,720px);overflow:hidden;text-overflow:ellipsis;
-  backdrop-filter:blur(10px);box-shadow:0 8px 28px rgba(0,0,0,.35);
-  pointer-events:none;
-}
-.hint-bar b{color:var(--txt);font-weight:700}
+/* temperature */
+#tempBox{top:18px;right:18px;width:328px;padding:14px 16px 10px}
+.temp-big{font:200 48px/1 var(--mono);letter-spacing:-.03em;margin:10px 0 6px;transition:color .3s}
+.temp-big small{font-size:16px;margin-left:4px;color:var(--dim)}
+.temp-big .st{font:600 10px var(--mono);letter-spacing:.2em;margin-left:12px;vertical-align:middle}
+#chart{width:100%;height:100px;display:block}
+.chart-leg{display:flex;justify-content:space-between;font:9.5px var(--mono);color:var(--dim);margin-top:4px;letter-spacing:.04em}
 
-.fab{
-  position:absolute;top:14px;right:14px;z-index:12;
-  width:40px;height:40px;border-radius:12px;border:1px solid var(--line);
-  background:var(--panel);color:var(--txt);cursor:pointer;font-size:16px;
-  backdrop-filter:blur(10px);display:grid;place-items:center;
-  box-shadow:0 8px 24px rgba(0,0,0,.35);transition:.15s;
-}
-.fab:hover{border-color:var(--line-hi);background:rgba(126,203,255,.1)}
+/* chronicle */
+#logBox{top:262px;right:18px;width:328px;padding:12px 16px 10px}
+#log{list-style:none;margin:8px 0 0;padding:0;display:flex;flex-direction:column;gap:5px}
+#log li{display:flex;gap:10px;font:12.5px/1.45 var(--serif);color:var(--ink);animation:in .5s ease-out}
+#log li:nth-child(n+3){opacity:.62} #log li:nth-child(n+5){opacity:.36}
+#log time{font:10px/1.9 var(--mono);color:var(--dim);flex:none;width:44px}
+#log li.hot span{color:#ff8a66} #log li.cold span{color:var(--cold)} #log li.gold span{color:var(--amber)} #log li.dec span{color:var(--violet)}
+@keyframes in{from{opacity:0;transform:translateX(8px)}}
 
-.overlay{
-  position:fixed;inset:0;z-index:30;display:flex;align-items:center;justify-content:center;
-  padding:20px;background:radial-gradient(ellipse at 50% 18%,rgba(126,203,255,.08),transparent 45%),
-    rgba(2,4,10,.82);backdrop-filter:blur(12px);
-  transition:opacity .35s;
-}
-.overlay.hid{opacity:0;pointer-events:none}
-.card{
-  width:min(440px,100%);background:rgba(8,12,24,.94);border:1px solid var(--line);
-  border-radius:18px;padding:28px 24px 22px;box-shadow:var(--shadow);text-align:center;
-}
-.card .title{
-  font-size:clamp(26px,6vw,36px);font-weight:900;letter-spacing:6px;margin:0 0 6px;
-  background:linear-gradient(110deg,#9ad8ff,#c4a8ff,#ff9ec4);
-  -webkit-background-clip:text;background-clip:text;color:transparent;
-}
-.card .sub{color:var(--dim);letter-spacing:3px;font-size:11px;margin-bottom:16px}
-.card p{margin:0 0 18px;color:var(--dim);line-height:1.7;font-size:13px;text-align:left}
-.card .start{
-  width:100%;border:0;border-radius:12px;padding:14px;cursor:pointer;font:inherit;
-  font-weight:800;letter-spacing:2px;font-size:14px;
-  background:linear-gradient(135deg,#7ecbff,#b89cff);color:#0a0c18;
-  box-shadow:0 0 28px rgba(126,203,255,.28);
-}
-.card .start:hover{filter:brightness(1.06)}
-.feats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:18px;text-align:left}
-.feat{
-  background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:10px;
-  padding:8px 10px;font-size:11px;color:var(--dim);
-}
-.feat b{display:block;color:var(--txt);font-size:12px;margin-bottom:2px}
+/* portrait */
+#portraitBox{position:absolute;left:18px;bottom:18px;width:190px;text-align:center;pointer-events:none}
+#portrait{width:176px;height:176px;display:block;margin:0 auto}
+.pt-lbl{font:600 9px var(--mono);letter-spacing:.2em;color:var(--dim);margin-top:2px}
+.pt-lbl b{color:var(--ink);font:13px var(--serif);letter-spacing:.06em}
 
-.legend{
-  position:absolute;left:14px;bottom:56px;display:flex;flex-direction:column;gap:6px;
-  pointer-events:none;
-}
-.legend .item{
-  display:flex;align-items:center;gap:8px;font-size:11px;color:var(--dim);
-  background:rgba(8,12,24,.55);border:1px solid var(--line);border-radius:999px;
-  padding:4px 10px 4px 6px;backdrop-filter:blur(8px);
-}
-.legend .orb{width:8px;height:8px;border-radius:50%;box-shadow:0 0 8px currentColor}
+/* actions */
+#actions{position:absolute;bottom:22px;left:50%;transform:translateX(-50%);display:flex;gap:8px;align-items:stretch}
+.act{position:relative;min-width:230px;padding:10px 20px 10px 16px;cursor:pointer;display:grid;
+  grid-template-columns:auto 1fr;grid-template-rows:auto auto;column-gap:14px;align-items:center;text-align:left;
+  background:rgba(14,10,4,.72);border:1px solid var(--amber-m);color:var(--ink);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);transition:background .15s,border-color .15s,box-shadow .2s}
+.act:hover{background:rgba(40,28,10,.8);border-color:var(--amber)}
+.act .k{grid-row:1/3;font:600 9px var(--mono);letter-spacing:.12em;color:var(--amber);border:1px solid var(--amber-m);padding:5px 6px}
+.act .t{font:700 21px/1.1 var(--serif);letter-spacing:.3em}
+body.en .act .t{letter-spacing:.06em;font-size:18px}
+.act em{font:600 9px var(--mono);letter-spacing:.2em;color:var(--dim);font-style:normal;text-transform:uppercase}
+.act.dry{border-color:rgba(143,211,255,.45);background:rgba(4,12,22,.75)}
+.act.dry .k{color:var(--cold);border-color:rgba(143,211,255,.45)}
+.act.busy{opacity:.55;pointer-events:none}
+.act.urgent{border-color:var(--hot);animation:urg .7s ease-in-out infinite alternate}
+@keyframes urg{from{box-shadow:0 0 0 rgba(255,90,54,0)}to{box-shadow:0 0 28px rgba(255,90,54,.55),inset 0 0 18px rgba(255,90,54,.18)}}
+.seg{display:flex;border:1px solid rgba(242,176,76,.18);background:var(--panel);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.seg button{border:0;background:transparent;padding:0 12px;cursor:pointer;font:600 11px var(--mono);color:var(--dim);min-width:40px}
+.seg button+button{border-left:1px solid rgba(242,176,76,.1)}
+.seg button:hover{color:var(--ink)}
+.seg button.on{color:#140d02;background:var(--amber)}
+#nextCard{position:absolute;bottom:84px;left:50%;transform:translateX(-50%);font:600 9px var(--mono);letter-spacing:.2em;color:var(--dim);pointer-events:none;white-space:nowrap;text-transform:uppercase}
+#nextCard i{display:inline-block;width:60px;height:2px;background:rgba(201,166,255,.15);vertical-align:middle;margin-left:8px;position:relative;overflow:hidden}
+#nextCard i b{position:absolute;top:0;bottom:0;left:0;background:var(--violet)}
 
-@media (max-width:640px){
-  .panel{top:auto;bottom:0;right:0;left:0;width:100%;max-height:52vh;
-    border-radius:16px 16px 0 0;transform:translateY(110%)}
-  .panel.open{transform:translateY(0)}
-  .legend{display:none}
-  .hint-bar{bottom:10px;font-size:10px;padding:6px 12px}
-  .feats{grid-template-columns:1fr}
+/* language toggle */
+#langBtn{position:fixed;right:18px;bottom:22px;z-index:40;border:1px solid var(--amber-m);background:rgba(6,7,10,.7);
+  padding:8px 12px;cursor:pointer;font:600 11px var(--mono);letter-spacing:.14em;color:var(--ink);backdrop-filter:blur(10px)}
+#langBtn:hover{border-color:var(--amber)}
+#langBtn span{color:var(--faint)} #langBtn b{color:var(--amber);font-weight:600}
+
+/* toast */
+#toast{position:absolute;top:25%;left:50%;transform:translate(-50%,8px);text-align:center;opacity:0;
+  transition:opacity .4s,transform .4s;pointer-events:none;width:min(90vw,560px)}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+#toast .t1{font:700 26px/1.3 var(--serif);letter-spacing:.14em;color:var(--amber);text-shadow:0 0 24px rgba(242,176,76,.5)}
+body.en #toast .t1{letter-spacing:.04em}
+#toast .t2{font:13px/1.6 var(--sans);color:var(--ink);margin-top:6px;text-shadow:0 1px 8px #000}
+
+/* ── decision card ── */
+#cardLayer{position:fixed;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(ellipse at center,rgba(3,4,7,.5),rgba(3,4,7,.88));opacity:0;pointer-events:none;transition:opacity .3s}
+#cardLayer.show{opacity:1;pointer-events:auto}
+.card-wrap{display:flex;flex-direction:column;align-items:center;gap:18px;width:min(600px,94vw);perspective:900px}
+.card{width:min(350px,88vw);padding:18px 24px 20px;position:relative;text-align:center;cursor:grab;touch-action:none;
+  background:linear-gradient(180deg,#17110a 0%,#0b0907 100%);border:1px solid var(--amber-m);
+  box-shadow:0 30px 80px rgba(0,0,0,.75),inset 0 0 50px rgba(242,176,76,.05);
+  transition:transform .4s cubic-bezier(.2,.9,.2,1),opacity .35s}
+.card::before{content:"";position:absolute;inset:7px;border:1px solid rgba(242,176,76,.14);pointer-events:none}
+.card.drag{transition:none;cursor:grabbing}
+.card.enter{animation:cardIn .6s cubic-bezier(.2,.9,.2,1)}
+@keyframes cardIn{from{transform:translateY(50px) rotateY(70deg);opacity:0}}
+.card.out-l{transform:translate(-130%,30px) rotate(-22deg)!important;opacity:0}
+.card.out-r{transform:translate(130%,30px) rotate(22deg)!important;opacity:0}
+.card-top{display:flex;justify-content:space-between;font:600 9px var(--mono);letter-spacing:.22em;color:var(--dim);text-transform:uppercase}
+.card-art{margin:16px auto 14px;width:128px;height:128px;border-radius:50%;display:grid;place-items:center;position:relative;
+  background:radial-gradient(circle at 50% 42%,rgba(242,176,76,.26),rgba(242,176,76,.02) 62%,transparent 70%)}
+.card-art::before{content:"";position:absolute;inset:0;border-radius:50%;border:1px solid rgba(242,176,76,.35)}
+.card-art::after{content:"";position:absolute;inset:-10px;border-radius:50%;border:1px dashed rgba(242,176,76,.2);animation:spin 50s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.glyph{font:900 66px/1 var(--serif-zh);background:linear-gradient(180deg,#fff4da,#e3a548);-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 0 14px rgba(242,176,76,.35))}
+.card-who{font:600 10px var(--mono);letter-spacing:.2em;color:var(--amber);text-transform:uppercase}
+.card h3{font:700 22px/1.3 var(--serif);margin:6px 0 10px;letter-spacing:.06em}
+.card p{font:14.5px/1.75 var(--serif);color:#d2cab6;margin:0;min-height:76px}
+.card .swipe{margin-top:14px;font:600 9px var(--mono);letter-spacing:.18em;color:var(--faint);text-transform:uppercase}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%}
+.choice{border:1px solid rgba(242,176,76,.22);background:rgba(10,8,5,.88);padding:12px 14px 13px;text-align:left;cursor:pointer;
+  transition:border-color .15s,background .15s,transform .15s;color:var(--ink)}
+.choice:hover,.choice.lean{border-color:var(--amber);background:rgba(44,30,10,.92);transform:translateY(-3px)}
+.choice .key{font:600 9px var(--mono);letter-spacing:.16em;color:var(--dim)}
+.choice b{display:block;font:700 16px/1.35 var(--serif);margin:4px 0 9px;letter-spacing:.04em}
+.fx{display:flex;flex-wrap:wrap;gap:4px}
+.chip{font:600 9.5px var(--mono);padding:2px 6px;border:1px solid currentColor;white-space:nowrap}
+.chip.up{color:var(--ok)} .chip.down{color:var(--hot)} .chip.buff{color:var(--cold)} .chip.risk{color:var(--amber)} .chip.none{color:var(--dim)}
+.chip.alt{opacity:.55}
+
+/* sandbox */
+#sandPanel{top:18px;right:18px;width:300px;padding:14px 16px 14px}
+.presets{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin:12px 0}
+.preset{border:1px solid rgba(242,176,76,.12);background:rgba(255,255,255,.02);padding:8px 9px;text-align:left;cursor:pointer;transition:.15s}
+.preset:hover{border-color:var(--amber-m)}
+.preset.on{border-color:var(--amber);background:rgba(242,176,76,.1)}
+.preset b{display:block;font:600 13px var(--serif);letter-spacing:.04em}
+.preset span{font-size:10px;color:var(--dim)}
+.srow{display:flex;align-items:center;gap:10px;margin:8px 0}
+.srow label{width:44px;font-size:11px;color:var(--dim)}
+.srow span{width:44px;text-align:right;font:11px var(--mono);color:var(--amber)}
+input[type=range]{flex:1;accent-color:var(--amber);height:3px}
+.tgs{display:flex;gap:5px;margin:10px 0}
+.tg,.sbtn{flex:1;border:1px solid rgba(242,176,76,.14);background:transparent;padding:7px 4px;cursor:pointer;font-size:11px;color:var(--dim)}
+.tg.on{color:var(--amber);border-color:var(--amber-m);background:rgba(242,176,76,.07)}
+.sbtn{color:var(--ink)} .sbtn:hover,.tg:hover{border-color:var(--amber)}
+.sstats{margin-top:10px;font:10.5px var(--mono);color:var(--dim)} .sstats b{color:var(--ink);font-weight:500}
+#sandTitle{position:absolute;left:24px;bottom:22px;pointer-events:none}
+#sandTitle .n{font:700 34px/1 var(--serif);letter-spacing:.16em}
+#sandTitle .d{font:600 9.5px var(--mono);letter-spacing:.28em;color:var(--dim);margin-top:8px}
+
+/* ── screens ── */
+.screen{position:fixed;inset:0;z-index:30;display:flex;align-items:center;transition:opacity .6s;
+  background:linear-gradient(90deg,rgba(3,4,7,.94) 0%,rgba(3,4,7,.78) 38%,rgba(3,4,7,.08) 75%,rgba(3,4,7,0) 100%)}
+.screen.hid{opacity:0;pointer-events:none}
+.screen.center{justify-content:center;background:radial-gradient(ellipse at center,rgba(3,4,7,.72),rgba(3,4,7,.95))}
+.menu{padding:0 0 0 clamp(24px,8vw,120px);max-width:660px}
+.kicker{font:600 10px var(--mono);letter-spacing:.3em;color:var(--amber)}
+.title{font:900 clamp(84px,15vw,168px)/0.95 var(--serif-zh);margin:18px 0 6px;letter-spacing:.06em;
+  background:linear-gradient(180deg,#fff7e6 0%,#f2c77a 55%,#9a5d1c 100%);-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 0 40px rgba(242,176,76,.22))}
+.subtitle{font:500 18px var(--serif);letter-spacing:.7em;color:var(--ink)}
+body.en .subtitle{letter-spacing:.3em;font-size:15px;text-transform:uppercase}
+.lede{font:15px/1.9 var(--serif);color:#bdb6a4;margin:26px 0 24px;max-width:480px}
+.rules{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(242,176,76,.12);border:1px solid rgba(242,176,76,.12);margin-bottom:28px}
+.rules div{background:rgba(5,6,9,.9);padding:12px 12px 13px}
+.rules b{display:block;font:700 15px var(--serif);letter-spacing:.16em;color:var(--amber);margin-bottom:5px}
+body.en .rules b{letter-spacing:.03em}
+.rules span{font-size:11.5px;line-height:1.6;color:#a9a392}
+.btns{display:flex;gap:10px;flex-wrap:wrap}
+.cta{border:0;padding:15px 30px;cursor:pointer;font:700 15px var(--serif);letter-spacing:.2em;color:#170f02;
+  background:linear-gradient(180deg,#ffcf7a,#e09a32);box-shadow:0 0 34px rgba(242,176,76,.28),inset 0 1px 0 rgba(255,255,255,.5);transition:filter .15s,transform .1s}
+body.en .cta,body.en .ghost{letter-spacing:.06em}
+.cta:hover{filter:brightness(1.08)} .cta:active{transform:translateY(1px)}
+.cta b{font-family:var(--mono)}
+.ghost{border:1px solid var(--amber-m);background:rgba(5,6,9,.5);padding:15px 24px;cursor:pointer;font:600 14px var(--serif);letter-spacing:.2em;color:var(--ink)}
+.ghost:hover{border-color:var(--amber)}
+.record{margin-top:22px;font:10.5px var(--mono);letter-spacing:.06em;color:var(--dim)}
+.record b{color:var(--ink);font-weight:500}
+.keys{margin-top:8px;font:10px var(--mono);color:var(--faint);letter-spacing:.06em}
+
+.over{width:min(580px,92vw);text-align:center}
+.over h2{font:900 clamp(36px,7vw,58px)/1.15 var(--serif);letter-spacing:.12em;margin:16px 0 10px}
+body.en .over h2{letter-spacing:.02em}
+.over.win h2{background:linear-gradient(180deg,#fff7e6,#f2b04c);-webkit-background-clip:text;background-clip:text;color:transparent}
+.over .cause{font:16px/1.8 var(--serif);color:#c9c1ad}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:rgba(242,176,76,.14);border:1px solid rgba(242,176,76,.14);margin:28px 0 22px}
+.stats div{background:rgba(5,6,9,.92);padding:14px 6px}
+.stats b{display:block;font:300 22px var(--mono);color:var(--ink)}
+.stats span{font:600 9px var(--mono);letter-spacing:.16em;color:var(--dim);text-transform:uppercase}
+.epi{font:italic 14px/1.8 var(--serif);color:var(--dim);margin:0 0 26px}
+.over .btns{justify-content:center}
+
+@media (max-width:900px){
+  #logBox{display:none}
+  #tempBox{width:250px} .temp-big{font-size:36px} #chart{height:74px}
+  #civBox{width:224px}
+  .era-name{font-size:32px} body.en .era-name{font-size:28px}
+  #eraBox{top:auto;bottom:118px} #warn{top:auto;bottom:178px} #nextCard{bottom:96px;display:none}
+  #portraitBox{width:110px;bottom:92px} #portrait{width:100px;height:100px}
+  .rules{grid-template-columns:1fr}
+  .lede{font-size:13.5px;margin:16px 0}
+  .screen{background:rgba(3,4,7,.86)}
+  .act{min-width:170px}
+}
+@media (max-width:560px){
+  #tempBox{top:10px;right:10px;width:138px;padding:10px 12px 8px} #chart,.chart-leg,#yearLbl{display:none}
+  .temp-big{font-size:30px;margin:6px 0 0} .temp-big .st{display:block;margin:6px 0 0}
+  #civBox{left:10px;top:10px;width:204px;padding:10px 12px} .civ-no{font-size:17px} .divider{margin:8px 0 4px}
+  #portraitBox{display:none}
+  #eraBox{bottom:150px} .era-name{font-size:26px} body.en .era-name{font-size:22px} .era-sub{display:none}
+  #warn{bottom:192px;font-size:10px}
+  #actions{bottom:12px;flex-wrap:wrap;justify-content:center;width:94vw}
+  .act .k{display:none} .act{min-width:0;flex:1 1 100%;padding:8px 14px} .act .t{font-size:18px}
+  #langBtn{bottom:auto;top:128px;right:10px;padding:6px 8px} body:not(.m-game) #langBtn{top:10px}
+  .menu{padding:0 20px} .title{margin-top:8px}
+  #sandPanel{top:auto;bottom:0;right:0;left:0;width:auto;max-height:55vh;overflow:auto}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .card{padding:14px 18px 16px} .card p{font-size:13.5px;min-height:0} .card-art{width:88px;height:88px;margin:10px auto} .glyph{font-size:46px}
+  .choice{padding:10px} .choice b{font-size:14px}
 }
 </style>
 </head>
-<body>
-<div id="app">
-  <canvas id="space"></canvas>
-  <div class="hud">
-    <div class="topbar">
-      <div class="brand">
-        <div class="logo">三体 · 天体模拟</div>
-        <div class="tag">Starfield · Three-Body</div>
-      </div>
-      <div class="spacer"></div>
-      <div class="chips">
-        <div class="chip">t = <b id="tTime">0.00</b></div>
-        <div class="chip">E = <b id="tEnergy">—</b></div>
-        <div class="chip">ΔE = <b id="tDE" class="ok">0</b></div>
-        <div class="chip">fps <b id="tFps">—</b></div>
-      </div>
+<body class="m-menu en">
+<canvas id="space"></canvas>
+
+<div class="hud" id="hud">
+  <section id="civBox" class="frame g-only">
+    <div class="lbl" data-i="civ_lbl"></div>
+    <div class="civ-no" id="civNo"></div>
+    <div class="tier"><span id="tierName"></span><em id="tierAlt"></em></div>
+    <div class="bar"><i id="progBar"></i></div>
+    <div class="sub-row"><span id="nextTier"></span><span id="progPct">0%</span></div>
+    <div class="divider"></div>
+    <div class="meter" id="mPop"><div class="mrow"><span data-i="pop"></span><b id="popVal"></b></div><div class="bar hp"><i id="popBar"></i></div></div>
+    <div class="meter" id="mOrd"><div class="mrow"><span data-i="order"></span><b id="ordVal"></b></div><div class="bar ord"><i id="ordBar"></i></div></div>
+    <div class="meter" id="mRes"><div class="mrow"><span data-i="res"></span><b id="resVal"></b></div><div class="bar res"><i id="resBar"></i></div></div>
+    <div class="st-row" id="stRow"></div>
+  </section>
+
+  <section id="eraBox" class="g-only">
+    <div class="era-name" id="eraName"></div>
+    <div class="era-sub" id="eraSub"></div>
+  </section>
+  <div id="warn" class="g-only"></div>
+
+  <section id="tempBox" class="frame g-only">
+    <div class="lbl-row"><span class="lbl" data-i="temp_lbl"></span><span class="lbl" id="yearLbl"></span></div>
+    <div class="temp-big" id="tempVal"></div>
+    <canvas id="chart"></canvas>
+    <div class="chart-leg"><span data-i="past"></span><span id="fcLbl"></span></div>
+  </section>
+
+  <section id="logBox" class="frame g-only">
+    <div class="lbl" data-i="chron"></div>
+    <ol id="log"></ol>
+  </section>
+
+  <section id="portraitBox" class="g-only">
+    <canvas id="portrait" width="200" height="200"></canvas>
+    <div class="pt-lbl"><span data-i="pt_name"></span> · <b id="ptState"></b></div>
+  </section>
+
+  <div id="nextCard" class="g-only"><span data-i="next_card"></span><i><b id="nextCardBar"></b></i></div>
+  <nav id="actions" class="g-only">
+    <button class="act" id="btnDry"><span class="k">SPACE</span><span class="t" id="dryTxt"></span><em id="drySub"></em></button>
+    <div class="seg" id="speedSeg">
+      <button data-s="0" title="P">❚❚</button><button data-s="1" class="on">1×</button><button data-s="2">2×</button><button data-s="4">4×</button>
     </div>
-
-    <button class="fab" id="btnPanel" title="控制面板">☰</button>
-
-    <div class="panel" id="panel">
-      <div class="panel-head">
-        <h2>控制台</h2>
-        <button class="btn" id="btnClose" style="flex:none;padding:6px 10px">✕</button>
-      </div>
-      <div class="panel-body">
-        <div class="section">
-          <h3>经典预设</h3>
-          <div class="presets" id="presets"></div>
-        </div>
-
-        <div class="section">
-          <h3>仿真控制</h3>
-          <div class="btns">
-            <button class="btn primary" id="btnPlay">暂停</button>
-            <button class="btn" id="btnReset">重置</button>
-            <button class="btn danger" id="btnClearTrail">清轨迹</button>
-          </div>
-          <div class="row">
-            <label>时间倍率</label>
-            <input type="range" id="speed" min="0.1" max="4" step="0.05" value="1">
-            <span class="val" id="speedV">1.0×</span>
-          </div>
-          <div class="row">
-            <label>引力 G</label>
-            <input type="range" id="G" min="0.2" max="3" step="0.05" value="1">
-            <span class="val" id="GV">1.00</span>
-          </div>
-          <div class="row">
-            <label>轨迹长度</label>
-            <input type="range" id="trail" min="50" max="2500" step="50" value="800">
-            <span class="val" id="trailV">800</span>
-          </div>
-          <div class="row">
-            <label>软化 ε</label>
-            <input type="range" id="soft" min="0" max="0.15" step="0.005" value="0.02">
-            <span class="val" id="softV">0.02</span>
-          </div>
-          <div class="row">
-            <label>缩放</label>
-            <input type="range" id="zoom" min="0.25" max="3" step="0.05" value="1">
-            <span class="val" id="zoomV">1.00×</span>
-          </div>
-          <div class="row">
-            <label>星空密度</label>
-            <input type="range" id="starDensity" min="0.3" max="1.5" step="0.05" value="1">
-            <span class="val" id="starDensityV">1.00</span>
-          </div>
-        </div>
-
-        <div class="section">
-          <h3>显示选项</h3>
-          <div class="toggle on" data-k="showTrail"><span>轨道轨迹</span><div class="sw"><i></i></div></div>
-          <div class="toggle on" data-k="showGlow"><span>柔和光晕</span><div class="sw"><i></i></div></div>
-          <div class="toggle on" data-k="showStars"><span>星空背景</span><div class="sw"><i></i></div></div>
-          <div class="toggle on" data-k="followCOM"><span>质心跟踪</span><div class="sw"><i></i></div></div>
-          <div class="toggle" data-k="showVel"><span>速度矢量</span><div class="sw"><i></i></div></div>
-          <div class="toggle" data-k="showForce"><span>受力矢量</span><div class="sw"><i></i></div></div>
-        </div>
-
-        <div class="section">
-          <h3>天体质量</h3>
-          <div class="bodies" id="bodies"></div>
-        </div>
-
-        <div class="section">
-          <h3>说明</h3>
-          <p style="margin:0;color:var(--dim);font-size:11px;line-height:1.6">
-            清晰程序化星空 + 轻量光晕球体，优先帧率。Velocity Verlet 积分。
-            拖拽平移，滚轮缩放。
-          </p>
-        </div>
-      </div>
+    <div class="seg">
+      <button id="btnCam" title="F"></button>
+      <button id="btnMute" title="M">♪</button>
+      <button id="btnMenu" title="Esc">≡</button>
     </div>
+  </nav>
 
-    <div class="legend" id="legend"></div>
-    <div class="hint-bar" id="hint">
-      <b>拖拽</b> 平移 · <b>滚轮</b> 缩放 · <b>☰</b> 控制台
+  <aside id="sandPanel" class="frame s-only">
+    <div class="lbl" data-i="sb_lbl"></div>
+    <div class="presets" id="presets"></div>
+    <div class="srow"><label data-i="s_time"></label><input type="range" id="sSpeed" min="0.1" max="4" step="0.05" value="1"><span id="sSpeedV">1.0×</span></div>
+    <div class="srow"><label data-i="s_trail"></label><input type="range" id="sTrail" min="0" max="1" step="0.05" value="0.7"><span id="sTrailV">70%</span></div>
+    <div class="tgs"><button class="tg on" data-t="grid" data-i="tg_grid"></button><button class="tg on" data-t="trails" data-i="tg_trails"></button><button class="tg" data-t="vel" data-i="tg_vel"></button></div>
+    <div class="tgs"><button class="sbtn" id="sPlay"></button><button class="sbtn" id="sReset" data-i="s_reset"></button><button class="sbtn" id="sMenu" data-i="back"></button></div>
+    <div class="sstats">t <b id="sT">0.00</b> · E <b id="sE">—</b> · ΔE <b id="sDE">0</b></div>
+  </aside>
+  <div id="sandTitle" class="s-only"><div class="n" id="sName"></div><div class="d" id="sDesc"></div></div>
+
+  <div id="toast"><div class="t1" id="toastT1"></div><div class="t2" id="toastT2"></div></div>
+</div>
+
+<div id="cardLayer">
+  <div class="card-wrap">
+    <div class="card" id="card">
+      <div class="card-top"><span data-i="card_kind"></span><span id="cardYear"></span></div>
+      <div class="card-art"><div class="glyph" id="cardGlyph"></div></div>
+      <div class="card-who" id="cardWho"></div>
+      <h3 id="cardTitle"></h3>
+      <p id="cardText"></p>
+      <div class="swipe" data-i="card_hint"></div>
+    </div>
+    <div class="choices">
+      <button class="choice" id="choice0"></button>
+      <button class="choice" id="choice1"></button>
     </div>
   </div>
+</div>
 
-  <div class="overlay" id="overlay">
-    <div class="card">
-      <div class="title">三体</div>
-      <div class="sub">STARFIELD · THREE-BODY</div>
-      <p>
-        在清晰星空下观察三体引力舞蹈。八字编舞、拉格朗日构型与混沌逃逸——
-        轻量渲染，专注流畅。
-      </p>
-      <div class="feats">
-        <div class="feat"><b>清晰星空</b>程序化点状星野</div>
-        <div class="feat"><b>轻量渲染</b>高帧率优先</div>
-        <div class="feat"><b>经典预设</b>八字 / 拉格朗日 / 混沌</div>
-        <div class="feat"><b>能量监测</b>守恒与误差</div>
-      </div>
-      <button class="start" id="btnStart">开始模拟</button>
+<button id="langBtn" title="L"></button>
+
+<div class="screen" id="menu">
+  <div class="menu">
+    <div class="kicker" data-i="kicker"></div>
+    <div class="title">三体</div>
+    <div class="subtitle" data-i="subtitle"></div>
+    <p class="lede" data-i="lede"></p>
+    <div class="rules">
+      <div><b data-i="r1b"></b><span data-i="r1s"></span></div>
+      <div><b data-i="r2b"></b><span data-i="r2s"></span></div>
+      <div><b data-i="r3b"></b><span data-i="r3s"></span></div>
+    </div>
+    <div class="btns">
+      <button class="cta" id="btnPlay"></button>
+      <button class="ghost" id="btnSandbox" data-i="sandbox"></button>
+    </div>
+    <div class="record" id="record"></div>
+    <div class="keys" data-i="keys"></div>
+  </div>
+</div>
+
+<div class="screen center hid" id="over">
+  <div class="over" id="overCard">
+    <div class="kicker" id="overKicker"></div>
+    <h2 id="overTitle"></h2>
+    <div class="cause" id="overCause"></div>
+    <div class="stats" id="overStats"></div>
+    <p class="epi" id="overEpi"></p>
+    <div class="btns">
+      <button class="cta" id="btnAgain"></button>
+      <button class="ghost" id="btnToMenu" data-i="back"></button>
     </div>
   </div>
 </div>
 
 <script>
 (() => {
-  'use strict';
+'use strict';
+const $ = id => document.getElementById(id);
+const TAU = Math.PI * 2;
+const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
+const lerp = (a, b, t) => a + (b - a) * t;
+const mix3 = (a, b, t) => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t];
 
-  const canvas = document.getElementById('space');
-  const ctx = canvas.getContext('2d', { alpha: false, desynchronized: true });
-  let W = 0, H = 0, dpr = 1;
-
-  // Baked crisp starfield (rebuild on resize / density change)
-  const bgBuf = document.createElement('canvas');
-  const bgCtx = bgBuf.getContext('2d', { alpha: false });
-  let bgReady = false;
-
-  const COLORS = [
-    { name: '天体 α', color: '#7ecbff', rgb: [126, 203, 255] },
-    { name: '天体 β', color: '#ff7aa8', rgb: [255, 122, 168] },
-    { name: '天体 γ', color: '#ffd27a', rgb: [255, 210, 122] },
-  ];
-
-  const state = {
-    running: true,
-    started: false,
-    G: 1,
-    soft: 0.02,
-    soft2: 0.0004,
-    dt: 0.004,
-    speed: 1,
-    trailLen: 800,
-    zoom: 1,
-    panX: 0,
-    panY: 0,
-    starDensity: 1,
-    showTrail: true,
-    showGlow: true,
-    showStars: true,
-    followCOM: true,
-    showVel: false,
-    showForce: false,
-    presetId: 'figure8',
-    t: 0,
-    E0: 0,
-    bodies: [],
-    trails: [[], [], []],
-    forces: [[0, 0], [0, 0], [0, 0]],
+function mulberry32(a) {
+  return function () {
+    a |= 0; a = a + 0x6D2B79F5 | 0;
+    let t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
   };
+}
 
-  function softG() { state.soft2 = state.soft * state.soft; }
+// ─── Storage & language ──────────────────────────────────────────
+const store = {
+  get(k, d) { try { const v = localStorage.getItem('tb3.' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem('tb3.' + k, JSON.stringify(v)); } catch (e) {} },
+};
+let LANG = store.get('lang', 'en');
+const STR = {
+  zh: {
+    kicker: 'TRISOLARIS · 半人马座 α · 4.22 光年', subtitle: '文明存续',
+    lede: '一颗行星，三颗太阳，没有人能算出明天哪一颗会升起。恒纪元里，文明在温暖中生长；乱纪元降临时，全体脱水，以干燥的躯壳等待下一次日出。',
+    r1b: '恒纪元', r1s: '温度宜居时保持浸泡，人口增长，科技前进，储备充盈。',
+    r2b: '乱纪元', r2s: '酷热或严寒逼近前按 <kbd>空格</kbd> 脱水。脱水消耗储备，熬过之后再浸泡。',
+    r3b: '抉择', r3s: '历史人物会带来抉择卡。在人口、秩序、储备之间权衡，走向太空时代。',
+    play: '开始 · 第 <b>{0}</b> 号文明', sandbox: '观测模式',
+    keys: 'SPACE 脱水/浸泡 · ← → 选择卡牌 · 1 2 4 速度 · P 暂停 · F 取景 · L 语言 · 拖拽平移 · 滚轮缩放',
+    record_first: '第一次来到三体世界。',
+    record: '已毁灭 <b>{0}</b> 个文明 · 最高 <b>{1}</b> · 舰队启航 <b>{2}</b> 次',
+    civ_lbl: 'Civilization · 文明', civ_no: '第 <b>{0}</b> 号文明', next: '下一纪元 · {0}', fleet: '舰队启航',
+    pop: '人口', order: '秩序', res: '储备', sci: '科技',
+    st_alive: '浸泡 · 活体', st_drying: '脱水中…', st_dry: '脱水 · 休眠', st_soaking: '浸泡中…',
+    temp_lbl: 'Surface · 地表温度', year: '第 {0} 年', past: '◂ 过去 8 年', fc: '预测 {0} 年 ▸',
+    t_hot: '灼烧', t_cold: '冻结', t_ok: '宜居', t_edge: '边缘',
+    chron: 'Chronicle · 编年史', pt_name: '三体星',
+    pt_lava: '熔岩', pt_scorch: '焦土', pt_ice: '冰封', pt_frost: '霜冻', pt_barren: '荒芜', pt_ocean: '海洋',
+    dry_t: '脱水', dry_s: 'Dehydrate · 进入休眠', soak_t: '浸泡', soak_s: 'Rehydrate · 复苏',
+    cam_auto: '自动', cam_planet: '行星', cam_free: '自由',
+    era_stable: '恒纪元', era_chaos: '乱纪元',
+    era_sub_stable: 'STABLE ERA · 第 {0} 恒纪元', era_sub_chaos: 'CHAOTIC ERA · 第 {0} 乱纪元',
+    w_burn: '⚠ 浸泡者正在被灼烧 · {0}°C · 立即脱水', w_freeze: '⚠ 浸泡者正在冻结 · {0}°C · 立即脱水',
+    w_archive: '⚠ 高温正在焚毁脱水仓库 · {0}°C', w_starve: '⚠ 储备耗尽 · 脱水者正在风化',
+    w_fc_sw: '⚠ 预警 · {0} 年后坠入太阳', w_fc: '⚠ 预警 · {0} 年后{1} {2}°C', w_cold: '严寒', w_heat: '烈日',
+    hz_sw: '坠日', next_card: '下一抉择',
+    tut0_t: '恒纪元', tut0_d: '温度宜居时保持<b>浸泡</b>，文明自然发展。<br>盯住右上角温度与虚线预测。',
+    tut1_t: '乱纪元将至', tut1_d: '预测线变红了。按 <kbd>空格</kbd> 让全体脱水。',
+    tut2_t: '风暴过去了', tut2_d: '温度回到宜居范围，按 <kbd>空格</kbd> 浸泡复苏。<br>脱水期间会持续消耗储备。',
+    unlock: '解锁：{0}',
+    l_born: '第 {0} 号文明在恒纪元中诞生', l_legacy: '继承前代遗迹 · {0} · 总进度 {1}%',
+    l_dry: '全体脱水，躯体卷入仓库', l_soak: '浸泡复苏，干燥的躯体重新舒展',
+    l_stable: '第 {0} 个恒纪元开始', l_chaos_hot: '乱纪元：烈日当空', l_chaos_cold: '乱纪元：长夜与严寒',
+    l_tier: '进入{0}', l_win: '三体舰队启航，驶向一颗只有一个太阳的世界', l_card: '{0} — {1}',
+    d_swallow: '三体星坠入太阳', d_heat: '烈日焚尽了最后的浸泡者', d_cold: '严寒冻灭了一切生命',
+    d_eject: '三体星被甩出星系，成为流浪行星', d_decay: '储备耗尽，脱水者在等待中风化',
+    o_lost: 'CIVILIZATION LOST · 文明毁灭', o_won: 'THE FLEET HAS SAILED · 舰队启航',
+    o_title_lost: '第 {0} 号文明 毁灭', o_title_won: '三体舰队 · 启航',
+    c_swallow: '行星在近日点穿过了太阳的外层大气，没有留下任何遗迹。',
+    c_heat: '地表温度攀升至 {0}°C，海洋在数日之内沸腾。', c_cold: '地表温度跌至 {0}°C，大气在黑暗中凝成霜雪。',
+    c_eject: '一次近距离掠过把行星抛向星际深空，太阳成了遥远的星点。', c_decay: '储备耗尽，脱水者没能等到下一次浸泡。',
+    c_won: '第 {0} 号文明穿越了 {1} 个乱纪元，终于离开了三颗太阳。',
+    s_years: '存续 · 年', s_tier: '最高文明', s_stable: '恒纪元', s_cards: '抉择',
+    epi_won: '它们会在四百年后抵达。', epi_lost: '文明的种子仍在。下一个文明将从遗迹中起步：{0}（{1}%）。',
+    again: '重启 · 第 <b>{0}</b> 号文明', back: '返回',
+    card_kind: 'Decision · 抉择', card_hint: '拖动卡牌 · 或按 ← → 选择', card_year: '第 {0} 年',
+    fx_chance: '{0}% 成功', fx_fc: '预测 +{0} 年 · {1} 年', fx_shield: '庇护 · {0} 年', fx_growth: '发展 ×1.5 · {0} 年', fx_calm: '安定 · {0} 年', fx_thrift: '储备消耗 ×½ · {0} 年', fx_none: '无影响',
+    b_fc: '预测 +{0}', b_shield: '庇护', b_growth: '发展', b_calm: '安定', b_thrift: '节俭', yr: '年',
+    r_ok: '成功', r_fail: '失败',
+    sb_lbl: 'Observatory · 观测模式', s_time: '时间', s_trail: '轨迹', tg_grid: '时空网格', tg_trails: '轨迹', tg_vel: '速度矢量',
+    s_pause: '暂停', s_resume: '继续', s_reset: '重置',
+    lang: '<b>中</b> <span>/ EN</span>',
+  },
+  en: {
+    kicker: 'TRISOLARIS · ALPHA CENTAURI · 4.22 LY', subtitle: 'Survival of a Civilization',
+    lede: 'One planet, three suns, and no one can say which will rise tomorrow. In stable eras the civilization grows in the warmth. When chaos comes, everyone dehydrates, and the dried husks wait for the next sunrise.',
+    r1b: 'Stable Era', r1s: 'While it’s habitable, stay soaked: population grows, science advances, reserves fill.',
+    r2b: 'Chaotic Era', r2s: 'Press <kbd>Space</kbd> to dehydrate before heat or frost hits. Drying drains reserves.',
+    r3b: 'Decisions', r3s: 'Historic figures bring decision cards. Trade population, order and reserves to reach the Space Age.',
+    play: 'Begin · Civilization <b>#{0}</b>', sandbox: 'Observatory',
+    keys: 'SPACE dehydrate/soak · ← → choose card · 1 2 4 speed · P pause · F camera · L language · drag to pan · scroll to zoom',
+    record_first: 'Your first visit to Trisolaris.',
+    record: '<b>{0}</b> civilizations lost · best <b>{1}</b> · fleets launched <b>{2}</b>',
+    civ_lbl: 'Civilization', civ_no: 'Civilization <b>#{0}</b>', next: 'Next · {0}', fleet: 'Fleet launch',
+    pop: 'Population', order: 'Order', res: 'Reserves', sci: 'Science',
+    st_alive: 'SOAKED · ALIVE', st_drying: 'DRYING…', st_dry: 'DRIED · DORMANT', st_soaking: 'SOAKING…',
+    temp_lbl: 'Surface temperature', year: 'Year {0}', past: '◂ past 8 yrs', fc: 'forecast {0} yrs ▸',
+    t_hot: 'BURNING', t_cold: 'FREEZING', t_ok: 'HABITABLE', t_edge: 'MARGINAL',
+    chron: 'Chronicle', pt_name: 'Trisolaris',
+    pt_lava: 'Molten', pt_scorch: 'Scorched', pt_ice: 'Frozen', pt_frost: 'Frost', pt_barren: 'Barren', pt_ocean: 'Oceans',
+    dry_t: 'Dehydrate', dry_s: 'enter dormancy', soak_t: 'Rehydrate', soak_s: 'revive the people',
+    cam_auto: 'Auto', cam_planet: 'Planet', cam_free: 'Free',
+    era_stable: 'Stable Era', era_chaos: 'Chaotic Era',
+    era_sub_stable: '恒纪元 · STABLE ERA #{0}', era_sub_chaos: '乱纪元 · CHAOTIC ERA #{0}',
+    w_burn: '⚠ The soaked are burning · {0}°C · dehydrate now', w_freeze: '⚠ The soaked are freezing · {0}°C · dehydrate now',
+    w_archive: '⚠ Heat is burning the archives · {0}°C', w_starve: '⚠ Reserves exhausted · the dried are crumbling',
+    w_fc_sw: '⚠ Forecast · plunge into a sun in {0} yrs', w_fc: '⚠ Forecast · {1} in {0} yrs · {2}°C', w_cold: 'deep frost', w_heat: 'scorching heat',
+    hz_sw: 'plunge', next_card: 'Next decision',
+    tut0_t: 'Stable Era', tut0_d: 'Stay <b>soaked</b> while it’s habitable and the civilization grows.<br>Watch the temperature and the dashed forecast.',
+    tut1_t: 'Chaos approaches', tut1_d: 'The forecast turned red. Press <kbd>Space</kbd> to dehydrate everyone.',
+    tut2_t: 'The storm has passed', tut2_d: 'It’s habitable again: press <kbd>Space</kbd> to rehydrate.<br>Staying dry keeps draining reserves.',
+    unlock: 'Unlocked: {0}',
+    l_born: 'Civilization #{0} is born in a stable era', l_legacy: 'Inherited ruins · {0} · {1}% progress',
+    l_dry: 'Everyone dehydrates; the husks go into the archives', l_soak: 'Rehydration: the dried bodies unfurl',
+    l_stable: 'Stable era #{0} begins', l_chaos_hot: 'Chaos: the suns blaze overhead', l_chaos_cold: 'Chaos: endless night and frost',
+    l_tier: 'Entered the {0}', l_win: 'The Trisolaran fleet sets sail for a world with one sun', l_card: '{0} — {1}',
+    d_swallow: 'Trisolaris fell into a sun', d_heat: 'The suns burned the last of the soaked', d_cold: 'Frost killed every living thing',
+    d_eject: 'Trisolaris was flung out of the system', d_decay: 'Reserves ran out; the dried crumbled away',
+    o_lost: 'CIVILIZATION LOST', o_won: 'THE FLEET HAS SAILED',
+    o_title_lost: 'Civilization #{0} has fallen', o_title_won: 'The Fleet Sets Sail',
+    c_swallow: 'At its closest approach the planet passed through a sun’s atmosphere. Nothing remained.',
+    c_heat: 'The surface reached {0}°C; the oceans boiled away in days.', c_cold: 'The surface fell to {0}°C; the air froze out of the sky.',
+    c_eject: 'A close pass flung the planet into interstellar space; the suns shrank to points of light.', c_decay: 'The reserves ran out before the people could be rehydrated.',
+    c_won: 'Civilization #{0} survived {1} chaotic eras and finally left the three suns behind.',
+    s_years: 'Years', s_tier: 'Highest age', s_stable: 'Stable eras', s_cards: 'Decisions',
+    epi_won: 'They will arrive in four hundred years.', epi_lost: 'The seed survives. The next civilization starts from the ruins: {0} ({1}%).',
+    again: 'Restart · Civilization <b>#{0}</b>', back: 'Back',
+    card_kind: 'Decision', card_hint: 'Swipe the card · or press ← →', card_year: 'Year {0}',
+    fx_chance: '{0}% chance', fx_fc: 'Forecast +{0}y · {1}y', fx_shield: 'Shelter · {0}y', fx_growth: 'Growth ×1.5 · {0}y', fx_calm: 'Calm · {0}y', fx_thrift: 'Reserve use ×½ · {0}y', fx_none: 'No effect',
+    b_fc: 'FORECAST +{0}', b_shield: 'SHELTER', b_growth: 'GROWTH', b_calm: 'CALM', b_thrift: 'THRIFT', yr: 'y',
+    r_ok: 'Success', r_fail: 'Failure',
+    sb_lbl: 'Observatory', s_time: 'Time', s_trail: 'Trails', tg_grid: 'Grid', tg_trails: 'Trails', tg_vel: 'Velocity',
+    s_pause: 'Pause', s_resume: 'Resume', s_reset: 'Reset',
+    lang: '<span>中 /</span> <b>EN</b>',
+  },
+};
+function t(k, ...a) { let s = STR[LANG][k]; if (s == null) s = STR.zh[k] || k; return s.replace(/\{(\d)\}/g, (_, i) => a[+i]); }
+const L = o => (o && typeof o === 'object') ? (o[LANG] || o.zh) : o;
 
-  function accel(bodies, out) {
-    const n = bodies.length, G = state.G, eps2 = state.soft2;
-    for (let i = 0; i < n; i++) out[i][0] = out[i][1] = 0;
+// ─── Value noise ──────────────────────────────────────────────────
+const PERM = new Uint8Array(512);
+(() => {
+  const R = mulberry32(1337), p = [...Array(256).keys()];
+  for (let i = 255; i > 0; i--) { const j = (R() * (i + 1)) | 0; [p[i], p[j]] = [p[j], p[i]]; }
+  for (let i = 0; i < 512; i++) PERM[i] = p[i & 255];
+})();
+const h3 = (x, y, z) => PERM[PERM[PERM[x & 255] + (y & 255)] + (z & 255)];
+function vn3(x, y, z) {
+  const xi = Math.floor(x), yi = Math.floor(y), zi = Math.floor(z);
+  const xf = x - xi, yf = y - yi, zf = z - zi;
+  const u = xf * xf * (3 - 2 * xf), v = yf * yf * (3 - 2 * yf), w = zf * zf * (3 - 2 * zf);
+  const a = h3(xi, yi, zi), b = h3(xi + 1, yi, zi), c = h3(xi, yi + 1, zi), d = h3(xi + 1, yi + 1, zi);
+  const e = h3(xi, yi, zi + 1), f = h3(xi + 1, yi, zi + 1), gg = h3(xi, yi + 1, zi + 1), hh = h3(xi + 1, yi + 1, zi + 1);
+  const x1 = a + (b - a) * u, x2 = c + (d - c) * u, x3 = e + (f - e) * u, x4 = gg + (hh - gg) * u;
+  const y1 = x1 + (x2 - x1) * v, y2 = x3 + (x4 - x3) * v;
+  return (y1 + (y2 - y1) * w) / 255;
+}
+function fbm3(x, y, z, oct) {
+  let s = 0, a = 0.5, n = 0, f = 1;
+  for (let i = 0; i < oct; i++) { s += a * vn3(x * f, y * f, z * f); n += a; a *= 0.5; f *= 2.02; }
+  return s / n;
+}
+
+// ─── Physics ──────────────────────────────────────────────────────
+// G = 1. Suns interact; the planet is a massless test particle.
+const F0 = 6.25;                       // flux giving 15 °C
+const T_HOT = 55, T_COLD = -25;        // hydrated lethal limits
+const T_DRY_HOT = 160;                 // dehydrated lethal limit
+
+function accel(w) {
+  const S = w.suns, n = S.length; let rmin = 1e9;
+  for (let i = 0; i < n; i++) { S[i].ax = 0; S[i].ay = 0; }
+  for (let i = 0; i < n; i++) {
+    const a = S[i];
+    for (let j = i + 1; j < n; j++) {
+      const b = S[j];
+      const dx = b.x - a.x, dy = b.y - a.y, r2 = dx * dx + dy * dy + w.eps2, r = Math.sqrt(r2), inv = 1 / (r2 * r);
+      a.ax += b.m * dx * inv; a.ay += b.m * dy * inv;
+      b.ax -= a.m * dx * inv; b.ay -= a.m * dy * inv;
+      if (r < rmin) rmin = r;
+    }
+  }
+  const p = w.planet;
+  if (p) {
+    p.ax = 0; p.ay = 0; p.hit = -1;
     for (let i = 0; i < n; i++) {
-      const bi = bodies[i];
-      for (let j = i + 1; j < n; j++) {
-        const bj = bodies[j];
-        const dx = bj.x - bi.x, dy = bj.y - bi.y;
-        const r2 = dx * dx + dy * dy + eps2;
-        const invR = 1 / Math.sqrt(r2);
-        const f = G * invR * invR * invR;
-        const fx = f * dx, fy = f * dy;
-        out[i][0] += fx * bj.m; out[i][1] += fy * bj.m;
-        out[j][0] -= fx * bi.m; out[j][1] -= fy * bi.m;
+      const s = S[i], dx = s.x - p.x, dy = s.y - p.y, r2 = dx * dx + dy * dy + 1e-6, r = Math.sqrt(r2), inv = s.m / (r2 * r);
+      p.ax += dx * inv; p.ay += dy * inv;
+      if (r < rmin) rmin = r;
+      if (r < s.R) p.hit = i;
+    }
+  }
+  w.rmin = rmin;
+}
+function stepW(w, dt) {
+  const S = w.suns, p = w.planet, h = dt * 0.5;
+  for (const s of S) { s.vx += h * s.ax; s.vy += h * s.ay; s.x += dt * s.vx; s.y += dt * s.vy; }
+  if (p) { p.vx += h * p.ax; p.vy += h * p.ay; p.x += dt * p.vx; p.y += dt * p.vy; }
+  accel(w);
+  for (const s of S) { s.vx += h * s.ax; s.vy += h * s.ay; }
+  if (p) { p.vx += h * p.ax; p.vy += h * p.ay; }
+  w.t += dt;
+}
+// Adaptive leapfrog: dt shrinks with the closest separation.
+function advance(w, T, maxDt, maxSteps, onStep) {
+  let left = T, n = 0;
+  while (left > 1e-9 && n < maxSteps) {
+    const dt = Math.min(clamp((w.eta || 0.012) * Math.pow(w.rmin, 1.5), 1e-5, maxDt), left);
+    stepW(w, dt); left -= dt; n++;
+    if (onStep && onStep(w)) return true;
+  }
+  return false;
+}
+function fluxAt(w, x, y) {
+  let F = 0;
+  for (const s of w.suns) { const dx = s.x - x, dy = s.y - y; F += s.L / (dx * dx + dy * dy + 1e-4); }
+  return F;
+}
+const tempOf = F => 288 * Math.pow(Math.max(F, 1e-9) / F0, 0.25) - 273;
+function energy(w) {
+  const S = w.suns; let K = 0, U = 0;
+  for (let i = 0; i < S.length; i++) {
+    K += 0.5 * S[i].m * (S[i].vx * S[i].vx + S[i].vy * S[i].vy);
+    for (let j = i + 1; j < S.length; j++) {
+      const dx = S[j].x - S[i].x, dy = S[j].y - S[i].y;
+      U -= S[i].m * S[j].m / Math.sqrt(dx * dx + dy * dy + w.eps2);
+    }
+  }
+  return K + U;
+}
+function comOf(S) {
+  let m = 0, x = 0, y = 0, vx = 0, vy = 0;
+  for (const s of S) { m += s.m; x += s.m * s.x; y += s.m * s.y; vx += s.m * s.vx; vy += s.m * s.vy; }
+  return { x: x / m, y: y / m, vx: vx / m, vy: vy / m, m };
+}
+function cloneW(w) {
+  return {
+    t: w.t, eps2: w.eps2, rmin: w.rmin, eta: w.eta,
+    suns: w.suns.map(s => ({ m: s.m, x: s.x, y: s.y, vx: s.vx, vy: s.vy, ax: s.ax, ay: s.ay, R: s.R, L: s.L })),
+    planet: w.planet ? { x: w.planet.x, y: w.planet.y, vx: w.planet.vx, vy: w.planet.vy, ax: w.planet.ax, ay: w.planet.ay, hit: -1 } : null,
+  };
+}
+
+// ─── Trails (ring buffers) ────────────────────────────────────────
+class Trail {
+  constructor(cap) { this.cap = cap; this.b = new Float32Array(cap * 3); this.n = 0; this.h = 0; }
+  push(x, y, v) { const i = this.h * 3; this.b[i] = x; this.b[i + 1] = y; this.b[i + 2] = v; this.h = (this.h + 1) % this.cap; if (this.n < this.cap) this.n++; }
+  idx(k) { return ((this.h - this.n + k + this.cap) % this.cap) * 3; }
+}
+
+// ─── Sun appearance ──────────────────────────────────────────────
+const SUN_STOPS = [[0.5, [255, 104, 58]], [0.75, [255, 152, 84]], [1.0, [255, 212, 148]], [1.25, [252, 240, 226]], [1.6, [172, 202, 255]], [2.4, [128, 166, 255]]];
+function sunRGB(m) {
+  if (m <= SUN_STOPS[0][0]) return SUN_STOPS[0][1].slice();
+  for (let i = 1; i < SUN_STOPS.length; i++) {
+    if (m <= SUN_STOPS[i][0]) {
+      const [m0, c0] = SUN_STOPS[i - 1], [m1, c1] = SUN_STOPS[i];
+      return mix3(c0, c1, (m - m0) / (m1 - m0)).map(v => v | 0);
+    }
+  }
+  return SUN_STOPS[SUN_STOPS.length - 1][1].slice();
+}
+const sprCache = new Map();
+function sunSprites(rgb) {
+  const key = rgb.join(',');
+  if (sprCache.has(key)) return sprCache.get(key);
+  const [r, g, b] = rgb, R = mulberry32(r * 7919 + g * 104729 + b * 31);
+  const mk = (w, h) => { const c = document.createElement('canvas'); c.width = w; c.height = h || w; return c; };
+
+  const glow = mk(256); let x = glow.getContext('2d');
+  let gr = x.createRadialGradient(128, 128, 0, 128, 128, 128);
+  gr.addColorStop(0, 'rgba(255,255,255,1)');
+  gr.addColorStop(0.05, `rgba(${r},${g},${b},.9)`);
+  gr.addColorStop(0.16, `rgba(${r},${g},${b},.3)`);
+  gr.addColorStop(0.4, `rgba(${r},${g},${b},.08)`);
+  gr.addColorStop(1, `rgba(${r},${g},${b},0)`);
+  x.fillStyle = gr; x.fillRect(0, 0, 256, 256);
+
+  const rays = mk(512); x = rays.getContext('2d'); x.translate(256, 256); x.globalCompositeOperation = 'lighter';
+  for (let k = 0; k < 70; k++) {
+    const a = R() * TAU, len = (0.22 + R() * R() * 0.78) * 256, wd = 0.004 + R() * 0.014;
+    x.save(); x.rotate(a);
+    const lg = x.createLinearGradient(0, 0, len, 0);
+    lg.addColorStop(0, `rgba(${r},${g},${b},${0.08 + R() * 0.16})`);
+    lg.addColorStop(1, `rgba(${r},${g},${b},0)`);
+    x.fillStyle = lg; x.beginPath(); x.moveTo(0, -len * wd); x.lineTo(len, 0); x.lineTo(0, len * wd); x.closePath(); x.fill();
+    x.restore();
+  }
+
+  const flare = mk(512, 32); x = flare.getContext('2d'); x.scale(1, 1 / 16);
+  gr = x.createRadialGradient(256, 256, 0, 256, 256, 256);
+  gr.addColorStop(0, 'rgba(255,255,255,.7)');
+  gr.addColorStop(0.2, `rgba(${r},${g},${b},.25)`);
+  gr.addColorStop(1, `rgba(${r},${g},${b},0)`);
+  x.fillStyle = gr; x.fillRect(0, 0, 512, 512);
+
+  const DS = 128, disc = mk(DS); x = disc.getContext('2d');
+  const im = x.createImageData(DS, DS), d = im.data, seed = R() * 50;
+  for (let j = 0; j < DS; j++) for (let i = 0; i < DS; i++) {
+    const dx = (i + 0.5) / DS * 2 - 1, dy = (j + 0.5) / DS * 2 - 1, d2 = dx * dx + dy * dy;
+    if (d2 > 1) continue;
+    const mu = Math.sqrt(1 - d2);
+    const n = fbm3(dx * 7 + seed, dy * 7, mu * 3, 4), n2 = fbm3(dx * 22, dy * 22 + seed, 1.5, 2);
+    const I = (0.42 + 0.58 * Math.pow(mu, 0.55)) * (0.78 + 0.32 * n + 0.12 * n2);
+    const wm = 0.62 * mu;
+    const o = (j * DS + i) * 4;
+    d[o] = clamp((r + (255 - r) * wm) * I, 0, 255);
+    d[o + 1] = clamp((g + (255 - g) * wm) * I, 0, 255);
+    d[o + 2] = clamp((b + (255 - b) * wm) * I, 0, 255);
+    d[o + 3] = clamp((1 - Math.sqrt(d2)) * DS * 0.5, 0, 1) * 255;
+  }
+  x.putImageData(im, 0, 0);
+
+  const out = { glow, rays, flare, disc };
+  sprCache.set(key, out);
+  return out;
+}
+function makeSun(m, x, y, vx, vy, rgb, R) {
+  const c = rgb || sunRGB(m);
+  return { m, x, y, vx, vy, ax: 0, ay: 0, L: m * m * m, R: R || 0.06 * Math.pow(m, 0.8), rgb: c, spr: sunSprites(c), seed: Math.random() * 100 };
+}
+
+// ─── Temperature colour ──────────────────────────────────────────
+const T_STOPS = [[-140, [110, 130, 255]], [-25, [143, 211, 255]], [-5, [140, 230, 220]], [15, [127, 224, 176]], [40, [214, 226, 120]], [55, [255, 196, 90]], [110, [255, 104, 52]], [220, [255, 50, 90]]];
+function tempRGB(T) {
+  if (T <= T_STOPS[0][0]) return T_STOPS[0][1];
+  for (let i = 1; i < T_STOPS.length; i++) if (T <= T_STOPS[i][0]) {
+    const [a, ca] = T_STOPS[i - 1], [b, cb] = T_STOPS[i];
+    return mix3(ca, cb, (T - a) / (b - a));
+  }
+  return T_STOPS[T_STOPS.length - 1][1];
+}
+const rgbStr = (c, a = 1) => `rgba(${c[0] | 0},${c[1] | 0},${c[2] | 0},${a})`;
+
+// ─── Canvas / background ─────────────────────────────────────────
+const canvas = $('space'), ctx = canvas.getContext('2d', { alpha: false });
+let W = 0, H = 0, DPR = 1;
+const BG = { neb: null, tiles: [], tw: [] };
+const MONO = getComputedStyle(document.documentElement).getPropertyValue('--mono');
+
+function buildNebula() {
+  const nw = Math.ceil(W / 5), nh = Math.ceil(H / 5);
+  const c = document.createElement('canvas'); c.width = nw; c.height = nh;
+  const x = c.getContext('2d'), im = x.createImageData(nw, nh), d = im.data;
+  const sc = 3.4 / Math.max(nw, nh);
+  const teal = [16, 66, 88], rust = [150, 66, 30], deep = [40, 30, 70];
+  for (let j = 0; j < nh; j++) for (let i = 0; i < nw; i++) {
+    const u = i * sc, v = j * sc;
+    const q = fbm3(u + 1.3, v + 7.1, 0.5, 4);
+    const r = fbm3(u * 1.6 + q * 2.4, v * 1.6 + q * 2.4, 3.3, 5);
+    const m = fbm3(u * 0.7 + 9, v * 0.7, 6.6, 3);
+    let dens = clamp((r - 0.44) * 2.8, 0, 1); dens = dens * dens * (0.5 + q);
+    const dust = clamp((fbm3(u * 3.2 + 2, v * 3.2, 9.1, 4) - 0.48) * 3.2, 0, 1);
+    dens *= 1 - dust * 0.75;
+    let col = mix3(teal, rust, clamp((m - 0.38) * 2.6, 0, 1));
+    col = mix3(col, deep, clamp((q - 0.55) * 3, 0, 0.6));
+    const vx = i / nw - 0.5, vy = j / nh - 0.5, vg = 1 - clamp((vx * vx + vy * vy) * 1.7, 0, 0.85);
+    const o = (j * nw + i) * 4;
+    d[o] = 3 + col[0] * dens * vg; d[o + 1] = 4 + col[1] * dens * vg; d[o + 2] = 8 + col[2] * dens * vg; d[o + 3] = 255;
+  }
+  x.putImageData(im, 0, 0);
+  BG.neb = c;
+}
+function starTile(size, n, rMin, rMax, aMin, aMax, seed, spikes) {
+  const c = document.createElement('canvas'); c.width = c.height = size;
+  const x = c.getContext('2d'), R = mulberry32(seed);
+  for (let k = 0; k < n; k++) {
+    const px = R() * size, py = R() * size, r = rMin + Math.pow(R(), 3) * (rMax - rMin), a = aMin + R() * (aMax - aMin), tp = R();
+    const col = tp < 0.14 ? [255, 186, 150] : tp < 0.5 ? [255, 244, 228] : [196, 214, 255];
+    const sp = spikes && r > 1.1 && R() < 0.35;
+    for (let ox = -1; ox <= 1; ox++) for (let oy = -1; oy <= 1; oy++) {
+      const X = px + ox * size, Y = py + oy * size;
+      if (X < -20 || Y < -20 || X > size + 20 || Y > size + 20) continue;
+      if (r > 1) {
+        const g = x.createRadialGradient(X, Y, 0, X, Y, r * 3.2);
+        g.addColorStop(0, rgbStr(col, a * 0.5)); g.addColorStop(1, rgbStr(col, 0));
+        x.fillStyle = g; x.fillRect(X - r * 3.2, Y - r * 3.2, r * 6.4, r * 6.4);
+      }
+      x.fillStyle = rgbStr(col, a); x.beginPath(); x.arc(X, Y, r * 0.6, 0, TAU); x.fill();
+      if (sp) {
+        x.strokeStyle = rgbStr(col, a * 0.45); x.lineWidth = 0.6;
+        const Ls = r * 7; x.beginPath(); x.moveTo(X - Ls, Y); x.lineTo(X + Ls, Y); x.moveTo(X, Y - Ls); x.lineTo(X, Y + Ls); x.stroke();
       }
     }
   }
+  return c;
+}
+function buildBG() {
+  buildNebula();
+  if (!BG.tiles.length) {
+    BG.tiles = [
+      { c: starTile(512, 560, 0.4, 0.9, 0.18, 0.55, 11, false), k: 0.006 },
+      { c: starTile(640, 150, 0.6, 1.5, 0.4, 0.85, 23, false), k: 0.02 },
+      { c: starTile(900, 46, 0.9, 2.4, 0.6, 1, 37, true), k: 0.045 },
+    ];
+  }
+  const R = mulberry32(99);
+  BG.tw = Array.from({ length: 56 }, () => ({ x: R(), y: R(), p: R() * TAU, f: 0.6 + R() * 2.2, a: 0.4 + R() * 0.6, c: R() < 0.5 ? '255,240,220' : '200,220,255' }));
+}
+function drawBackground(time) {
+  const par = k => [-cam.x * k * 300, -cam.y * k * 300];
+  if (BG.neb) {
+    const [ox, oy] = par(0.008), m = 40;
+    ctx.drawImage(BG.neb, -m + clamp(ox, -m, m), -m + clamp(oy, -m, m), W + 2 * m, H + 2 * m);
+  } else { ctx.fillStyle = '#030407'; ctx.fillRect(0, 0, W, H); }
+  for (const tl of BG.tiles) {
+    const s = tl.c.width, [px, py] = par(tl.k);
+    const ox = ((px % s) + s) % s, oy = ((py % s) + s) % s;
+    for (let x = ox - s; x < W; x += s) for (let y = oy - s; y < H; y += s) ctx.drawImage(tl.c, x, y);
+  }
+  ctx.globalCompositeOperation = 'lighter';
+  for (const s of BG.tw) {
+    const a = s.a * (0.35 + 0.65 * Math.pow(0.5 + 0.5 * Math.sin(time * s.f + s.p), 2));
+    const x = s.x * W, y = s.y * H;
+    ctx.fillStyle = `rgba(${s.c},${a})`; ctx.fillRect(x - 0.8, y - 0.8, 1.6, 1.6);
+    if (s.a > 0.85) { ctx.fillStyle = `rgba(${s.c},${a * 0.35})`; ctx.fillRect(x - 4, y - 0.3, 8, 0.6); ctx.fillRect(x - 0.3, y - 4, 0.6, 8); }
+  }
+  ctx.globalCompositeOperation = 'source-over';
+}
 
-  const aBuf = [[0, 0], [0, 0], [0, 0]];
-  const aNew = [[0, 0], [0, 0], [0, 0]];
+// ─── Camera ──────────────────────────────────────────────────────
+const cam = { x: 0, y: 0, s: 140, mode: 'auto' };
+let CX = 0.5;
+const sx = x => W * CX + (x - cam.x) * cam.s;
+const sy = y => H * 0.52 + (y - cam.y) * cam.s;
 
-  function stepVerlet() {
-    const b = state.bodies, n = b.length, dt = state.dt, dt2 = dt * dt;
-    accel(b, aBuf);
-    for (let i = 0; i < n; i++) {
-      state.forces[i][0] = aBuf[i][0] * b[i].m;
-      state.forces[i][1] = aBuf[i][1] * b[i].m;
-      b[i].x += b[i].vx * dt + 0.5 * aBuf[i][0] * dt2;
-      b[i].y += b[i].vy * dt + 0.5 * aBuf[i][1] * dt2;
+function camUpdate(dt, snap) {
+  const cxT = mode === 'menu' && W > 960 ? 0.68 : 0.5;
+  CX += (cxT - CX) * (snap ? 1 : 1 - Math.exp(-dt * 2));
+  if (!world || cam.mode === 'free') return;
+  const p = world.planet && !world.planetGone ? world.planet : null;
+  let tx, ty, ts;
+  if (cam.mode === 'planet' && p) {
+    let dn = 9;
+    for (const s of world.suns) dn = Math.min(dn, Math.hypot(s.x - p.x, s.y - p.y));
+    tx = p.x; ty = p.y; ts = Math.min(W, H) * 0.32 / clamp(dn, 0.3, 3);
+  } else {
+    let x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9;
+    const add = (x, y, pad) => { x0 = Math.min(x0, x - pad); x1 = Math.max(x1, x + pad); y0 = Math.min(y0, y - pad); y1 = Math.max(y1, y + pad); };
+    if (p) {
+      add(p.x, p.y, 0.3);
+      for (const s of world.suns) if (Math.hypot(s.x - p.x, s.y - p.y) < 5.5) add(s.x, s.y, s.R * 3);
+    } else {
+      const c = comOf(world.suns);
+      for (const s of world.suns) if (Math.hypot(s.x - c.x, s.y - c.y) < 7) add(s.x, s.y, 0.25);
+      if (x0 > x1) add(c.x, c.y, 1);
     }
-    accel(b, aNew);
-    for (let i = 0; i < n; i++) {
-      b[i].vx += 0.5 * (aBuf[i][0] + aNew[i][0]) * dt;
-      b[i].vy += 0.5 * (aBuf[i][1] + aNew[i][1]) * dt;
+    tx = (x0 + x1) / 2; ty = (y0 + y1) / 2;
+    ts = Math.min(W * 0.62 / (x1 - x0 + 0.4), H * 0.56 / (y1 - y0 + 0.4));
+  }
+  ts = clamp(ts, 22, 620);
+  const k = snap ? 1 : 1 - Math.exp(-dt * 2.4);
+  cam.x += (tx - cam.x) * k; cam.y += (ty - cam.y) * k;
+  cam.s = Math.exp(lerp(Math.log(cam.s), Math.log(ts), k * 0.8));
+}
+function setCamMode(m) { cam.mode = m; $('btnCam').textContent = t('cam_' + m); }
+
+// ─── Game data ───────────────────────────────────────────────────
+const TIERS = [
+  { zh: '石器时代', en: 'Stone Age', need: 0, pop: 0.02, fc: 0.6, perk: { zh: '观星 · 预测 0.6 年', en: 'Stargazing · 0.6-yr forecast' } },
+  { zh: '青铜时代', en: 'Bronze Age', need: 4, pop: 0.12, fc: 1.2, perk: { zh: '历法 · 预测 1.2 年', en: 'Calendars · 1.2-yr forecast' } },
+  { zh: '中世纪', en: 'Middle Ages', need: 10, pop: 0.6, fc: 2.2, perk: { zh: '人列计算机 · 预测 2.2 年', en: 'Human computer · 2.2-yr forecast' } },
+  { zh: '蒸汽时代', en: 'Steam Age', need: 17, pop: 2.4, fc: 3.2, perk: { zh: '危机预警 · 预测 3.2 年', en: 'Early warning · 3.2-yr forecast' } },
+  { zh: '原子时代', en: 'Atomic Age', need: 26, pop: 8, fc: 3.4, perk: { zh: '地下城 · 环境伤害 −40%', en: 'Underground cities · −40% damage' } },
+  { zh: '信息时代', en: 'Information Age', need: 37, pop: 20, fc: 5.5, perk: { zh: '超级计算 · 预测 5.5 年', en: 'Supercomputing · 5.5-yr forecast' } },
+  { zh: '太空时代', en: 'Space Age', need: 50, pop: 30, fc: 5.5, perk: { zh: '三体舰队 · 启航', en: 'The fleet sets sail' } },
+];
+const tierName = i => LANG === 'zh' ? TIERS[i].zh : TIERS[i].en;
+const tierAlt = i => LANG === 'zh' ? TIERS[i].en : TIERS[i].zh;
+const BASE_RATE = 0.55;        // sim years per real second at 1×
+const TRANS_TIME = 0.5;        // dehydrate / rehydrate duration (years)
+
+// ─── Decision cards ──────────────────────────────────────────────
+// fx: pop (Δ population fraction), order, res, sci (progress), buff {k, v, y}
+// gamble: { p, ok: {fx, msg}, fail: {fx, msg} }
+const CARDS = [
+  { id: 'kingwen', glyph: '卦', who: { zh: '周文王', en: 'King Wen of Zhou' }, w: 3, when: g => g.tier <= 2,
+    title: { zh: '太阳的规律', en: 'The Pattern of the Suns' },
+    text: { zh: '“我已参透太阳的运行：飞星出现时脱水，太阳升起时浸泡。照我的历法行事，文明自可延续。”', en: '“I have decoded the suns: dehydrate when they become distant flying stars, soak when one rises. Follow my calendar and we endure.”' },
+    opts: [
+      { l: { zh: '颁行他的历法', en: 'Adopt his calendar' }, gamble: { p: 0.5,
+        ok: { fx: { sci: 2, buff: { k: 'fc', v: 1, y: 12 } }, msg: { zh: '历法应验了几个周期。', en: 'The calendar held true, for a while.' } },
+        fail: { fx: { order: -20 }, msg: { zh: '历法失灵，民众失去了信任。', en: 'The calendar failed. Trust collapsed.' } } } },
+      { l: { zh: '把他请出宫殿', en: 'Send him away' }, fx: { order: 6 } },
+    ] },
+  { id: 'mozi', glyph: '墨', who: { zh: '墨子', en: 'Mozi' }, w: 2, when: g => g.tier >= 1 && g.tier <= 3,
+    title: { zh: '宇宙模型', en: 'A Model of the Cosmos' },
+    text: { zh: '“宇宙是一架巨大的机器。给我工匠与铜料，我能造出它的模型。”', en: '“The cosmos is a great machine. Give me bronze and artisans, and I will build its model.”' },
+    opts: [
+      { l: { zh: '拨付铜料与工匠', en: 'Fund the machine' }, fx: { res: -15, sci: 3 } },
+      { l: { zh: '铜料留给农具', en: 'Bronze is for ploughs' }, fx: { res: 6, order: 3 } },
+    ] },
+  { id: 'confucius', glyph: '礼', who: { zh: '孔子', en: 'Confucius' }, w: 2, when: () => true,
+    title: { zh: '天亦守礼', en: 'Heaven Keeps the Rites' },
+    text: { zh: '“天有其道，人有其礼。礼制完备，万物各安其位，太阳亦当如此。”', en: '“Heaven has its Way, people their rites. When the rites are perfect, all things keep their place, the suns included.”' },
+    opts: [
+      { l: { zh: '推行礼制', en: 'Enforce the rites' }, fx: { order: 20, sci: -1 } },
+      { l: { zh: '太阳不懂礼', en: 'The suns know no rites' }, fx: { sci: 1, order: -6 } },
+    ] },
+  { id: 'qin', glyph: '秦', who: { zh: '秦始皇 · 冯·诺依曼', en: 'Qin Shi Huang & von Neumann' }, w: 3, when: g => g.tier >= 2 && !hasBuffFrom('qin'),
+    title: { zh: '人列计算机', en: 'The Human Computer' },
+    text: { zh: '“三千万士兵列阵，每人举旗为一个门电路。如此便可计算三颗太阳的轨道。”', en: '“Thirty million soldiers in formation, each flag a logic gate. Together they can compute the orbits of the three suns.”' },
+    opts: [
+      { l: { zh: '集结三千万大军', en: 'Muster the army' }, fx: { pop: -0.08, order: -6, sci: 2, buff: { k: 'fc', v: 2, y: 18, src: 'qin' } } },
+      { l: { zh: '大军留守田园', en: 'Keep them in the fields' }, fx: { order: 6, res: 8 } },
+    ] },
+  { id: 'newton', glyph: '微', who: { zh: '牛顿', en: 'Isaac Newton' }, w: 2, when: g => g.tier >= 2 && g.tier <= 4,
+    title: { zh: '三体的方程', en: 'Equations of Three Bodies' },
+    text: { zh: '“给我时间，我能写出三颗太阳运动的微分方程。”', en: '“Give me time and I will write the differential equations of the three suns.”' },
+    opts: [
+      { l: { zh: '资助他的研究', en: 'Fund his research' }, fx: { res: -10, sci: 4 } },
+      { l: { zh: '这个问题没有解', en: 'It has no solution' }, fx: { order: 4, sci: 1 } },
+    ] },
+  { id: 'cult', glyph: '祭', who: { zh: '拜日教', en: 'The Sun Cult' }, w: 2, when: () => true,
+    title: { zh: '向太阳献祭', en: 'Sacrifice to the Suns' },
+    text: { zh: '“太阳是神，乱纪元是神的愤怒。献祭，它们就会安分。”', en: '“The suns are gods and chaos is their anger. Offer sacrifices and they will calm.”' },
+    opts: [
+      { l: { zh: '允许祭祀', en: 'Allow the rites' }, fx: { order: 18, pop: -0.04, sci: -2 } },
+      { l: { zh: '取缔教团', en: 'Ban the cult' }, fx: { order: -12, sci: 1 } },
+    ] },
+  { id: 'harvest', glyph: '稔', who: { zh: '农政司', en: 'Ministry of Harvest' }, w: 3, when: g => g.era === 'stable' && g.status === 'alive',
+    title: { zh: '丰年', en: 'A Year of Plenty' },
+    text: { zh: '漫长的恒纪元带来了罕见的丰收，谷仓堆满。', en: 'A long stable era brought a rare harvest. The granaries overflow.' },
+    opts: [
+      { l: { zh: '充实仓库', en: 'Store it all' }, fx: { res: 25 } },
+      { l: { zh: '举国庆典', en: 'Hold a festival' }, fx: { order: 16, res: 8 } },
+    ] },
+  { id: 'famine', glyph: '饥', who: { zh: '粮仓总管', en: 'Keeper of Granaries' }, w: 6, when: g => g.res < 28,
+    title: { zh: '仓库见底', en: 'Empty Granaries' },
+    text: { zh: '储备将尽，饥民聚集在浸泡池边。', en: 'Reserves are nearly gone. The hungry gather at the soaking pools.' },
+    opts: [
+      { l: { zh: '强制部分饥民脱水', en: 'Force the hungry to dehydrate' }, fx: { pop: -0.08, res: 22, order: -8 } },
+      { l: { zh: '严格配给', en: 'Strict rationing' }, fx: { res: 10, order: -15 } },
+    ] },
+  { id: 'shelter', glyph: '窟', who: { zh: '工程院', en: 'The Engineers' }, w: 2, when: g => g.tier >= 1 && !hasBuff('shield'),
+    title: { zh: '向地下深挖', en: 'Dig Deep' },
+    text: { zh: '“向地下挖掘城市，便能躲过烈日与严寒。”', en: '“Dig our cities underground and we can hide from fire and frost alike.”' },
+    opts: [
+      { l: { zh: '动工', en: 'Start digging' }, fx: { res: -20, buff: { k: 'shield', v: 1, y: 14 } } },
+      { l: { zh: '搁置计划', en: 'Shelve it' }, fx: { res: 5 } },
+    ] },
+  { id: 'snow', glyph: '冰', who: { zh: '仓库守卫', en: 'Archive Guards' }, w: 5, when: g => g.status === 'dry' && g.T < -10,
+    title: { zh: '雪压仓库', en: 'Snow on the Archives' },
+    text: { zh: '严寒中，存放脱水躯体的仓库屋顶被积雪压得吱嘎作响。', en: 'In the deep cold, the roofs of the dried-body archives groan under the snow.' },
+    opts: [
+      { l: { zh: '浸泡一队人抢修', en: 'Revive a crew to repair' }, fx: { pop: -0.03, res: -12 } },
+      { l: { zh: '任其坍塌', en: 'Let them collapse' }, gamble: { p: 0.5,
+        ok: { fx: {}, msg: { zh: '屋顶撑住了。', en: 'The roofs held.' } },
+        fail: { fx: { pop: -0.14 }, msg: { zh: '仓库坍塌，许多躯体碎成了粉末。', en: 'The archives fell; many bodies were crushed to dust.' } } } },
+    ] },
+  { id: 'fire', glyph: '焰', who: { zh: '仓库守卫', en: 'Archive Guards' }, w: 5, when: g => g.status === 'dry' && g.T > 70,
+    title: { zh: '仓库起火', en: 'The Archives Smoulder' },
+    text: { zh: '烈日下，仓库中的干燥躯体开始冒烟。', en: 'Under the blazing suns, dried bodies in the archives begin to smoulder.' },
+    opts: [
+      { l: { zh: '转入深井', en: 'Move them into deep wells' }, fx: { res: -15, buff: { k: 'shield', v: 1, y: 4 } } },
+      { l: { zh: '听天由命', en: 'Leave it to fate' }, gamble: { p: 0.5,
+        ok: { fx: {}, msg: { zh: '火势自行熄灭了。', en: 'The fires died out on their own.' } },
+        fail: { fx: { pop: -0.15 }, msg: { zh: '大火吞噬了三座仓库。', en: 'Fire consumed three archives.' } } } },
+    ] },
+  { id: 'riot', glyph: '乱', who: { zh: '城防官', en: 'City Watch' }, w: 8, when: g => g.order < 25,
+    title: { zh: '街头暴动', en: 'Riots in the Streets' },
+    text: { zh: '无休止的脱水与浸泡让人们疲惫不堪，暴民冲击了议事厅。', en: 'Endless cycles of drying and soaking have worn people down. A mob storms the council hall.' },
+    opts: [
+      { l: { zh: '武力镇压', en: 'Crush it' }, fx: { pop: -0.06, order: 25 } },
+      { l: { zh: '开仓让步', en: 'Open the granaries' }, fx: { res: -18, order: 30, sci: -1 } },
+    ] },
+  { id: 'observatory', glyph: '星', who: { zh: '观星学会', en: 'Astronomers’ Guild' }, w: 2, when: g => g.tier >= 1,
+    title: { zh: '新的天文台', en: 'A New Observatory' },
+    text: { zh: '“给我们一座高台，我们就能更早看见太阳的动向。”', en: '“Give us a tower and we will see the suns move sooner.”' },
+    opts: [
+      { l: { zh: '建造天文台', en: 'Build it' }, fx: { res: -12, buff: { k: 'fc', v: 1, y: 10 } } },
+      { l: { zh: '拒绝', en: 'Refuse' }, fx: { order: 3 } },
+    ] },
+  { id: 'boom', glyph: '繁', who: { zh: '人口司', en: 'Census Office' }, w: 2, when: g => g.era === 'stable' && g.status === 'alive' && g.health < 0.92,
+    title: { zh: '人口繁盛', en: 'A Population Boom' },
+    text: { zh: '恒纪元延续，浸泡者越来越多。', en: 'The stable era endures, and the soaked multiply.' },
+    opts: [
+      { l: { zh: '鼓励生育', en: 'Encourage it' }, fx: { pop: 0.12, res: -14 } },
+      { l: { zh: '控制人口', en: 'Limit growth' }, fx: { res: 10, order: -5 } },
+    ] },
+  { id: 'fusion', glyph: '聚', who: { zh: '物理研究院', en: 'Institute of Physics' }, w: 3, when: g => g.tier >= 4,
+    title: { zh: '可控核聚变', en: 'Controlled Fusion' },
+    text: { zh: '“我们即将实现可控核聚变。但实验极其危险。”', en: '“Controlled fusion is within reach. But the experiment is perilous.”' },
+    opts: [
+      { l: { zh: '批准实验', en: 'Approve it' }, gamble: { p: 0.7,
+        ok: { fx: { sci: 5, res: 20 }, msg: { zh: '人造太阳点亮了。', en: 'An artificial sun was lit.' } },
+        fail: { fx: { pop: -0.15, order: -10 }, msg: { zh: '反应堆失控，一座城市消失了。', en: 'The reactor ran away. A city vanished.' } } } },
+      { l: { zh: '稳妥为先', en: 'Play it safe' }, fx: { sci: 1 } },
+    ] },
+  { id: 'signal', glyph: '讯', who: { zh: '1379 号监听站', en: 'Listening Post 1379' }, w: 4, when: g => g.tier >= 5,
+    title: { zh: '来自远方的信号', en: 'A Signal from Afar' },
+    text: { zh: '监听站收到四光年外的信号：那里有一颗只有一个太阳的行星。', en: 'A signal arrived from four light-years away: there is a world with a single sun.' },
+    opts: [
+      { l: { zh: '举全族之力准备远征', en: 'Prepare the exodus' }, fx: { sci: 6, order: 10, res: -20 } },
+      { l: { zh: '封锁消息', en: 'Bury the news' }, fx: { order: -8, sci: 2 } },
+    ] },
+  { id: 'ruins', glyph: '遗', who: { zh: '考古队', en: 'Archaeologists' }, w: 4, when: g => g.legacy > 0 && g.tier <= 2 && !g.seen.ruins,
+    title: { zh: '前文明遗迹', en: 'Ruins of the Past' },
+    text: { zh: '冰层之下，考古队发现了上一个文明的废墟。', en: 'Beneath the ice, archaeologists found ruins of the previous civilization.' },
+    opts: [
+      { l: { zh: '研究遗迹', en: 'Study them' }, fx: { sci: 3, order: -4 } },
+      { l: { zh: '封存，避免恐慌', en: 'Seal them away' }, fx: { order: 8 } },
+    ] },
+  { id: 'elders', glyph: '老', who: { zh: '长老会', en: 'Council of Elders' }, w: 2, when: g => g.era === 'stable' && g.status === 'alive',
+    title: { zh: '居安思危', en: 'Prepare for the Worst' },
+    text: { zh: '“恒纪元不会长久。把余粮全部晒干入库，以备乱纪元。”', en: '“No stable era lasts. Dry every spare crop and store it for the chaos to come.”' },
+    opts: [
+      { l: { zh: '听从长老', en: 'Heed the elders' }, fx: { res: 18, sci: -1, buff: { k: 'thrift', v: 1, y: 10 } } },
+      { l: { zh: '趁现在发展', en: 'Grow while we can' }, fx: { buff: { k: 'growth', v: 1, y: 6 }, order: -4 } },
+    ] },
+  { id: 'pools', glyph: '池', who: { zh: '浸泡池管理处', en: 'Soaking Pool Authority' }, w: 4, when: g => g.status === 'alive' && g.T > 32,
+    title: { zh: '浸泡池干涸', en: 'The Pools Run Dry' },
+    text: { zh: '高温让浸泡池水位骤降，不是每个人都能分到水。', en: 'The heat is draining the soaking pools. There isn’t water for everyone.' },
+    opts: [
+      { l: { zh: '引冰川之水', en: 'Divert glacier water' }, fx: { res: -12 } },
+      { l: { zh: '贵族优先', en: 'Nobles first' }, fx: { order: -14, pop: -0.03 } },
+    ] },
+  { id: 'merchants', glyph: '商', who: { zh: '商人联盟', en: 'Merchants’ League' }, w: 2, when: g => g.tier >= 2,
+    title: { zh: '以粮换自由', en: 'Grain for Freedom' },
+    text: { zh: '“我们愿以储粮换取更多自由。”', en: '“We will trade grain for more freedoms.”' },
+    opts: [
+      { l: { zh: '接受交易', en: 'Accept' }, fx: { res: 18, order: -8 } },
+      { l: { zh: '拒绝', en: 'Refuse' }, fx: { order: 5 } },
+    ] },
+  { id: 'computer', glyph: '算', who: { zh: '计算研究所', en: 'Computing Institute' }, w: 3, when: g => g.tier >= 4,
+    title: { zh: '电子计算机', en: 'Electronic Computers' },
+    text: { zh: '“电子计算机已能取代人列计算机，只是造价高昂。”', en: '“Electronic machines can replace the human computer, at a steep price.”' },
+    opts: [
+      { l: { zh: '全面换装', en: 'Build them' }, fx: { res: -18, buff: { k: 'fc', v: 2.5, y: 25 } } },
+      { l: { zh: '继续用人列', en: 'Keep the human formation' }, fx: { pop: -0.03, sci: 1 } },
+    ] },
+  { id: 'philosopher', glyph: '哲', who: { zh: '哲学家', en: 'The Philosopher' }, w: 2, when: g => g.era === 'chaos',
+    title: { zh: '混沌即秩序', en: 'Chaos Is the Order' },
+    text: { zh: '“乱纪元不是灾难，而是常态。我们应当学会在混乱中思考。”', en: '“Chaos is not a disaster but the norm. We must learn to think inside it.”' },
+    opts: [
+      { l: { zh: '传授他的学说', en: 'Teach his ideas' }, fx: { sci: 2, buff: { k: 'calm', v: 1, y: 10 } } },
+      { l: { zh: '斥为异端', en: 'Denounce him' }, fx: { order: 8, sci: -1 } },
+    ] },
+];
+const hasBuff = k => !!g && g.buffs.some(b => b.k === k);
+const hasBuffFrom = src => !!g && g.buffs.some(b => b.src === src);
+const buffSum = k => g ? g.buffs.filter(b => b.k === k).reduce((a, b) => a + b.v, 0) : 0;
+const fcHorizon = () => Math.min(7, TIERS[g.tier].fc + buffSum('fc'));
+
+let mode = 'menu';   // menu | game | sandbox
+let world = null;
+let g = null;
+let speedMul = 1;
+let fc = null, fcTimer = 0;
+let shake = 0, flash = 0, flashRGB = [255, 255, 255];
+const parts = [], rings = [];
+
+function comfort(T) {
+  if (T < T_COLD || T > T_HOT) return 0;
+  if (T < -10) return (T - T_COLD) / 15;
+  if (T > 40) return (T_HOT - T) / 15;
+  return 1;
+}
+function fmtPop(v) {
+  if (LANG === 'zh') return v >= 1 ? v.toFixed(v >= 10 ? 0 : 1) + ' 亿' : Math.max(1, Math.round(v * 10000)) + ' 万';
+  return v >= 10 ? (v / 10).toFixed(1) + 'B' : (v * 100).toFixed(v * 100 >= 10 ? 0 : 1) + 'M';
+}
+
+// Build a hierarchical-but-unstable system: planet orbiting sun A, two
+// companions on eccentric orbits that will eventually wreck the peace.
+function genSystem(seed) {
+  const R = mulberry32(seed);
+  let best = null;
+  for (let attempt = 0; attempt < 80; attempt++) {
+    const mA = 0.9 + R() * 0.3, mB = 0.55 + R() * 0.9, mC = 0.55 + R() * 0.9;
+    const rot = R() < 0.5 ? 1 : -1;
+    const aB = R() * TAU, dB = 3.0 + R() * 1.2;
+    const aC = aB + (0.55 + R() * 0.9) * Math.PI * (R() < 0.5 ? 1 : -1), dC = 4.6 + R() * 1.6;
+    const orbit = (ang, d, f, M) => {
+      const v = Math.sqrt(M / d) * f;
+      return [Math.cos(ang) * d, Math.sin(ang) * d, -Math.sin(ang) * v * rot, Math.cos(ang) * v * rot];
+    };
+    const [bx, by, bvx, bvy] = orbit(aB, dB, 0.6 + R() * 0.35, mA + mB);
+    const [cx, cy, cvx, cvy] = orbit(aC, dC, 0.6 + R() * 0.35, mA + mB + mC);
+    const suns = [makeSun(mA, 0, 0, 0, 0), makeSun(mB, bx, by, bvx, bvy), makeSun(mC, cx, cy, cvx, cvy)];
+    const c = comOf(suns);
+    for (const s of suns) { s.x -= c.x; s.y -= c.y; s.vx -= c.vx; s.vy -= c.vy; }
+    const A = suns[0], rp = Math.sqrt(A.L / F0) * (0.97 + R() * 0.06), pa = R() * TAU, pv = Math.sqrt(A.m / rp);
+    const planet = { x: A.x + Math.cos(pa) * rp, y: A.y + Math.sin(pa) * rp, vx: A.vx - Math.sin(pa) * pv * rot, vy: A.vy + Math.cos(pa) * pv * rot, ax: 0, ay: 0, hit: -1 };
+    const w = { t: 0, eps2: 0.0009, suns, planet, rmin: 1 };
+    if (energy(w) > -0.1) continue;
+    const test = cloneW(w); accel(test);
+    let ok = true, firstBad = 99;
+    while (test.t < 12) {
+      if (advance(test, 0.1, 0.004, 4000, ww => ww.planet.hit >= 0)) { ok = false; break; }
+      const T = tempOf(fluxAt(test, test.planet.x, test.planet.y));
+      if (T < -10 || T > 40) { firstBad = Math.min(firstBad, test.t); if (test.t < 5) { ok = false; break; } }
     }
-    state.t += dt;
-    // Sample trail every 2 steps to cut array churn
-    if (((state.t / dt) | 0) % 2 === 0) recordTrails();
+    best = w;
+    if (ok && firstBad < 40) return w;
+  }
+  return best;
+}
+function newWorld(sys, sunCap, pCap) {
+  sys.trails = sys.suns.map(() => new Trail(sunCap));
+  sys.ptrail = new Trail(pCap || 10);
+  sys.recS = -1; sys.recP = -1;
+  sys.planetGone = false;
+  accel(sys);
+  return sys;
+}
+
+// ─── Game lifecycle ──────────────────────────────────────────────
+function newGameState() {
+  return {
+    civ: store.get('civ', 1), tier: 0, progress: 0, health: 1, order: 60, res: 50,
+    status: 'alive', statusT: 0, buffs: [], card: null, cardIn: 3, cardSpan: 3, decisions: 0, seen: {}, recent: [],
+    T: 15, era: 'stable', calm: 0, stableCount: 1, chaosCount: 0, dehydrations: 0, legacy: 0,
+    hist: [], histT: 0, phase: 'play', phaseT: 0, cause: '', lastHarm: '', warned: false, maxT: 15, minT: 15, logs: [],
+  };
+}
+function setModeClass(m) {
+  document.body.classList.remove('m-menu', 'm-game', 'm-sandbox', 'chaos');
+  document.body.classList.add('m-' + m);
+}
+function startGame() {
+  audioInit();
+  mode = 'game'; setModeClass('game');
+  world = newWorld(genSystem((Date.now() ^ (Math.random() * 1e9)) >>> 0), 600, 300);
+  g = newGameState();
+  g.legacy = store.get('legacy', 0);
+  g.progress = g.legacy;
+  while (g.tier < 5 && g.progress >= TIERS[g.tier + 1].need) g.tier++;
+  g.T = tempOf(fluxAt(world, world.planet.x, world.planet.y));
+  fc = null; fcTimer = 0; parts.length = 0; rings.length = 0;
+  hideCard();
+  g.cardIn = g.cardSpan = 3;
+  setSpeed(1); setCamMode('auto'); camUpdate(0, true);
+  $('menu').classList.add('hid'); $('over').classList.add('hid');
+  log('l_born', [g.civ], 'gold');
+  if (g.legacy > 0) log('l_legacy', [{ tier: g.tier }, Math.round(g.legacy / TIERS[6].need * 100)], 'gold');
+  updateHUD();
+  setEra('stable', true);
+  if (!store.get('tut', false)) toast(t('tut0_t'), t('tut0_d'), 4200);
+}
+function die(cause) {
+  if (g.phase !== 'play') return;
+  hideCard();
+  g.phase = 'dying'; g.phaseT = 0; g.cause = cause;
+  const p = world.planet;
+  shake = 1; flash = 0.9;
+  if (cause === 'swallow') {
+    const s = world.suns[p.hit >= 0 ? p.hit : 0];
+    flashRGB = s.rgb; world.planetGone = true;
+    burst(p.x, p.y, [255, 240, 210], 160, 2.4, 1.8, 2.2); burst(p.x, p.y, s.rgb, 90, 1.2, 2.4, 3);
+    rings.push({ x: p.x, y: p.y, life: 0, max: 1.4, rgb: s.rgb, w: 3 });
+    sfxBoom(1);
+  } else if (cause === 'heat') { flashRGB = [255, 110, 50]; burst(p.x, p.y, [255, 120, 40], 90, 0.9, 1.6, 1.8); sfxBoom(0.6); }
+  else if (cause === 'cold') { flashRGB = [160, 210, 255]; burst(p.x, p.y, [170, 220, 255], 70, 0.6, 1.8, 1.5); sfxBoom(0.4); }
+  else { flashRGB = [120, 140, 180]; flash = 0.4; sfxBoom(0.3); }
+  log('d_' + cause, [], cause === 'cold' || cause === 'eject' ? 'cold' : 'hot');
+  store.set('civ', g.civ + 1);
+  store.set('best', Math.max(store.get('best', 0), g.tier));
+  store.set('legacy', Math.min(TIERS[5].need, Math.max(g.legacy, g.progress * 0.3)));
+}
+function win() {
+  if (g.phase !== 'play') return;
+  hideCard();
+  g.phase = 'launch'; g.phaseT = 0;
+  store.set('civ', g.civ + 1);
+  store.set('best', 6);
+  store.set('wins', store.get('wins', 0) + 1);
+  store.set('legacy', 0);
+  log('l_win', [], 'gold');
+  sfxWin();
+}
+function renderOver() {
+  if (!g) return;
+  const won = g.tier >= 6;
+  $('overCard').classList.toggle('win', won);
+  $('overKicker').textContent = t(won ? 'o_won' : 'o_lost');
+  $('overTitle').textContent = won ? t('o_title_won') : t('o_title_lost', g.civ);
+  const causeArg = g.cause === 'heat' ? Math.round(g.maxT) : g.cause === 'cold' ? Math.round(g.minT) : '';
+  $('overCause').textContent = won ? t('c_won', g.civ, g.chaosCount) : t('c_' + g.cause, causeArg);
+  $('overStats').innerHTML = [
+    [world.t.toFixed(1), t('s_years')], [tierName(g.tier), t('s_tier')], [g.stableCount, t('s_stable')], [g.decisions, t('s_cards')],
+  ].map(([v, l]) => `<div><b>${v}</b><span>${l}</span></div>`).join('');
+  const lg = store.get('legacy', 0);
+  let lt = 0; while (lt < 5 && lg >= TIERS[lt + 1].need) lt++;
+  $('overEpi').textContent = won ? t('epi_won') : t('epi_lost', tierName(lt), Math.round(lg / TIERS[6].need * 100));
+  $('btnAgain').innerHTML = t('again', g.civ + 1);
+}
+function showOver() {
+  g.phase = 'over';
+  renderOver();
+  $('over').classList.remove('hid');
+  store.set('tut', true);
+}
+function renderMenu() {
+  const best = store.get('best', -1), wins = store.get('wins', 0), civ = store.get('civ', 1);
+  $('btnPlay').innerHTML = t('play', civ);
+  $('record').innerHTML = civ > 1 ? t('record', civ - 1 - wins, best >= 0 ? tierName(best) : '—', wins) : t('record_first');
+}
+function toMenu() {
+  mode = 'menu'; setModeClass('menu');
+  hideCard();
+  $('over').classList.add('hid'); $('menu').classList.remove('hid');
+  world = newWorld(genSystem((Math.random() * 1e9) >>> 0), 600, 300);
+  g = null; fc = null; parts.length = 0; rings.length = 0;
+  setCamMode('auto'); camUpdate(0, true);
+  renderMenu();
+}
+
+function toggleDry() {
+  if (mode !== 'game' || g.phase !== 'play' || g.card) return;
+  if (g.status === 'alive') {
+    g.status = 'drying'; g.statusT = TRANS_TIME; g.dehydrations++; g.order = Math.max(0, g.order - 2);
+    log('l_dry', [], 'cold'); sfxDry(true);
+  } else if (g.status === 'dry') {
+    g.status = 'soaking'; g.statusT = TRANS_TIME; g.health *= 0.97;
+    log('l_soak', [], 'gold'); sfxDry(false);
+  }
+  updateHUD();
+}
+
+function updateGame(dt) {
+  const p = world.planet;
+  if (p.hit >= 0) return die('swallow');
+  const Teq = tempOf(fluxAt(world, p.x, p.y));
+  g.T += (Teq - g.T) * (1 - Math.exp(-dt / 0.2));
+  g.maxT = Math.max(g.maxT, g.T); g.minT = Math.min(g.minT, g.T);
+  let dn = 1e9;
+  for (const s of world.suns) dn = Math.min(dn, Math.hypot(s.x - p.x, s.y - p.y));
+  if (dn > 12) return die('eject');
+
+  for (let i = g.buffs.length - 1; i >= 0; i--) { g.buffs[i].y -= dt; if (g.buffs[i].y <= 0) g.buffs.splice(i, 1); }
+
+  if (g.status === 'drying' || g.status === 'soaking') {
+    g.statusT -= dt;
+    if (g.statusT <= 0) { g.status = g.status === 'drying' ? 'dry' : 'alive'; updateHUD(); }
+  }
+  const T = g.T, hydrated = g.status !== 'dry';
+  let harm = 0, cause = '';
+  if (hydrated) {
+    if (T > T_HOT) { harm = (T - T_HOT) / 50; cause = 'heat'; }
+    else if (T < T_COLD) { harm = (T_COLD - T) / 45; cause = 'cold'; }
+  } else if (T > T_DRY_HOT) { harm = (T - T_DRY_HOT) / 80; cause = 'heat'; }
+  if (g.tier >= 4) harm *= 0.6;
+  if (hasBuff('shield')) harm *= 0.5;
+  const calm = hasBuff('calm') ? 0.3 : 1;
+  if (!hydrated) {
+    g.res -= 2.6 * (hasBuff('thrift') ? 0.5 : 1) * dt;
+    if (g.res <= 0) { g.res = 0; harm += 0.06; cause = cause || 'decay'; }
+  }
+  if (harm > 0) {
+    g.health -= harm * dt; g.lastHarm = cause;
+    if (hydrated) g.order -= 7 * calm * dt;
+  }
+  if (g.status === 'alive') {
+    const c = comfort(T);
+    const mult = (0.5 + g.order / 100) * (hasBuff('growth') ? 1.5 : 1);
+    g.progress += c * (0.4 + 0.6 * g.health) * mult * dt;
+    g.health = Math.min(1, g.health + 0.06 * c * dt);
+    g.res += 1.8 * c * dt;
+    if (g.era === 'stable') g.order += 1.0 * c * dt;
+    while (g.tier < 6 && g.progress >= TIERS[g.tier + 1].need) tierUp();
+  }
+  if (g.era === 'chaos') g.order -= 1.2 * calm * dt;
+  g.res = clamp(g.res, 0, 100); g.order = clamp(g.order, 0, 100);
+  if (g.health <= 0) { g.health = 0; return die(g.lastHarm || 'heat'); }
+
+  if (g.era === 'stable') {
+    if (T > T_HOT || T < T_COLD) setEra('chaos');
+  } else {
+    if (T >= -10 && T <= 40) { g.calm += dt; if (g.calm > 1.2) setEra('stable'); } else g.calm = 0;
   }
 
-  function recordTrails() {
-    const max = state.trailLen;
-    for (let i = 0; i < 3; i++) {
-      const tr = state.trails[i], b = state.bodies[i];
-      tr.push(b.x, b.y);
-      const excess = tr.length - max * 2;
-      if (excess > 0) tr.splice(0, excess);
+  g.cardIn -= dt;
+  if (g.phase === 'play' && g.cardIn <= 0 && cardSafe()) drawCard();
+
+  g.histT += dt;
+  if (g.histT >= 0.04) { g.histT = 0; g.hist.push(world.t, T); if (g.hist.length > 440) g.hist.splice(0, 2); }
+}
+function setEra(e, quiet) {
+  g.era = e; g.calm = 0;
+  document.body.classList.toggle('chaos', e === 'chaos');
+  const el = $('eraName');
+  el.textContent = t(e === 'stable' ? 'era_stable' : 'era_chaos');
+  el.classList.remove('flip'); void el.offsetWidth; el.classList.add('flip');
+  if (quiet) return;
+  if (e === 'stable') { g.stableCount++; log('l_stable', [g.stableCount], 'gold'); sfxTone(523, 0.5, 'sine', 0.08); }
+  else { g.chaosCount++; log(g.T > 0 ? 'l_chaos_hot' : 'l_chaos_cold', [], g.T > 0 ? 'hot' : 'cold'); sfxTone(110, 0.9, 'sawtooth', 0.06, 70); }
+}
+function tierUp() {
+  g.tier++;
+  log('l_tier', [{ tier: g.tier }], 'gold');
+  if (g.tier >= 6) { win(); return; }
+  toast(tierName(g.tier), t('unlock', L(TIERS[g.tier].perk)), 3200);
+  const p = world.planet;
+  rings.push({ x: p.x, y: p.y, life: 0, max: 1.6, rgb: [242, 176, 76], w: 2 });
+  sfxChime();
+  fcTimer = 0;
+}
+
+// ─── Card flow ───────────────────────────────────────────────────
+function cardSafe() {
+  if (g.status === 'drying' || g.status === 'soaking') return false;
+  if (g.status === 'alive') {
+    if (g.T > T_HOT - 8 || g.T < T_COLD + 8) return false;
+    if (fc && fc.hazard && fc.hazard.dt < 1.6) return false;
+  }
+  return true;
+}
+function drawCard() {
+  const urgent = CARDS.filter(c => ((c.id === 'riot' && g.order < 20) || (c.id === 'famine' && g.res < 15)) && !g.recent.includes(c.id));
+  let pool = urgent.length ? urgent : CARDS.filter(c => c.when(g) && !g.recent.includes(c.id));
+  if (!pool.length) pool = CARDS.filter(c => c.when(g));
+  if (!pool.length) { g.cardIn = 2; return; }
+  let r = Math.random() * pool.reduce((a, c) => a + c.w, 0), card = pool[0];
+  for (const c of pool) { r -= c.w; if (r <= 0) { card = c; break; } }
+  g.recent.push(card.id); if (g.recent.length > 7) g.recent.shift();
+  g.seen[card.id] = true;
+  g.card = card; g.cardDone = false;
+  renderCard(true);
+  $('cardLayer').classList.add('show');
+  sfxTone(392, 0.35, 'triangle', 0.07); setTimeout(() => sfxTone(587, 0.5, 'triangle', 0.06), 90);
+}
+function fxChips(fx, alt) {
+  const out = [], cls = alt ? ' alt' : '';
+  const num = (k, v, pct) => out.push(`<span class="chip ${v > 0 ? 'up' : 'down'}${cls}">${t(k)} ${v > 0 ? '+' : '−'}${Math.abs(pct ? Math.round(v * 100) : v)}${pct ? '%' : ''}</span>`);
+  if (fx.pop) num('pop', fx.pop, true);
+  if (fx.order) num('order', fx.order);
+  if (fx.res) num('res', fx.res);
+  if (fx.sci) num('sci', fx.sci);
+  if (fx.buff) {
+    const b = fx.buff;
+    out.push(`<span class="chip buff${cls}">${b.k === 'fc' ? t('fx_fc', b.v, b.y) : t('fx_' + b.k, b.y)}</span>`);
+  }
+  return out;
+}
+function choiceHTML(o, i) {
+  let chips;
+  if (o.gamble) chips = [`<span class="chip risk">${t('fx_chance', Math.round(o.gamble.p * 100))}</span>`, ...fxChips(o.gamble.ok.fx), ...fxChips(o.gamble.fail.fx, true)];
+  else chips = fxChips(o.fx);
+  if (!chips.length) chips = [`<span class="chip none">${t('fx_none')}</span>`];
+  return `<span class="key">${i === 0 ? '← A' : 'B →'}</span><b>${L(o.l)}</b><div class="fx">${chips.join('')}</div>`;
+}
+function renderCard(enter) {
+  const c = g && g.card; if (!c) return;
+  $('cardGlyph').textContent = c.glyph;
+  $('cardWho').textContent = L(c.who);
+  $('cardTitle').textContent = L(c.title);
+  $('cardText').textContent = L(c.text);
+  $('cardYear').textContent = t('card_year', world.t.toFixed(1));
+  c.opts.forEach((o, i) => { $('choice' + i).innerHTML = choiceHTML(o, i); });
+  const el = $('card');
+  if (enter) { el.className = 'card'; el.style.transform = ''; void el.offsetWidth; el.classList.add('enter'); }
+}
+function bump(id) { const el = $(id); el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); }
+function applyFx(fx) {
+  if (!fx) return;
+  if (fx.pop) { g.health = clamp(g.health + fx.pop, 0.02, 1); bump('mPop'); }
+  if (fx.order) { g.order = clamp(g.order + fx.order, 0, 100); bump('mOrd'); }
+  if (fx.res) { g.res = clamp(g.res + fx.res, 0, 100); bump('mRes'); }
+  if (fx.sci) { g.progress = Math.max(TIERS[g.tier].need, g.progress + fx.sci); while (g.tier < 6 && g.progress >= TIERS[g.tier + 1].need) tierUp(); }
+  if (fx.buff) { g.buffs.push({ ...fx.buff }); fcTimer = 0; }
+}
+function choose(i) {
+  if (!g || !g.card || g.cardDone) return;
+  g.cardDone = true;
+  const c = g.card, o = c.opts[i];
+  let msg = null, ok = true;
+  if (o.gamble) {
+    ok = Math.random() < o.gamble.p;
+    const res = ok ? o.gamble.ok : o.gamble.fail;
+    applyFx(res.fx); msg = res.msg;
+  } else applyFx(o.fx);
+  g.decisions++;
+  g.logs.unshift({ card: c, opt: i, ok, yr: world.t, cls: 'dec' }); trimLog(); renderLog();
+  $('card').classList.add(i === 0 ? 'out-l' : 'out-r');
+  $('choice' + i).classList.add('lean');
+  sfxTone(i === 0 ? 330 : 440, 0.3, 'sine', 0.08, i === 0 ? 260 : 560);
+  setTimeout(() => {
+    if (!g || g.card !== c) return;
+    hideCard();
+    if (msg) { toast(t(ok ? 'r_ok' : 'r_fail'), L(msg), 2600); if (!ok) sfxTone(140, 0.6, 'sawtooth', 0.05, 90); }
+    updateHUD();
+  }, 380);
+}
+function hideCard() {
+  $('cardLayer').classList.remove('show');
+  ['choice0', 'choice1'].forEach(id => $(id).classList.remove('lean'));
+  if (g) { g.card = null; g.cardSpan = 5.5 + Math.random() * 4; g.cardIn = g.cardSpan; }
+}
+
+// Forecast: integrate a copy forward. Chaos means it diverges — that's the point.
+function computeForecast() {
+  const hz = fcHorizon();
+  const w = cloneW(world), t0 = w.t, rec = 0.04;
+  const pts = [], temps = [], sun = w.suns.map(() => []);
+  let T = g.T, hazard = null;
+  while (w.t - t0 < hz) {
+    const hit = advance(w, rec, 0.003, 3000, ww => ww.planet.hit >= 0);
+    const Teq = tempOf(fluxAt(w, w.planet.x, w.planet.y));
+    T += (Teq - T) * (1 - Math.exp(-rec / 0.2));
+    pts.push(w.planet.x, w.planet.y); temps.push(T);
+    w.suns.forEach((s, i) => sun[i].push(s.x, s.y));
+    if (hit) { hazard = { dt: w.t - t0, kind: 'swallow', T, x: w.planet.x, y: w.planet.y }; break; }
+    if (!hazard && (T > T_HOT || T < T_COLD)) hazard = { dt: w.t - t0, kind: T > 0 ? 'hot' : 'cold', T, x: w.planet.x, y: w.planet.y };
+  }
+  fc = { pts, temps, sun, hazard, hz };
+}
+
+// ─── Particles ───────────────────────────────────────────────────
+function burst(x, y, rgb, n, speed, life, size) {
+  for (let i = 0; i < n; i++) {
+    const a = Math.random() * TAU, v = speed * (0.15 + Math.random() * Math.random());
+    parts.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, life: 0, max: life * (0.4 + Math.random() * 0.8), rgb, size: size * (0.4 + Math.random()) });
+  }
+}
+function spawnShips() {
+  const p = world.planet;
+  for (let i = 0; i < 3; i++) {
+    const a = -0.9 + (Math.random() - 0.5) * 0.7, v = 0.6 + Math.random() * 0.9;
+    parts.push({ x: p.x, y: p.y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, life: 0, max: 4 + Math.random() * 2, rgb: [255, 220, 160], size: 1.2, ship: true, acc: 0.6 + Math.random() * 0.8 });
+  }
+}
+function updateParts(dt) {
+  for (let i = parts.length - 1; i >= 0; i--) {
+    const q = parts[i]; q.life += dt;
+    if (q.life > q.max) { parts.splice(i, 1); continue; }
+    if (q.ship) { const v = Math.hypot(q.vx, q.vy); q.vx += q.vx / v * q.acc * dt; q.vy += q.vy / v * q.acc * dt; }
+    else { const d = Math.exp(-dt * 1.1); q.vx *= d; q.vy *= d; }
+    q.x += q.vx * dt; q.y += q.vy * dt;
+  }
+  for (let i = rings.length - 1; i >= 0; i--) { rings[i].life += dt; if (rings[i].life > rings[i].max) rings.splice(i, 1); }
+}
+
+// ─── Rendering ───────────────────────────────────────────────────
+function drawGrid() {
+  const ws = Math.pow(2, Math.round(Math.log2(52 / cam.s)));
+  const xl = cam.x - (W * CX) / cam.s - ws, xr = cam.x + (W * (1 - CX)) / cam.s + ws;
+  const yt = cam.y - (H * 0.52) / cam.s - ws, yb = cam.y + (H * 0.48) / cam.s + ws;
+  const i0 = Math.floor(xl / ws), i1 = Math.ceil(xr / ws), j0 = Math.floor(yt / ws), j1 = Math.ceil(yb / ws);
+  const wells = world.suns.map(s => ({ x: sx(s.x), y: sy(s.y), r2: Math.pow(0.42 * Math.sqrt(s.m) * cam.s, 2) }));
+  const disp = (X, Y) => {
+    let dx = 0, dy = 0;
+    for (const w of wells) {
+      const ex = X - w.x, ey = Y - w.y, f = w.r2 / (ex * ex + ey * ey + w.r2) * 0.62;
+      dx -= ex * f; dy -= ey * f;
+    }
+    return [X + dx, Y + dy];
+  };
+  ctx.lineWidth = 1;
+  ctx.strokeStyle = 'rgba(150,170,205,0.075)';
+  ctx.beginPath();
+  for (let j = j0; j <= j1; j++) for (let i = i0; i <= i1; i++) {
+    const [X, Y] = disp(sx(i * ws), sy(j * ws));
+    if (i === i0) ctx.moveTo(X, Y); else ctx.lineTo(X, Y);
+  }
+  for (let i = i0; i <= i1; i++) for (let j = j0; j <= j1; j++) {
+    const [X, Y] = disp(sx(i * ws), sy(j * ws));
+    if (j === j0) ctx.moveTo(X, Y); else ctx.lineTo(X, Y);
+  }
+  ctx.stroke();
+}
+function drawHabZones() {
+  const a = Math.pow(288 / 313, 2), b = Math.pow(288 / 263, 2);  // 40 °C and -10 °C radii factors
+  for (const s of world.suns) {
+    const r0 = Math.sqrt(s.L / F0) * a * cam.s, r1 = Math.sqrt(s.L / F0) * b * cam.s;
+    if (r1 < 10) continue;
+    const X = sx(s.x), Y = sy(s.y);
+    ctx.beginPath(); ctx.arc(X, Y, r1, 0, TAU); ctx.arc(X, Y, r0, 0, TAU, true);
+    ctx.fillStyle = 'rgba(127,224,176,0.035)'; ctx.fill();
+    ctx.setLineDash([2, 6]); ctx.lineWidth = 1;
+    ctx.strokeStyle = 'rgba(127,224,176,0.16)';
+    ctx.beginPath(); ctx.arc(X, Y, (r0 + r1) / 2, 0, TAU); ctx.stroke();
+    ctx.setLineDash([]);
+  }
+}
+function drawTrail(tr, colorFn, frac, width) {
+  const n = Math.floor(tr.n * frac);
+  if (n < 3) return;
+  const start = tr.n - n, chunks = Math.min(28, n - 1);
+  for (let c = 0; c < chunks; c++) {
+    const k0 = start + Math.floor(c * (n - 1) / chunks), k1 = start + Math.floor((c + 1) * (n - 1) / chunks);
+    const tt = (c + 1) / chunks;
+    ctx.beginPath();
+    for (let k = k0; k <= k1; k++) {
+      const i = tr.idx(k), X = sx(tr.b[i]), Y = sy(tr.b[i + 1]);
+      if (k === k0) ctx.moveTo(X, Y); else ctx.lineTo(X, Y);
+    }
+    const mid = tr.idx((k0 + k1) >> 1);
+    ctx.strokeStyle = colorFn(tr.b[mid + 2], 0.02 + 0.55 * tt * tt);
+    ctx.lineWidth = width * (0.4 + 0.9 * tt);
+    ctx.stroke();
+  }
+}
+function drawTrails(frac) {
+  ctx.globalCompositeOperation = 'lighter';
+  ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  world.suns.forEach((s, i) => drawTrail(world.trails[i], (_, a) => rgbStr(s.rgb, a * 0.8), frac, 1.6));
+  if (world.planet && !world.planetGone) drawTrail(world.ptrail, (T, a) => rgbStr(tempRGB(T), a * 1.3), 1, 2);
+  ctx.globalCompositeOperation = 'source-over';
+}
+function drawForecast(time) {
+  if (!fc || !fc.pts.length || world.planetGone) return;
+  ctx.lineCap = 'round';
+  ctx.setLineDash([1, 5]); ctx.lineWidth = 1;
+  world.suns.forEach((s, i) => {
+    const P = fc.sun[i]; if (P.length < 4) return;
+    ctx.beginPath(); ctx.moveTo(sx(s.x), sy(s.y));
+    for (let k = 0; k < P.length; k += 2) ctx.lineTo(sx(P[k]), sy(P[k + 1]));
+    ctx.strokeStyle = rgbStr(s.rgb, 0.3); ctx.stroke();
+  });
+  ctx.setLineDash([5, 4]); ctx.lineDashOffset = -time * 14; ctx.lineWidth = 1.6;
+  const P = fc.pts, n = P.length / 2;
+  let px = sx(world.planet.x), py = sy(world.planet.y);
+  for (let k = 0; k < n; k++) {
+    const X = sx(P[k * 2]), Y = sy(P[k * 2 + 1]);
+    ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(X, Y);
+    ctx.strokeStyle = rgbStr(tempRGB(fc.temps[k]), 0.85 * (1 - 0.7 * k / n));
+    ctx.stroke(); px = X; py = Y;
+  }
+  ctx.setLineDash([]); ctx.lineDashOffset = 0;
+  ctx.beginPath(); ctx.arc(px, py, 3.5, 0, TAU); ctx.strokeStyle = 'rgba(235,229,214,.35)'; ctx.lineWidth = 1; ctx.stroke();
+  const hz = fc.hazard;
+  if (hz) {
+    const X = sx(hz.x), Y = sy(hz.y), pulse = 6 + 3 * Math.sin(time * 6);
+    const col = hz.kind === 'cold' ? [143, 211, 255] : [255, 90, 54];
+    ctx.strokeStyle = rgbStr(col, 0.9); ctx.lineWidth = 1.4;
+    ctx.beginPath(); ctx.arc(X, Y, pulse, 0, TAU); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(X - 4, Y - 4); ctx.lineTo(X + 4, Y + 4); ctx.moveTo(X + 4, Y - 4); ctx.lineTo(X - 4, Y + 4); ctx.stroke();
+    ctx.font = '600 10px ' + MONO;
+    ctx.fillStyle = rgbStr(col, 0.95);
+    ctx.fillText(hz.kind === 'swallow' ? `+${hz.dt.toFixed(1)}y ${t('hz_sw')}` : `+${hz.dt.toFixed(1)}y ${Math.round(hz.T)}°C`, X + 10, Y - 8);
+  }
+}
+function drawSun(s, time) {
+  const X = sx(s.x), Y = sy(s.y), rs = Math.max(4.5, s.R * cam.s);
+  if (X < -rs * 30 || X > W + rs * 30 || Y < -rs * 30 || Y > H + rs * 30) return;
+  const S = s.spr, breathe = 1 + 0.06 * Math.sin(time * 1.7 + s.seed);
+  ctx.globalCompositeOperation = 'lighter';
+  const gR = rs * 11 * breathe;
+  ctx.globalAlpha = 0.95; ctx.drawImage(S.glow, X - gR, Y - gR, gR * 2, gR * 2);
+  ctx.save(); ctx.translate(X, Y);
+  const rr = rs * 7.5;
+  ctx.rotate(time * 0.04 + s.seed); ctx.globalAlpha = 0.7; ctx.drawImage(S.rays, -rr, -rr, rr * 2, rr * 2);
+  ctx.rotate(-time * 0.1 + 1.3); ctx.globalAlpha = 0.45; ctx.drawImage(S.rays, -rr * 0.75, -rr * 0.75, rr * 1.5, rr * 1.5);
+  ctx.restore();
+  ctx.globalAlpha = 0.55; ctx.drawImage(S.flare, X - rs * 16, Y - rs * 0.7, rs * 32, rs * 1.4);
+  ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
+  ctx.save(); ctx.translate(X, Y); ctx.rotate(time * 0.05 + s.seed);
+  ctx.drawImage(S.disc, -rs, -rs, rs * 2, rs * 2); ctx.restore();
+  ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = 0.5;
+  const c = rs * 2.6; ctx.drawImage(S.glow, X - c, Y - c, c * 2, c * 2);
+  ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
+}
+function planetSurfaceRGB(T) {
+  if (T < -40) return [205, 222, 238];
+  if (T < -10) return mix3([205, 222, 238], [70, 128, 150], (T + 40) / 30);
+  if (T < 50) return [70, 128, 150];
+  if (T < 140) return mix3([70, 128, 150], [150, 84, 46], (T - 50) / 90);
+  return mix3([150, 84, 46], [230, 80, 30], clamp((T - 140) / 100, 0, 1));
+}
+function drawPlanet(time) {
+  const p = world.planet; if (!p || world.planetGone) return;
+  const X = sx(p.x), Y = sy(p.y), pr = clamp(cam.s * 0.022, 3.2, 8);
+  let lx = 0, ly = 0;
+  for (const s of world.suns) { const dx = s.x - p.x, dy = s.y - p.y, d2 = dx * dx + dy * dy, I = s.L / d2 / Math.sqrt(d2); lx += dx * I; ly += dy * I; }
+  const ang = Math.atan2(ly, lx), T = g ? g.T : tempOf(fluxAt(world, p.x, p.y));
+  const base = planetSurfaceRGB(T);
+  ctx.save();
+  ctx.beginPath(); ctx.arc(X, Y, pr, 0, TAU); ctx.fillStyle = rgbStr(base.map(v => v * 0.1)); ctx.fill(); ctx.clip();
+  const ox = X + Math.cos(ang) * pr * 0.85, oy = Y + Math.sin(ang) * pr * 0.85;
+  const gr = ctx.createRadialGradient(ox, oy, 0, ox, oy, pr * 1.75);
+  gr.addColorStop(0, rgbStr(mix3(base, [255, 255, 255], 0.35))); gr.addColorStop(0.55, rgbStr(base)); gr.addColorStop(1, rgbStr(base, 0));
+  ctx.fillStyle = gr; ctx.fillRect(X - pr, Y - pr, pr * 2, pr * 2);
+  ctx.restore();
+  ctx.globalCompositeOperation = 'lighter';
+  ctx.beginPath(); ctx.arc(X, Y, pr + 0.8, ang - 1.4, ang + 1.4);
+  ctx.strokeStyle = T > 60 ? 'rgba(255,150,80,.55)' : 'rgba(130,190,255,.55)'; ctx.lineWidth = 1.2; ctx.stroke();
+  ctx.globalCompositeOperation = 'source-over';
+  if (mode === 'game') {
+    const col = tempRGB(T), R = pr + 10, rot = time * 0.5;
+    ctx.strokeStyle = rgbStr(col, 0.85); ctx.lineWidth = 1.2;
+    for (let k = 0; k < 4; k++) { const a = rot + k * TAU / 4; ctx.beginPath(); ctx.arc(X, Y, R, a - 0.26, a + 0.26); ctx.stroke(); }
+    ctx.font = '600 10px ' + MONO;
+    ctx.fillStyle = rgbStr(col, 0.95);
+    ctx.fillText(`${Math.round(T)}°C`, X + R + 6, Y - R + 6);
+    ctx.fillStyle = 'rgba(235,229,214,.55)'; ctx.font = '11px ' + getComputedStyle(document.body).getPropertyValue('--serif');
+    ctx.fillText(t('pt_name'), X + R + 6, Y - R + 20);
+  }
+}
+function drawParts() {
+  ctx.globalCompositeOperation = 'lighter';
+  for (const q of parts) {
+    const a = 1 - q.life / q.max, X = sx(q.x), Y = sy(q.y);
+    if (q.ship) {
+      const v = Math.hypot(q.vx, q.vy), tl = 14 + v * 10;
+      const gx = X - q.vx / v * tl, gy = Y - q.vy / v * tl;
+      const lg = ctx.createLinearGradient(X, Y, gx, gy);
+      lg.addColorStop(0, `rgba(255,236,200,${a})`); lg.addColorStop(1, 'rgba(255,170,80,0)');
+      ctx.strokeStyle = lg; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.moveTo(X, Y); ctx.lineTo(gx, gy); ctx.stroke();
+      ctx.fillStyle = `rgba(255,255,255,${a})`; ctx.fillRect(X - 1, Y - 1, 2, 2);
+    } else {
+      ctx.fillStyle = rgbStr(q.rgb, a * 0.9);
+      ctx.beginPath(); ctx.arc(X, Y, q.size * (0.5 + a), 0, TAU); ctx.fill();
     }
   }
-
-  function totalEnergy() {
-    const b = state.bodies, G = state.G, eps2 = state.soft2;
-    let K = 0, U = 0;
-    for (let i = 0; i < b.length; i++) {
-      K += 0.5 * b[i].m * (b[i].vx * b[i].vx + b[i].vy * b[i].vy);
-      for (let j = i + 1; j < b.length; j++) {
-        const dx = b[j].x - b[i].x, dy = b[j].y - b[i].y;
-        U -= G * b[i].m * b[j].m / Math.sqrt(dx * dx + dy * dy + eps2);
-      }
+  for (const r of rings) {
+    const tt = r.life / r.max, R = 8 + tt * 140;
+    ctx.strokeStyle = rgbStr(r.rgb, (1 - tt) * 0.8); ctx.lineWidth = r.w * (1 - tt) + 0.5;
+    ctx.beginPath(); ctx.arc(sx(r.x), sy(r.y), R, 0, TAU); ctx.stroke();
+  }
+  ctx.globalCompositeOperation = 'source-over';
+}
+function drawVel() {
+  ctx.lineWidth = 1.2;
+  for (const s of world.suns) {
+    const X = sx(s.x), Y = sy(s.y);
+    ctx.strokeStyle = rgbStr(s.rgb, 0.8);
+    ctx.beginPath(); ctx.moveTo(X, Y); ctx.lineTo(X + s.vx * cam.s * 0.4, Y + s.vy * cam.s * 0.4); ctx.stroke();
+  }
+}
+function drawOverlay() {
+  const vg = ctx.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.32, W / 2, H / 2, Math.hypot(W, H) * 0.62);
+  vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,0.6)');
+  ctx.fillStyle = vg; ctx.fillRect(0, 0, W, H);
+  if (mode === 'game' && g) {
+    const hot = clamp((g.T - 40) / 110, 0, 1), cold = clamp((-10 - g.T) / 90, 0, 1);
+    if (hot > 0 || cold > 0) {
+      const col = hot > 0 ? [255, 70, 20] : [110, 180, 255], a = (hot || cold) * 0.42;
+      const tg = ctx.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.25, W / 2, H / 2, Math.hypot(W, H) * 0.6);
+      tg.addColorStop(0, rgbStr(col, 0)); tg.addColorStop(1, rgbStr(col, a));
+      ctx.fillStyle = tg; ctx.fillRect(0, 0, W, H);
     }
-    return K + U;
   }
+  if (flash > 0) { ctx.fillStyle = rgbStr(mix3(flashRGB, [255, 255, 255], 0.5), flash * 0.7); ctx.fillRect(0, 0, W, H); }
+}
 
-  function centerOfMass() {
-    let mx = 0, my = 0, m = 0;
-    for (const b of state.bodies) { mx += b.m * b.x; my += b.m * b.y; m += b.m; }
-    return { x: mx / m, y: my / m, m };
+// ─── Planet portrait (per-pixel lit sphere) ──────────────────────
+const PT = { cv: $('portrait'), S: 200, TW: 256, TH: 128 };
+function buildPortrait() {
+  const S = PT.S, R = S / 2 - 10;
+  PT.x = PT.cv.getContext('2d'); PT.img = PT.x.createImageData(S, S);
+  const idx = [], nx = [], ny = [], nz = [], u = [], v = [], alat = [], rim = [];
+  const tilt = 0.38, ct = Math.cos(tilt), st = Math.sin(tilt);
+  for (let j = 0; j < S; j++) for (let i = 0; i < S; i++) {
+    const dx = (i + 0.5 - S / 2) / R, dy = (j + 0.5 - S / 2) / R, d2 = dx * dx + dy * dy;
+    if (d2 < 1) {
+      const z = Math.sqrt(1 - d2), ty = dy * ct - z * st, tz = dy * st + z * ct;
+      const lat = Math.asin(clamp(-ty, -1, 1)), lon = Math.atan2(dx, tz);
+      idx.push((j * S + i) * 4); nx.push(dx); ny.push(dy); nz.push(z);
+      u.push((lon / TAU + 0.5) * PT.TW); v.push(clamp(Math.floor((0.5 - lat / Math.PI) * PT.TH), 0, PT.TH - 1)); alat.push(Math.abs(Math.sin(lat)));
+    } else if (d2 < 1.3) rim.push((j * S + i) * 4, Math.sqrt(d2), dx, dy);
   }
-
-  function removeCOMDrift() {
-    let px = 0, py = 0, m = 0;
-    for (const b of state.bodies) { px += b.m * b.vx; py += b.m * b.vy; m += b.m; }
-    const vx = px / m, vy = py / m;
-    for (const b of state.bodies) { b.vx -= vx; b.vy -= vy; }
+  Object.assign(PT, { idx, nx: Float32Array.from(nx), ny: Float32Array.from(ny), nz: Float32Array.from(nz), u: Float32Array.from(u), v: Int32Array.from(v), alat: Float32Array.from(alat), rim });
+  const TW = PT.TW, TH = PT.TH;
+  PT.h = new Float32Array(TW * TH); PT.c = new Float32Array(TW * TH); PT.city = new Float32Array(TW * TH);
+  for (let y = 0; y < TH; y++) for (let x = 0; x < TW; x++) {
+    const lat = (0.5 - (y + 0.5) / TH) * Math.PI, lon = ((x + 0.5) / TW - 0.5) * TAU;
+    const X = Math.cos(lat) * Math.sin(lon), Y = Math.sin(lat), Z = Math.cos(lat) * Math.cos(lon);
+    const k = y * TW + x;
+    PT.h[k] = fbm3(X * 1.7 + 5, Y * 1.7, Z * 1.7, 6);
+    PT.c[k] = fbm3(X * 2.6 + 11, Y * 5.5, Z * 2.6, 5);
+    PT.city[k] = vn3(X * 40 + 3, Y * 40, Z * 40) * vn3(X * 9, Y * 9 + 4, Z * 9);
   }
-
-  const PRESETS = [
-    {
-      id: 'figure8', name: '八字编舞', desc: 'Moore 著名周期解',
-      build() {
-        const x1 = 0.97000436, y1 = -0.24308753;
-        const vx1 = 0.466203685, vy1 = 0.43236573;
-        const vx3 = -0.93240737, vy3 = -0.86473146;
-        return [
-          { m: 1, x: x1, y: y1, vx: vx1, vy: vy1 },
-          { m: 1, x: -x1, y: -y1, vx: vx1, vy: vy1 },
-          { m: 1, x: 0, y: 0, vx: vx3, vy: vy3 },
-        ];
-      },
-    },
-    {
-      id: 'lagrange', name: '拉格朗日', desc: '等边三角形旋转',
-      build() {
-        const s = 1.2, R = s / Math.sqrt(3);
-        const w = Math.sqrt((state.G * 3) / (s * s * s));
-        const pts = [];
-        for (let k = 0; k < 3; k++) {
-          const a = (k * 2 * Math.PI) / 3 - Math.PI / 2;
-          const x = R * Math.cos(a), y = R * Math.sin(a);
-          pts.push({ m: 1, x, y, vx: -w * y, vy: w * x });
-        }
-        return pts;
-      },
-    },
-    {
-      id: 'euler', name: '欧拉共线', desc: '共线附近振荡',
-      build() {
-        return [
-          { m: 1, x: -1, y: 0, vx: 0, vy: 0.55 },
-          { m: 1, x: 0, y: 0, vx: 0, vy: -1.1 },
-          { m: 1, x: 1, y: 0, vx: 0, vy: 0.55 },
-        ];
-      },
-    },
-    {
-      id: 'pythagorean', name: '毕达哥拉斯', desc: '3-4-5 经典混沌',
-      build() {
-        return [
-          { m: 3, x: 1, y: 3, vx: 0, vy: 0 },
-          { m: 4, x: -2, y: -1, vx: 0, vy: 0 },
-          { m: 5, x: 1, y: -1, vx: 0, vy: 0 },
-        ];
-      },
-    },
-    {
-      id: 'binary', name: '双星入侵', desc: '密近双星 + 第三体',
-      build() {
-        const m1 = 1.2, m2 = 1.0, m3 = 0.35, a = 0.55, mu = m1 + m2;
-        const v1 = Math.sqrt((state.G * m2 * m2) / (mu * a));
-        const v2 = Math.sqrt((state.G * m1 * m1) / (mu * a));
-        return [
-          { m: m1, x: -a * m2 / mu, y: 0, vx: 0, vy: v1 },
-          { m: m2, x: a * m1 / mu, y: 0, vx: 0, vy: -v2 },
-          { m: m3, x: 2.8, y: 0.6, vx: -0.35, vy: 0.15 },
-        ];
-      },
-    },
-    {
-      id: 'helix', name: '蝴蝶效应', desc: '近对称分岔混沌',
-      build() {
-        return [
-          { m: 1, x: -0.8, y: 0, vx: 0.1, vy: 0.55 },
-          { m: 1, x: 0.8, y: 0, vx: 0.1, vy: -0.55 },
-          { m: 1, x: 0, y: 0.05, vx: -0.2, vy: 0 },
-        ];
-      },
-    },
-    {
-      id: 'broucke', name: 'Broucke A1', desc: '周期轨道家族',
-      build() {
-        return [
-          { m: 1, x: 0.336130095, y: 0, vx: 0, vy: 1.532431537 },
-          { m: 1, x: 0.769989892, y: 0, vx: 0, vy: -0.628735097 },
-          { m: 1, x: -1.106119987, y: 0, vx: 0, vy: -0.90369644 },
-        ];
-      },
-    },
-    {
-      id: 'random', name: '随机混沌', desc: '随机初值',
-      build() {
-        const bodies = [];
-        for (let i = 0; i < 3; i++) {
-          const ang = Math.random() * Math.PI * 2;
-          const r = 0.4 + Math.random() * 1.2;
-          bodies.push({
-            m: 0.6 + Math.random() * 1.2,
-            x: Math.cos(ang) * r, y: Math.sin(ang) * r,
-            vx: (Math.random() - 0.5) * 0.9, vy: (Math.random() - 0.5) * 0.9,
-          });
-        }
-        return bodies;
-      },
-    },
-  ];
-
-  function loadPreset(id, keepZoom) {
-    const p = PRESETS.find(x => x.id === id) || PRESETS[0];
-    state.presetId = p.id;
-    const raw = p.build();
-    state.bodies = raw.map((b, i) => ({
-      ...b,
-      name: COLORS[i].name,
-      color: COLORS[i].color,
-      rgb: COLORS[i].rgb,
-    }));
-    removeCOMDrift();
-    const com = centerOfMass();
-    for (const b of state.bodies) { b.x -= com.x; b.y -= com.y; }
-    state.trails = [[], [], []];
-    state.t = 0;
-    softG();
-    state.E0 = totalEnergy();
-    if (!keepZoom) {
-      state.panX = 0; state.panY = 0;
-      let maxR = 0.5;
-      for (const b of state.bodies) maxR = Math.max(maxR, Math.hypot(b.x, b.y));
-      state.zoom = Math.max(0.35, Math.min(2.2, Math.min(W, H) * 0.28 / (maxR || 1)));
-      syncZoomUI();
+}
+function renderPortrait(time) {
+  const p = world.planet; if (!p) return;
+  const d = PT.img.data;
+  if (world.planetGone) { d.fill(0); PT.x.putImageData(PT.img, 0, 0); return; }
+  const Ls = [];
+  for (const s of world.suns) {
+    const dx = s.x - p.x, dy = s.y - p.y, dd = Math.hypot(dx, dy), I = s.L / (dd * dd) / F0;
+    const st = 1 - Math.exp(-I * 1.25), z = 0.25, n = Math.hypot(dx / dd, dy / dd, z);
+    Ls.push([dx / dd / n, dy / dd / n, z / n, s.rgb[0] / 255 * st * 1.25, s.rgb[1] / 255 * st * 1.25, s.rgb[2] / 255 * st * 1.25]);
+  }
+  const T = g ? g.T : 15, alive = !g || g.status === 'alive', tier = g ? g.tier : 2, hp = g ? g.health : 1;
+  const sea = 0.5 - clamp((T - 70) / 260, 0, 0.3);
+  const ice = clamp((T + 45) / 75, 0, 1.2);
+  const heat = clamp((T - 55) / 120, 0, 1), lava = clamp((T - 150) / 120, 0, 1);
+  const cloudAmt = T < -30 ? clamp((T + 70) / 40, 0, 1) : T > 80 ? clamp((140 - T) / 60, 0, 1) : 1;
+  const cityTh = alive ? 1 - (0.06 + tier * 0.07) * hp : 2;
+  const spin = time * 7, cspin = time * 11, TW = PT.TW;
+  const { idx, nx, ny, nz, u, v, alat } = PT, n = idx.length;
+  const atm = T > 70 ? [255, 140, 70] : [90, 150, 255];
+  for (let k = 0; k < n; k++) {
+    const row = v[k] * TW;
+    const ti = row + (((u[k] + spin) % TW) | 0);
+    const h = PT.h[ti];
+    let r, gg, b, land = h >= sea;
+    if (!land) {
+      const dep = clamp((sea - h) / 0.16, 0, 1);
+      r = 30 - dep * 24; gg = 92 - dep * 66; b = 136 - dep * 78;
+      if (heat > 0) { r = lerp(r, 70, heat); gg = lerp(gg, 62, heat); b = lerp(b, 50, heat); }
+    } else {
+      const e = clamp((h - sea) / 0.22, 0, 1);
+      if (e < 0.5) { r = lerp(66, 128, e * 2); gg = lerp(104, 110, e * 2); b = lerp(54, 72, e * 2); }
+      else { r = lerp(128, 190, e * 2 - 1); gg = lerp(110, 182, e * 2 - 1); b = lerp(72, 168, e * 2 - 1); }
+      if (!alive) { const m = (r + gg + b) / 3; r = lerp(r, m * 1.1, 0.5); gg = lerp(gg, m, 0.5); b = lerp(b, m * 0.85, 0.5); }
+      if (heat > 0) { r = lerp(r, 122, heat); gg = lerp(gg, 60, heat); b = lerp(b, 34, heat); }
     }
-    renderBodiesUI();
-    highlightPreset();
-    document.getElementById('hint').innerHTML =
-      `<b>${p.name}</b> · ${p.desc} · 拖拽平移 · 滚轮缩放`;
+    if (alat[k] > ice - (land ? (h - sea) * 1.4 : 0)) { r = 222; gg = 232; b = 244; land = false; }
+    const cl = PT.c[row + (((u[k] + cspin) % TW) | 0)];
+    const ca = clamp((cl - 0.53) * 3.2, 0, 0.85) * cloudAmt;
+    r = lerp(r, 240, ca); gg = lerp(gg, 240, ca); b = lerp(b, 245, ca);
+    let lr = 0.025, lg = 0.03, lb = 0.05, lit = 0;
+    for (let q = 0; q < Ls.length; q++) {
+      const l = Ls[q], dt = nx[k] * l[0] + ny[k] * l[1] + nz[k] * l[2];
+      if (dt > 0) { lr += l[3] * dt; lg += l[4] * dt; lb += l[5] * dt; lit += dt * (l[3] + l[4]) * 0.5; }
+    }
+    r *= lr; gg *= lg; b *= lb;
+    const night = clamp(1 - lit * 4, 0, 1);
+    if (land && night > 0 && PT.city[ti] > cityTh && ca < 0.4) { r += 255 * night * 0.9; gg += 186 * night * 0.9; b += 110 * night * 0.9; }
+    if (lava > 0 && h > sea && Math.abs(h - sea - 0.06) < 0.012 * (1 + lava * 2)) { r += 255 * lava; gg += 80 * lava; b += 20 * lava; }
+    const fr = Math.pow(1 - nz[k], 2.4) * (0.15 + lit * 0.9);
+    r += atm[0] * fr; gg += atm[1] * fr; b += atm[2] * fr;
+    const o = idx[k];
+    d[o] = r > 255 ? 255 : r; d[o + 1] = gg > 255 ? 255 : gg; d[o + 2] = b > 255 ? 255 : b; d[o + 3] = 255;
   }
-
-  // Deterministic hash for stable star positions
-  function hash2(i, salt) {
-    const s = Math.sin(i * 127.1 + salt * 311.7) * 43758.5453;
-    return s - Math.floor(s);
+  const rim = PT.rim;
+  let lsum = 0; for (const l of Ls) lsum += (l[3] + l[4]) * 0.5;
+  for (let k = 0; k < rim.length; k += 4) {
+    const o = rim[k], rr = rim[k + 1];
+    let dir = 0; for (const l of Ls) dir = Math.max(dir, rim[k + 2] / rr * l[0] + rim[k + 3] / rr * l[1]);
+    const a = Math.pow(clamp(1 - (rr - 1) / 0.3, 0, 1), 3) * (0.25 + clamp(dir, 0, 1) * lsum * 1.3);
+    d[o] = atm[0]; d[o + 1] = atm[1]; d[o + 2] = atm[2]; d[o + 3] = clamp(a, 0, 1) * 255;
   }
+  PT.x.putImageData(PT.img, 0, 0);
+}
 
-  // Crisp procedural starfield, baked once (cheap drawImage each frame)
-  function rebuildBgBuffer() {
-    if (!W || !H) return;
-    bgBuf.width = W;
-    bgBuf.height = H;
+// ─── Temperature chart ───────────────────────────────────────────
+const chart = $('chart'), cctx = chart.getContext('2d');
+let CW = 296, CH = 100;
+function sizeChart() {
+  const r = chart.getBoundingClientRect();
+  if (!r.width) return;
+  CW = r.width; CH = r.height;
+  chart.width = CW * DPR; chart.height = CH * DPR;
+}
+function drawChart() {
+  const c = cctx; c.setTransform(DPR, 0, 0, DPR, 0, 0); c.clearRect(0, 0, CW, CH);
+  const PAST = 8, FUT = 7, nowX = CW * PAST / (PAST + FUT), pxu = nowX / PAST;
+  const fy = T => Math.atan((clamp(T, -150, 250) - 15) / 55), f0 = fy(-150), f1 = fy(250);
+  const yOf = T => CH - 4 - (fy(T) - f0) / (f1 - f0) * (CH - 8);
+  const band = (a, b, col) => { c.fillStyle = col; c.fillRect(0, yOf(b), CW, yOf(a) - yOf(b)); };
+  band(T_HOT, 250, 'rgba(255,90,54,.07)'); band(T_DRY_HOT, 250, 'rgba(255,90,54,.10)');
+  band(-150, T_COLD, 'rgba(143,211,255,.06)'); band(-10, 40, 'rgba(127,224,176,.10)');
+  c.font = '9px ' + MONO; c.fillStyle = 'rgba(141,136,119,.8)';
+  c.fillText('160°', 3, yOf(T_DRY_HOT) - 2); c.fillText('55°', 3, yOf(T_HOT) - 2); c.fillText('−25°', 3, yOf(T_COLD) + 10);
+  c.setLineDash([2, 3]); c.strokeStyle = 'rgba(255,255,255,.08)'; c.lineWidth = 1;
+  for (const T of [T_HOT, T_COLD, T_DRY_HOT]) { c.beginPath(); c.moveTo(0, yOf(T)); c.lineTo(CW, yOf(T)); c.stroke(); }
+  c.setLineDash([]);
+  const ya = yOf(250), yb = yOf(-150), grad = c.createLinearGradient(0, ya, 0, yb);
+  for (let T = 250; T >= -150; T -= 10) grad.addColorStop((yOf(T) - ya) / (yb - ya), rgbStr(tempRGB(T)));
+  const now = world.t, Hh = g.hist;
+  c.strokeStyle = grad; c.lineWidth = 1.6; c.beginPath();
+  let first = true;
+  for (let k = 0; k < Hh.length; k += 2) {
+    const x = nowX - (now - Hh[k]) * pxu; if (x < 0) continue;
+    const y = yOf(Hh[k + 1]);
+    if (first) { c.moveTo(x, y); first = false; } else c.lineTo(x, y);
+  }
+  c.lineTo(nowX, yOf(g.T)); c.stroke();
+  const hz = fc ? fc.hz : 0;
+  if (fc && fc.temps.length) {
+    c.setLineDash([3, 3]); c.beginPath(); c.moveTo(nowX, yOf(g.T));
+    fc.temps.forEach((T, k) => c.lineTo(nowX + (k + 1) * 0.04 * pxu, yOf(T)));
+    c.stroke(); c.setLineDash([]);
+    if (fc.hazard) {
+      const x = nowX + fc.hazard.dt * pxu;
+      c.strokeStyle = fc.hazard.kind === 'cold' ? 'rgba(143,211,255,.8)' : 'rgba(255,90,54,.9)';
+      c.beginPath(); c.moveTo(x, 4); c.lineTo(x, CH - 4); c.stroke();
+    }
+  }
+  const lockX = nowX + hz * pxu;
+  if (lockX < CW) {
+    c.save(); c.beginPath(); c.rect(lockX, 0, CW - lockX, CH); c.clip();
+    c.fillStyle = 'rgba(0,0,0,.35)'; c.fillRect(lockX, 0, CW - lockX, CH);
+    c.strokeStyle = 'rgba(242,176,76,.08)'; c.lineWidth = 1;
+    for (let x = lockX - CH; x < CW; x += 7) { c.beginPath(); c.moveTo(x, CH); c.lineTo(x + CH, 0); c.stroke(); }
+    c.restore();
+    if (CW - lockX > 34) { c.fillStyle = 'rgba(141,136,119,.75)'; c.font = '8.5px ' + MONO; c.fillText('LOCKED', lockX + (CW - lockX) / 2 - 15, CH / 2 + 3); }
+  }
+  c.strokeStyle = 'rgba(242,176,76,.7)'; c.lineWidth = 1;
+  c.beginPath(); c.moveTo(nowX, 0); c.lineTo(nowX, CH); c.stroke();
+  c.fillStyle = rgbStr(tempRGB(g.T)); c.beginPath(); c.arc(nowX, yOf(g.T), 3, 0, TAU); c.fill();
+}
 
-    // Deep clean sky — sharp, no photo blur
-    const sky = bgCtx.createRadialGradient(W * 0.5, H * 0.42, 0, W * 0.5, H * 0.5, Math.max(W, H) * 0.85);
-    sky.addColorStop(0, '#0b1228');
-    sky.addColorStop(0.55, '#060a16');
-    sky.addColorStop(1, '#02040a');
-    bgCtx.fillStyle = sky;
-    bgCtx.fillRect(0, 0, W, H);
+// ─── HUD ─────────────────────────────────────────────────────────
+let toastTimer = 0;
+function toast(t1, t2, ms) {
+  $('toastT1').textContent = t1; $('toastT2').innerHTML = t2 || '';
+  $('toast').classList.add('show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => $('toast').classList.remove('show'), ms || 2600);
+}
+// Log entries keep keys, not text, so they re-render when the language changes.
+function log(k, a, cls) {
+  if (!g) return;
+  g.logs.unshift({ k, a, cls, yr: world ? world.t : 0 });
+  trimLog(); renderLog();
+}
+function trimLog() { if (g.logs.length > 7) g.logs.length = 7; }
+function renderLog() {
+  if (!g) return;
+  const yu = LANG === 'zh' ? ' 年' : 'y';
+  $('log').innerHTML = g.logs.map(e => {
+    let txt;
+    if (e.card) txt = t('l_card', L(e.card.title), L(e.card.opts[e.opt].l)) + (e.card.opts[e.opt].gamble ? ` · ${t(e.ok ? 'r_ok' : 'r_fail')}` : '');
+    else txt = t(e.k, ...e.a.map(x => x && x.tier != null ? tierName(x.tier) : x));
+    return `<li class="${e.cls || ''}"><time>${e.yr.toFixed(1)}${yu}</time><span>${txt}</span></li>`;
+  }).join('');
+}
+function updateHUD() {
+  if (!g) return;
+  const tr = TIERS[g.tier], nt = TIERS[g.tier + 1];
+  $('civNo').innerHTML = t('civ_no', g.civ);
+  $('tierName').textContent = tierName(g.tier); $('tierAlt').textContent = tierAlt(g.tier);
+  const pct = nt ? clamp((g.progress - tr.need) / (nt.need - tr.need), 0, 1) : 1;
+  $('progBar').style.width = (pct * 100).toFixed(1) + '%';
+  $('progPct').textContent = Math.floor(pct * 100) + '%';
+  $('nextTier').textContent = nt ? t('next', tierName(g.tier + 1)) : t('fleet');
+  $('popVal').textContent = fmtPop(tr.pop * Math.max(g.health, 0.001));
+  $('popBar').style.width = (g.health * 100).toFixed(1) + '%';
+  $('ordVal').textContent = Math.round(g.order);
+  $('ordBar').style.width = g.order.toFixed(1) + '%';
+  $('resVal').textContent = Math.round(g.res);
+  $('resBar').style.width = g.res.toFixed(1) + '%';
+  $('mPop').classList.toggle('low', g.health < 0.35);
+  $('mOrd').classList.toggle('low', g.order < 25);
+  $('mRes').classList.toggle('low', g.res < 20);
+  const st = { alive: ['st_alive', ''], drying: ['st_drying', 'trans'], dry: ['st_dry', 'dry'], soaking: ['st_soaking', 'trans'] }[g.status];
+  $('stRow').innerHTML = `<span class="tag ${st[1]}">${t(st[0])}</span>` +
+    g.buffs.map(b => `<span class="buff">${t('b_' + b.k, b.v)} · ${Math.ceil(b.y)}${t('yr')}</span>`).join('');
+  const T = Math.round(g.T), col = rgbStr(tempRGB(g.T));
+  const stTxt = g.T > T_HOT ? t('t_hot') : g.T < T_COLD ? t('t_cold') : comfort(g.T) >= 1 ? t('t_ok') : t('t_edge');
+  $('tempVal').innerHTML = `${T}<small>°C</small><span class="st" style="color:${col}">${stTxt}</span>`;
+  $('tempVal').style.color = col;
+  $('yearLbl').textContent = t('year', world.t.toFixed(1));
+  $('fcLbl').textContent = t('fc', +fcHorizon().toFixed(1));
+  $('eraName').textContent = t(g.era === 'stable' ? 'era_stable' : 'era_chaos');
+  $('eraSub').textContent = g.era === 'stable' ? t('era_sub_stable', g.stableCount) : t('era_sub_chaos', g.chaosCount);
+  $('nextCardBar').style.width = clamp(1 - g.cardIn / g.cardSpan, 0, 1) * 100 + '%';
+  const b = $('btnDry'), dry = g.status === 'dry' || g.status === 'soaking';
+  b.classList.toggle('dry', dry);
+  b.classList.toggle('busy', g.status === 'drying' || g.status === 'soaking');
+  $('dryTxt').textContent = t(dry ? 'soak_t' : 'dry_t');
+  $('drySub').textContent = t(dry ? 'soak_s' : 'dry_s');
+  const hydrated = g.status === 'alive' || g.status === 'drying';
+  const danger = hydrated && (g.T > T_HOT - 3 || g.T < T_COLD + 3 || (fc && fc.hazard && fc.hazard.dt < 1));
+  b.classList.toggle('urgent', !!danger);
+  $('ptState').textContent = t(g.T > 150 ? 'pt_lava' : g.T > T_HOT ? 'pt_scorch' : g.T < -60 ? 'pt_ice' : g.T < T_COLD ? 'pt_frost' : g.status === 'dry' ? 'pt_barren' : 'pt_ocean');
+  const w = $('warn');
+  let msg = '', cold = false;
+  if (hydrated && g.T > T_HOT) msg = t('w_burn', T);
+  else if (hydrated && g.T < T_COLD) { msg = t('w_freeze', T); cold = true; }
+  else if (g.status === 'dry' && g.T > T_DRY_HOT) msg = t('w_archive', T);
+  else if (g.status === 'dry' && g.res <= 0) msg = t('w_starve');
+  else if (fc && fc.hazard && g.tier >= 3 && hydrated && fc.hazard.dt < 2.4) {
+    const hzd = fc.hazard; cold = hzd.kind === 'cold';
+    msg = hzd.kind === 'swallow' ? t('w_fc_sw', hzd.dt.toFixed(1)) : t('w_fc', hzd.dt.toFixed(1), t(cold ? 'w_cold' : 'w_heat'), Math.round(hzd.T));
+  }
+  w.textContent = msg; w.classList.toggle('show', !!msg); w.classList.toggle('cold', cold);
+  if (fc && fc.hazard && hydrated && fc.hazard.dt < 2.4 && g.tier >= 3) { if (!g.warned) { g.warned = true; sfxWarn(); } }
+  else g.warned = false;
+  if (!store.get('tut', false) && !g.card) {
+    if (!g.tut1 && hydrated && fc && fc.hazard && fc.hazard.dt < 1.4) { g.tut1 = true; toast(t('tut1_t'), t('tut1_d'), 3800); }
+    if (!g.tut2 && g.status === 'dry' && g.dehydrations === 1 && g.T > -10 && g.T < 40 && fc && !fc.hazard) { g.tut2 = true; toast(t('tut2_t'), t('tut2_d'), 3800); }
+  }
+}
 
-    // Very faint cool wash (not cloudy/milky)
-    const wash = bgCtx.createRadialGradient(W * 0.65, H * 0.35, 0, W * 0.65, H * 0.35, Math.max(W, H) * 0.4);
-    wash.addColorStop(0, 'rgba(40,60,120,0.06)');
-    wash.addColorStop(1, 'rgba(0,0,0,0)');
-    bgCtx.fillStyle = wash;
-    bgCtx.fillRect(0, 0, W, H);
+// ─── Language ────────────────────────────────────────────────────
+function applyLang() {
+  document.body.classList.toggle('en', LANG === 'en');
+  document.documentElement.lang = LANG === 'zh' ? 'zh-CN' : 'en';
+  document.querySelectorAll('[data-i]').forEach(el => { el.innerHTML = t(el.dataset.i); });
+  $('langBtn').innerHTML = t('lang');
+  $('sPlay').textContent = t(sand.running ? 's_pause' : 's_resume');
+  setCamMode(cam.mode);
+  renderPresets();
+  if (mode === 'sandbox') { const p = PRESETS.find(q => q.id === sand.id); $('sName').textContent = L(p.name); $('sDesc').textContent = p.desc; }
+  if (mode === 'menu') renderMenu();
+  if (g) {
+    renderLog(); updateHUD();
+    $('eraName').classList.remove('flip');
+    if (g.card) renderCard(false);
+    if (g.phase === 'over') renderOver();
+  }
+}
+function toggleLang() { LANG = LANG === 'zh' ? 'en' : 'zh'; store.set('lang', LANG); applyLang(); }
 
-    if (!state.showStars) {
-      bgReady = true;
+// ─── Audio ───────────────────────────────────────────────────────
+const AU = { ac: null, muted: store.get('muted', false) };
+function audioInit() {
+  if (AU.ac) { if (AU.ac.state === 'suspended') AU.ac.resume(); return; }
+  try {
+    const ac = new (window.AudioContext || window.webkitAudioContext)();
+    const m = ac.createGain(); m.gain.value = AU.muted ? 0 : 0.5; m.connect(ac.destination);
+    const f = ac.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 240; f.Q.value = 4;
+    const gn = ac.createGain(); gn.gain.value = 0; f.connect(gn); gn.connect(m);
+    const o1 = ac.createOscillator(); o1.type = 'sawtooth'; o1.frequency.value = 55;
+    const o2 = ac.createOscillator(); o2.type = 'sawtooth'; o2.frequency.value = 82.4; o2.detune.value = 6;
+    const o3 = ac.createOscillator(); o3.type = 'sine'; o3.frequency.value = 41.2;
+    const g3 = ac.createGain(); g3.gain.value = 0.5; o3.connect(g3); g3.connect(gn);
+    o1.connect(f); o2.connect(f); o1.start(); o2.start(); o3.start();
+    gn.gain.linearRampToValueAtTime(0.07, ac.currentTime + 4);
+    Object.assign(AU, { ac, m, f, gn, o2 });
+  } catch (e) { AU.ac = null; }
+}
+function setMuted(v) {
+  AU.muted = v; store.set('muted', v);
+  $('btnMute').textContent = v ? '✕' : '♪';
+  if (AU.m) AU.m.gain.setTargetAtTime(v ? 0 : 0.5, AU.ac.currentTime, 0.05);
+}
+function droneUpdate() {
+  if (!AU.ac) return;
+  const tm = AU.ac.currentTime, T = g ? g.T : 15, ext = clamp(Math.abs(T - 15) / 140, 0, 1);
+  AU.f.frequency.setTargetAtTime(200 + ext * 1100, tm, 0.6);
+  AU.o2.detune.setTargetAtTime(g && g.era === 'chaos' ? 38 : 6, tm, 1.2);
+}
+function sfxTone(freq, dur, type = 'sine', vol = 0.12, to) {
+  if (!AU.ac || AU.muted) return;
+  const ac = AU.ac, tm = ac.currentTime, o = ac.createOscillator(), gn = ac.createGain();
+  o.type = type; o.frequency.setValueAtTime(freq, tm);
+  if (to) o.frequency.exponentialRampToValueAtTime(to, tm + dur);
+  gn.gain.setValueAtTime(0, tm); gn.gain.linearRampToValueAtTime(vol, tm + 0.015); gn.gain.exponentialRampToValueAtTime(0.0001, tm + dur);
+  o.connect(gn); gn.connect(AU.m); o.start(tm); o.stop(tm + dur + 0.05);
+}
+function sfxNoise(dur, vol, cutoff) {
+  if (!AU.ac || AU.muted) return;
+  const ac = AU.ac, tm = ac.currentTime, len = Math.floor(ac.sampleRate * dur), buf = ac.createBuffer(1, len, ac.sampleRate), d = buf.getChannelData(0);
+  for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2);
+  const src = ac.createBufferSource(); src.buffer = buf;
+  const f = ac.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = cutoff;
+  const gn = ac.createGain(); gn.gain.value = vol;
+  src.connect(f); f.connect(gn); gn.connect(AU.m); src.start(tm);
+}
+const sfxDry = dry => { sfxTone(dry ? 520 : 260, 0.5, 'triangle', 0.1, dry ? 200 : 620); sfxNoise(0.4, 0.12, dry ? 900 : 1800); };
+const sfxWarn = () => { sfxTone(880, 0.12, 'square', 0.05); setTimeout(() => sfxTone(880, 0.12, 'square', 0.05), 170); };
+const sfxChime = () => [523, 659, 784, 1047].forEach((f, i) => setTimeout(() => sfxTone(f, 0.9, 'sine', 0.08), i * 110));
+const sfxWin = () => [392, 523, 659, 784, 1047, 1319].forEach((f, i) => setTimeout(() => sfxTone(f, 1.6, 'sine', 0.08), i * 160));
+const sfxBoom = k => { sfxNoise(1.6 * k + 0.4, 0.5 * k + 0.1, 500); sfxTone(70, 1.4, 'sine', 0.25 * k, 30); };
+
+// ─── Sandbox ─────────────────────────────────────────────────────
+const SAND_COLORS = [[255, 200, 120], [150, 196, 255], [255, 122, 92]];
+const PRESETS = [
+  { id: 'figure8', name: { zh: '八字编舞', en: 'Figure-Eight' }, sub: { zh: '周期解', en: 'periodic' }, desc: 'MOORE 1993', build: () => {
+    const x1 = 0.97000436, y1 = -0.24308753, vx1 = 0.466203685, vy1 = 0.43236573, vx3 = -0.93240737, vy3 = -0.86473146;
+    return [[1, x1, y1, vx1, vy1], [1, -x1, -y1, vx1, vy1], [1, 0, 0, vx3, vy3]]; } },
+  { id: 'lagrange', name: { zh: '拉格朗日', en: 'Lagrange' }, sub: { zh: '等边三角旋转', en: 'rotating triangle' }, desc: 'LAGRANGE 1772', build: () => {
+    const s = 1.2, R = s / Math.sqrt(3), w = Math.sqrt(3 / (s * s * s));
+    return [0, 1, 2].map(k => { const a = k * TAU / 3 - Math.PI / 2, x = R * Math.cos(a), y = R * Math.sin(a); return [1, x, y, -w * y, w * x]; }); } },
+  { id: 'euler', name: { zh: '欧拉共线', en: 'Euler' }, sub: { zh: '共线振荡', en: 'collinear' }, desc: 'EULER 1767', build: () => [[1, -1, 0, 0, 0.55], [1, 0, 0, 0, -1.1], [1, 1, 0, 0, 0.55]] },
+  { id: 'pythagorean', name: { zh: '毕达哥拉斯', en: 'Pythagorean' }, sub: { zh: '3-4-5 混沌', en: '3-4-5 chaos' }, desc: 'BURRAU 1913', build: () => [[3, 1, 3, 0, 0], [4, -2, -1, 0, 0], [5, 1, -1, 0, 0]] },
+  { id: 'binary', name: { zh: '双星入侵', en: 'Intruder' }, sub: { zh: '双星 + 闯入者', en: 'binary + intruder' }, desc: 'CAPTURE', build: () => {
+    const m1 = 1.2, m2 = 1.0, m3 = 0.35, a = 0.55, mu = m1 + m2;
+    return [[m1, -a * m2 / mu, 0, 0, Math.sqrt(m2 * m2 / (mu * a))], [m2, a * m1 / mu, 0, 0, -Math.sqrt(m1 * m1 / (mu * a))], [m3, 2.8, 0.6, -0.35, 0.15]]; } },
+  { id: 'butterfly', name: { zh: '蝴蝶 I', en: 'Butterfly I' }, sub: { zh: '周期解', en: 'periodic' }, desc: 'ŠUVAKOV 2013', build: () => {
+    const p1 = 0.30689, p2 = 0.12551;
+    return [[1, -1, 0, p1, p2], [1, 1, 0, p1, p2], [1, 0, 0, -2 * p1, -2 * p2]]; } },
+  { id: 'broucke', name: { zh: 'Broucke A1', en: 'Broucke A1' }, sub: { zh: '轨道家族', en: 'orbit family' }, desc: 'BROUCKE 1975', build: () => [[1, 0.336130095, 0, 0, 1.532431537], [1, 0.769989892, 0, 0, -0.628735097], [1, -1.106119987, 0, 0, -0.90369644]] },
+  { id: 'random', name: { zh: '随机混沌', en: 'Random' }, sub: { zh: '每次都不同', en: 'never the same' }, desc: 'RANDOM', build: () => [0, 1, 2].map(() => {
+    const a = Math.random() * TAU, r = 0.4 + Math.random() * 1.2;
+    return [0.6 + Math.random() * 1.2, Math.cos(a) * r, Math.sin(a) * r, (Math.random() - 0.5) * 0.9, (Math.random() - 0.5) * 0.9]; }) },
+];
+const sand = { id: 'figure8', speed: 1, trail: 0.7, grid: true, trails: true, vel: false, running: true, E0: 0 };
+function renderPresets() {
+  $('presets').innerHTML = PRESETS.map(p => `<button class="preset${p.id === sand.id ? ' on' : ''}" data-id="${p.id}"><b>${L(p.name)}</b><span>${L(p.sub)}</span></button>`).join('');
+  document.querySelectorAll('.preset').forEach(b => b.onclick = () => loadPreset(b.dataset.id));
+}
+function loadPreset(id) {
+  const p = PRESETS.find(q => q.id === id) || PRESETS[0];
+  sand.id = p.id;
+  const raw = p.build();
+  const avg = raw.reduce((a, b) => a + b[0], 0) / 3;
+  const suns = raw.map((b, i) => makeSun(b[0], b[1], b[2], b[3], b[4], SAND_COLORS[i], 0.045 * Math.cbrt(b[0] / avg)));
+  const c = comOf(suns);
+  for (const s of suns) { s.x -= c.x; s.y -= c.y; s.vx -= c.vx; s.vy -= c.vy; }
+  world = newWorld({ t: 0, eps2: 2.5e-5, eta: 0.005, suns, planet: null, rmin: 1 }, 1400, 10);
+  sand.E0 = energy(world);
+  parts.length = 0; rings.length = 0;
+  document.querySelectorAll('.preset').forEach(b => b.classList.toggle('on', b.dataset.id === p.id));
+  $('sName').textContent = L(p.name); $('sDesc').textContent = p.desc;
+  setCamMode('auto'); camUpdate(0, true);
+}
+function startSandbox() {
+  audioInit();
+  mode = 'sandbox'; setModeClass('sandbox');
+  hideCard();
+  g = null; fc = null;
+  $('menu').classList.add('hid'); $('over').classList.add('hid');
+  loadPreset(sand.id);
+}
+
+// ─── Input ───────────────────────────────────────────────────────
+function setSpeed(s) {
+  speedMul = s;
+  document.querySelectorAll('#speedSeg button').forEach(b => b.classList.toggle('on', +b.dataset.s === s));
+}
+let lastSpeed = 1;
+function bindCardDrag() {
+  const el = $('card');
+  let d = null;
+  el.addEventListener('pointerdown', e => {
+    if (!g || !g.card || g.cardDone) return;
+    d = { x: e.clientX, dx: 0 }; el.setPointerCapture(e.pointerId); el.classList.add('drag'); el.classList.remove('enter');
+  });
+  el.addEventListener('pointermove', e => {
+    if (!d) return;
+    d.dx = e.clientX - d.x;
+    el.style.transform = `translateX(${d.dx}px) rotate(${d.dx * 0.06}deg)`;
+    $('choice0').classList.toggle('lean', d.dx < -50);
+    $('choice1').classList.toggle('lean', d.dx > 50);
+  });
+  const end = () => {
+    if (!d) return;
+    el.classList.remove('drag');
+    const dx = d.dx; d = null;
+    if (Math.abs(dx) > 110) choose(dx < 0 ? 0 : 1);
+    else { el.style.transform = ''; $('choice0').classList.remove('lean'); $('choice1').classList.remove('lean'); }
+  };
+  el.addEventListener('pointerup', end); el.addEventListener('pointercancel', end);
+  $('choice0').onclick = () => choose(0);
+  $('choice1').onclick = () => choose(1);
+}
+function bindUI() {
+  $('btnPlay').onclick = startGame;
+  $('btnSandbox').onclick = startSandbox;
+  $('btnAgain').onclick = startGame;
+  $('btnToMenu').onclick = toMenu;
+  $('btnDry').onclick = toggleDry;
+  $('btnMenu').onclick = toMenu;
+  $('btnMute').onclick = () => setMuted(!AU.muted);
+  $('btnCam').onclick = () => setCamMode(cam.mode === 'auto' ? 'planet' : 'auto');
+  $('langBtn').onclick = toggleLang;
+  document.querySelectorAll('#speedSeg button').forEach(b => b.onclick = () => { if (+b.dataset.s) lastSpeed = +b.dataset.s; setSpeed(+b.dataset.s); });
+  bindCardDrag();
+
+  $('sSpeed').oninput = e => { sand.speed = +e.target.value; $('sSpeedV').textContent = sand.speed.toFixed(1) + '×'; };
+  $('sTrail').oninput = e => { sand.trail = +e.target.value; $('sTrailV').textContent = Math.round(sand.trail * 100) + '%'; };
+  document.querySelectorAll('.tg').forEach(b => b.onclick = () => { const k = b.dataset.t; sand[k] = !sand[k]; b.classList.toggle('on', sand[k]); });
+  $('sPlay').onclick = () => { sand.running = !sand.running; $('sPlay').textContent = t(sand.running ? 's_pause' : 's_resume'); };
+  $('sReset').onclick = () => loadPreset(sand.id);
+  $('sMenu').onclick = toMenu;
+
+  let drag = null;
+  canvas.addEventListener('pointerdown', e => { drag = { x: e.clientX, y: e.clientY, moved: false }; canvas.setPointerCapture(e.pointerId); canvas.classList.add('grabbing'); });
+  canvas.addEventListener('pointermove', e => {
+    if (!drag || mode === 'menu') return;
+    const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+    if (!drag.moved && Math.hypot(dx, dy) < 4) return;
+    drag.moved = true; setCamMode('free');
+    cam.x -= dx / cam.s; cam.y -= dy / cam.s; drag.x = e.clientX; drag.y = e.clientY;
+  });
+  const end = () => { drag = null; canvas.classList.remove('grabbing'); };
+  canvas.addEventListener('pointerup', end); canvas.addEventListener('pointercancel', end);
+  canvas.addEventListener('dblclick', () => setCamMode('auto'));
+  canvas.addEventListener('wheel', e => {
+    e.preventDefault(); if (mode === 'menu') return;
+    setCamMode('free');
+    const mx = e.clientX, my = e.clientY, wx = cam.x + (mx - W * CX) / cam.s, wy = cam.y + (my - H * 0.52) / cam.s;
+    cam.s = clamp(cam.s * Math.exp(-e.deltaY * 0.0015), 15, 1200);
+    cam.x = wx - (mx - W * CX) / cam.s; cam.y = wy - (my - H * 0.52) / cam.s;
+  }, { passive: false });
+
+  window.addEventListener('keydown', e => {
+    if (e.repeat) return;
+    const k = e.key.toLowerCase();
+    if (k === 'l') { toggleLang(); return; }
+    if (g && g.card) {
+      if (k === 'arrowleft' || k === 'a' || k === '1') choose(0);
+      else if (k === 'arrowright' || k === 'd' || k === '2') choose(1);
+      if (e.code === 'Space') e.preventDefault();
       return;
     }
-
-    const dens = state.starDensity;
-    const area = W * H;
-    const nTiny = Math.floor((area / 2200) * dens);
-    const nMid = Math.floor((area / 12000) * dens);
-    const nBright = Math.max(6, Math.floor(14 * dens));
-
-    // Tiny sharp dots
-    for (let i = 0; i < nTiny; i++) {
-      const x = hash2(i, 1.1) * W;
-      const y = hash2(i, 2.3) * H;
-      const a = 0.25 + hash2(i, 3.7) * 0.55;
-      const r = 0.35 + hash2(i, 4.9) * 0.7;
-      const t = hash2(i, 5.5);
-      let col;
-      if (t < 0.6) col = `rgba(210,220,255,${a})`;
-      else if (t < 0.88) col = `rgba(255,248,235,${a})`;
-      else col = `rgba(255,210,190,${a})`;
-      bgCtx.beginPath();
-      bgCtx.fillStyle = col;
-      bgCtx.arc(x, y, r, 0, Math.PI * 2);
-      bgCtx.fill();
-    }
-
-    // Mid stars with tiny hard core
-    for (let i = 0; i < nMid; i++) {
-      const x = hash2(i, 11.2) * W;
-      const y = hash2(i, 12.8) * H;
-      const a = 0.5 + hash2(i, 13.4) * 0.45;
-      const r = 0.8 + hash2(i, 14.1) * 1.1;
-      const warm = hash2(i, 15.0) > 0.55;
-      const rgb = warm ? [255, 240, 220] : [200, 220, 255];
-      // Soft halo
-      const g = bgCtx.createRadialGradient(x, y, 0, x, y, r * 2.2);
-      g.addColorStop(0, `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${a * 0.55})`);
-      g.addColorStop(1, `rgba(${rgb[0]},${rgb[1]},${rgb[2]},0)`);
-      bgCtx.fillStyle = g;
-      bgCtx.beginPath();
-      bgCtx.arc(x, y, r * 2.2, 0, Math.PI * 2);
-      bgCtx.fill();
-      // Crisp core
-      bgCtx.beginPath();
-      bgCtx.fillStyle = `rgba(255,255,255,${a})`;
-      bgCtx.arc(x, y, Math.max(0.6, r * 0.45), 0, Math.PI * 2);
-      bgCtx.fill();
-    }
-
-    // A few brighter stars with short spikes
-    for (let i = 0; i < nBright; i++) {
-      const x = hash2(i, 21.5) * W;
-      const y = hash2(i, 22.7) * H;
-      const a = 0.75 + hash2(i, 23.1) * 0.25;
-      const spike = 6 + hash2(i, 24.0) * 10;
-      const rgb = hash2(i, 25.2) > 0.4 ? [220, 230, 255] : [255, 235, 210];
-
-      bgCtx.save();
-      bgCtx.globalAlpha = a * 0.45;
-      bgCtx.strokeStyle = `rgb(${rgb[0]},${rgb[1]},${rgb[2]})`;
-      bgCtx.lineWidth = 0.8;
-      bgCtx.beginPath();
-      bgCtx.moveTo(x - spike, y); bgCtx.lineTo(x + spike, y);
-      bgCtx.moveTo(x, y - spike); bgCtx.lineTo(x, y + spike);
-      bgCtx.stroke();
-      bgCtx.restore();
-
-      const g = bgCtx.createRadialGradient(x, y, 0, x, y, 5);
-      g.addColorStop(0, `rgba(255,255,255,${a})`);
-      g.addColorStop(0.35, `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${a * 0.5})`);
-      g.addColorStop(1, `rgba(${rgb[0]},${rgb[1]},${rgb[2]},0)`);
-      bgCtx.fillStyle = g;
-      bgCtx.beginPath();
-      bgCtx.arc(x, y, 5, 0, Math.PI * 2);
-      bgCtx.fill();
-    }
-
-    // Light vignette
-    const vg = bgCtx.createRadialGradient(
-      W / 2, H / 2, Math.min(W, H) * 0.3,
-      W / 2, H / 2, Math.max(W, H) * 0.75
-    );
-    vg.addColorStop(0, 'rgba(0,0,0,0)');
-    vg.addColorStop(1, 'rgba(0,0,0,0.4)');
-    bgCtx.fillStyle = vg;
-    bgCtx.fillRect(0, 0, W, H);
-
-    bgReady = true;
-  }
-
-  function resize() {
-    dpr = Math.min(window.devicePixelRatio || 1, 2);
-    W = window.innerWidth;
-    H = window.innerHeight;
-    canvas.width = Math.floor(W * dpr);
-    canvas.height = Math.floor(H * dpr);
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    rebuildBgBuffer();
-  }
-  window.addEventListener('resize', resize);
-
-  function worldToScreen(x, y, com) {
-    const scale = state.zoom * Math.min(W, H) * 0.22;
-    const cx = W / 2 + state.panX;
-    const cy = H / 2 + state.panY;
-    const ox = state.followCOM ? com.x : 0;
-    const oy = state.followCOM ? com.y : 0;
-    return { x: cx + (x - ox) * scale, y: cy + (y - oy) * scale, scale };
-  }
-
-  function hexAlpha(hex, a) {
-    const r = parseInt(hex.slice(1, 3), 16);
-    const g = parseInt(hex.slice(3, 5), 16);
-    const b = parseInt(hex.slice(5, 7), 16);
-    return `rgba(${r},${g},${b},${a})`;
-  }
-
-  function drawBackground() {
-    if (bgReady) {
-      ctx.drawImage(bgBuf, 0, 0);
-    } else {
-      ctx.fillStyle = '#02040a';
-      ctx.fillRect(0, 0, W, H);
-    }
-  }
-
-  function drawTrails(com) {
-    if (!state.showTrail) return;
-    const scale = state.zoom * Math.min(W, H) * 0.22;
-    const cx = W / 2 + state.panX, cy = H / 2 + state.panY;
-    const ox = state.followCOM ? com.x : 0, oy = state.followCOM ? com.y : 0;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-
-    for (let i = 0; i < 3; i++) {
-      const tr = state.trails[i];
-      if (tr.length < 4) continue;
-      const col = state.bodies[i].color;
-      const n = tr.length / 2;
-      // Single soft pass + one main polyline with global alpha fade via segments (sparse)
-      const segs = Math.min(n - 1, 48);
-      const step = Math.max(1, Math.floor((n - 1) / segs));
-
-      if (state.showGlow) {
-        ctx.beginPath();
-        for (let k = 0; k < n; k += Math.max(1, step >> 1)) {
-          const x = cx + (tr[k * 2] - ox) * scale;
-          const y = cy + (tr[k * 2 + 1] - oy) * scale;
-          if (k === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-        }
-        // close to end
-        const le = n - 1;
-        ctx.lineTo(cx + (tr[le * 2] - ox) * scale, cy + (tr[le * 2 + 1] - oy) * scale);
-        ctx.strokeStyle = hexAlpha(col, 0.14);
-        ctx.lineWidth = 3.5;
-        ctx.stroke();
-      }
-
-      for (let k = 0; k < n - 1; k += step) {
-        const t0 = k / (n - 1);
-        const a = 0.06 + 0.7 * t0 * t0;
-        const x0 = cx + (tr[k * 2] - ox) * scale;
-        const y0 = cy + (tr[k * 2 + 1] - oy) * scale;
-        const k1 = Math.min(n - 1, k + step);
-        const x1 = cx + (tr[k1 * 2] - ox) * scale;
-        const y1 = cy + (tr[k1 * 2 + 1] - oy) * scale;
-        ctx.beginPath();
-        ctx.moveTo(x0, y0);
-        ctx.lineTo(x1, y1);
-        ctx.strokeStyle = hexAlpha(col, a);
-        ctx.lineWidth = 1 + t0 * 1.6;
-        ctx.stroke();
-      }
-    }
-  }
-
-  function drawBodies(com) {
-    for (let i = 0; i < state.bodies.length; i++) {
-      const b = state.bodies[i];
-      const p = worldToScreen(b.x, b.y, com);
-      const r = 5 + Math.sqrt(b.m) * 5;
-      const [cr, cg, cb] = b.rgb;
-
-      // Soft outer glow (1 gradient) — cheap
-      if (state.showGlow) {
-        const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, r * 4.5);
-        g.addColorStop(0, `rgba(${cr},${cg},${cb},0.45)`);
-        g.addColorStop(0.35, `rgba(${cr},${cg},${cb},0.12)`);
-        g.addColorStop(1, `rgba(${cr},${cg},${cb},0)`);
-        ctx.fillStyle = g;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, r * 4.5, 0, Math.PI * 2);
-        ctx.fill();
-      }
-
-      // Simple star disc
-      const core = ctx.createRadialGradient(p.x - r * 0.25, p.y - r * 0.3, r * 0.05, p.x, p.y, r);
-      core.addColorStop(0, '#ffffff');
-      core.addColorStop(0.35, b.color);
-      core.addColorStop(1, `rgb(${(cr * 0.35) | 0},${(cg * 0.35) | 0},${(cb * 0.35) | 0})`);
-      ctx.beginPath();
-      ctx.fillStyle = core;
-      ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
-      ctx.fill();
-
-      if (state.showVel) {
-        ctx.beginPath();
-        ctx.moveTo(p.x, p.y);
-        ctx.lineTo(p.x + b.vx * p.scale * 0.35, p.y + b.vy * p.scale * 0.35);
-        ctx.strokeStyle = hexAlpha(b.color, 0.85);
-        ctx.lineWidth = 1.4;
-        ctx.stroke();
-      }
-      if (state.showForce) {
-        const fx = state.forces[i][0], fy = state.forces[i][1];
-        ctx.beginPath();
-        ctx.moveTo(p.x, p.y);
-        ctx.lineTo(p.x + fx * p.scale * 0.08, p.y + fy * p.scale * 0.08);
-        ctx.strokeStyle = 'rgba(180,200,255,0.5)';
-        ctx.lineWidth = 1.1;
-        ctx.stroke();
-      }
-    }
-  }
-
-  function drawCOM(com) {
-    if (!state.followCOM) return;
-    const p = worldToScreen(com.x, com.y, com);
-    ctx.beginPath();
-    ctx.strokeStyle = 'rgba(180,200,255,0.22)';
-    ctx.lineWidth = 1;
-    ctx.setLineDash([3, 4]);
-    ctx.arc(p.x, p.y, 8, 0, Math.PI * 2);
-    ctx.stroke();
-    ctx.setLineDash([]);
-    ctx.beginPath();
-    ctx.fillStyle = 'rgba(200,210,255,0.45)';
-    ctx.arc(p.x, p.y, 1.6, 0, Math.PI * 2);
-    ctx.fill();
-  }
-
-  // ─── UI ─────────────────────────────────────────────────────────
-  function renderPresets() {
-    const el = document.getElementById('presets');
-    el.innerHTML = PRESETS.map(p => `
-      <button class="preset${p.id === state.presetId ? ' on' : ''}" data-id="${p.id}">
-        <span class="n">${p.name}</span><span class="d">${p.desc}</span>
-      </button>`).join('');
-    el.querySelectorAll('.preset').forEach(btn => {
-      btn.addEventListener('click', () => loadPreset(btn.dataset.id));
-    });
-  }
-
-  function highlightPreset() {
-    document.querySelectorAll('.preset').forEach(btn => {
-      btn.classList.toggle('on', btn.dataset.id === state.presetId);
-    });
-  }
-
-  function renderBodiesUI() {
-    const el = document.getElementById('bodies');
-    el.innerHTML = state.bodies.map((b, i) => `
-      <div class="body-card">
-        <div class="hdr">
-          <span class="dot" style="background:${b.color};color:${b.color}"></span>
-          <span class="name">${b.name}</span>
-          <span class="mass">m = <span id="mLabel${i}">${b.m.toFixed(2)}</span></span>
-        </div>
-        <div class="row">
-          <label>质量</label>
-          <input type="range" min="0.2" max="5" step="0.05" value="${b.m}" data-mass="${i}">
-          <span class="val" id="mVal${i}">${b.m.toFixed(2)}</span>
-        </div>
-      </div>`).join('');
-    el.querySelectorAll('input[data-mass]').forEach(inp => {
-      inp.addEventListener('input', () => {
-        const i = +inp.dataset.mass, v = +inp.value;
-        state.bodies[i].m = v;
-        document.getElementById('mVal' + i).textContent = v.toFixed(2);
-        document.getElementById('mLabel' + i).textContent = v.toFixed(2);
-        state.E0 = totalEnergy();
-        updateLegend();
-      });
-    });
-    updateLegend();
-  }
-
-  function updateLegend() {
-    document.getElementById('legend').innerHTML = state.bodies.map(b => `
-      <div class="item">
-        <span class="orb" style="background:${b.color};color:${b.color}"></span>
-        ${b.name} · m=${b.m.toFixed(2)}
-      </div>`).join('');
-  }
-
-  function syncZoomUI() {
-    document.getElementById('zoom').value = state.zoom;
-    document.getElementById('zoomV').textContent = state.zoom.toFixed(2) + '×';
-  }
-
-  function bindUI() {
-    renderPresets();
-    document.getElementById('btnStart').onclick = () => {
-      state.started = true;
-      document.getElementById('overlay').classList.add('hid');
-      document.getElementById('panel').classList.add('open');
-    };
-    document.getElementById('btnPanel').onclick = () => document.getElementById('panel').classList.toggle('open');
-    document.getElementById('btnClose').onclick = () => document.getElementById('panel').classList.remove('open');
-
-    const play = document.getElementById('btnPlay');
-    play.onclick = () => {
-      state.running = !state.running;
-      play.textContent = state.running ? '暂停' : '继续';
-      play.classList.toggle('on', !state.running);
-    };
-    document.getElementById('btnReset').onclick = () => loadPreset(state.presetId, true);
-    document.getElementById('btnClearTrail').onclick = () => { state.trails = [[], [], []]; };
-
-    const bind = (id, fn) => document.getElementById(id).addEventListener('input', e => fn(+e.target.value));
-    bind('speed', v => { state.speed = v; document.getElementById('speedV').textContent = v.toFixed(1) + '×'; });
-    bind('G', v => { state.G = v; document.getElementById('GV').textContent = v.toFixed(2); state.E0 = totalEnergy(); });
-    bind('trail', v => { state.trailLen = v | 0; document.getElementById('trailV').textContent = String(v | 0); });
-    bind('soft', v => { state.soft = v; softG(); document.getElementById('softV').textContent = v.toFixed(3); state.E0 = totalEnergy(); });
-    bind('zoom', v => { state.zoom = v; document.getElementById('zoomV').textContent = v.toFixed(2) + '×'; });
-    bind('starDensity', v => {
-      state.starDensity = v;
-      document.getElementById('starDensityV').textContent = v.toFixed(2);
-      rebuildBgBuffer();
-    });
-
-    document.querySelectorAll('.toggle').forEach(el => {
-      el.addEventListener('click', () => {
-        const k = el.dataset.k;
-        state[k] = !state[k];
-        el.classList.toggle('on', state[k]);
-        if (k === 'showStars') rebuildBgBuffer();
-      });
-    });
-
-    let dragging = false, lx = 0, ly = 0;
-    canvas.addEventListener('pointerdown', e => {
-      dragging = true; lx = e.clientX; ly = e.clientY;
-      canvas.classList.add('grabbing');
-      canvas.setPointerCapture(e.pointerId);
-    });
-    canvas.addEventListener('pointermove', e => {
-      if (!dragging) return;
-      state.panX += e.clientX - lx; state.panY += e.clientY - ly;
-      lx = e.clientX; ly = e.clientY;
-    });
-    const end = () => { dragging = false; canvas.classList.remove('grabbing'); };
-    canvas.addEventListener('pointerup', end);
-    canvas.addEventListener('pointercancel', end);
-    canvas.addEventListener('wheel', e => {
+    if (e.code === 'Space') {
       e.preventDefault();
-      state.zoom = Math.max(0.2, Math.min(4, state.zoom * (e.deltaY > 0 ? 0.92 : 1.08)));
-      syncZoomUI();
-    }, { passive: false });
+      if (mode === 'game') toggleDry(); else if (mode === 'sandbox') $('sPlay').click(); else startGame();
+    } else if (k === 'enter') {
+      if (mode === 'menu') startGame(); else if (g && g.phase === 'over') startGame();
+    } else if (k === 'escape') { if (mode !== 'menu') toMenu(); }
+    else if (k === 'm') setMuted(!AU.muted);
+    else if (k === 'f') setCamMode(cam.mode === 'auto' ? 'planet' : 'auto');
+    else if (mode === 'game') {
+      if (k === 'p') { if (speedMul) { lastSpeed = speedMul; setSpeed(0); } else setSpeed(lastSpeed); }
+      else if (k === '1') setSpeed(1); else if (k === '2') setSpeed(2); else if (k === '3' || k === '4') setSpeed(4);
+    } else if (mode === 'sandbox' && k === 'r') loadPreset(sand.id);
+  });
+}
 
-    window.addEventListener('keydown', e => {
-      if (e.code === 'Space') { e.preventDefault(); play.click(); }
-      else if (e.key === 'r' || e.key === 'R') loadPreset(state.presetId, true);
-      else if (e.key === 'c' || e.key === 'C') state.trails = [[], [], []];
-      else if (e.key === 'p' || e.key === 'P') document.getElementById('panel').classList.toggle('open');
-    });
+// ─── Resize ──────────────────────────────────────────────────────
+let resizeT = 0;
+function resize() {
+  DPR = Math.min(window.devicePixelRatio || 1, 2);
+  W = window.innerWidth; H = window.innerHeight;
+  canvas.width = Math.floor(W * DPR); canvas.height = Math.floor(H * DPR);
+  sizeChart();
+  clearTimeout(resizeT); resizeT = setTimeout(buildBG, BG.neb ? 160 : 0);
+}
+window.addEventListener('resize', resize);
+
+// ─── Main loop ───────────────────────────────────────────────────
+let last = performance.now(), hudT = 0, chartT = 0, ptFrame = 0;
+function recordCB(w) {
+  const sRec = mode === 'sandbox' ? 0.012 : 0.03;
+  if (w.t - w.recS >= sRec) { w.recS = w.t; w.suns.forEach((s, i) => w.trails[i].push(s.x, s.y, 0)); }
+  if (w.planet && !w.planetGone && w.t - w.recP >= 0.012) { w.recP = w.t; w.ptrail.push(w.planet.x, w.planet.y, g ? g.T : tempOf(fluxAt(w, w.planet.x, w.planet.y))); }
+  return w.planet && !w.planetGone && w.planet.hit >= 0;
+}
+function frame(now) {
+  const rdt = Math.min(0.05, (now - last) / 1000); last = now;
+  const time = now / 1000;
+
+  if (mode === 'menu' && world) {
+    const hit = advance(world, rdt * BASE_RATE * 0.8, 0.003, 8000, recordCB);
+    const p = world.planet; let dn = 1e9;
+    for (const s of world.suns) dn = Math.min(dn, Math.hypot(s.x - p.x, s.y - p.y));
+    if (hit || dn > 10) { world = newWorld(genSystem((Math.random() * 1e9) >>> 0), 600, 300); camUpdate(0, true); }
+  } else if (mode === 'sandbox' && sand.running) {
+    advance(world, rdt * 0.6 * sand.speed, 0.002, 20000, recordCB);
+  } else if (mode === 'game' && g) {
+    if (g.phase === 'play' && speedMul > 0 && !g.card) {
+      const simDt = rdt * BASE_RATE * speedMul;
+      advance(world, simDt, 0.003, 12000, recordCB);
+      updateGame(simDt);
+      fcTimer -= rdt;
+      if (fcTimer <= 0 && g.phase === 'play') { computeForecast(); fcTimer = 0.12; }
+    } else if (g.phase === 'dying') {
+      g.phaseT += rdt;
+      advance(world, rdt * BASE_RATE * 0.25, 0.003, 4000, recordCB);
+      if (g.phaseT > 2.6) showOver();
+    } else if (g.phase === 'launch') {
+      g.phaseT += rdt;
+      advance(world, rdt * BASE_RATE * 0.3, 0.003, 4000, recordCB);
+      if (g.phaseT < 3.2 && Math.random() < 0.7) spawnShips();
+      if (g.phaseT > 5.2) showOver();
+    } else if (g.phase === 'over') {
+      advance(world, rdt * BASE_RATE * 0.2, 0.003, 4000, recordCB);
+    }
   }
+  updateParts(rdt);
+  camUpdate(rdt);
+  shake = Math.max(0, shake - rdt * 1.4); flash = Math.max(0, flash - rdt * 1.6);
 
-  // ─── Loop ───────────────────────────────────────────────────────
-  let last = performance.now(), acc = 0;
-  let fpsT = 0, fpsN = 0, fps = 0, uiT = 0;
-
-  function frame(now) {
-    const rawDt = Math.min(0.05, (now - last) / 1000);
-    last = now;
-    fpsN++; fpsT += rawDt;
-    if (fpsT >= 0.5) { fps = Math.round(fpsN / fpsT); fpsN = 0; fpsT = 0; }
-
-    if (state.started && state.running) {
-      acc += rawDt * state.speed;
-      let steps = 0;
-      while (acc >= state.dt && steps < 64) {
-        stepVerlet();
-        acc -= state.dt;
-        steps++;
-      }
-      if (acc > state.dt * 4) acc = 0;
-    }
-
-    drawBackground();
-    if (state.bodies.length) {
-      const com = centerOfMass();
-      drawTrails(com);
-      drawCOM(com);
-      drawBodies(com);
-    }
-
-    uiT += rawDt;
-    if (uiT > 0.12) {
-      uiT = 0;
-      document.getElementById('tTime').textContent = state.t.toFixed(2);
-      document.getElementById('tFps').textContent = String(fps);
-      if (state.bodies.length) {
-        const E = totalEnergy();
-        document.getElementById('tEnergy').textContent = E.toFixed(4);
-        const dE = state.E0 !== 0 ? (E - state.E0) / Math.abs(state.E0) : 0;
-        const dEl = document.getElementById('tDE');
-        dEl.textContent = (dE * 100).toFixed(3) + '%';
-        dEl.className = Math.abs(dE) > 0.02 ? 'warn' : 'ok';
-      }
-    }
-    requestAnimationFrame(frame);
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  drawBackground(time);
+  if (shake > 0) ctx.translate((Math.random() - 0.5) * 16 * shake, (Math.random() - 0.5) * 16 * shake);
+  if (world) {
+    if (mode !== 'sandbox' || sand.grid) drawGrid();
+    if (mode === 'game') drawHabZones();
+    if (mode !== 'sandbox' || sand.trails) drawTrails(mode === 'sandbox' ? sand.trail : 1);
+    if (mode === 'game' && g && g.phase === 'play') drawForecast(time);
+    for (const s of world.suns) drawSun(s, time);
+    drawPlanet(time);
+    if (mode === 'sandbox' && sand.vel) drawVel();
+    drawParts();
   }
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  drawOverlay();
 
-  softG();
-  bindUI();
-  resize();
-  loadPreset('figure8');
+  if (mode === 'game' && g) {
+    hudT += rdt; chartT += rdt;
+    if (hudT > 0.1) { hudT = 0; updateHUD(); droneUpdate(); }
+    if (chartT > 0.05 && CW > 0) { chartT = 0; drawChart(); }
+    if ((ptFrame++ & 1) === 0) renderPortrait(time);
+  } else if (mode === 'sandbox') {
+    hudT += rdt;
+    if (hudT > 0.15) {
+      hudT = 0;
+      const E = energy(world), dE = (E - sand.E0) / Math.abs(sand.E0 || 1);
+      $('sT').textContent = world.t.toFixed(2); $('sE').textContent = E.toFixed(4);
+      $('sDE').textContent = (dE * 100).toFixed(3) + '%';
+      $('sDE').style.color = Math.abs(dE) > 0.01 ? 'var(--hot)' : 'var(--ok)';
+    }
+  }
   requestAnimationFrame(frame);
+}
+
+// ─── Boot ────────────────────────────────────────────────────────
+resize();
+buildBG();
+buildPortrait();
+bindUI();
+setMuted(AU.muted);
+toMenu();
+applyLang();
+requestAnimationFrame(frame);
 })();
 </script>
 </body>
