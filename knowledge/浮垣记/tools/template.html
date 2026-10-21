@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>浮垣记</title>
+<style>
+:root{
+  --sky:#BFD9EE; --sky-hi:#E4EFF8; --sky-deep:#6FA3CF;
+  --paper:#F6F9FC; --paper-edge:#E3ECF4;
+  --ink:#1F3A57; --ink-soft:#526B84; --ink-faint:#8AA0B5;
+  --amber:#E39A4C; --amber-deep:#A9622A;
+  --mote:#3E8CC4; --stone:#8A939B; --leaf:#5E8A4E;
+  --kai:"Kaiti SC","STKaiti","KaiTi","LXGW WenKai","AR PL UKai CN",serif;
+  --song:"Songti SC","STSong","Noto Serif SC","Source Han Serif SC","SimSun",serif;
+  --read-size:19px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{font-family:var(--song);color:var(--ink);background:var(--sky-hi);-webkit-font-smoothing:antialiased}
+a{color:var(--mote)}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--amber);outline-offset:2px;border-radius:3px}
+
+canvas.art{object-fit:cover;background:linear-gradient(#A9C9E6,#E4EFF8)}
+
+/* ------------------------------------------------ top bar */
+.bar{position:fixed;inset:0 0 auto 0;height:58px;display:flex;align-items:center;gap:28px;padding:0 28px;
+  background:rgba(246,249,252,.78);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border-bottom:1px solid rgba(31,58,87,.08);z-index:40}
+.mark{font-family:var(--kai);font-size:27px;letter-spacing:.18em;color:var(--ink);text-decoration:none;white-space:nowrap}
+.nav{display:flex;gap:4px;overflow-x:auto}
+.nav a{font-family:var(--kai);font-size:19px;color:var(--ink-soft);text-decoration:none;padding:8px 14px;border-radius:999px;white-space:nowrap}
+.nav a:hover{color:var(--ink);background:rgba(191,217,238,.45)}
+.nav a[aria-current="page"]{color:var(--ink);background:#fff;box-shadow:inset 0 -2px 0 var(--amber)}
+
+.view{display:none;min-height:100vh;padding-top:58px}
+.view.on{display:block}
+
+/* ------------------------------------------------ map */
+#v-map{position:relative;height:100vh;overflow:hidden;background:radial-gradient(ellipse at 50% 45%,#EEF5FB 0%,#CFE2F2 55%,#A9C9E6 100%)}
+#map{position:absolute;inset:58px 0 0 0;width:100%;height:calc(100% - 58px)}
+.map-title{position:absolute;left:40px;top:92px;pointer-events:none;max-width:420px}
+.map-title h1{font-family:var(--kai);font-weight:normal;font-size:clamp(56px,8vw,112px);line-height:1;margin:0;letter-spacing:.12em;color:var(--ink)}
+.map-title p{margin:18px 0 0;font-size:16px;line-height:1.9;color:var(--ink-soft)}
+.clock{position:absolute;left:40px;bottom:30px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  background:rgba(255,255,255,.72);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);padding:10px 14px;border-radius:14px}
+.clock .day{font-family:var(--kai);font-size:18px;min-width:12em}
+.clock button{border:1px solid rgba(31,58,87,.18);background:#fff;border-radius:999px;padding:5px 14px;cursor:pointer;font-size:14px}
+.clock button[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.panel{position:absolute;right:24px;top:82px;bottom:24px;width:340px;display:flex;flex-direction:column;
+  background:rgba(246,249,252,.86);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border-radius:20px;box-shadow:0 20px 50px -24px rgba(31,58,87,.45);overflow:hidden}
+.panel-scroll{overflow-y:auto;padding:22px 22px 26px}
+.panel h2{font-family:var(--kai);font-weight:normal;font-size:24px;margin:0 0 6px}
+.panel .hint{font-size:14px;color:var(--ink-soft);margin:0 0 16px;line-height:1.7}
+.slist{list-style:none;margin:0;padding:0}
+.slist li button{all:unset;box-sizing:border-box;display:grid;grid-template-columns:30px 1fr;gap:10px;align-items:center;width:100%;padding:9px 8px;border-radius:12px;cursor:pointer}
+.slist li button:hover,.slist li button.hl{background:#fff}
+.slist .t{font-family:var(--kai);font-size:19px}
+.slist .p{font-size:13px;color:var(--ink-soft);display:block;margin-top:2px}
+.num{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--ink);color:#fff;font-size:13px;font-family:var(--song)}
+.card .art{border-radius:14px;overflow:hidden;aspect-ratio:16/9;margin:-4px 0 16px;background:var(--sky)}
+.card .art canvas{display:block;width:100%;height:100%}
+.card h3{font-family:var(--kai);font-weight:normal;font-size:34px;margin:0;letter-spacing:.08em}
+.card dl{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:14px;margin:12px 0 14px;color:var(--ink-soft)}
+.card dt{color:var(--ink-faint)}
+.card dd{margin:0}
+.card .hook{font-size:16px;line-height:1.9;margin:0 0 18px}
+.btn{display:inline-block;background:var(--ink);color:#fff;text-decoration:none;border-radius:999px;padding:10px 22px;font-family:var(--kai);font-size:18px;border:0;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid rgba(31,58,87,.25);margin-left:8px}
+#map .lbl{font-family:var(--kai);font-size:17px;fill:var(--ink);paint-order:stroke;stroke:rgba(238,245,251,.9);stroke-width:3px}
+#map .lbl.sm{font-size:13px;fill:var(--ink-soft)}
+#map .zone{font-family:var(--kai);font-size:15px;fill:#6D8AA5;letter-spacing:2px}
+#map .mk{cursor:pointer}
+#map .mk circle.b{fill:var(--ink)}
+#map .mk text{font-family:var(--song);font-size:13px;fill:#fff;text-anchor:middle;dominant-baseline:central;pointer-events:none}
+#map .mk .halo{fill:none;stroke:var(--amber);stroke-width:2;opacity:0}
+#map .mk.hl .halo,#map .mk.sel .halo{opacity:1}
+#map .mk.sel circle.b{fill:var(--amber-deep)}
+
+/* ------------------------------------------------ reader */
+.reader{display:grid;grid-template-columns:270px 1fr;min-height:calc(100vh - 58px)}
+.rail{position:sticky;top:58px;align-self:start;height:calc(100vh - 58px);overflow-y:auto;padding:28px 18px 28px 26px;border-right:1px solid var(--paper-edge);background:#EEF4FA}
+.rail h2{font-family:var(--kai);font-weight:normal;font-size:20px;margin:0 0 12px;color:var(--ink-soft)}
+.rail ol{list-style:none;padding:0;margin:0}
+.rail a{display:grid;grid-template-columns:28px 1fr;gap:8px;padding:8px 10px;border-radius:10px;text-decoration:none;color:var(--ink)}
+.rail a:hover{background:#fff}
+.rail a[aria-current="true"]{background:#fff;box-shadow:inset 3px 0 0 var(--amber)}
+.rail .n{font-size:13px;color:var(--ink-faint);padding-top:4px}
+.rail .t{font-family:var(--kai);font-size:19px}
+.rail .p{display:block;font-size:12px;color:var(--ink-soft);margin-top:1px}
+.rail .tools{margin-top:22px;display:flex;gap:6px;flex-wrap:wrap}
+.rail .tools button{border:1px solid rgba(31,58,87,.18);background:#fff;border-radius:999px;padding:5px 12px;cursor:pointer;font-size:14px}
+.rail select{display:none}
+.page{background:var(--paper);min-width:0}
+.banner{position:relative;height:min(46vh,440px);overflow:hidden;background:var(--sky)}
+.banner canvas{position:absolute;inset:0;width:100%;height:100%}
+.banner .cap{position:absolute;left:0;right:0;bottom:0;padding:80px max(32px,calc(50% - 20em)) 26px;background:linear-gradient(to top,rgba(246,249,252,.97) 20%,rgba(246,249,252,0))}
+.banner h1{font-family:var(--kai);font-weight:normal;font-size:clamp(44px,6vw,72px);margin:0;letter-spacing:.14em}
+.banner .meta{font-size:15px;color:var(--ink-soft);margin-top:6px}
+.banner .meta a{margin-left:12px}
+.prose{max-width:36em;margin:0 auto;padding:22px 32px 80px;font-size:var(--read-size);line-height:2.05;text-align:justify;text-justify:inter-character}
+.prose p{margin:0 0 1.05em}
+.prose hr{border:0;height:28px;margin:1.6em 0;background:center/40px 8px no-repeat url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 8'%3E%3Ccircle cx='6' cy='4' r='2' fill='%23B9CADA'/%3E%3Ccircle cx='20' cy='4' r='2.6' fill='%23E39A4C'/%3E%3Ccircle cx='34' cy='4' r='2' fill='%23B9CADA'/%3E%3C/svg%3E")}
+.prose blockquote{margin:1.2em 0;padding:.9em 1.2em;background:#fff;border-radius:12px;font-family:var(--kai);font-size:.97em;line-height:1.95;box-shadow:0 1px 0 var(--paper-edge)}
+.prose blockquote p{margin:.2em 0}
+.prose .transit{text-align:left;margin:.4em 0 1.6em;padding:1.1em 1.3em 1em;border-radius:14px;background:linear-gradient(135deg,#E6F0F9,#F3F7FB);font-family:var(--kai);font-size:.95em;line-height:2;color:#33506E;position:relative}
+.prose .transit-h{font-size:14px;letter-spacing:.3em;color:var(--amber-deep);margin-bottom:.3em;display:flex;align-items:center;gap:8px}
+.prose .transit-h::before{content:"";width:26px;height:12px;background:center/contain no-repeat url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 26 12'%3E%3Cpath d='M1 8 Q7 1 13 7 Q19 1 25 8' fill='none' stroke='%23A9622A' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E")}
+.prose .transit p{margin:0}
+.prose h1,.prose h2,.prose h3,.prose h4{font-family:var(--kai);font-weight:normal;letter-spacing:.06em;line-height:1.5}
+.prose h2{font-size:1.5em;margin:1.8em 0 .5em}
+.prose h3{font-size:1.25em;margin:1.4em 0 .4em}
+.prose .tbl{overflow-x:auto;margin:1em 0}
+.prose table{border-collapse:collapse;font-size:.82em;line-height:1.7;width:100%;font-family:var(--song)}
+.prose th,.prose td{padding:.45em .7em;border-bottom:1px solid var(--paper-edge);text-align:left;vertical-align:top}
+.prose th{color:var(--ink-soft);font-weight:normal;background:#EEF4FA}
+.prose code{font-family:var(--song);background:#EEF4FA;padding:0 .3em;border-radius:4px}
+.prose ul,.prose ol{padding-left:1.4em}
+.prose li{margin:.2em 0}
+.prose li.sub{margin-left:1.4em;list-style:circle}
+.prose .end{text-align:center;font-family:var(--kai);color:var(--ink-faint);margin-top:2.4em;letter-spacing:.3em}
+.pager{display:flex;justify-content:space-between;gap:16px;max-width:36em;margin:0 auto;padding:0 32px 90px}
+.pager a{flex:1;text-decoration:none;color:var(--ink);background:#fff;border-radius:14px;padding:14px 18px;box-shadow:0 1px 0 var(--paper-edge)}
+.pager a:hover{box-shadow:0 0 0 1px var(--sky-deep)}
+.pager small{display:block;color:var(--ink-faint);font-size:13px}
+.pager span{font-family:var(--kai);font-size:21px}
+.pager .nx{text-align:right}
+body.night{--paper:#152A42;--paper-edge:#22405F;--ink:#D5E2EE;--ink-soft:#9BB3C9;--ink-faint:#6F8AA4;background:#10233A}
+body.night .rail{background:#11253B}
+body.night .rail a:hover,body.night .rail a[aria-current="true"],body.night .pager a,body.night .prose blockquote{background:#1B3452}
+body.night .prose .transit{background:linear-gradient(135deg,#1A3654,#183049);color:#BBD0E3}
+body.night .prose th{background:#1B3452}
+body.night .banner .cap{background:linear-gradient(to top,rgba(21,42,66,.97) 20%,rgba(21,42,66,0))}
+body.night .rail .tools button{background:#1B3452;color:var(--ink)}
+
+/* ------------------------------------------------ people */
+.wrap{max-width:1120px;margin:0 auto;padding:56px 32px 100px}
+.wrap>h1{font-family:var(--kai);font-weight:normal;font-size:clamp(40px,5vw,60px);margin:0 0 8px;letter-spacing:.1em}
+.wrap>.lede{font-size:17px;color:var(--ink-soft);line-height:1.9;margin:0 0 40px;max-width:40em}
+.pov{display:grid;grid-template-columns:repeat(auto-fill,minmax(480px,1fr));gap:26px}
+.who{display:grid;grid-template-columns:96px 1fr;gap:20px;padding:24px;background:var(--paper);border-radius:22px}
+.seal svg{width:96px;height:96px;display:block}
+.who h3{font-family:var(--kai);font-weight:normal;font-size:30px;margin:0;letter-spacing:.1em}
+.who .id{font-size:14px;color:var(--ink-soft);margin:2px 0 10px}
+.who p{margin:0 0 12px;line-height:1.9;font-size:16px}
+.who .token{font-size:14px;color:var(--amber-deep);margin-bottom:10px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chips a{font-size:13px;text-decoration:none;color:var(--ink);background:#EAF2F9;border-radius:999px;padding:4px 11px}
+.chips a:hover{background:var(--sky)}
+.others{margin-top:64px}
+.others h2{font-family:var(--kai);font-weight:normal;font-size:30px;margin:0 0 18px}
+.others ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:2px 32px}
+.others li{display:grid;grid-template-columns:5.5em 1fr;gap:12px;padding:12px 0;border-bottom:1px solid var(--paper-edge);font-size:15px;line-height:1.75}
+.others li b{font-family:var(--kai);font-weight:normal;font-size:19px}
+
+/* ------------------------------------------------ world */
+.subnav{display:flex;gap:8px;margin:0 0 30px;flex-wrap:wrap}
+.subnav a{font-family:var(--kai);font-size:18px;text-decoration:none;color:var(--ink-soft);padding:7px 18px;border-radius:999px;background:var(--paper)}
+.subnav a[aria-current="page"]{background:var(--ink);color:#fff}
+.worldpage{background:var(--paper);border-radius:24px}
+.worldpage .prose{max-width:46em;padding:40px 40px 60px;font-size:17px;line-height:1.95}
+details.spoiler{margin:2em 0;border:1px dashed var(--amber);border-radius:14px;padding:.6em 1.2em}
+details.spoiler summary{cursor:pointer;font-family:var(--kai);font-size:19px;color:var(--amber-deep);padding:.4em 0}
+
+/* ------------------------------------------------ art */
+.gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(460px,1fr));gap:34px 28px}
+.gallery figure{margin:0}
+.gallery button{all:unset;display:block;cursor:zoom-in;border-radius:16px;overflow:hidden;aspect-ratio:16/9;background:var(--sky);width:100%}
+.gallery button:focus-visible{outline:2px solid var(--amber);outline-offset:3px}
+.gallery canvas{display:block;width:100%;height:100%}
+.gallery figcaption{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin-top:12px;align-items:baseline}
+.gallery figcaption b{font-family:var(--kai);font-weight:normal;font-size:22px}
+.gallery figcaption span{font-size:14px;color:var(--ink-soft);line-height:1.7}
+.gallery figcaption a{grid-column:2;font-size:14px}
+.lightbox{position:fixed;inset:0;z-index:60;background:rgba(16,35,58,.88);display:none;place-items:center;padding:4vh 4vw}
+.lightbox.on{display:grid}
+.lightbox .frame{width:min(92vw,160vh);aspect-ratio:16/9;border-radius:12px;overflow:hidden}
+.lightbox canvas{width:100%;height:100%;display:block}
+.lightbox p{color:#E6EEF6;font-family:var(--kai);font-size:20px;text-align:center;margin:14px 0 0}
+.lightbox button{position:absolute;top:18px;right:22px;background:#fff;border:0;border-radius:999px;padding:8px 18px;cursor:pointer;font-family:var(--kai);font-size:17px}
+
+/* ------------------------------------------------ small screens */
+@media (max-width:900px){
+  .panel{left:12px;right:12px;width:auto;top:auto;bottom:12px;max-height:44vh}
+  .map-title{left:20px;top:76px}
+  .map-title p{display:none}
+  .clock{left:12px;bottom:auto;top:calc(58px + 130px)}
+  .reader{grid-template-columns:1fr}
+  .rail{position:static;height:auto;border-right:0;padding:14px 18px}
+  .rail ol,.rail h2{display:none}
+  .rail select{display:block;width:100%;font:inherit;font-family:var(--kai);font-size:18px;padding:8px;border-radius:10px;border:1px solid var(--paper-edge)}
+  .pov{grid-template-columns:1fr}
+  .who{grid-template-columns:72px 1fr}
+  .seal svg{width:72px;height:72px}
+  .gallery{grid-template-columns:1fr}
+  .bar{gap:12px;padding:0 14px}
+  .nav a{padding:8px 10px;font-size:17px}
+}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<header class="bar">
+  <a class="mark" href="#map">浮垣记</a>
+  <nav class="nav" aria-label="主导航">
+    <a href="#map" data-v="map">地图</a>
+    <a href="#read" data-v="read">阅读</a>
+    <a href="#people" data-v="people">人物</a>
+    <a href="#world" data-v="world">世界集</a>
+    <a href="#art" data-v="art">美术集</a>
+  </nav>
+</header>
+
+<main>
+  <section class="view" id="v-map" aria-label="地图">
+    <svg id="map" viewBox="-520 -500 1040 1000" preserveAspectRatio="xMidYMid meet" role="img" aria-label="上穹地图：岛屿绕涡眼旋转，数字是各篇故事发生的地方"></svg>
+    <div class="map-title">
+      <h1>浮垣记</h1>
+      <p>一千多年前，大地碎成上千块，飘上了天。<br>如今人们住在绕着一场风暴打转的岛上。<br>图上的数字，是十二个故事发生的地方。</p>
+    </div>
+    <div class="clock">
+      <span class="day" id="day" aria-live="off"></span>
+      <button id="play" aria-pressed="false">暂停</button>
+      <button id="fast" aria-pressed="false">转快点</button>
+    </div>
+    <aside class="panel" aria-label="故事">
+      <div class="panel-scroll" id="panel"></div>
+    </aside>
+  </section>
+
+  <section class="view" id="v-read" aria-label="阅读">
+    <div class="reader">
+      <nav class="rail" aria-label="目录">
+        <h2>目录</h2>
+        <ol id="toc"></ol>
+        <select id="tocsel" aria-label="选择篇目"></select>
+        <div class="tools">
+          <button id="fminus" aria-label="字号变小">字小</button>
+          <button id="fplus" aria-label="字号变大">字大</button>
+          <button id="theme">夜读</button>
+        </div>
+      </nav>
+      <article class="page" id="page"></article>
+    </div>
+  </section>
+
+  <section class="view" id="v-people" aria-label="人物">
+    <div class="wrap">
+      <h1>人物</h1>
+      <p class="lede">每一篇只跟着一个人走。这十二个人大多互不认识，偶尔会在别人的故事里路过。</p>
+      <div class="pov" id="pov"></div>
+      <div class="others">
+        <h2>其他人</h2>
+        <ul id="others"></ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="view" id="v-world" aria-label="世界集">
+    <div class="wrap">
+      <h1>世界集</h1>
+      <p class="lede">不用先看这里。读小说读到哪里卡住了，再来翻。</p>
+      <nav class="subnav" aria-label="世界集分册">
+        <a href="#world/guide" data-w="guide">这是个什么世界</a>
+        <a href="#world/words" data-w="words">词语和年表</a>
+      </nav>
+      <div class="worldpage"><div class="prose" id="worlddoc"></div></div>
+    </div>
+  </section>
+
+  <section class="view" id="v-art" aria-label="美术集">
+    <div class="wrap">
+      <h1>美术集</h1>
+      <p class="lede">每篇一幅。点开看大图。</p>
+      <div class="gallery" id="gallery"></div>
+    </div>
+  </section>
+</main>
+
+<div class="lightbox" id="lb" role="dialog" aria-modal="true" aria-label="大图">
+  <button id="lbclose">关闭</button>
+  <div><div class="frame" id="lbframe"></div><p id="lbcap"></p></div>
+</div>
+
+<script>
+const BOOK = /*__BOOK_DATA__*/null;
+
+/* ================================================================ stories */
+const STORIES = [
+  {n:0, title:"序章", place:"信鹭驿", pov:"一本小册子", season:"春", ring:"", hook:"信鹭驿发给新人的小册子，两分钟讲清这个世界。"},
+  {n:1, title:"坠石", place:"中环，琥珀城第九百零七塔", pov:"伊璃", season:"春", loc:"amber", hook:"天亮前，伊璃爬上九百一十二级台阶，去读记书里关于母亲的那一页。她已经想不起母亲的脸了。"},
+  {n:2, title:"沉渊", place:"外环，灰脊断喙，云海底下", pov:"沈渡", season:"春末", loc:"grey", hook:"七年来头一回，云海裂开了。沈渡顺着坠索往下，靴子悬在一块石板上方一寸。"},
+  {n:3, title:"领航师", place:"中环，琥珀城航务塔；空带，一人石", pov:"管鸢", season:"初夏", loc:"amber", alt:"lone", hook:"一个学徒算了三遍，发现用来量一年的那座城，自己的一年在变长。"},
+  {n:4, title:"涡眼", place:"风隙，涡城衡塔", pov:"贺岚", season:"初夏", loc:"eye", hook:"退役骑士穿过风墙，去见一个什么都不记得、却亲手写下律法的人。"},
+  {n:5, title:"放风", place:"散岛，四十三名岛", pov:"汐蔓", season:"夏末", loc:"fortythree", hook:"曾祖要被放到风里去了。走之前，他得给岛起一个新名字，可他只会说哪里。"},
+  {n:6, title:"压舱人", place:"外环，铁砧岛根矿", pov:"砾", season:"夏末", loc:"anvil", hook:"铁砧岛的矿洞一层比一层暗，井壁上贴满了寄出去却没有回音的信。"},
+  {n:7, title:"白衣", place:"中环，粟城与白岛缥屿", pov:"戚有余", season:"秋初", loc:"millet", hook:"一个押当铺掌柜，想用息术把一桩旧事忘干净。可那件事他想得最多，所以最后才会走。"},
+  {n:8, title:"栖霞", place:"中环，栖霞岛（十二年前）", pov:"祁望", season:"1125 年秋", loc:"gap", hook:"十二年前，栖霞岛下沉的最后七天。一个一辈子不用息术的船长，数着息来回摆渡。"},
+  {n:9, title:"会合节", place:"中环，琥珀城分钟街与南崖", pov:"乔橘", season:"秋", loc:"amber", alt:"gap", hook:"三十七年一回的会合节。一个小扒手偷到了一块不该偷的竹牌。"},
+  {n:10, title:"听风台", place:"内环，静耳屿", pov:"容昙", season:"深秋", loc:"quiet", hook:"听风台有一条规矩：井口不听。干了二十六年的听者，这一回偏要听。"},
+  {n:11, title:"鲸歌", place:"外环，膏屿与灰层", pov:"伍蓼", season:"初冬", loc:"tallow", hook:"今年的鲸歌没有起腔。猎人追着一头背上插满旧叉的老鲸，追进了灰层。"},
+  {n:12, title:"忆雨", place:"渊，灰脊正下方", pov:"梯", season:"冬", loc:"abyss", hook:"住在云底下的女孩，每七天爬一次山顶的塔，给一根空木桩插花。这个冬天，天上有东西掉下来。"}
+];
+
+/* ================================================================ people */
+const RACE = {
+  "垣民":{c:"#E39A4C",d:"#A9622A"}, "风裔":{c:"#7FB6E0",d:"#3E78A8"},
+  "石胎":{c:"#8A939B",d:"#4F5861"}, "留民":{c:"#7FA66B",d:"#4B6E3E"}
+};
+const POV = [
+  {name:"伊璃", race:"风裔", id:"61 岁，信鹭驿的驭风师", token:"一只杯口补过银的旧铜杯", text:"长耳，骨头轻，天生会用苍息，也天生会忘。她正在忘记母亲的脸，却知道自己答应过母亲一件事：替她看一眼渊。", in:[1,2,6]},
+  {name:"沈渡", race:"垣民", id:"41 岁，沉渊者，灰鹞号船长", token:"父亲的坠钩", text:"七年前，父亲在开云日顺着坠索下去，再没上来。绳子收上来时，末端齐整得像是刀割的。", in:[2,4,6]},
+  {name:"管鸢", race:"垣民", id:"19 岁，琥珀城航务塔学徒", token:"一架小衡仪", text:"嘴快，不服管，去年把一座岛的会合方位写反了，从此人人叫她管东西。她算出了一件没人想听的事。", in:[3]},
+  {name:"贺岚", race:"垣民", id:"52 岁，退役守衡骑士", token:"老云马铁杉", text:"一辈子没用过一口息术，所以什么都记得，包括十二年前在栖霞的最后几天，和她亲手推上渡舟的那个侍从。", in:[4,8]},
+  {name:"汐蔓", race:"风裔", id:"24 岁，记书写到第二册", token:"曾祖的铜顶针", text:"被派去照看什么都忘了的曾祖。曾祖坚称自己才写到第一册，所以管她叫姐姐。", in:[5]},
+  {name:"砾", race:"石胎", id:"16 岁，灰鹞号压舱人", token:"替别人写的一本记书", text:"矮，重，被人叫沉物。风暴里蹲下来就是一块石头。她和所有石胎一样，一辈子做同一个梦。", in:[2,6]},
+  {name:"戚有余", race:"垣民", id:"51 岁，粟城押当铺掌柜", token:"一只装着乳牙的铜盒", text:"把一生开成一千三百一十二条账目，搬上白岛，每晚勾掉一条。账上没写的那一件，他每夜都想。", in:[7]},
+  {name:"祁望", race:"垣民", id:"54 岁，霞七号渡舟船长", token:"九本航志", text:"在霞群里飞了三十年渡舟，从不用息术，航志里记着每一趟用了多少息。他比谁都早觉出航线在变长。", in:[8]},
+  {name:"乔橘", race:"垣民", id:"12 岁，分钟街的小扒手", token:"腕上一根红绳", text:"琥珀城的钟从东往西一座传一座地敲，两头差小半刻。东城的钟响了，西城的还没响，那半刻是她的。", in:[9]},
+  {name:"容昙", race:"垣民", id:"44 岁，静耳屿听风台的听者", token:"母亲搓的一颗耳蜡", text:"二十六年里替整个天空听话传话。听一口，忘一点；忘掉的多半是别人的话，台上的人说这是福气。", in:[10]},
+  {name:"伍蓼", race:"垣民", id:"34 岁，膏屿的叉手", token:"一柄鲸叉", text:"十四岁头一回出船就没吐。十年前，父亲的船叉中了一头叫钉背的老鲸，被拖走了一夜。", in:[11]},
+  {name:"梯", race:"留民", id:"15 岁，住在云的底下", token:"一把不是她的短刀", text:"名字来自她出生那天雨里看见的东西：一道长得望不到头的石阶。她每隔七天爬上山顶的塔，给一根空木桩插花。", in:[12]}
+];
+const OTHERS = [
+  ["磐叔","石胎，琥珀城第九百零七塔的塔守，六十年没漏爬过一级台阶。",[1,9]],
+  ["兰缇","伊璃已升逝的母亲，唱歌跑调，每次都跑在同一个地方。",[1]],
+  ["闻笙","守衡院派到灰鹞号上的年轻监察。",[2,4]],
+  ["韦衍","航务塔的总领航，用了三十年红笔。",[3]],
+  ["莫","空带一人石上的守石人，话少。",[3]],
+  ["白执","守衡院的大衡，风裔，读着自己写过的书治理天空。",[4]],
+  ["阿禾","贺岚当年的侍从，甲带永远系反。",[4,8]],
+  ["廿公","汐蔓的曾祖，写了二十册记书，什么都忘了。",[5]],
+  ["蔺姑","风裔书团的管事。",[5]],
+  ["砾的奶奶","铁砧岛的梦者，梦得最清楚的石胎。",[6]],
+  ["碓","石胎，戚有余的账房，二十六年记不错一笔。",[7]],
+  ["九十一万","白岛缥屿的引升人。白衣不用名字，按用过的息互称。",[7]],
+  ["祁芹、小樯","祁望的女儿和外孙。",[8,9]],
+  ["乔家奶奶","在第九百零七塔下卖苦橘茶。",[9]],
+  ["樊七","听风台的记录学徒，字像信鹭踩了墨池。",[10]],
+  ["瞿伯","膏屿的老猎人，家里梁上缠着一根三百年的结绳鲸历。",[11]],
+  ["灯婆","梯的祖母，斧刃上有一道缺。",[12]],
+  ["绳","从天上下来的人，腿接歪了，给大家挑了五年水。",[12]]
+];
+
+/* ================================================================ utils */
+const $ = s => document.querySelector(s);
+const NS = "http://www.w3.org/2000/svg";
+function mul(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const CN = "〇一二三四五六七八九";
+const cnYear = y => String(y).split("").map(d=>CN[d]).join("");
+const store = {get(k,d){try{const v=localStorage.getItem("fyj-"+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem("fyj-"+k,JSON.stringify(v))}catch(e){}}};
+const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+</script>
+
+<script>
+/*__ART_JS__*/
+</script>
+
+<script>
+/* ================================================================ map */
+const MAP = (() => {
+  const svg = $("#map");
+  const RING = {eyeR:52, inner:[66,104], gap:[104,168], mid:[168,222], wild:[222,296], outer:[296,352], nine:360};
+  // islands: id, name, r, a0 (deg at day 0), T (days), size, kind, label size
+  const ISL = [
+    {id:"quiet", name:"静耳屿", r:76, a0:-58, T:20, s:6, k:"pale"},
+    {id:"bell", name:"圣钟岛", r:92, a0:122, T:30, s:7, k:"pale"},
+    {id:"lone", name:"一人石", r:138, a0:212, T:120, s:3, k:"rock"},
+    {id:"amber", name:"琥珀城", r:194, a0:196, T:360, s:17, k:"city"},
+    {id:"millet", name:"粟城", r:186, a0:148, T:300, s:10, k:"town"},
+    {id:"white", name:"缥屿", r:202, a0:152, T:300, s:5, k:"white", small:true},
+    {id:"diamond", name:"菱屿", r:190, a0:332, T:330, s:5, k:"town", small:true},
+    {id:"sis", name:"姊屿", r:206, a0:38, T:380, s:5, k:"town", small:true},
+    {id:"sis2", name:"妹屿", r:206, a0:43, T:381, s:5, k:"town", small:true, nolabel:true},
+    {id:"halfway", name:"半途岛", r:258, a0:100, T:1000, s:6, k:"rock", small:true},
+    {id:"grey", name:"灰脊", r:322, a0:18, T:2520, s:9, k:"rock"},
+    {id:"anvil", name:"铁砧岛", r:316, a0:-12, T:2400, s:8, k:"rock"},
+    {id:"tallow", name:"膏屿", r:332, a0:46, T:2600, s:7, k:"rock"},
+    {id:"bone", name:"骨屿", r:340, a0:62, T:2650, s:5, k:"rock", small:true},
+    {id:"late", name:"迟屿", r:350, a0:162, T:3200, s:6, k:"rock", small:true},
+    {id:"fortythree", name:"四十三名岛", r:430, a0:232, T:9000, s:8, k:"white"},
+    {id:"pear", name:"棠屿", r:452, a0:240, T:9200, s:10, k:"town", small:true}
+  ];
+  const XIA = {a0:288, T:370, r:200, n:13, gapAt:6};
+  const STORY_AT = {1:"amber",2:"grey",3:"lone",4:"eye",5:"fortythree",6:"anvil",7:"millet",8:"gap",9:"amber",10:"quiet",11:"tallow",12:"abyss"};
+  const OFF = {1:[-22,-24],3:[16,-22],9:[-42,-4],8:[0,-26],7:[-26,14],2:[18,16],6:[18,-16],11:[18,14],10:[16,-16],5:[-16,18],4:[30,-30],12:[0,0]};
+
+  let day = store.get("day", 60), playing = !reduced, fast = false, sel = null, last = 0;
+  const el = (tag, attrs={}, parent=svg) => {const n=document.createElementNS(NS,tag); for(const k in attrs) n.setAttribute(k,attrs[k]); parent.appendChild(n); return n;};
+  const polar = (r, a) => [r*Math.cos(a*Math.PI/180), r*Math.sin(a*Math.PI/180)];
+
+  function glyph(g, s, kind){
+    const tops = {city:"#E39A4C",town:"#E8B07A",pale:"#F1F4F8",rock:"#9AA3AA",white:"#FBFBF8"};
+    const under = kind==="rock"?"#5F666D":"#8E7A68";
+    el("path",{d:`M${-s} 0 Q${-s*.6} ${s*.9} 0 ${s*1.5} Q${s*.6} ${s*.9} ${s} 0Z`, fill:under}, g);
+    el("ellipse",{cx:0, cy:0, rx:s, ry:s*.38, fill:tops[kind]||"#E8B07A", stroke:"rgba(31,58,87,.25)", "stroke-width":.6}, g);
+    if(kind==="city") for(let i=-3;i<=3;i++) el("path",{d:`M${i*s*.24-1.6} ${-s*.1} L${i*s*.24} ${-s*.1-s*(.5+.3*((i+5)%3))} L${i*s*.24+1.6} ${-s*.1}Z`, fill:"#C9773A"}, g);
+  }
+
+  function build(){
+    svg.innerHTML = "";
+    const defs = el("defs");
+    defs.innerHTML = `
+      <radialGradient id="mEye" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#6FA8DA"/><stop offset=".6" stop-color="#BFDAF0"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+      <radialGradient id="mBand"><stop offset=".6" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#fff" stop-opacity=".5"/></radialGradient>
+      <filter id="mSoft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="4"/></filter>
+      <filter id="mCloud"><feTurbulence type="fractalNoise" baseFrequency=".008" numOctaves="4" seed="7"/><feColorMatrix values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .55 -.18"/></filter>`;
+    el("rect",{x:-560,y:-520,width:1120,height:1040,filter:"url(#mCloud)",opacity:.9});
+    const bands = [[RING.inner,"内环，三十日一周"],[RING.mid,"中环，一年一周"],[RING.outer,"外环，七年一周"]];
+    bands.forEach(([[a,b]])=>{ el("circle",{r:(a+b)/2, fill:"none", stroke:"#fff", "stroke-width":b-a, opacity:.42}); });
+    [RING.inner[0],RING.inner[1],RING.mid[0],RING.mid[1],RING.outer[0],RING.outer[1]].forEach(r=>el("circle",{r, fill:"none", stroke:"#9FBCD6", "stroke-width":.8}));
+    el("circle",{r:RING.nine, fill:"none", stroke:"#8EA9C2", "stroke-dasharray":"5 7", "stroke-width":1});
+    const zl = [[-(RING.inner[0]+RING.inner[1])/2+5,"内环"],[-(RING.gap[0]+RING.gap[1])/2+5,"空带"],[-(RING.mid[0]+RING.mid[1])/2+5,"中环"],[-(RING.wild[0]+RING.wild[1])/2+5,"荒带"],[-(RING.outer[0]+RING.outer[1])/2+5,"外环"],[-RING.nine-6,"九年线"]];
+    zl.forEach(([y,t])=>{const n=el("text",{x:0,y,"text-anchor":"middle",class:"zone"}); n.textContent=t;});
+    const sz = el("text",{x:-500,y:-470,class:"zone"}); sz.textContent="散岛";
+    // eye
+    el("circle",{r:RING.eyeR+8, fill:"url(#mEye)"});
+    const eye = el("g",{id:"eye", filter:"url(#mSoft)"});
+    for(let i=0;i<7;i++){ const r1=18+i*5.5; el("path",{d:`M${r1} 0 A${r1} ${r1} 0 0 1 ${-r1*.7} ${r1*.7}`, stroke:"#fff", "stroke-width":3.2, fill:"none", opacity:.85, transform:`rotate(${i*51})`}, eye); }
+    el("path",{d:"M-4 4 L0 -16 L4 4Z", fill:"#fff", stroke:"#2F5D8A", "stroke-width":.8});
+    const eyel = el("text",{x:0,y:24,"text-anchor":"middle",class:"lbl"}); eyel.textContent="涡城";
+    // islands layer
+    const lay = el("g",{id:"isl"});
+    const rnd = mul(42);
+    const deco = [];
+    const decoRing = (n,[a,b],T,kind,s0,s1) => {for(let i=0;i<n;i++) deco.push({r:a+rnd()*(b-a), a0:rnd()*360, T:T*(.92+rnd()*.16), s:s0+rnd()*(s1-s0), k:kind});};
+    decoRing(14,RING.inner,30,"pale",2.5,4.5); decoRing(42,RING.mid,360,"town",2,5); decoRing(6,RING.gap,140,"rock",1.4,2.2);
+    decoRing(10,RING.wild,1200,"rock",1.4,2.6); decoRing(52,RING.outer,2520,"rock",2,4.5); decoRing(14,[372,500],9000,"rock",1.6,3.2);
+    deco.forEach(d=>{ d.g = el("g",{},lay); glyph(d.g,d.s,d.k); });
+    MAP.decoAll = deco;
+    ISL.forEach(d=>{ d.g = el("g",{},lay); glyph(d.g,d.s,d.k); if(!d.nolabel){ const t=el("text",{x:d.s+4,y:4,class:"lbl"+(d.small?" sm":"")},d.g); t.textContent=d.name; } });
+    // 霞群
+    XIA.items = [];
+    for(let i=0;i<XIA.n+1;i++){ const g=el("g",{},lay); if(i===XIA.gapAt){ el("circle",{r:7, fill:"none", stroke:"#A9622A", "stroke-dasharray":"2 3"},g); } else glyph(g, 3+Math.sin(Math.PI*i/XIA.n)*4, "town"); XIA.items.push(g); }
+    XIA.label = el("text",{class:"lbl"},lay); XIA.label.textContent="霞群";
+    XIA.gapl = el("text",{class:"lbl sm"},lay); XIA.gapl.textContent="栖霞缺口";
+    // abyss line under 灰脊
+    MAP.abyss = el("g",{},lay);
+    el("path",{d:"M0 12 L0 64", stroke:"#2F5D8A", "stroke-width":1.4, "stroke-dasharray":"3 3"}, MAP.abyss);
+    const al = el("text",{x:8,y:52,class:"lbl sm"},MAP.abyss); al.textContent="正下方的渊";
+    // markers
+    MAP.mk = {};
+    for(let n=1;n<=12;n++){
+      const g = el("g",{class:"mk", tabindex:0, role:"button", "aria-label":`第${n}篇 ${STORIES[n].title}，${STORIES[n].place}`}, lay);
+      el("circle",{r:19, class:"halo"}, g); el("circle",{r:13, class:"b"}, g); const t=el("text",{},g); t.textContent=n;
+      g.addEventListener("click",()=>select(n)); g.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();select(n);}});
+      g.addEventListener("mouseenter",()=>hl(n,true)); g.addEventListener("mouseleave",()=>hl(n,false));
+      MAP.mk[n] = g;
+    }
+  }
+
+  function pos(){
+    const P = {};
+    const place = (g,r,a) => {const [x,y]=polar(r,a); g.setAttribute("transform",`translate(${x.toFixed(1)} ${y.toFixed(1)})`); return [x,y];};
+    $("#eye") && $("#eye").setAttribute("transform",`rotate(${(day*360/90)%360})`);
+    ISL.forEach(d=>{ P[d.id] = place(d.g, d.r, d.a0 + 360*day/d.T); });
+    MAP.decoAll && MAP.decoAll.forEach(d=>place(d.g,d.r,d.a0+360*day/d.T));
+    const step = 3.4; const base = XIA.a0 + 360*day/XIA.T - step*XIA.n/2;
+    XIA.items.forEach((g,i)=>{ const p=place(g, XIA.r + Math.sin(i*.9)*3, base + i*step); if(i===XIA.gapAt) P.gap = p; });
+    const [lx,ly] = polar(XIA.r+22, base + step*XIA.n + 2); XIA.label.setAttribute("x",lx.toFixed(1)); XIA.label.setAttribute("y",ly.toFixed(1));
+    XIA.gapl.setAttribute("x",(P.gap[0]+10).toFixed(1)); XIA.gapl.setAttribute("y",(P.gap[1]-12).toFixed(1));
+    P.eye=[0,0];
+    MAP.abyss.setAttribute("transform",`translate(${P.grey[0].toFixed(1)} ${P.grey[1].toFixed(1)})`);
+    P.abyss=[P.grey[0], P.grey[1]+72];
+    for(let n=1;n<=12;n++){ const p=P[STORY_AT[n]], o=OFF[n]||[0,-20]; MAP.mk[n].setAttribute("transform",`translate(${(p[0]+o[0]).toFixed(1)} ${(p[1]+o[1]).toFixed(1)})`); }
+    const y = 1137 + Math.floor(day/360), dd = Math.floor(day%360)+1;
+    const season = ["春","夏","秋","冬"][Math.floor((day%360)/90)];
+    $("#day").textContent = `升历${cnYear(y)}年${season}，第 ${dd} 日`;
+  }
+
+  function loop(ts){
+    if(!last) last = ts; const dt = Math.min(.1,(ts-last)/1000); last = ts;
+    if(playing && document.getElementById("v-map").classList.contains("on")){ day += dt*(fast?20:1); pos(); }
+    requestAnimationFrame(loop);
+  }
+
+  function hl(n,on){ MAP.mk[n] && MAP.mk[n].classList.toggle("hl",on); const b=document.querySelector(`.slist button[data-n="${n}"]`); b && b.classList.toggle("hl",on); }
+
+  function list(){
+    $("#panel").innerHTML = `<h2>十二个故事</h2><p class="hint">点一篇，看它发生在哪儿。</p>
+      <ol class="slist">${STORIES.slice(1).map(s=>`<li><button data-n="${s.n}"><span class="num">${s.n}</span><span><span class="t">${s.title}</span><span class="p">${s.place}</span></span></button></li>`).join("")}</ol>`;
+    $("#panel").querySelectorAll(".slist button").forEach(b=>{ const n=+b.dataset.n; b.onclick=()=>select(n); b.onmouseenter=()=>hl(n,true); b.onmouseleave=()=>hl(n,false); });
+  }
+  function select(n){
+    if(sel) MAP.mk[sel].classList.remove("sel");
+    sel = n; MAP.mk[n].classList.add("sel");
+    const s = STORIES[n];
+    $("#panel").innerHTML = `<div class="card"><div class="art">${ART.scene(n)}</div>
+      <span class="num">${n}</span><h3>${s.title}</h3>
+      <dl><dt>在哪儿</dt><dd>${s.place}</dd><dt>谁的故事</dt><dd>${s.pov}</dd><dt>什么时候</dt><dd>${s.season}</dd></dl>
+      <p class="hook">${s.hook}</p>
+      <a class="btn" href="#read/${n}">开始读</a><button class="btn ghost" id="back">返回</button></div>`;
+    $("#back").onclick = () => { MAP.mk[sel].classList.remove("sel"); sel=null; list(); };
+  }
+
+  function init(){
+    build();
+    pos(); list();
+    const pb=$("#play"), fb=$("#fast");
+    const sync=()=>{pb.textContent=playing?"暂停":"继续"; pb.setAttribute("aria-pressed",String(!playing)); fb.setAttribute("aria-pressed",String(fast));};
+    pb.onclick=()=>{playing=!playing; sync();}; fb.onclick=()=>{fast=!fast; if(fast) playing=true; sync();};
+    sync(); requestAnimationFrame(loop);
+    setInterval(()=>store.set("day",Math.floor(day)),5000);
+  }
+  return {init, select};
+})();
+</script>
+
+<script>
+/* ================================================================ app */
+const CH = BOOK ? BOOK.chapters : [];
+function seasonOf(meta){ const m = meta.match(/升历\s*(\d+)\s*年\s*·\s*(.+)$/); return m ? `升历${cnYear(+m[1])}年，${m[2]}` : meta; }
+
+function renderTOC(){
+  $("#toc").innerHTML = CH.map((c,i)=>`<li><a href="#read/${i}" data-i="${i}"><span class="n">${i===0?"序":i}</span><span><span class="t">${c.title}</span><span class="p">${STORIES[i]?STORIES[i].place:""}</span></span></a></li>`).join("");
+  $("#tocsel").innerHTML = CH.map((c,i)=>`<option value="${i}">${i===0?"序章":i+"　"+c.title}</option>`).join("");
+  $("#tocsel").onchange = e => location.hash = "#read/"+e.target.value;
+}
+let curCh = null, saveT = null;
+function readChapter(i){
+  i = Math.max(0, Math.min(CH.length-1, i|0));
+  const c = CH[i], s = STORIES[i] || {};
+  curCh = i; store.set("last", i);
+  document.querySelectorAll("#toc a").forEach(a=>a.setAttribute("aria-current", String(+a.dataset.i===i)));
+  $("#tocsel").value = i;
+  const meta = i===0 ? "读小说之前，先看两分钟" : `${s.pov}的故事。${s.season}，${s.place.replace(/，/g,"、")}`;
+  const prev = i>0 ? `<a href="#read/${i-1}"><small>上一篇</small><span>${CH[i-1].title}</span></a>` : "<span></span>";
+  const next = i<CH.length-1 ? `<a class="nx" href="#read/${i+1}"><small>下一篇</small><span>${CH[i+1].title}</span></a>` : `<a class="nx" href="#art"><small>全书完</small><span>去看画</span></a>`;
+  $("#page").innerHTML = `<div class="banner">${ART.scene(i)}<div class="cap"><h1>${c.title}</h1><div class="meta">${meta}${i>0?`<a href="#map/${i}">看地图</a>`:""}</div></div></div>
+    <div class="prose">${c.html}${c.end?`<p class="end">${c.end}</p>`:""}</div><nav class="pager" aria-label="翻篇">${prev}${next}</nav>`;
+  const pos = store.get("pos-"+i, 0);
+  requestAnimationFrame(()=>window.scrollTo(0, pos));
+}
+window.addEventListener("scroll", ()=>{ if(curCh==null || !$("#v-read").classList.contains("on")) return; clearTimeout(saveT); saveT=setTimeout(()=>store.set("pos-"+curCh, window.scrollY), 300); }, {passive:true});
+
+function renderPeople(){
+  $("#pov").innerHTML = POV.map(p=>`<article class="who"><div class="seal">${ART.seal(p.name,p.race)}</div><div>
+    <h3>${p.name}</h3><div class="id">${p.race}，${p.id}</div><p>${p.text}</p><div class="token">身上总带着：${p.token}</div>
+    <div class="chips">${p.in.map(n=>`<a href="#read/${n}">${n}　${STORIES[n].title}</a>`).join("")}</div></div></article>`).join("");
+  $("#others").innerHTML = OTHERS.map(([n,t,ins])=>`<li><b>${n}</b><span>${t}<span class="chips" style="margin-top:6px">${ins.map(k=>`<a href="#read/${k}">${k}　${STORIES[k].title}</a>`).join("")}</span></span></li>`).join("");
+}
+function renderWorld(w){
+  w = BOOK.world[w] ? w : "guide";
+  document.querySelectorAll(".subnav a").forEach(a=>a.setAttribute("aria-current", a.dataset.w===w?"page":"false"));
+  $("#worlddoc").innerHTML = BOOK.world[w];
+}
+function renderArt(){
+  $("#gallery").innerHTML = STORIES.map(s=>`<figure><button data-n="${s.n}" aria-label="看大图：${s.title}">${ART.scene(s.n)}</button>
+    <figcaption><b>${s.n===0?"":s.n+"　"}${s.title}</b><span>${s.place}</span><a href="#read/${s.n}">读这一篇</a></figcaption></figure>`).join("");
+  $("#gallery").querySelectorAll("button").forEach(b=>b.onclick=()=>openLB(+b.dataset.n, b));
+}
+let lbReturn=null;
+function openLB(n, from){ lbReturn=from; $("#lbframe").innerHTML = ART.scene(n); $("#lbcap").textContent = (n?n+"　":"")+STORIES[n].title+"，"+STORIES[n].place; $("#lb").classList.add("on"); $("#lbclose").focus(); }
+function closeLB(){ $("#lb").classList.remove("on"); $("#lbframe").innerHTML=""; lbReturn && lbReturn.focus(); }
+$("#lbclose").onclick = closeLB; $("#lb").onclick = e => { if(e.target.id==="lb") closeLB(); };
+document.addEventListener("keydown", e => { if(e.key==="Escape" && $("#lb").classList.contains("on")) closeLB(); });
+
+/* reading prefs */
+let fsz = store.get("font", 19);
+const applyPrefs = () => { document.documentElement.style.setProperty("--read-size", fsz+"px"); document.body.classList.toggle("night", store.get("night", false)); $("#theme").textContent = store.get("night",false) ? "昼读" : "夜读"; };
+$("#fplus").onclick = () => { fsz = Math.min(26, fsz+1); store.set("font", fsz); applyPrefs(); };
+$("#fminus").onclick = () => { fsz = Math.max(15, fsz-1); store.set("font", fsz); applyPrefs(); };
+$("#theme").onclick = () => { store.set("night", !store.get("night", false)); applyPrefs(); };
+
+/* router */
+let built = {};
+function route(){
+  const h = location.hash.replace(/^#/,"") || "map";
+  const [v, arg] = h.split("/");
+  const view = ["map","read","people","world","art"].includes(v) ? v : "map";
+  document.querySelectorAll(".view").forEach(s=>s.classList.toggle("on", s.id==="v-"+view));
+  document.querySelectorAll(".nav a").forEach(a=>a.setAttribute("aria-current", a.dataset.v===view ? "page" : "false"));
+  if(view!=="read") document.body.classList.remove("night"); else applyPrefs();
+  if(view==="map"){ if(!built.map){ MAP.init(); built.map=1; } if(arg) MAP.select(+arg); window.scrollTo(0,0); }
+  if(view==="read"){ readChapter(arg!=null && arg!=="" ? +arg : store.get("last",0)); }
+  if(view==="people"){ if(!built.people){ renderPeople(); built.people=1; } window.scrollTo(0,0); }
+  if(view==="world"){ renderWorld(arg||"guide"); window.scrollTo(0,0); }
+  if(view==="art"){ if(!built.art){ renderArt(); built.art=1; } window.scrollTo(0,0); }
+}
+if(!BOOK){ document.body.innerHTML = "<p style='padding:80px;font-size:18px'>这个文件缺少书的内容。请运行 tools/build_html.py 重新生成。</p>"; }
+else { renderTOC(); applyPrefs(); window.addEventListener("hashchange", route); route(); }
+</script>
+</body>
+</html>

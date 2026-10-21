@@ -1,0 +1,4106 @@
+[
+ {
+  "ticker": "ARCC",
+  "period": "2022-09-30",
+  "rows": 962,
+  "line_item_sum": 21178500000,
+  "reported_total": 21338500000,
+  "diff": -0.0075,
+  "passed": true
+ },
+ {
+  "ticker": "ARCC",
+  "period": "2022-12-31",
+  "rows": 988,
+  "line_item_sum": 21754200000,
+  "reported_total": 21779800000,
+  "diff": -0.0012,
+  "passed": true
+ },
+ {
+  "ticker": "ARCC",
+  "period": "2023-03-31",
+  "rows": 994,
+  "line_item_sum": 21123400000,
+  "reported_total": 21148000000,
+  "diff": -0.0012,
+  "passed": true
+ },
+ {
+  "ticker": "ARCC",
+  "period": "2023-06-30",
+  "rows": 1125,
+  "line_item_sum": 21440700000,
+  "reported_total": 21496500000,
+  "diff": -0.0026,
+  "passed": true
+ },
+ {
+  "ticker": "ARCC",
+  "period": "2023-09-30",
+  "rows": 1082,
+  "line_item_sum": 21859500000,
+  "reported_total": 21928500000,
+  "diff": -0.0031,
+  "passed": true
+ },
+ {
+  "ticker": "ARCC",
+  "period": "2023-12-31",
+  "rows": 1127,
+  "line_item_sum": 22823800000,
+  "reported_total": 22873700000,
+  "diff": -0.0022,
+  "passed": true
+ },
+ {
+  "ticker": "ARCC",
+  "period": "2024-03-31",
+  "rows": 1154,
+  "line_item_sum": 23074200000,
+  "reported_total": 23124300000,
+  "diff": -0.0022,
+  "passed": true
+ },
+ {
+  "ticker": "ARCC",
+  "period": "2024-06-30",
+  "rows": 1207,
+  "line_item_sum": 24929600000,
+  "reported_total": 24973400000,
+  "diff": -0.0018,
+  "passed": true
+ },
+ {
+  "ticker": "ARCC",
+  "period": "2024-09-30",
+  "rows": 1223,
+  "line_item_sum": 25872400000,
+  "reported_total": 25918200000,
+  "diff": -0.0018,
+  "passed": true
+ },
+ {
+  "ticker": "ARCC",
+  "period": "2024-12-31",
+  "rows": 1277,
+  "line_item_sum": 26602100000,
+  "reported_total": 26719900000,
+  "diff": -0.0044,
+  "passed": true
+ },
+ {
+  "ticker": "ARCC",
+  "period": "2025-03-31",
+  "rows": 1294,
+  "line_item_sum": 26989700000,
+  "reported_total": 27130300000,
+  "diff": -0.0052,
+  "passed": true
+ },
+ {
+  "ticker": "ARCC",
+  "period": "2025-06-30",
+  "rows": 1329,
+  "line_item_sum": 27811400000,
+  "reported_total": 27886400000,
+  "diff": -0.0027,
+  "passed": true
+ },
+ {
+  "ticker": "ARCC",
+  "period": "2025-09-30",
+  "rows": 1358,
+  "line_item_sum": 28585400000,
+  "reported_total": 28692600000,
+  "diff": -0.0037,
+  "passed": true
+ },
+ {
+  "ticker": "ARCC",
+  "period": "2025-12-31",
+  "rows": 1389,
+  "line_item_sum": 29407900000,
+  "reported_total": 29484800000,
+  "diff": -0.0026,
+  "passed": true
+ },
+ {
+  "ticker": "ARCC",
+  "period": "2026-03-31",
+  "rows": 1408,
+  "line_item_sum": 29483800000,
+  "reported_total": 29499300000,
+  "diff": -0.0005,
+  "passed": true
+ },
+ {
+  "ticker": "ARCC",
+  "period": "2026-06-30",
+  "rows": 1426,
+  "line_item_sum": 29338700000,
+  "reported_total": 29349300000,
+  "diff": -0.0004,
+  "passed": true
+ },
+ {
+  "ticker": "BBDC",
+  "period": "2022-06-30",
+  "rows": 0,
+  "line_item_sum": 0,
+  "reported_total": null,
+  "diff": null,
+  "passed": false
+ },
+ {
+  "ticker": "BBDC",
+  "period": "2022-09-30",
+  "rows": 508,
+  "line_item_sum": 2322913000,
+  "reported_total": 2332492000,
+  "diff": -0.0041,
+  "passed": true
+ },
+ {
+  "ticker": "BBDC",
+  "period": "2022-12-31",
+  "rows": 542,
+  "line_item_sum": 2439523000,
+  "reported_total": 2448935000,
+  "diff": -0.0038,
+  "passed": true
+ },
+ {
+  "ticker": "BBDC",
+  "period": "2023-03-31",
+  "rows": 560,
+  "line_item_sum": 2546714000,
+  "reported_total": 2556114000,
+  "diff": -0.0037,
+  "passed": true
+ },
+ {
+  "ticker": "BBDC",
+  "period": "2023-06-30",
+  "rows": 546,
+  "line_item_sum": 2496031000,
+  "reported_total": 2505992000,
+  "diff": -0.004,
+  "passed": true
+ },
+ {
+  "ticker": "BBDC",
+  "period": "2023-09-30",
+  "rows": 581,
+  "line_item_sum": 2512372000,
+  "reported_total": 2521635000,
+  "diff": -0.0037,
+  "passed": true
+ },
+ {
+  "ticker": "BBDC",
+  "period": "2023-12-31",
+  "rows": 580,
+  "line_item_sum": 2471890000,
+  "reported_total": 2488715000,
+  "diff": -0.0068,
+  "passed": true
+ },
+ {
+  "ticker": "BBDC",
+  "period": "2024-03-31",
+  "rows": 615,
+  "line_item_sum": 2519610000,
+  "reported_total": 2527537000,
+  "diff": -0.0031,
+  "passed": true
+ },
+ {
+  "ticker": "BBDC",
+  "period": "2024-06-30",
+  "rows": 626,
+  "line_item_sum": 2387820000,
+  "reported_total": 2395660000,
+  "diff": -0.0033,
+  "passed": true
+ },
+ {
+  "ticker": "BBDC",
+  "period": "2024-09-30",
+  "rows": 634,
+  "line_item_sum": 2416494000,
+  "reported_total": 2416714000,
+  "diff": -0.0001,
+  "passed": true
+ },
+ {
+  "ticker": "BBDC",
+  "period": "2024-12-31",
+  "rows": 638,
+  "line_item_sum": 2515694000,
+  "reported_total": 2449272000,
+  "diff": 0.0271,
+  "passed": true
+ },
+ {
+  "ticker": "BBDC",
+  "period": "2025-03-31",
+  "rows": 632,
+  "line_item_sum": 2571017000,
+  "reported_total": 2571228000,
+  "diff": -0.0001,
+  "passed": true
+ },
+ {
+  "ticker": "BBDC",
+  "period": "2025-06-30",
+  "rows": 659,
+  "line_item_sum": 2623849000,
+  "reported_total": 2623882000,
+  "diff": -0.0,
+  "passed": true
+ },
+ {
+  "ticker": "BBDC",
+  "period": "2025-09-30",
+  "rows": 654,
+  "line_item_sum": 2535924000,
+  "reported_total": 2536315000,
+  "diff": -0.0002,
+  "passed": true
+ },
+ {
+  "ticker": "BBDC",
+  "period": "2025-12-31",
+  "rows": 656,
+  "line_item_sum": 2397981000,
+  "reported_total": 2398524000,
+  "diff": -0.0002,
+  "passed": true
+ },
+ {
+  "ticker": "BBDC",
+  "period": "2026-03-31",
+  "rows": 657,
+  "line_item_sum": 2369627000,
+  "reported_total": 2369989000,
+  "diff": -0.0002,
+  "passed": true
+ },
+ {
+  "ticker": "BBDC",
+  "period": "2026-06-30",
+  "rows": 694,
+  "line_item_sum": 2451092000,
+  "reported_total": 2458590000,
+  "diff": -0.003,
+  "passed": true
+ },
+ {
+  "ticker": "BXSL",
+  "period": "2022-06-30",
+  "rows": 0,
+  "line_item_sum": 0,
+  "reported_total": null,
+  "diff": null,
+  "passed": false
+ },
+ {
+  "ticker": "BXSL",
+  "period": "2022-09-30",
+  "rows": 226,
+  "line_item_sum": 9798157000,
+  "reported_total": 9672116000,
+  "diff": 0.013,
+  "passed": true
+ },
+ {
+  "ticker": "BXSL",
+  "period": "2022-12-31",
+  "rows": 251,
+  "line_item_sum": 9748518000,
+  "reported_total": 9617248000,
+  "diff": 0.0136,
+  "passed": true
+ },
+ {
+  "ticker": "BXSL",
+  "period": "2023-03-31",
+  "rows": 327,
+  "line_item_sum": 9729227000,
+  "reported_total": 9626202000,
+  "diff": 0.0107,
+  "passed": true
+ },
+ {
+  "ticker": "BXSL",
+  "period": "2023-06-30",
+  "rows": 323,
+  "line_item_sum": 9435914000,
+  "reported_total": 9288531000,
+  "diff": 0.0159,
+  "passed": true
+ },
+ {
+  "ticker": "BXSL",
+  "period": "2023-09-30",
+  "rows": 335,
+  "line_item_sum": 9645784000,
+  "reported_total": 9500000000,
+  "diff": 0.0153,
+  "passed": true
+ },
+ {
+  "ticker": "BXSL",
+  "period": "2023-12-31",
+  "rows": 340,
+  "line_item_sum": 10023297000,
+  "reported_total": 9868440000,
+  "diff": 0.0157,
+  "passed": true
+ },
+ {
+  "ticker": "BXSL",
+  "period": "2024-03-31",
+  "rows": 362,
+  "line_item_sum": 10586829000,
+  "reported_total": 10439173000,
+  "diff": 0.0141,
+  "passed": true
+ },
+ {
+  "ticker": "BXSL",
+  "period": "2024-06-30",
+  "rows": 417,
+  "line_item_sum": 11600489000,
+  "reported_total": 11293797000,
+  "diff": 0.0272,
+  "passed": true
+ },
+ {
+  "ticker": "BXSL",
+  "period": "2024-09-30",
+  "rows": 487,
+  "line_item_sum": 12172717000,
+  "reported_total": 11978616000,
+  "diff": 0.0162,
+  "passed": true
+ },
+ {
+  "ticker": "BXSL",
+  "period": "2024-12-31",
+  "rows": 559,
+  "line_item_sum": 13322048000,
+  "reported_total": 13092518000,
+  "diff": 0.0175,
+  "passed": true
+ },
+ {
+  "ticker": "BXSL",
+  "period": "2025-03-31",
+  "rows": 580,
+  "line_item_sum": 13777800000,
+  "reported_total": 12834206000,
+  "diff": 0.0735,
+  "passed": false
+ },
+ {
+  "ticker": "BXSL",
+  "period": "2025-06-30",
+  "rows": 597,
+  "line_item_sum": 13488757000,
+  "reported_total": 13252800000,
+  "diff": 0.0178,
+  "passed": true
+ },
+ {
+  "ticker": "BXSL",
+  "period": "2025-09-30",
+  "rows": 650,
+  "line_item_sum": 14059527000,
+  "reported_total": 13809636000,
+  "diff": 0.0181,
+  "passed": true
+ },
+ {
+  "ticker": "BXSL",
+  "period": "2025-12-31",
+  "rows": 674,
+  "line_item_sum": 14496899000,
+  "reported_total": 14207294000,
+  "diff": 0.0204,
+  "passed": true
+ },
+ {
+  "ticker": "BXSL",
+  "period": "2026-03-31",
+  "rows": 699,
+  "line_item_sum": 14293341000,
+  "reported_total": 13942140000,
+  "diff": 0.0252,
+  "passed": true
+ },
+ {
+  "ticker": "BXSL",
+  "period": "2026-06-30",
+  "rows": 702,
+  "line_item_sum": 13631375000,
+  "reported_total": 13364295000,
+  "diff": 0.02,
+  "passed": true
+ },
+ {
+  "ticker": "CCAP",
+  "period": "2022-09-30",
+  "rows": 0,
+  "line_item_sum": 0,
+  "reported_total": 1292873000,
+  "diff": -1.0,
+  "passed": false
+ },
+ {
+  "ticker": "CCAP",
+  "period": "2022-12-31",
+  "rows": 0,
+  "line_item_sum": 0,
+  "reported_total": 1262956000,
+  "diff": -1.0,
+  "passed": false
+ },
+ {
+  "ticker": "CCAP",
+  "period": "2023-03-31",
+  "rows": 591,
+  "line_item_sum": 6212856000,
+  "reported_total": 1566045000,
+  "diff": 2.9672,
+  "passed": false
+ },
+ {
+  "ticker": "CCAP",
+  "period": "2023-06-30",
+  "rows": 585,
+  "line_item_sum": 7818980000,
+  "reported_total": 1581130000,
+  "diff": 3.9452,
+  "passed": false
+ },
+ {
+  "ticker": "CCAP",
+  "period": "2023-09-30",
+  "rows": 576,
+  "line_item_sum": 7738030000,
+  "reported_total": 1564828000,
+  "diff": 3.945,
+  "passed": false
+ },
+ {
+  "ticker": "CCAP",
+  "period": "2023-12-31",
+  "rows": 555,
+  "line_item_sum": 9355908000,
+  "reported_total": 1582075000,
+  "diff": 4.9137,
+  "passed": false
+ },
+ {
+  "ticker": "CCAP",
+  "period": "2024-03-31",
+  "rows": 569,
+  "line_item_sum": 9293224000,
+  "reported_total": 1563343000,
+  "diff": 4.9445,
+  "passed": false
+ },
+ {
+  "ticker": "CCAP",
+  "period": "2024-06-30",
+  "rows": 564,
+  "line_item_sum": 9591429000,
+  "reported_total": 1610775000,
+  "diff": 4.9545,
+  "passed": false
+ },
+ {
+  "ticker": "CCAP",
+  "period": "2024-09-30",
+  "rows": 574,
+  "line_item_sum": 9512213000,
+  "reported_total": 1591433000,
+  "diff": 4.9771,
+  "passed": false
+ },
+ {
+  "ticker": "CCAP",
+  "period": "2024-12-31",
+  "rows": 584,
+  "line_item_sum": 9593744000,
+  "reported_total": 1598857000,
+  "diff": 5.0004,
+  "passed": false
+ },
+ {
+  "ticker": "CCAP",
+  "period": "2025-03-31",
+  "rows": 617,
+  "line_item_sum": 9729312000,
+  "reported_total": 1620741000,
+  "diff": 5.003,
+  "passed": false
+ },
+ {
+  "ticker": "CCAP",
+  "period": "2025-06-30",
+  "rows": 539,
+  "line_item_sum": 1598436000,
+  "reported_total": 1600692000,
+  "diff": -0.0014,
+  "passed": true
+ },
+ {
+  "ticker": "CCAP",
+  "period": "2025-09-30",
+  "rows": 534,
+  "line_item_sum": 1577561000,
+  "reported_total": 1580678000,
+  "diff": -0.002,
+  "passed": true
+ },
+ {
+  "ticker": "CCAP",
+  "period": "2025-12-31",
+  "rows": 549,
+  "line_item_sum": 1566215000,
+  "reported_total": 1569418000,
+  "diff": -0.002,
+  "passed": true
+ },
+ {
+  "ticker": "CCAP",
+  "period": "2026-03-31",
+  "rows": 576,
+  "line_item_sum": 1558422000,
+  "reported_total": 1562470000,
+  "diff": -0.0026,
+  "passed": true
+ },
+ {
+  "ticker": "CCAP",
+  "period": "2026-06-30",
+  "rows": 570,
+  "line_item_sum": 1567864000,
+  "reported_total": 1570668000,
+  "diff": -0.0018,
+  "passed": true
+ },
+ {
+  "ticker": "CGBD",
+  "period": "2022-09-30",
+  "rows": 246,
+  "line_item_sum": 3083815000,
+  "reported_total": 1948957000,
+  "diff": 0.5823,
+  "passed": false
+ },
+ {
+  "ticker": "CGBD",
+  "period": "2022-12-31",
+  "rows": 257,
+  "line_item_sum": 3127336000,
+  "reported_total": 1979877000,
+  "diff": 0.5796,
+  "passed": false
+ },
+ {
+  "ticker": "CGBD",
+  "period": "2023-03-31",
+  "rows": 251,
+  "line_item_sum": 3040873000,
+  "reported_total": 1973565000,
+  "diff": 0.5408,
+  "passed": false
+ },
+ {
+  "ticker": "CGBD",
+  "period": "2023-06-30",
+  "rows": 252,
+  "line_item_sum": 2922272000,
+  "reported_total": 1896420000,
+  "diff": 0.5409,
+  "passed": false
+ },
+ {
+  "ticker": "CGBD",
+  "period": "2023-09-30",
+  "rows": 248,
+  "line_item_sum": 2848328000,
+  "reported_total": 1860475000,
+  "diff": 0.531,
+  "passed": false
+ },
+ {
+  "ticker": "CGBD",
+  "period": "2023-12-31",
+  "rows": 253,
+  "line_item_sum": 2840907000,
+  "reported_total": 1841881000,
+  "diff": 0.5424,
+  "passed": false
+ },
+ {
+  "ticker": "CGBD",
+  "period": "2024-03-31",
+  "rows": 249,
+  "line_item_sum": 2722488000,
+  "reported_total": 1784893000,
+  "diff": 0.5253,
+  "passed": false
+ },
+ {
+  "ticker": "CGBD",
+  "period": "2024-06-30",
+  "rows": 250,
+  "line_item_sum": 2536822000,
+  "reported_total": 1726050000,
+  "diff": 0.4697,
+  "passed": false
+ },
+ {
+  "ticker": "CGBD",
+  "period": "2024-09-30",
+  "rows": 239,
+  "line_item_sum": 2445223000,
+  "reported_total": 1709537000,
+  "diff": 0.4303,
+  "passed": false
+ },
+ {
+  "ticker": "CGBD",
+  "period": "2024-12-31",
+  "rows": 257,
+  "line_item_sum": 2518996000,
+  "reported_total": 1803543000,
+  "diff": 0.3967,
+  "passed": false
+ },
+ {
+  "ticker": "CGBD",
+  "period": "2025-03-31",
+  "rows": 234,
+  "line_item_sum": 2847927000,
+  "reported_total": 2245626000,
+  "diff": 0.2682,
+  "passed": false
+ },
+ {
+  "ticker": "CGBD",
+  "period": "2025-06-30",
+  "rows": 245,
+  "line_item_sum": 3038800000,
+  "reported_total": 2334961000,
+  "diff": 0.3014,
+  "passed": false
+ },
+ {
+  "ticker": "CGBD",
+  "period": "2025-09-30",
+  "rows": 269,
+  "line_item_sum": 3193619000,
+  "reported_total": 2422630000,
+  "diff": 0.3182,
+  "passed": false
+ },
+ {
+  "ticker": "CGBD",
+  "period": "2025-12-31",
+  "rows": 288,
+  "line_item_sum": 3411938000,
+  "reported_total": 2463922000,
+  "diff": 0.3848,
+  "passed": false
+ },
+ {
+  "ticker": "CGBD",
+  "period": "2026-03-31",
+  "rows": 317,
+  "line_item_sum": 3287685000,
+  "reported_total": 2277105000,
+  "diff": 0.4438,
+  "passed": false
+ },
+ {
+  "ticker": "CGBD",
+  "period": "2026-06-30",
+  "rows": 341,
+  "line_item_sum": 3526522000,
+  "reported_total": 2360009000,
+  "diff": 0.4943,
+  "passed": false
+ },
+ {
+  "ticker": "CSWC",
+  "period": "2022-06-30",
+  "rows": 0,
+  "line_item_sum": 0,
+  "reported_total": null,
+  "diff": null,
+  "passed": false
+ },
+ {
+  "ticker": "CSWC",
+  "period": "2022-09-30",
+  "rows": 250,
+  "line_item_sum": 1197353000,
+  "reported_total": 1056931000,
+  "diff": 0.1329,
+  "passed": false
+ },
+ {
+  "ticker": "CSWC",
+  "period": "2022-12-31",
+  "rows": 264,
+  "line_item_sum": 1279450000,
+  "reported_total": 1150046000,
+  "diff": 0.1125,
+  "passed": false
+ },
+ {
+  "ticker": "CSWC",
+  "period": "2023-03-31",
+  "rows": 279,
+  "line_item_sum": 1323102000,
+  "reported_total": 1206388000,
+  "diff": 0.0967,
+  "passed": false
+ },
+ {
+  "ticker": "CSWC",
+  "period": "2023-06-30",
+  "rows": 246,
+  "line_item_sum": 1236753000,
+  "reported_total": 1285318000,
+  "diff": -0.0378,
+  "passed": false
+ },
+ {
+  "ticker": "CSWC",
+  "period": "2023-09-30",
+  "rows": 258,
+  "line_item_sum": 1280566000,
+  "reported_total": 1353566000,
+  "diff": -0.0539,
+  "passed": false
+ },
+ {
+  "ticker": "CSWC",
+  "period": "2023-12-31",
+  "rows": 271,
+  "line_item_sum": 1265054000,
+  "reported_total": 1365037000,
+  "diff": -0.0732,
+  "passed": false
+ },
+ {
+  "ticker": "CSWC",
+  "period": "2024-03-31",
+  "rows": 314,
+  "line_item_sum": 1361405000,
+  "reported_total": 1476561000,
+  "diff": -0.078,
+  "passed": false
+ },
+ {
+  "ticker": "CSWC",
+  "period": "2024-06-30",
+  "rows": 316,
+  "line_item_sum": 1350889000,
+  "reported_total": 1468126000,
+  "diff": -0.0799,
+  "passed": false
+ },
+ {
+  "ticker": "CSWC",
+  "period": "2024-09-30",
+  "rows": 327,
+  "line_item_sum": 1439113000,
+  "reported_total": 1508507000,
+  "diff": -0.046,
+  "passed": false
+ },
+ {
+  "ticker": "CSWC",
+  "period": "2024-12-31",
+  "rows": 353,
+  "line_item_sum": 1598834000,
+  "reported_total": 1701286000,
+  "diff": -0.0602,
+  "passed": false
+ },
+ {
+  "ticker": "CSWC",
+  "period": "2025-03-31",
+  "rows": 365,
+  "line_item_sum": 1683495000,
+  "reported_total": 1785299000,
+  "diff": -0.057,
+  "passed": false
+ },
+ {
+  "ticker": "CSWC",
+  "period": "2025-06-30",
+  "rows": 368,
+  "line_item_sum": 1704485000,
+  "reported_total": 1780198000,
+  "diff": -0.0425,
+  "passed": false
+ },
+ {
+  "ticker": "CSWC",
+  "period": "2025-09-30",
+  "rows": 379,
+  "line_item_sum": 1787955000,
+  "reported_total": 1877907000,
+  "diff": -0.0479,
+  "passed": false
+ },
+ {
+  "ticker": "CSWC",
+  "period": "2025-12-31",
+  "rows": 396,
+  "line_item_sum": 1850831000,
+  "reported_total": 2013205000,
+  "diff": -0.0807,
+  "passed": false
+ },
+ {
+  "ticker": "CSWC",
+  "period": "2026-03-31",
+  "rows": 404,
+  "line_item_sum": 1910701000,
+  "reported_total": 2097446000,
+  "diff": -0.089,
+  "passed": false
+ },
+ {
+  "ticker": "CSWC",
+  "period": "2026-06-30",
+  "rows": 445,
+  "line_item_sum": 2099498000,
+  "reported_total": 2202282000,
+  "diff": -0.0467,
+  "passed": false
+ },
+ {
+  "ticker": "FDUS",
+  "period": "2022-09-30",
+  "rows": 0,
+  "line_item_sum": 0,
+  "reported_total": 856914000,
+  "diff": -1.0,
+  "passed": false
+ },
+ {
+  "ticker": "FDUS",
+  "period": "2022-12-31",
+  "rows": 0,
+  "line_item_sum": 0,
+  "reported_total": 860329000,
+  "diff": -1.0,
+  "passed": false
+ },
+ {
+  "ticker": "FDUS",
+  "period": "2023-03-31",
+  "rows": 193,
+  "line_item_sum": 2392421000,
+  "reported_total": 897324000,
+  "diff": 1.6662,
+  "passed": false
+ },
+ {
+  "ticker": "FDUS",
+  "period": "2023-06-30",
+  "rows": 192,
+  "line_item_sum": 2414364000,
+  "reported_total": 928722000,
+  "diff": 1.5997,
+  "passed": false
+ },
+ {
+  "ticker": "FDUS",
+  "period": "2023-09-30",
+  "rows": 206,
+  "line_item_sum": 2447215000,
+  "reported_total": 926859000,
+  "diff": 1.6403,
+  "passed": false
+ },
+ {
+  "ticker": "FDUS",
+  "period": "2023-12-31",
+  "rows": 203,
+  "line_item_sum": 2545551000,
+  "reported_total": 957906000,
+  "diff": 1.6574,
+  "passed": false
+ },
+ {
+  "ticker": "FDUS",
+  "period": "2024-03-31",
+  "rows": 223,
+  "line_item_sum": 2806992000,
+  "reported_total": 1048071000,
+  "diff": 1.6782,
+  "passed": false
+ },
+ {
+  "ticker": "FDUS",
+  "period": "2024-06-30",
+  "rows": 218,
+  "line_item_sum": 2885037000,
+  "reported_total": 1078424000,
+  "diff": 1.6752,
+  "passed": false
+ },
+ {
+  "ticker": "FDUS",
+  "period": "2024-09-30",
+  "rows": 218,
+  "line_item_sum": 2937907000,
+  "reported_total": 1090675000,
+  "diff": 1.6937,
+  "passed": false
+ },
+ {
+  "ticker": "FDUS",
+  "period": "2024-12-31",
+  "rows": 230,
+  "line_item_sum": 2935309000,
+  "reported_total": 1090506000,
+  "diff": 1.6917,
+  "passed": false
+ },
+ {
+  "ticker": "FDUS",
+  "period": "2025-03-31",
+  "rows": 245,
+  "line_item_sum": 3153346000,
+  "reported_total": 1154408000,
+  "diff": 1.7316,
+  "passed": false
+ },
+ {
+  "ticker": "FDUS",
+  "period": "2025-06-30",
+  "rows": 182,
+  "line_item_sum": 1137991000,
+  "reported_total": 1149304000,
+  "diff": -0.0098,
+  "passed": true
+ },
+ {
+  "ticker": "FDUS",
+  "period": "2025-09-30",
+  "rows": 188,
+  "line_item_sum": 1191220000,
+  "reported_total": 1192748000,
+  "diff": -0.0013,
+  "passed": true
+ },
+ {
+  "ticker": "FDUS",
+  "period": "2025-12-31",
+  "rows": 183,
+  "line_item_sum": 1311058000,
+  "reported_total": 1324753000,
+  "diff": -0.0103,
+  "passed": true
+ },
+ {
+  "ticker": "FDUS",
+  "period": "2026-03-31",
+  "rows": 184,
+  "line_item_sum": 1366532000,
+  "reported_total": 1369257000,
+  "diff": -0.002,
+  "passed": true
+ },
+ {
+  "ticker": "FDUS",
+  "period": "2026-06-30",
+  "rows": 192,
+  "line_item_sum": 1430166000,
+  "reported_total": 1432911000,
+  "diff": -0.0019,
+  "passed": true
+ },
+ {
+  "ticker": "FSK",
+  "period": "2022-09-30",
+  "rows": 536,
+  "line_item_sum": 18219300000,
+  "reported_total": 15791800000,
+  "diff": 0.1537,
+  "passed": false
+ },
+ {
+  "ticker": "FSK",
+  "period": "2022-12-31",
+  "rows": 537,
+  "line_item_sum": 17735800000,
+  "reported_total": 15377300000,
+  "diff": 0.1534,
+  "passed": false
+ },
+ {
+  "ticker": "FSK",
+  "period": "2023-03-31",
+  "rows": 541,
+  "line_item_sum": 18210300000,
+  "reported_total": 15277100000,
+  "diff": 0.192,
+  "passed": false
+ },
+ {
+  "ticker": "FSK",
+  "period": "2023-06-30",
+  "rows": 515,
+  "line_item_sum": 17536300000,
+  "reported_total": 14764000000,
+  "diff": 0.1878,
+  "passed": false
+ },
+ {
+  "ticker": "FSK",
+  "period": "2023-09-30",
+  "rows": 548,
+  "line_item_sum": 17673400000,
+  "reported_total": 14666100000,
+  "diff": 0.2051,
+  "passed": false
+ },
+ {
+  "ticker": "FSK",
+  "period": "2023-12-31",
+  "rows": 449,
+  "line_item_sum": 15474300000,
+  "reported_total": 14649300000,
+  "diff": 0.0563,
+  "passed": false
+ },
+ {
+  "ticker": "FSK",
+  "period": "2024-03-31",
+  "rows": 466,
+  "line_item_sum": 15357700000,
+  "reported_total": 14220800000,
+  "diff": 0.0799,
+  "passed": false
+ },
+ {
+  "ticker": "FSK",
+  "period": "2024-06-30",
+  "rows": 490,
+  "line_item_sum": 15285800000,
+  "reported_total": 14087400000,
+  "diff": 0.0851,
+  "passed": false
+ },
+ {
+  "ticker": "FSK",
+  "period": "2024-09-30",
+  "rows": 516,
+  "line_item_sum": 15394200000,
+  "reported_total": 13943400000,
+  "diff": 0.104,
+  "passed": false
+ },
+ {
+  "ticker": "FSK",
+  "period": "2024-12-31",
+  "rows": 531,
+  "line_item_sum": 14950800000,
+  "reported_total": 13490400000,
+  "diff": 0.1083,
+  "passed": false
+ },
+ {
+  "ticker": "FSK",
+  "period": "2025-03-31",
+  "rows": 556,
+  "line_item_sum": 15657300000,
+  "reported_total": 14121500000,
+  "diff": 0.1088,
+  "passed": false
+ },
+ {
+  "ticker": "FSK",
+  "period": "2025-06-30",
+  "rows": 558,
+  "line_item_sum": 15255600000,
+  "reported_total": 13647800000,
+  "diff": 0.1178,
+  "passed": false
+ },
+ {
+  "ticker": "FSK",
+  "period": "2025-09-30",
+  "rows": 562,
+  "line_item_sum": 15066200000,
+  "reported_total": 13414700000,
+  "diff": 0.1231,
+  "passed": false
+ },
+ {
+  "ticker": "FSK",
+  "period": "2025-12-31",
+  "rows": 597,
+  "line_item_sum": 14437100000,
+  "reported_total": 13008600000,
+  "diff": 0.1098,
+  "passed": false
+ },
+ {
+  "ticker": "FSK",
+  "period": "2026-03-31",
+  "rows": 597,
+  "line_item_sum": 13489000000,
+  "reported_total": 12269400000,
+  "diff": 0.0994,
+  "passed": false
+ },
+ {
+  "ticker": "FSK",
+  "period": "2026-06-30",
+  "rows": 609,
+  "line_item_sum": 12506200000,
+  "reported_total": 11418100000,
+  "diff": 0.0953,
+  "passed": false
+ },
+ {
+  "ticker": "GAIN",
+  "period": "2022-09-30",
+  "rows": 70,
+  "line_item_sum": 809535000,
+  "reported_total": 737935000,
+  "diff": 0.097,
+  "passed": false
+ },
+ {
+  "ticker": "GAIN",
+  "period": "2022-12-31",
+  "rows": 66,
+  "line_item_sum": 837263000,
+  "reported_total": 760463000,
+  "diff": 0.101,
+  "passed": false
+ },
+ {
+  "ticker": "GAIN",
+  "period": "2023-03-31",
+  "rows": 62,
+  "line_item_sum": 753543000,
+  "reported_total": 753543000,
+  "diff": 0.0,
+  "passed": true
+ },
+ {
+  "ticker": "GAIN",
+  "period": "2023-06-30",
+  "rows": 65,
+  "line_item_sum": 800078000,
+  "reported_total": 800078000,
+  "diff": 0.0,
+  "passed": true
+ },
+ {
+  "ticker": "GAIN",
+  "period": "2023-09-30",
+  "rows": 68,
+  "line_item_sum": 915636000,
+  "reported_total": 915636000,
+  "diff": 0.0,
+  "passed": true
+ },
+ {
+  "ticker": "GAIN",
+  "period": "2023-12-31",
+  "rows": 63,
+  "line_item_sum": 902808000,
+  "reported_total": 902808000,
+  "diff": 0.0,
+  "passed": true
+ },
+ {
+  "ticker": "GAIN",
+  "period": "2024-03-31",
+  "rows": 60,
+  "line_item_sum": 920504000,
+  "reported_total": 920504000,
+  "diff": 0.0,
+  "passed": true
+ },
+ {
+  "ticker": "GAIN",
+  "period": "2024-06-30",
+  "rows": 59,
+  "line_item_sum": 899138000,
+  "reported_total": 899138000,
+  "diff": 0.0,
+  "passed": true
+ },
+ {
+  "ticker": "GAIN",
+  "period": "2024-09-30",
+  "rows": 57,
+  "line_item_sum": 853307000,
+  "reported_total": 853307000,
+  "diff": 0.0,
+  "passed": true
+ },
+ {
+  "ticker": "GAIN",
+  "period": "2024-12-31",
+  "rows": 67,
+  "line_item_sum": 1072230000,
+  "reported_total": 1072230000,
+  "diff": 0.0,
+  "passed": true
+ },
+ {
+  "ticker": "GAIN",
+  "period": "2025-03-31",
+  "rows": 63,
+  "line_item_sum": 979320000,
+  "reported_total": 979320000,
+  "diff": 0.0,
+  "passed": true
+ },
+ {
+  "ticker": "GAIN",
+  "period": "2025-06-30",
+  "rows": 66,
+  "line_item_sum": 1036745000,
+  "reported_total": 1036745000,
+  "diff": 0.0,
+  "passed": true
+ },
+ {
+  "ticker": "GAIN",
+  "period": "2025-09-30",
+  "rows": 65,
+  "line_item_sum": 1130859000,
+  "reported_total": 1130859000,
+  "diff": 0.0,
+  "passed": true
+ },
+ {
+  "ticker": "GAIN",
+  "period": "2025-12-31",
+  "rows": 64,
+  "line_item_sum": 1222792000,
+  "reported_total": 1222792000,
+  "diff": 0.0,
+  "passed": true
+ },
+ {
+  "ticker": "GAIN",
+  "period": "2026-03-31",
+  "rows": 65,
+  "line_item_sum": 1309248000,
+  "reported_total": 1309248000,
+  "diff": 0.0,
+  "passed": true
+ },
+ {
+  "ticker": "GAIN",
+  "period": "2026-06-30",
+  "rows": 65,
+  "line_item_sum": 1282020000,
+  "reported_total": 1282020000,
+  "diff": 0.0,
+  "passed": true
+ },
+ {
+  "ticker": "GBDC",
+  "period": "2022-06-30",
+  "rows": 0,
+  "line_item_sum": 0,
+  "reported_total": null,
+  "diff": null,
+  "passed": false
+ },
+ {
+  "ticker": "GBDC",
+  "period": "2022-09-30",
+  "rows": 1493,
+  "line_item_sum": 5432970000,
+  "reported_total": 5446356000,
+  "diff": -0.0025,
+  "passed": true
+ },
+ {
+  "ticker": "GBDC",
+  "period": "2022-12-31",
+  "rows": 1502,
+  "line_item_sum": 5438492000,
+  "reported_total": 5451946000,
+  "diff": -0.0025,
+  "passed": true
+ },
+ {
+  "ticker": "GBDC",
+  "period": "2023-03-31",
+  "rows": 1387,
+  "line_item_sum": 5485453000,
+  "reported_total": 5486352000,
+  "diff": -0.0002,
+  "passed": true
+ },
+ {
+  "ticker": "GBDC",
+  "period": "2023-06-30",
+  "rows": 1367,
+  "line_item_sum": 5524045000,
+  "reported_total": 5525009000,
+  "diff": -0.0002,
+  "passed": true
+ },
+ {
+  "ticker": "GBDC",
+  "period": "2023-09-30",
+  "rows": 1419,
+  "line_item_sum": 5515649000,
+  "reported_total": 5516613000,
+  "diff": -0.0002,
+  "passed": true
+ },
+ {
+  "ticker": "GBDC",
+  "period": "2023-12-31",
+  "rows": 1502,
+  "line_item_sum": 5443146000,
+  "reported_total": 5443427000,
+  "diff": -0.0001,
+  "passed": true
+ },
+ {
+  "ticker": "GBDC",
+  "period": "2024-03-31",
+  "rows": 1534,
+  "line_item_sum": 5394375000,
+  "reported_total": 5394737000,
+  "diff": -0.0001,
+  "passed": true
+ },
+ {
+  "ticker": "GBDC",
+  "period": "2024-06-30",
+  "rows": 1565,
+  "line_item_sum": 7865943000,
+  "reported_total": 7867514000,
+  "diff": -0.0002,
+  "passed": true
+ },
+ {
+  "ticker": "GBDC",
+  "period": "2024-09-30",
+  "rows": 1564,
+  "line_item_sum": 8233864000,
+  "reported_total": 8235411000,
+  "diff": -0.0002,
+  "passed": true
+ },
+ {
+  "ticker": "GBDC",
+  "period": "2024-12-31",
+  "rows": 1624,
+  "line_item_sum": 8683949000,
+  "reported_total": 8685231000,
+  "diff": -0.0001,
+  "passed": true
+ },
+ {
+  "ticker": "GBDC",
+  "period": "2025-03-31",
+  "rows": 1649,
+  "line_item_sum": 8619850000,
+  "reported_total": 8621220000,
+  "diff": -0.0002,
+  "passed": true
+ },
+ {
+  "ticker": "GBDC",
+  "period": "2025-06-30",
+  "rows": 1697,
+  "line_item_sum": 8959602000,
+  "reported_total": 8961549000,
+  "diff": -0.0002,
+  "passed": true
+ },
+ {
+  "ticker": "GBDC",
+  "period": "2025-09-30",
+  "rows": 1741,
+  "line_item_sum": 8636560000,
+  "reported_total": 8769389000,
+  "diff": -0.0151,
+  "passed": true
+ },
+ {
+  "ticker": "GBDC",
+  "period": "2025-12-31",
+  "rows": 1762,
+  "line_item_sum": 8517591000,
+  "reported_total": 8639231000,
+  "diff": -0.0141,
+  "passed": true
+ },
+ {
+  "ticker": "GBDC",
+  "period": "2026-03-31",
+  "rows": 1759,
+  "line_item_sum": 8195358000,
+  "reported_total": 8317245000,
+  "diff": -0.0147,
+  "passed": true
+ },
+ {
+  "ticker": "GBDC",
+  "period": "2026-06-30",
+  "rows": 1779,
+  "line_item_sum": 8079909000,
+  "reported_total": 8196353000,
+  "diff": -0.0142,
+  "passed": true
+ },
+ {
+  "ticker": "HTGC",
+  "period": "2022-09-30",
+  "rows": 0,
+  "line_item_sum": 0,
+  "reported_total": 2825738000,
+  "diff": -1.0,
+  "passed": false
+ },
+ {
+  "ticker": "HTGC",
+  "period": "2022-12-31",
+  "rows": 0,
+  "line_item_sum": 0,
+  "reported_total": 2963955000,
+  "diff": -1.0,
+  "passed": false
+ },
+ {
+  "ticker": "HTGC",
+  "period": "2023-03-31",
+  "rows": 363,
+  "line_item_sum": 18929904000,
+  "reported_total": 3130178000,
+  "diff": 5.0475,
+  "passed": false
+ },
+ {
+  "ticker": "HTGC",
+  "period": "2023-06-30",
+  "rows": 353,
+  "line_item_sum": 15564855000,
+  "reported_total": 3112789000,
+  "diff": 4.0003,
+  "passed": false
+ },
+ {
+  "ticker": "HTGC",
+  "period": "2023-09-30",
+  "rows": 386,
+  "line_item_sum": 16308950000,
+  "reported_total": 3261391000,
+  "diff": 4.0006,
+  "passed": false
+ },
+ {
+  "ticker": "HTGC",
+  "period": "2023-12-31",
+  "rows": 382,
+  "line_item_sum": 19819451000,
+  "reported_total": 3248046000,
+  "diff": 5.102,
+  "passed": false
+ },
+ {
+  "ticker": "HTGC",
+  "period": "2024-03-31",
+  "rows": 392,
+  "line_item_sum": 18130431000,
+  "reported_total": 3571641000,
+  "diff": 4.0762,
+  "passed": false
+ },
+ {
+  "ticker": "HTGC",
+  "period": "2024-06-30",
+  "rows": 381,
+  "line_item_sum": 18018273000,
+  "reported_total": 3568539000,
+  "diff": 4.0492,
+  "passed": false
+ },
+ {
+  "ticker": "HTGC",
+  "period": "2024-09-30",
+  "rows": 375,
+  "line_item_sum": 18031587000,
+  "reported_total": 3560513000,
+  "diff": 4.0643,
+  "passed": false
+ },
+ {
+  "ticker": "HTGC",
+  "period": "2024-12-31",
+  "rows": 369,
+  "line_item_sum": 22347702000,
+  "reported_total": 3659978000,
+  "diff": 5.106,
+  "passed": false
+ },
+ {
+  "ticker": "HTGC",
+  "period": "2025-03-31",
+  "rows": 371,
+  "line_item_sum": 24073053000,
+  "reported_total": 3924450000,
+  "diff": 5.1341,
+  "passed": false
+ },
+ {
+  "ticker": "HTGC",
+  "period": "2025-06-30",
+  "rows": 390,
+  "line_item_sum": 25689444000,
+  "reported_total": 4176486000,
+  "diff": 5.151,
+  "passed": false
+ },
+ {
+  "ticker": "HTGC",
+  "period": "2025-09-30",
+  "rows": 357,
+  "line_item_sum": 5121155000,
+  "reported_total": 4306154000,
+  "diff": 0.1893,
+  "passed": false
+ },
+ {
+  "ticker": "HTGC",
+  "period": "2025-12-31",
+  "rows": 362,
+  "line_item_sum": 5329696000,
+  "reported_total": 4466647000,
+  "diff": 0.1932,
+  "passed": false
+ },
+ {
+  "ticker": "HTGC",
+  "period": "2026-03-31",
+  "rows": 361,
+  "line_item_sum": 4621396000,
+  "reported_total": 4721987000,
+  "diff": -0.0213,
+  "passed": true
+ },
+ {
+  "ticker": "HTGC",
+  "period": "2026-06-30",
+  "rows": 362,
+  "line_item_sum": 4537183000,
+  "reported_total": 4583870000,
+  "diff": -0.0102,
+  "passed": true
+ },
+ {
+  "ticker": "KBDC",
+  "period": "2022-09-30",
+  "rows": 0,
+  "line_item_sum": 0,
+  "reported_total": null,
+  "diff": null,
+  "passed": false
+ },
+ {
+  "ticker": "KBDC",
+  "period": "2022-12-31",
+  "rows": 0,
+  "line_item_sum": 0,
+  "reported_total": null,
+  "diff": null,
+  "passed": false
+ },
+ {
+  "ticker": "KBDC",
+  "period": "2023-03-31",
+  "rows": 0,
+  "line_item_sum": 0,
+  "reported_total": null,
+  "diff": null,
+  "passed": false
+ },
+ {
+  "ticker": "KBDC",
+  "period": "2023-06-30",
+  "rows": 0,
+  "line_item_sum": 0,
+  "reported_total": 1299045000,
+  "diff": -1.0,
+  "passed": false
+ },
+ {
+  "ticker": "KBDC",
+  "period": "2023-09-30",
+  "rows": 0,
+  "line_item_sum": 0,
+  "reported_total": null,
+  "diff": null,
+  "passed": false
+ },
+ {
+  "ticker": "KBDC",
+  "period": "2023-12-31",
+  "rows": 0,
+  "line_item_sum": 0,
+  "reported_total": 1376300000,
+  "diff": -1.0,
+  "passed": false
+ },
+ {
+  "ticker": "KBDC",
+  "period": "2024-03-31",
+  "rows": 0,
+  "line_item_sum": 0,
+  "reported_total": 1794913000,
+  "diff": -1.0,
+  "passed": false
+ },
+ {
+  "ticker": "KBDC",
+  "period": "2024-06-30",
+  "rows": 0,
+  "line_item_sum": 0,
+  "reported_total": 1867402000,
+  "diff": -1.0,
+  "passed": false
+ },
+ {
+  "ticker": "KBDC",
+  "period": "2024-09-30",
+  "rows": 0,
+  "line_item_sum": 0,
+  "reported_total": null,
+  "diff": null,
+  "passed": false
+ },
+ {
+  "ticker": "KBDC",
+  "period": "2024-12-31",
+  "rows": 0,
+  "line_item_sum": 0,
+  "reported_total": null,
+  "diff": null,
+  "passed": false
+ },
+ {
+  "ticker": "KBDC",
+  "period": "2025-03-31",
+  "rows": 0,
+  "line_item_sum": 0,
+  "reported_total": null,
+  "diff": null,
+  "passed": false
+ },
+ {
+  "ticker": "KBDC",
+  "period": "2025-06-30",
+  "rows": 255,
+  "line_item_sum": 4290326000,
+  "reported_total": null,
+  "diff": null,
+  "passed": false
+ },
+ {
+  "ticker": "KBDC",
+  "period": "2025-09-30",
+  "rows": 265,
+  "line_item_sum": 4305917000,
+  "reported_total": null,
+  "diff": null,
+  "passed": false
+ },
+ {
+  "ticker": "KBDC",
+  "period": "2025-12-31",
+  "rows": 266,
+  "line_item_sum": 4301389000,
+  "reported_total": null,
+  "diff": null,
+  "passed": false
+ },
+ {
+  "ticker": "KBDC",
+  "period": "2026-03-31",
+  "rows": 319,
+  "line_item_sum": 2192315963,
+  "reported_total": 2212652000,
+  "diff": -0.0092,
+  "passed": true
+ },
+ {
+  "ticker": "KBDC",
+  "period": "2026-06-30",
+  "rows": 335,
+  "line_item_sum": 2252973658,
+  "reported_total": 2291802000,
+  "diff": -0.0169,
+  "passed": true
+ },
+ {
+  "ticker": "MAIN",
+  "period": "2022-06-30",
+  "rows": 0,
+  "line_item_sum": 0,
+  "reported_total": null,
+  "diff": null,
+  "passed": false
+ },
+ {
+  "ticker": "MAIN",
+  "period": "2022-09-30",
+  "rows": 482,
+  "line_item_sum": 3972555000,
+  "reported_total": 3973490000,
+  "diff": -0.0002,
+  "passed": true
+ },
+ {
+  "ticker": "MAIN",
+  "period": "2022-12-31",
+  "rows": 499,
+  "line_item_sum": 4101239000,
+  "reported_total": 4102177000,
+  "diff": -0.0002,
+  "passed": true
+ },
+ {
+  "ticker": "MAIN",
+  "period": "2023-03-31",
+  "rows": 509,
+  "line_item_sum": 4159976000,
+  "reported_total": 4160917000,
+  "diff": -0.0002,
+  "passed": true
+ },
+ {
+  "ticker": "MAIN",
+  "period": "2023-06-30",
+  "rows": 511,
+  "line_item_sum": 4193480000,
+  "reported_total": 4210543000,
+  "diff": -0.0041,
+  "passed": true
+ },
+ {
+  "ticker": "MAIN",
+  "period": "2023-09-30",
+  "rows": 546,
+  "line_item_sum": 4317887000,
+  "reported_total": 4294722000,
+  "diff": 0.0054,
+  "passed": true
+ },
+ {
+  "ticker": "MAIN",
+  "period": "2023-12-31",
+  "rows": 543,
+  "line_item_sum": 4284148000,
+  "reported_total": 4286271000,
+  "diff": -0.0005,
+  "passed": true
+ },
+ {
+  "ticker": "MAIN",
+  "period": "2024-03-31",
+  "rows": 551,
+  "line_item_sum": 4582380000,
+  "reported_total": 4548027000,
+  "diff": 0.0076,
+  "passed": true
+ },
+ {
+  "ticker": "MAIN",
+  "period": "2024-06-30",
+  "rows": 560,
+  "line_item_sum": 4715312000,
+  "reported_total": 4737511000,
+  "diff": -0.0047,
+  "passed": true
+ },
+ {
+  "ticker": "MAIN",
+  "period": "2024-09-30",
+  "rows": 564,
+  "line_item_sum": 4919455000,
+  "reported_total": 4911054000,
+  "diff": 0.0017,
+  "passed": true
+ },
+ {
+  "ticker": "MAIN",
+  "period": "2024-12-31",
+  "rows": 566,
+  "line_item_sum": 4911272000,
+  "reported_total": 4932669000,
+  "diff": -0.0043,
+  "passed": true
+ },
+ {
+  "ticker": "MAIN",
+  "period": "2025-03-31",
+  "rows": 561,
+  "line_item_sum": 5056713000,
+  "reported_total": 5054139000,
+  "diff": 0.0005,
+  "passed": true
+ },
+ {
+  "ticker": "MAIN",
+  "period": "2025-06-30",
+  "rows": 567,
+  "line_item_sum": 5068012000,
+  "reported_total": 5093070000,
+  "diff": -0.0049,
+  "passed": true
+ },
+ {
+  "ticker": "MAIN",
+  "period": "2025-09-30",
+  "rows": 573,
+  "line_item_sum": 5103378000,
+  "reported_total": 5147773000,
+  "diff": -0.0086,
+  "passed": true
+ },
+ {
+  "ticker": "MAIN",
+  "period": "2025-12-31",
+  "rows": 595,
+  "line_item_sum": 5477611000,
+  "reported_total": 5518117000,
+  "diff": -0.0073,
+  "passed": true
+ },
+ {
+  "ticker": "MAIN",
+  "period": "2026-03-31",
+  "rows": 607,
+  "line_item_sum": 5635017000,
+  "reported_total": 5674751000,
+  "diff": -0.007,
+  "passed": true
+ },
+ {
+  "ticker": "MAIN",
+  "period": "2026-06-30",
+  "rows": 611,
+  "line_item_sum": 5715743000,
+  "reported_total": 5746044000,
+  "diff": -0.0053,
+  "passed": true
+ },
+ {
+  "ticker": "MFIC",
+  "period": "2022-09-30",
+  "rows": 0,
+  "line_item_sum": 0,
+  "reported_total": 2463545000,
+  "diff": -1.0,
+  "passed": false
+ },
+ {
+  "ticker": "MFIC",
+  "period": "2023-03-31",
+  "rows": 75,
+  "line_item_sum": 7132253000,
+  "reported_total": 2385211000,
+  "diff": 1.9902,
+  "passed": false
+ },
+ {
+  "ticker": "MFIC",
+  "period": "2023-06-30",
+  "rows": 518,
+  "line_item_sum": 18793424000,
+  "reported_total": 2409287000,
+  "diff": 6.8004,
+  "passed": false
+ },
+ {
+  "ticker": "MFIC",
+  "period": "2023-09-30",
+  "rows": 482,
+  "line_item_sum": 17778514000,
+  "reported_total": 2369108000,
+  "diff": 6.5043,
+  "passed": false
+ },
+ {
+  "ticker": "MFIC",
+  "period": "2023-12-31",
+  "rows": 509,
+  "line_item_sum": 13353975000,
+  "reported_total": 2334199000,
+  "diff": 4.721,
+  "passed": false
+ },
+ {
+  "ticker": "MFIC",
+  "period": "2024-03-31",
+  "rows": 539,
+  "line_item_sum": 13171502000,
+  "reported_total": 2352835000,
+  "diff": 4.5981,
+  "passed": false
+ },
+ {
+  "ticker": "MFIC",
+  "period": "2024-06-30",
+  "rows": 640,
+  "line_item_sum": 13883750000,
+  "reported_total": 2444352000,
+  "diff": 4.6799,
+  "passed": false
+ },
+ {
+  "ticker": "MFIC",
+  "period": "2024-09-30",
+  "rows": 852,
+  "line_item_sum": 17026330000,
+  "reported_total": 3027094000,
+  "diff": 4.6246,
+  "passed": false
+ },
+ {
+  "ticker": "MFIC",
+  "period": "2024-12-31",
+  "rows": 827,
+  "line_item_sum": 17029444000,
+  "reported_total": 3014416000,
+  "diff": 4.6493,
+  "passed": false
+ },
+ {
+  "ticker": "MFIC",
+  "period": "2025-03-31",
+  "rows": 850,
+  "line_item_sum": 12589028000,
+  "reported_total": 3188621000,
+  "diff": 2.9481,
+  "passed": false
+ },
+ {
+  "ticker": "MFIC",
+  "period": "2025-06-30",
+  "rows": 593,
+  "line_item_sum": 3327379000,
+  "reported_total": 3327482000,
+  "diff": -0.0,
+  "passed": true
+ },
+ {
+  "ticker": "MFIC",
+  "period": "2025-09-30",
+  "rows": 585,
+  "line_item_sum": 3180797000,
+  "reported_total": 3180965000,
+  "diff": -0.0001,
+  "passed": true
+ },
+ {
+  "ticker": "MFIC",
+  "period": "2025-12-31",
+  "rows": 597,
+  "line_item_sum": 3167687000,
+  "reported_total": 3167838000,
+  "diff": -0.0,
+  "passed": true
+ },
+ {
+  "ticker": "MFIC",
+  "period": "2026-03-31",
+  "rows": 577,
+  "line_item_sum": 2971501000,
+  "reported_total": 2971487000,
+  "diff": 0.0,
+  "passed": true
+ },
+ {
+  "ticker": "MFIC",
+  "period": "2026-06-30",
+  "rows": 554,
+  "line_item_sum": 2770143000,
+  "reported_total": 2770342000,
+  "diff": -0.0001,
+  "passed": true
+ },
+ {
+  "ticker": "MSDL",
+  "period": "2022-12-31",
+  "rows": 0,
+  "line_item_sum": 0,
+  "reported_total": null,
+  "diff": null,
+  "passed": false
+ },
+ {
+  "ticker": "MSDL",
+  "period": "2023-03-31",
+  "rows": 405,
+  "line_item_sum": 2926097000,
+  "reported_total": 2926097000,
+  "diff": 0.0,
+  "passed": true
+ },
+ {
+  "ticker": "MSDL",
+  "period": "2023-06-30",
+  "rows": 390,
+  "line_item_sum": 2967315000,
+  "reported_total": 2983727000,
+  "diff": -0.0055,
+  "passed": true
+ },
+ {
+  "ticker": "MSDL",
+  "period": "2023-09-30",
+  "rows": 409,
+  "line_item_sum": 3106805000,
+  "reported_total": 3123450000,
+  "diff": -0.0053,
+  "passed": true
+ },
+ {
+  "ticker": "MSDL",
+  "period": "2023-12-31",
+  "rows": 427,
+  "line_item_sum": 3176898000,
+  "reported_total": 3193561000,
+  "diff": -0.0052,
+  "passed": true
+ },
+ {
+  "ticker": "MSDL",
+  "period": "2024-03-31",
+  "rows": 451,
+  "line_item_sum": 3276939000,
+  "reported_total": 3293205000,
+  "diff": -0.0049,
+  "passed": true
+ },
+ {
+  "ticker": "MSDL",
+  "period": "2024-06-30",
+  "rows": 501,
+  "line_item_sum": 3609253000,
+  "reported_total": 3514286000,
+  "diff": 0.027,
+  "passed": true
+ },
+ {
+  "ticker": "MSDL",
+  "period": "2024-09-30",
+  "rows": 518,
+  "line_item_sum": 3730757000,
+  "reported_total": 3640324000,
+  "diff": 0.0248,
+  "passed": true
+ },
+ {
+  "ticker": "MSDL",
+  "period": "2024-12-31",
+  "rows": 549,
+  "line_item_sum": 3863885000,
+  "reported_total": 3791494000,
+  "diff": 0.0191,
+  "passed": true
+ },
+ {
+  "ticker": "MSDL",
+  "period": "2025-03-31",
+  "rows": 559,
+  "line_item_sum": 3857578000,
+  "reported_total": 3788178000,
+  "diff": 0.0183,
+  "passed": true
+ },
+ {
+  "ticker": "MSDL",
+  "period": "2025-06-30",
+  "rows": 566,
+  "line_item_sum": 3785523000,
+  "reported_total": 3785496000,
+  "diff": 0.0,
+  "passed": true
+ },
+ {
+  "ticker": "MSDL",
+  "period": "2025-09-30",
+  "rows": 583,
+  "line_item_sum": 3775797000,
+  "reported_total": 3775797000,
+  "diff": 0.0,
+  "passed": true
+ },
+ {
+  "ticker": "MSDL",
+  "period": "2025-12-31",
+  "rows": 608,
+  "line_item_sum": 3771548000,
+  "reported_total": 3771546000,
+  "diff": 0.0,
+  "passed": true
+ },
+ {
+  "ticker": "MSDL",
+  "period": "2026-03-31",
+  "rows": 726,
+  "line_item_sum": 3952174000,
+  "reported_total": 3668950000,
+  "diff": 0.0772,
+  "passed": false
+ },
+ {
+  "ticker": "MSDL",
+  "period": "2026-06-30",
+  "rows": 751,
+  "line_item_sum": 3878678000,
+  "reported_total": 3554287000,
+  "diff": 0.0913,
+  "passed": false
+ },
+ {
+  "ticker": "NMFC",
+  "period": "2022-06-30",
+  "rows": 0,
+  "line_item_sum": 0,
+  "reported_total": null,
+  "diff": null,
+  "passed": false
+ },
+ {
+  "ticker": "NMFC",
+  "period": "2022-09-30",
+  "rows": 471,
+  "line_item_sum": 3992266000,
+  "reported_total": 3234433000,
+  "diff": 0.2343,
+  "passed": false
+ },
+ {
+  "ticker": "NMFC",
+  "period": "2022-12-31",
+  "rows": 481,
+  "line_item_sum": 3976130000,
+  "reported_total": 3221247000,
+  "diff": 0.2343,
+  "passed": false
+ },
+ {
+  "ticker": "NMFC",
+  "period": "2023-03-31",
+  "rows": 492,
+  "line_item_sum": 4004535000,
+  "reported_total": 3270326000,
+  "diff": 0.2245,
+  "passed": false
+ },
+ {
+  "ticker": "NMFC",
+  "period": "2023-06-30",
+  "rows": 489,
+  "line_item_sum": 3924726000,
+  "reported_total": 3179465000,
+  "diff": 0.2344,
+  "passed": false
+ },
+ {
+  "ticker": "NMFC",
+  "period": "2023-09-30",
+  "rows": 468,
+  "line_item_sum": 3870761000,
+  "reported_total": 3111903000,
+  "diff": 0.2439,
+  "passed": false
+ },
+ {
+  "ticker": "NMFC",
+  "period": "2023-12-31",
+  "rows": 475,
+  "line_item_sum": 3803173000,
+  "reported_total": 3011322000,
+  "diff": 0.263,
+  "passed": false
+ },
+ {
+  "ticker": "NMFC",
+  "period": "2024-03-31",
+  "rows": 476,
+  "line_item_sum": 3807859000,
+  "reported_total": 3069982000,
+  "diff": 0.2404,
+  "passed": false
+ },
+ {
+  "ticker": "NMFC",
+  "period": "2024-06-30",
+  "rows": 517,
+  "line_item_sum": 3984794000,
+  "reported_total": 3213780000,
+  "diff": 0.2399,
+  "passed": false
+ },
+ {
+  "ticker": "NMFC",
+  "period": "2024-09-30",
+  "rows": 520,
+  "line_item_sum": 3987427000,
+  "reported_total": 3265271000,
+  "diff": 0.2212,
+  "passed": false
+ },
+ {
+  "ticker": "NMFC",
+  "period": "2024-12-31",
+  "rows": 500,
+  "line_item_sum": 3871303000,
+  "reported_total": 3091024000,
+  "diff": 0.2524,
+  "passed": false
+ },
+ {
+  "ticker": "NMFC",
+  "period": "2025-03-31",
+  "rows": 492,
+  "line_item_sum": 3754013000,
+  "reported_total": 3034211000,
+  "diff": 0.2372,
+  "passed": false
+ },
+ {
+  "ticker": "NMFC",
+  "period": "2025-06-30",
+  "rows": 598,
+  "line_item_sum": 4164469000,
+  "reported_total": 3000696000,
+  "diff": 0.3878,
+  "passed": false
+ },
+ {
+  "ticker": "NMFC",
+  "period": "2025-09-30",
+  "rows": 608,
+  "line_item_sum": 4248910000,
+  "reported_total": 2943619000,
+  "diff": 0.4434,
+  "passed": false
+ },
+ {
+  "ticker": "NMFC",
+  "period": "2025-12-31",
+  "rows": 494,
+  "line_item_sum": 3746299000,
+  "reported_total": 2742013000,
+  "diff": 0.3663,
+  "passed": false
+ },
+ {
+  "ticker": "NMFC",
+  "period": "2026-03-31",
+  "rows": 494,
+  "line_item_sum": 3331735000,
+  "reported_total": 2313379000,
+  "diff": 0.4402,
+  "passed": false
+ },
+ {
+  "ticker": "NMFC",
+  "period": "2026-06-30",
+  "rows": 480,
+  "line_item_sum": 3244526000,
+  "reported_total": 2289805000,
+  "diff": 0.4169,
+  "passed": false
+ },
+ {
+  "ticker": "OBDC",
+  "period": "2022-06-30",
+  "rows": 0,
+  "line_item_sum": 0,
+  "reported_total": null,
+  "diff": null,
+  "passed": false
+ },
+ {
+  "ticker": "OBDC",
+  "period": "2022-09-30",
+  "rows": 433,
+  "line_item_sum": 13817767000,
+  "reported_total": 12835918000,
+  "diff": 0.0765,
+  "passed": false
+ },
+ {
+  "ticker": "OBDC",
+  "period": "2022-12-31",
+  "rows": 440,
+  "line_item_sum": 14007730000,
+  "reported_total": 13010345000,
+  "diff": 0.0767,
+  "passed": false
+ },
+ {
+  "ticker": "OBDC",
+  "period": "2023-03-31",
+  "rows": 449,
+  "line_item_sum": 14216551000,
+  "reported_total": 13157251000,
+  "diff": 0.0805,
+  "passed": false
+ },
+ {
+  "ticker": "OBDC",
+  "period": "2023-06-30",
+  "rows": 451,
+  "line_item_sum": 13991166000,
+  "reported_total": 12892943000,
+  "diff": 0.0852,
+  "passed": false
+ },
+ {
+  "ticker": "OBDC",
+  "period": "2023-12-31",
+  "rows": 475,
+  "line_item_sum": 13768244000,
+  "reported_total": 12713348000,
+  "diff": 0.083,
+  "passed": false
+ },
+ {
+  "ticker": "OBDC",
+  "period": "2024-03-31",
+  "rows": 507,
+  "line_item_sum": 13481595000,
+  "reported_total": 12414384000,
+  "diff": 0.086,
+  "passed": false
+ },
+ {
+  "ticker": "OBDC",
+  "period": "2024-06-30",
+  "rows": 558,
+  "line_item_sum": 14460768000,
+  "reported_total": 13341982000,
+  "diff": 0.0839,
+  "passed": false
+ },
+ {
+  "ticker": "OBDC",
+  "period": "2024-09-30",
+  "rows": 574,
+  "line_item_sum": 14504882000,
+  "reported_total": 13447536000,
+  "diff": 0.0786,
+  "passed": false
+ },
+ {
+  "ticker": "OBDC",
+  "period": "2024-12-31",
+  "rows": 340,
+  "line_item_sum": 13039675000,
+  "reported_total": 13194545000,
+  "diff": -0.0117,
+  "passed": true
+ },
+ {
+  "ticker": "OBDC",
+  "period": "2025-03-31",
+  "rows": 356,
+  "line_item_sum": 17696963000,
+  "reported_total": 17692006000,
+  "diff": 0.0003,
+  "passed": true
+ },
+ {
+  "ticker": "OBDC",
+  "period": "2025-06-30",
+  "rows": 356,
+  "line_item_sum": 16872892000,
+  "reported_total": 16868782000,
+  "diff": 0.0002,
+  "passed": true
+ },
+ {
+  "ticker": "OBDC",
+  "period": "2025-09-30",
+  "rows": 356,
+  "line_item_sum": 17161378000,
+  "reported_total": 17136548000,
+  "diff": 0.0014,
+  "passed": true
+ },
+ {
+  "ticker": "OBDC",
+  "period": "2025-12-31",
+  "rows": 366,
+  "line_item_sum": 16499085000,
+  "reported_total": 16470893000,
+  "diff": 0.0017,
+  "passed": true
+ },
+ {
+  "ticker": "OBDC",
+  "period": "2026-03-31",
+  "rows": 349,
+  "line_item_sum": 15378272000,
+  "reported_total": 15344201000,
+  "diff": 0.0022,
+  "passed": true
+ },
+ {
+  "ticker": "OBDC",
+  "period": "2026-06-30",
+  "rows": 351,
+  "line_item_sum": 16203793000,
+  "reported_total": 14955049000,
+  "diff": 0.0835,
+  "passed": false
+ },
+ {
+  "ticker": "OCSL",
+  "period": "2022-09-30",
+  "rows": 0,
+  "line_item_sum": 0,
+  "reported_total": null,
+  "diff": null,
+  "passed": false
+ },
+ {
+  "ticker": "OCSL",
+  "period": "2022-12-31",
+  "rows": 345,
+  "line_item_sum": 2988001000,
+  "reported_total": 2642870000,
+  "diff": 0.1306,
+  "passed": false
+ },
+ {
+  "ticker": "OCSL",
+  "period": "2023-03-31",
+  "rows": 401,
+  "line_item_sum": 3584024000,
+  "reported_total": 3164860000,
+  "diff": 0.1324,
+  "passed": false
+ },
+ {
+  "ticker": "OCSL",
+  "period": "2023-06-30",
+  "rows": 389,
+  "line_item_sum": 3469036000,
+  "reported_total": 3135619000,
+  "diff": 0.1063,
+  "passed": false
+ },
+ {
+  "ticker": "OCSL",
+  "period": "2023-09-30",
+  "rows": 356,
+  "line_item_sum": 3375557000,
+  "reported_total": 2892420000,
+  "diff": 0.167,
+  "passed": false
+ },
+ {
+  "ticker": "OCSL",
+  "period": "2023-12-31",
+  "rows": 367,
+  "line_item_sum": 3476597000,
+  "reported_total": 3018552000,
+  "diff": 0.1517,
+  "passed": false
+ },
+ {
+  "ticker": "OCSL",
+  "period": "2024-03-31",
+  "rows": 375,
+  "line_item_sum": 3554790000,
+  "reported_total": 3047445000,
+  "diff": 0.1665,
+  "passed": false
+ },
+ {
+  "ticker": "OCSL",
+  "period": "2024-06-30",
+  "rows": 397,
+  "line_item_sum": 3593452000,
+  "reported_total": 3121703000,
+  "diff": 0.1511,
+  "passed": false
+ },
+ {
+  "ticker": "OCSL",
+  "period": "2024-09-30",
+  "rows": 394,
+  "line_item_sum": 3452963000,
+  "reported_total": 3021279000,
+  "diff": 0.1429,
+  "passed": false
+ },
+ {
+  "ticker": "OCSL",
+  "period": "2024-12-31",
+  "rows": 389,
+  "line_item_sum": 3291883000,
+  "reported_total": 2835294000,
+  "diff": 0.161,
+  "passed": false
+ },
+ {
+  "ticker": "OCSL",
+  "period": "2025-03-31",
+  "rows": 429,
+  "line_item_sum": 3362207000,
+  "reported_total": 2892771000,
+  "diff": 0.1623,
+  "passed": false
+ },
+ {
+  "ticker": "OCSL",
+  "period": "2025-06-30",
+  "rows": 439,
+  "line_item_sum": 3259494000,
+  "reported_total": 2809377000,
+  "diff": 0.1602,
+  "passed": false
+ },
+ {
+  "ticker": "OCSL",
+  "period": "2025-09-30",
+  "rows": 436,
+  "line_item_sum": 3251388000,
+  "reported_total": 2847782000,
+  "diff": 0.1417,
+  "passed": false
+ },
+ {
+  "ticker": "OCSL",
+  "period": "2025-12-31",
+  "rows": 534,
+  "line_item_sum": 3398801000,
+  "reported_total": 2949092000,
+  "diff": 0.1525,
+  "passed": false
+ },
+ {
+  "ticker": "OCSL",
+  "period": "2026-03-31",
+  "rows": 564,
+  "line_item_sum": 3208706000,
+  "reported_total": 2766367000,
+  "diff": 0.1599,
+  "passed": false
+ },
+ {
+  "ticker": "OCSL",
+  "period": "2026-06-30",
+  "rows": 518,
+  "line_item_sum": 3111825000,
+  "reported_total": 2741814000,
+  "diff": 0.135,
+  "passed": false
+ },
+ {
+  "ticker": "OFS",
+  "period": "2022-06-30",
+  "rows": 0,
+  "line_item_sum": 0,
+  "reported_total": null,
+  "diff": null,
+  "passed": false
+ },
+ {
+  "ticker": "OFS",
+  "period": "2022-09-30",
+  "rows": 126,
+  "line_item_sum": 434351000,
+  "reported_total": 516615000,
+  "diff": -0.1592,
+  "passed": false
+ },
+ {
+  "ticker": "OFS",
+  "period": "2022-12-31",
+  "rows": 120,
+  "line_item_sum": 500580000,
+  "reported_total": 500576000,
+  "diff": 0.0,
+  "passed": true
+ },
+ {
+  "ticker": "OFS",
+  "period": "2023-03-31",
+  "rows": 117,
+  "line_item_sum": 414329000,
+  "reported_total": 499759000,
+  "diff": -0.1709,
+  "passed": false
+ },
+ {
+  "ticker": "OFS",
+  "period": "2023-06-30",
+  "rows": 111,
+  "line_item_sum": 411816000,
+  "reported_total": 494579000,
+  "diff": -0.1673,
+  "passed": false
+ },
+ {
+  "ticker": "OFS",
+  "period": "2023-09-30",
+  "rows": 112,
+  "line_item_sum": 380141000,
+  "reported_total": 457247000,
+  "diff": -0.1686,
+  "passed": false
+ },
+ {
+  "ticker": "OFS",
+  "period": "2023-12-31",
+  "rows": 112,
+  "line_item_sum": 420288000,
+  "reported_total": 420287000,
+  "diff": 0.0,
+  "passed": true
+ },
+ {
+  "ticker": "OFS",
+  "period": "2024-03-31",
+  "rows": 115,
+  "line_item_sum": 400415000,
+  "reported_total": 400414000,
+  "diff": 0.0,
+  "passed": true
+ },
+ {
+  "ticker": "OFS",
+  "period": "2024-06-30",
+  "rows": 109,
+  "line_item_sum": 398156000,
+  "reported_total": 398156000,
+  "diff": 0.0,
+  "passed": true
+ },
+ {
+  "ticker": "OFS",
+  "period": "2024-09-30",
+  "rows": 107,
+  "line_item_sum": 394734000,
+  "reported_total": 394734000,
+  "diff": 0.0,
+  "passed": true
+ },
+ {
+  "ticker": "OFS",
+  "period": "2024-12-31",
+  "rows": 103,
+  "line_item_sum": 409664000,
+  "reported_total": 409665000,
+  "diff": -0.0,
+  "passed": true
+ },
+ {
+  "ticker": "OFS",
+  "period": "2025-03-31",
+  "rows": 102,
+  "line_item_sum": 403071000,
+  "reported_total": 403071000,
+  "diff": 0.0,
+  "passed": true
+ },
+ {
+  "ticker": "OFS",
+  "period": "2025-06-30",
+  "rows": 98,
+  "line_item_sum": 382748000,
+  "reported_total": 382748000,
+  "diff": 0.0,
+  "passed": true
+ },
+ {
+  "ticker": "OFS",
+  "period": "2025-09-30",
+  "rows": 100,
+  "line_item_sum": 370171000,
+  "reported_total": 370171000,
+  "diff": 0.0,
+  "passed": true
+ },
+ {
+  "ticker": "OFS",
+  "period": "2025-12-31",
+  "rows": 101,
+  "line_item_sum": 342017000,
+  "reported_total": 342015000,
+  "diff": 0.0,
+  "passed": true
+ },
+ {
+  "ticker": "OFS",
+  "period": "2026-03-31",
+  "rows": 100,
+  "line_item_sum": 308121000,
+  "reported_total": 308120000,
+  "diff": 0.0,
+  "passed": true
+ },
+ {
+  "ticker": "OFS",
+  "period": "2026-06-30",
+  "rows": 93,
+  "line_item_sum": 297760000,
+  "reported_total": 297756000,
+  "diff": 0.0,
+  "passed": true
+ },
+ {
+  "ticker": "PFLT",
+  "period": "2022-09-30",
+  "rows": 0,
+  "line_item_sum": 0,
+  "reported_total": 1164254000,
+  "diff": -1.0,
+  "passed": false
+ },
+ {
+  "ticker": "PFLT",
+  "period": "2022-12-31",
+  "rows": 0,
+  "line_item_sum": 0,
+  "reported_total": 1151137000,
+  "diff": -1.0,
+  "passed": false
+ },
+ {
+  "ticker": "PFLT",
+  "period": "2023-03-31",
+  "rows": 339,
+  "line_item_sum": 9106651000,
+  "reported_total": 1164032000,
+  "diff": 6.8234,
+  "passed": false
+ },
+ {
+  "ticker": "PFLT",
+  "period": "2023-06-30",
+  "rows": 335,
+  "line_item_sum": 7465853000,
+  "reported_total": 1105265000,
+  "diff": 5.7548,
+  "passed": false
+ },
+ {
+  "ticker": "PFLT",
+  "period": "2023-09-30",
+  "rows": 362,
+  "line_item_sum": 3092683000,
+  "reported_total": 1067174000,
+  "diff": 1.898,
+  "passed": false
+ },
+ {
+  "ticker": "PFLT",
+  "period": "2023-12-31",
+  "rows": 397,
+  "line_item_sum": 6362227000,
+  "reported_total": 1270927000,
+  "diff": 4.006,
+  "passed": false
+ },
+ {
+  "ticker": "PFLT",
+  "period": "2024-03-31",
+  "rows": 389,
+  "line_item_sum": 10367308000,
+  "reported_total": 1477883000,
+  "diff": 6.015,
+  "passed": false
+ },
+ {
+  "ticker": "PFLT",
+  "period": "2024-06-30",
+  "rows": 398,
+  "line_item_sum": 11259168000,
+  "reported_total": 1658944000,
+  "diff": 5.7869,
+  "passed": false
+ },
+ {
+  "ticker": "PFLT",
+  "period": "2024-09-30",
+  "rows": 434,
+  "line_item_sum": 7961830000,
+  "reported_total": 1983504000,
+  "diff": 3.014,
+  "passed": false
+ },
+ {
+  "ticker": "PFLT",
+  "period": "2024-12-31",
+  "rows": 430,
+  "line_item_sum": 7104829000,
+  "reported_total": 2193910000,
+  "diff": 2.2384,
+  "passed": false
+ },
+ {
+  "ticker": "PFLT",
+  "period": "2025-03-31",
+  "rows": 448,
+  "line_item_sum": 9313614000,
+  "reported_total": 2344052000,
+  "diff": 2.9733,
+  "passed": false
+ },
+ {
+  "ticker": "PFLT",
+  "period": "2025-06-30",
+  "rows": 437,
+  "line_item_sum": 3459224000,
+  "reported_total": 2403515000,
+  "diff": 0.4392,
+  "passed": false
+ },
+ {
+  "ticker": "PFLT",
+  "period": "2025-09-30",
+  "rows": 654,
+  "line_item_sum": 3861205000,
+  "reported_total": 2773328000,
+  "diff": 0.3923,
+  "passed": false
+ },
+ {
+  "ticker": "PFLT",
+  "period": "2025-12-31",
+  "rows": 663,
+  "line_item_sum": 3846043000,
+  "reported_total": 2605347000,
+  "diff": 0.4762,
+  "passed": false
+ },
+ {
+  "ticker": "PFLT",
+  "period": "2026-03-31",
+  "rows": 729,
+  "line_item_sum": 4129254000,
+  "reported_total": 2580281000,
+  "diff": 0.6003,
+  "passed": false
+ },
+ {
+  "ticker": "PFLT",
+  "period": "2026-06-30",
+  "rows": 724,
+  "line_item_sum": 3964683000,
+  "reported_total": 2504658000,
+  "diff": 0.5829,
+  "passed": false
+ },
+ {
+  "ticker": "PNNT",
+  "period": "2022-09-30",
+  "rows": 0,
+  "line_item_sum": 0,
+  "reported_total": 1226301000,
+  "diff": -1.0,
+  "passed": false
+ },
+ {
+  "ticker": "PNNT",
+  "period": "2022-12-31",
+  "rows": 0,
+  "line_item_sum": 0,
+  "reported_total": 1196035000,
+  "diff": -1.0,
+  "passed": false
+ },
+ {
+  "ticker": "PNNT",
+  "period": "2023-03-31",
+  "rows": 313,
+  "line_item_sum": 8150658000,
+  "reported_total": 1132511000,
+  "diff": 6.197,
+  "passed": false
+ },
+ {
+  "ticker": "PNNT",
+  "period": "2023-06-30",
+  "rows": 315,
+  "line_item_sum": 7946848000,
+  "reported_total": 1075880000,
+  "diff": 6.3864,
+  "passed": false
+ },
+ {
+  "ticker": "PNNT",
+  "period": "2023-09-30",
+  "rows": 311,
+  "line_item_sum": 7685445000,
+  "reported_total": 1101647000,
+  "diff": 5.9763,
+  "passed": false
+ },
+ {
+  "ticker": "PNNT",
+  "period": "2023-12-31",
+  "rows": 329,
+  "line_item_sum": 8848944000,
+  "reported_total": 1210758000,
+  "diff": 6.3086,
+  "passed": false
+ },
+ {
+  "ticker": "PNNT",
+  "period": "2024-03-31",
+  "rows": 346,
+  "line_item_sum": 8614855000,
+  "reported_total": 1238231000,
+  "diff": 5.9574,
+  "passed": false
+ },
+ {
+  "ticker": "PNNT",
+  "period": "2024-06-30",
+  "rows": 362,
+  "line_item_sum": 9215078000,
+  "reported_total": 1259875000,
+  "diff": 6.3143,
+  "passed": false
+ },
+ {
+  "ticker": "PNNT",
+  "period": "2024-09-30",
+  "rows": 384,
+  "line_item_sum": 9952210000,
+  "reported_total": 1328050000,
+  "diff": 6.4939,
+  "passed": false
+ },
+ {
+  "ticker": "PNNT",
+  "period": "2024-12-31",
+  "rows": 403,
+  "line_item_sum": 10686538000,
+  "reported_total": 1298066000,
+  "diff": 7.2327,
+  "passed": false
+ },
+ {
+  "ticker": "PNNT",
+  "period": "2025-03-31",
+  "rows": 418,
+  "line_item_sum": 9388645000,
+  "reported_total": 1213610000,
+  "diff": 6.7361,
+  "passed": false
+ },
+ {
+  "ticker": "PNNT",
+  "period": "2025-06-30",
+  "rows": 413,
+  "line_item_sum": 2511892000,
+  "reported_total": 1171624000,
+  "diff": 1.1439,
+  "passed": false
+ },
+ {
+  "ticker": "PNNT",
+  "period": "2025-09-30",
+  "rows": 597,
+  "line_item_sum": 2553197000,
+  "reported_total": 1287273000,
+  "diff": 0.9834,
+  "passed": false
+ },
+ {
+  "ticker": "PNNT",
+  "period": "2025-12-31",
+  "rows": 587,
+  "line_item_sum": 2575816000,
+  "reported_total": 1218474000,
+  "diff": 1.114,
+  "passed": false
+ },
+ {
+  "ticker": "PNNT",
+  "period": "2026-03-31",
+  "rows": 610,
+  "line_item_sum": 2509812000,
+  "reported_total": 1203513000,
+  "diff": 1.0854,
+  "passed": false
+ },
+ {
+  "ticker": "PNNT",
+  "period": "2026-06-30",
+  "rows": 603,
+  "line_item_sum": 2471361000,
+  "reported_total": 1193172000,
+  "diff": 1.0713,
+  "passed": false
+ },
+ {
+  "ticker": "PSBD",
+  "period": "2022-09-30",
+  "rows": 0,
+  "line_item_sum": 0,
+  "reported_total": 1005512911,
+  "diff": -1.0,
+  "passed": false
+ },
+ {
+  "ticker": "PSBD",
+  "period": "2022-12-31",
+  "rows": 0,
+  "line_item_sum": 0,
+  "reported_total": 1017211732,
+  "diff": -1.0,
+  "passed": false
+ },
+ {
+  "ticker": "PSBD",
+  "period": "2023-03-31",
+  "rows": 0,
+  "line_item_sum": 0,
+  "reported_total": 1042644015,
+  "diff": -1.0,
+  "passed": false
+ },
+ {
+  "ticker": "PSBD",
+  "period": "2023-06-30",
+  "rows": 0,
+  "line_item_sum": 0,
+  "reported_total": 1062844207,
+  "diff": -1.0,
+  "passed": false
+ },
+ {
+  "ticker": "PSBD",
+  "period": "2023-09-30",
+  "rows": 0,
+  "line_item_sum": 0,
+  "reported_total": 1104712587,
+  "diff": -1.0,
+  "passed": false
+ },
+ {
+  "ticker": "PSBD",
+  "period": "2023-12-31",
+  "rows": 0,
+  "line_item_sum": 0,
+  "reported_total": 1108810753,
+  "diff": -1.0,
+  "passed": false
+ },
+ {
+  "ticker": "PSBD",
+  "period": "2024-03-31",
+  "rows": 0,
+  "line_item_sum": 0,
+  "reported_total": 1393192087,
+  "diff": -1.0,
+  "passed": false
+ },
+ {
+  "ticker": "PSBD",
+  "period": "2024-06-30",
+  "rows": 0,
+  "line_item_sum": 0,
+  "reported_total": 1431576768,
+  "diff": -1.0,
+  "passed": false
+ },
+ {
+  "ticker": "PSBD",
+  "period": "2024-09-30",
+  "rows": 266,
+  "line_item_sum": 1613922433,
+  "reported_total": 1389801144,
+  "diff": 0.1613,
+  "passed": false
+ },
+ {
+  "ticker": "PSBD",
+  "period": "2024-12-31",
+  "rows": 271,
+  "line_item_sum": 2863493625,
+  "reported_total": 1407130945,
+  "diff": 1.035,
+  "passed": false
+ },
+ {
+  "ticker": "PSBD",
+  "period": "2025-03-31",
+  "rows": 270,
+  "line_item_sum": 2719381539,
+  "reported_total": 1334314263,
+  "diff": 1.038,
+  "passed": false
+ },
+ {
+  "ticker": "PSBD",
+  "period": "2025-06-30",
+  "rows": 263,
+  "line_item_sum": 1279792804,
+  "reported_total": 1279792804,
+  "diff": 0.0,
+  "passed": true
+ },
+ {
+  "ticker": "PSBD",
+  "period": "2025-09-30",
+  "rows": 261,
+  "line_item_sum": 1258166639,
+  "reported_total": 1258987964,
+  "diff": -0.0007,
+  "passed": true
+ },
+ {
+  "ticker": "PSBD",
+  "period": "2025-12-31",
+  "rows": 264,
+  "line_item_sum": 1203640318,
+  "reported_total": 1203640318,
+  "diff": 0.0,
+  "passed": true
+ },
+ {
+  "ticker": "PSBD",
+  "period": "2026-03-31",
+  "rows": 275,
+  "line_item_sum": 1154408102,
+  "reported_total": 1154636534,
+  "diff": -0.0002,
+  "passed": true
+ },
+ {
+  "ticker": "PSBD",
+  "period": "2026-06-30",
+  "rows": 274,
+  "line_item_sum": 1113035120,
+  "reported_total": 1113377240,
+  "diff": -0.0003,
+  "passed": true
+ },
+ {
+  "ticker": "PSEC",
+  "period": "2022-09-30",
+  "rows": 204,
+  "line_item_sum": 8029033000,
+  "reported_total": 7582665000,
+  "diff": 0.0589,
+  "passed": false
+ },
+ {
+  "ticker": "PSEC",
+  "period": "2022-12-31",
+  "rows": 211,
+  "line_item_sum": 8195760000,
+  "reported_total": 7770336000,
+  "diff": 0.0547,
+  "passed": false
+ },
+ {
+  "ticker": "PSEC",
+  "period": "2023-03-31",
+  "rows": 207,
+  "line_item_sum": 7572777000,
+  "reported_total": 7592777000,
+  "diff": -0.0026,
+  "passed": true
+ },
+ {
+  "ticker": "PSEC",
+  "period": "2023-06-30",
+  "rows": 216,
+  "line_item_sum": 7724931000,
+  "reported_total": 7724931000,
+  "diff": 0.0,
+  "passed": true
+ },
+ {
+  "ticker": "PSEC",
+  "period": "2023-12-31",
+  "rows": 214,
+  "line_item_sum": 7620006000,
+  "reported_total": 7631846000,
+  "diff": -0.0016,
+  "passed": true
+ },
+ {
+  "ticker": "PSEC",
+  "period": "2024-03-31",
+  "rows": 205,
+  "line_item_sum": 7805820000,
+  "reported_total": 7806712000,
+  "diff": -0.0001,
+  "passed": true
+ },
+ {
+  "ticker": "PSEC",
+  "period": "2024-06-30",
+  "rows": 206,
+  "line_item_sum": 7717817000,
+  "reported_total": 7718243000,
+  "diff": -0.0001,
+  "passed": true
+ },
+ {
+  "ticker": "PSEC",
+  "period": "2024-09-30",
+  "rows": 209,
+  "line_item_sum": 7476085000,
+  "reported_total": 7476641000,
+  "diff": -0.0001,
+  "passed": true
+ },
+ {
+  "ticker": "PSEC",
+  "period": "2024-12-31",
+  "rows": 213,
+  "line_item_sum": 7132928000,
+  "reported_total": 7132928000,
+  "diff": 0.0,
+  "passed": true
+ },
+ {
+  "ticker": "PSEC",
+  "period": "2025-03-31",
+  "rows": 214,
+  "line_item_sum": 6901364000,
+  "reported_total": 6901364000,
+  "diff": 0.0,
+  "passed": true
+ },
+ {
+  "ticker": "PSEC",
+  "period": "2025-06-30",
+  "rows": 200,
+  "line_item_sum": 6673516000,
+  "reported_total": 6673516000,
+  "diff": 0.0,
+  "passed": true
+ },
+ {
+  "ticker": "PSEC",
+  "period": "2025-09-30",
+  "rows": 198,
+  "line_item_sum": 6513456000,
+  "reported_total": 6513456000,
+  "diff": 0.0,
+  "passed": true
+ },
+ {
+  "ticker": "PSEC",
+  "period": "2025-12-31",
+  "rows": 199,
+  "line_item_sum": 6441536000,
+  "reported_total": 6441536000,
+  "diff": 0.0,
+  "passed": true
+ },
+ {
+  "ticker": "PSEC",
+  "period": "2026-03-31",
+  "rows": 203,
+  "line_item_sum": 6302465000,
+  "reported_total": 6302465000,
+  "diff": 0.0,
+  "passed": true
+ },
+ {
+  "ticker": "PSEC",
+  "period": "2026-06-30",
+  "rows": 216,
+  "line_item_sum": 6342558000,
+  "reported_total": 6342558000,
+  "diff": 0.0,
+  "passed": true
+ },
+ {
+  "ticker": "SAR",
+  "period": "2022-08-31",
+  "rows": 0,
+  "line_item_sum": 0,
+  "reported_total": 775408041,
+  "diff": -1.0,
+  "passed": false
+ },
+ {
+  "ticker": "SAR",
+  "period": "2022-11-30",
+  "rows": 0,
+  "line_item_sum": 0,
+  "reported_total": 777907062,
+  "diff": -1.0,
+  "passed": false
+ },
+ {
+  "ticker": "SAR",
+  "period": "2023-02-28",
+  "rows": 0,
+  "line_item_sum": 0,
+  "reported_total": 828028800,
+  "diff": -1.0,
+  "passed": false
+ },
+ {
+  "ticker": "SAR",
+  "period": "2023-05-31",
+  "rows": 0,
+  "line_item_sum": 0,
+  "reported_total": 941021051,
+  "diff": -1.0,
+  "passed": false
+ },
+ {
+  "ticker": "SAR",
+  "period": "2023-08-31",
+  "rows": 0,
+  "line_item_sum": 0,
+  "reported_total": 947924370,
+  "diff": -1.0,
+  "passed": false
+ },
+ {
+  "ticker": "SAR",
+  "period": "2023-11-30",
+  "rows": 0,
+  "line_item_sum": 0,
+  "reported_total": 976440074,
+  "diff": -1.0,
+  "passed": false
+ },
+ {
+  "ticker": "SAR",
+  "period": "2024-02-29",
+  "rows": 0,
+  "line_item_sum": 0,
+  "reported_total": 1019774616,
+  "diff": -1.0,
+  "passed": false
+ },
+ {
+  "ticker": "SAR",
+  "period": "2024-05-31",
+  "rows": 0,
+  "line_item_sum": 0,
+  "reported_total": 1016275510,
+  "diff": -1.0,
+  "passed": false
+ },
+ {
+  "ticker": "SAR",
+  "period": "2024-08-31",
+  "rows": 0,
+  "line_item_sum": 0,
+  "reported_total": 963176509,
+  "diff": -1.0,
+  "passed": false
+ },
+ {
+  "ticker": "SAR",
+  "period": "2024-11-30",
+  "rows": 476,
+  "line_item_sum": 3415477201,
+  "reported_total": 960093232,
+  "diff": 2.5574,
+  "passed": false
+ },
+ {
+  "ticker": "SAR",
+  "period": "2025-02-28",
+  "rows": 138,
+  "line_item_sum": 2915516196,
+  "reported_total": 978077750,
+  "diff": 1.9809,
+  "passed": false
+ },
+ {
+  "ticker": "SAR",
+  "period": "2025-05-31",
+  "rows": 456,
+  "line_item_sum": 3356956638,
+  "reported_total": 968317962,
+  "diff": 2.4668,
+  "passed": false
+ },
+ {
+  "ticker": "SAR",
+  "period": "2025-08-31",
+  "rows": 440,
+  "line_item_sum": 3402358356,
+  "reported_total": 995295010,
+  "diff": 2.4184,
+  "passed": false
+ },
+ {
+  "ticker": "SAR",
+  "period": "2025-11-30",
+  "rows": 431,
+  "line_item_sum": 3449961970,
+  "reported_total": 1015950344,
+  "diff": 2.3958,
+  "passed": false
+ },
+ {
+  "ticker": "SAR",
+  "period": "2026-02-28",
+  "rows": 415,
+  "line_item_sum": 3686906842,
+  "reported_total": 1109133812,
+  "diff": 2.3241,
+  "passed": false
+ },
+ {
+  "ticker": "SAR",
+  "period": "2026-05-31",
+  "rows": 402,
+  "line_item_sum": 3630598122,
+  "reported_total": 1126333942,
+  "diff": 2.2234,
+  "passed": false
+ },
+ {
+  "ticker": "SAR",
+  "period": "2026-08-31",
+  "rows": 395,
+  "line_item_sum": 3720605485,
+  "reported_total": 1150190344,
+  "diff": 2.2348,
+  "passed": false
+ },
+ {
+  "ticker": "SLRC",
+  "period": "2022-06-30",
+  "rows": 0,
+  "line_item_sum": 0,
+  "reported_total": null,
+  "diff": null,
+  "passed": false
+ },
+ {
+  "ticker": "SLRC",
+  "period": "2022-09-30",
+  "rows": 0,
+  "line_item_sum": 0,
+  "reported_total": null,
+  "diff": null,
+  "passed": false
+ },
+ {
+  "ticker": "SLRC",
+  "period": "2022-12-31",
+  "rows": 0,
+  "line_item_sum": 0,
+  "reported_total": null,
+  "diff": null,
+  "passed": false
+ },
+ {
+  "ticker": "SLRC",
+  "period": "2023-03-31",
+  "rows": 0,
+  "line_item_sum": 0,
+  "reported_total": null,
+  "diff": null,
+  "passed": false
+ },
+ {
+  "ticker": "SLRC",
+  "period": "2023-06-30",
+  "rows": 0,
+  "line_item_sum": 0,
+  "reported_total": null,
+  "diff": null,
+  "passed": false
+ },
+ {
+  "ticker": "SLRC",
+  "period": "2023-09-30",
+  "rows": 165,
+  "line_item_sum": 5006978000,
+  "reported_total": 2171056000,
+  "diff": 1.3062,
+  "passed": false
+ },
+ {
+  "ticker": "SLRC",
+  "period": "2023-12-31",
+  "rows": 190,
+  "line_item_sum": 2674197000,
+  "reported_total": null,
+  "diff": null,
+  "passed": false
+ },
+ {
+  "ticker": "SLRC",
+  "period": "2024-03-31",
+  "rows": 191,
+  "line_item_sum": 2643738000,
+  "reported_total": null,
+  "diff": null,
+  "passed": false
+ },
+ {
+  "ticker": "SLRC",
+  "period": "2024-06-30",
+  "rows": 185,
+  "line_item_sum": 2631479000,
+  "reported_total": 220803000,
+  "diff": 10.9178,
+  "passed": false
+ },
+ {
+  "ticker": "SLRC",
+  "period": "2024-09-30",
+  "rows": 173,
+  "line_item_sum": 2598782000,
+  "reported_total": 204080000,
+  "diff": 11.7341,
+  "passed": false
+ },
+ {
+  "ticker": "SLRC",
+  "period": "2024-12-31",
+  "rows": 162,
+  "line_item_sum": 2581884000,
+  "reported_total": null,
+  "diff": null,
+  "passed": false
+ },
+ {
+  "ticker": "SLRC",
+  "period": "2025-03-31",
+  "rows": 154,
+  "line_item_sum": 2169981000,
+  "reported_total": null,
+  "diff": null,
+  "passed": false
+ },
+ {
+  "ticker": "SLRC",
+  "period": "2025-06-30",
+  "rows": 151,
+  "line_item_sum": 2319048000,
+  "reported_total": 2134938000,
+  "diff": 0.0862,
+  "passed": false
+ },
+ {
+  "ticker": "SLRC",
+  "period": "2025-09-30",
+  "rows": 144,
+  "line_item_sum": 2292437000,
+  "reported_total": 2105293000,
+  "diff": 0.0889,
+  "passed": false
+ },
+ {
+  "ticker": "SLRC",
+  "period": "2025-12-31",
+  "rows": 132,
+  "line_item_sum": 2306181000,
+  "reported_total": 2124812000,
+  "diff": 0.0854,
+  "passed": false
+ },
+ {
+  "ticker": "SLRC",
+  "period": "2026-03-31",
+  "rows": 131,
+  "line_item_sum": 2300735000,
+  "reported_total": 2113204000,
+  "diff": 0.0887,
+  "passed": false
+ },
+ {
+  "ticker": "SLRC",
+  "period": "2026-06-30",
+  "rows": 110,
+  "line_item_sum": 2280195000,
+  "reported_total": 2099331000,
+  "diff": 0.0862,
+  "passed": false
+ },
+ {
+  "ticker": "TCPC",
+  "period": "2022-09-30",
+  "rows": 0,
+  "line_item_sum": 0,
+  "reported_total": 1678875152,
+  "diff": -1.0,
+  "passed": false
+ },
+ {
+  "ticker": "TCPC",
+  "period": "2022-12-31",
+  "rows": 0,
+  "line_item_sum": 0,
+  "reported_total": 1609587641,
+  "diff": -1.0,
+  "passed": false
+ },
+ {
+  "ticker": "TCPC",
+  "period": "2023-03-31",
+  "rows": 302,
+  "line_item_sum": 6573021232,
+  "reported_total": 1665730102,
+  "diff": 2.946,
+  "passed": false
+ },
+ {
+  "ticker": "TCPC",
+  "period": "2023-06-30",
+  "rows": 299,
+  "line_item_sum": 6460149743,
+  "reported_total": 1640558034,
+  "diff": 2.9378,
+  "passed": false
+ },
+ {
+  "ticker": "TCPC",
+  "period": "2023-09-30",
+  "rows": 295,
+  "line_item_sum": 6250634770,
+  "reported_total": 1593320718,
+  "diff": 2.923,
+  "passed": false
+ },
+ {
+  "ticker": "TCPC",
+  "period": "2023-12-31",
+  "rows": 269,
+  "line_item_sum": 6047100444,
+  "reported_total": 1554941110,
+  "diff": 2.889,
+  "passed": false
+ },
+ {
+  "ticker": "TCPC",
+  "period": "2024-03-31",
+  "rows": 343,
+  "line_item_sum": 8263019144,
+  "reported_total": 2116419296,
+  "diff": 2.9042,
+  "passed": false
+ },
+ {
+  "ticker": "TCPC",
+  "period": "2024-06-30",
+  "rows": 354,
+  "line_item_sum": 7825951203,
+  "reported_total": 1980908901,
+  "diff": 2.9507,
+  "passed": false
+ },
+ {
+  "ticker": "TCPC",
+  "period": "2024-09-30",
+  "rows": 362,
+  "line_item_sum": 7544877379,
+  "reported_total": 1909089361,
+  "diff": 2.9521,
+  "passed": false
+ },
+ {
+  "ticker": "TCPC",
+  "period": "2024-12-31",
+  "rows": 369,
+  "line_item_sum": 7078076495,
+  "reported_total": 1794758336,
+  "diff": 2.9437,
+  "passed": false
+ },
+ {
+  "ticker": "TCPC",
+  "period": "2025-03-31",
+  "rows": 376,
+  "line_item_sum": 6970655999,
+  "reported_total": 1769273768,
+  "diff": 2.9398,
+  "passed": false
+ },
+ {
+  "ticker": "TCPC",
+  "period": "2025-06-30",
+  "rows": 355,
+  "line_item_sum": 1792334843,
+  "reported_total": 1792334843,
+  "diff": 0.0,
+  "passed": true
+ },
+ {
+  "ticker": "TCPC",
+  "period": "2025-09-30",
+  "rows": 349,
+  "line_item_sum": 1716691417,
+  "reported_total": 1716691417,
+  "diff": 0.0,
+  "passed": true
+ },
+ {
+  "ticker": "TCPC",
+  "period": "2025-12-31",
+  "rows": 324,
+  "line_item_sum": 1533302472,
+  "reported_total": 1533302472,
+  "diff": 0.0,
+  "passed": true
+ },
+ {
+  "ticker": "TCPC",
+  "period": "2026-03-31",
+  "rows": 323,
+  "line_item_sum": 1388668517,
+  "reported_total": 1388668517,
+  "diff": 0.0,
+  "passed": true
+ },
+ {
+  "ticker": "TCPC",
+  "period": "2026-06-30",
+  "rows": 319,
+  "line_item_sum": 1290523348,
+  "reported_total": 1290523348,
+  "diff": 0.0,
+  "passed": true
+ },
+ {
+  "ticker": "TRIN",
+  "period": "2022-06-30",
+  "rows": 0,
+  "line_item_sum": 0,
+  "reported_total": null,
+  "diff": null,
+  "passed": false
+ },
+ {
+  "ticker": "TRIN",
+  "period": "2022-09-30",
+  "rows": 0,
+  "line_item_sum": 0,
+  "reported_total": 1042175000,
+  "diff": -1.0,
+  "passed": false
+ },
+ {
+  "ticker": "TRIN",
+  "period": "2022-12-31",
+  "rows": 0,
+  "line_item_sum": 0,
+  "reported_total": 1094386000,
+  "diff": -1.0,
+  "passed": false
+ },
+ {
+  "ticker": "TRIN",
+  "period": "2023-03-31",
+  "rows": 457,
+  "line_item_sum": 6965468000,
+  "reported_total": 1091531000,
+  "diff": 5.3814,
+  "passed": false
+ },
+ {
+  "ticker": "TRIN",
+  "period": "2023-06-30",
+  "rows": 490,
+  "line_item_sum": 7484362000,
+  "reported_total": 1148018000,
+  "diff": 5.5194,
+  "passed": false
+ },
+ {
+  "ticker": "TRIN",
+  "period": "2023-09-30",
+  "rows": 476,
+  "line_item_sum": 7214677000,
+  "reported_total": 1116552000,
+  "diff": 5.4616,
+  "passed": false
+ },
+ {
+  "ticker": "TRIN",
+  "period": "2023-12-31",
+  "rows": 484,
+  "line_item_sum": 8396418000,
+  "reported_total": 1275180000,
+  "diff": 5.5845,
+  "passed": false
+ },
+ {
+  "ticker": "TRIN",
+  "period": "2024-03-31",
+  "rows": 504,
+  "line_item_sum": 8856278000,
+  "reported_total": 1363862000,
+  "diff": 5.4935,
+  "passed": false
+ },
+ {
+  "ticker": "TRIN",
+  "period": "2024-06-30",
+  "rows": 510,
+  "line_item_sum": 9351652000,
+  "reported_total": 1424815000,
+  "diff": 5.5634,
+  "passed": false
+ },
+ {
+  "ticker": "TRIN",
+  "period": "2024-09-30",
+  "rows": 526,
+  "line_item_sum": 10970674000,
+  "reported_total": 1686862000,
+  "diff": 5.5036,
+  "passed": false
+ },
+ {
+  "ticker": "TRIN",
+  "period": "2024-12-31",
+  "rows": 548,
+  "line_item_sum": 11210026000,
+  "reported_total": 1725570000,
+  "diff": 5.4964,
+  "passed": false
+ },
+ {
+  "ticker": "TRIN",
+  "period": "2025-03-31",
+  "rows": 557,
+  "line_item_sum": 11754166000,
+  "reported_total": 1792689000,
+  "diff": 5.5567,
+  "passed": false
+ },
+ {
+  "ticker": "TRIN",
+  "period": "2025-06-30",
+  "rows": 424,
+  "line_item_sum": 1960342000,
+  "reported_total": 1978330000,
+  "diff": -0.0091,
+  "passed": true
+ },
+ {
+  "ticker": "TRIN",
+  "period": "2025-09-30",
+  "rows": 461,
+  "line_item_sum": 2174468000,
+  "reported_total": 2192361000,
+  "diff": -0.0082,
+  "passed": true
+ },
+ {
+  "ticker": "TRIN",
+  "period": "2025-12-31",
+  "rows": 431,
+  "line_item_sum": 2400238000,
+  "reported_total": 2418075000,
+  "diff": -0.0074,
+  "passed": true
+ },
+ {
+  "ticker": "TRIN",
+  "period": "2026-03-31",
+  "rows": 454,
+  "line_item_sum": 2462294000,
+  "reported_total": 2483554000,
+  "diff": -0.0086,
+  "passed": true
+ },
+ {
+  "ticker": "TRIN",
+  "period": "2026-06-30",
+  "rows": 462,
+  "line_item_sum": 2720614000,
+  "reported_total": 2732301000,
+  "diff": -0.0043,
+  "passed": true
+ },
+ {
+  "ticker": "WHF",
+  "period": "2022-06-30",
+  "rows": 0,
+  "line_item_sum": 0,
+  "reported_total": null,
+  "diff": null,
+  "passed": false
+ },
+ {
+  "ticker": "WHF",
+  "period": "2022-09-30",
+  "rows": 153,
+  "line_item_sum": 1045403000,
+  "reported_total": 764554000,
+  "diff": 0.3673,
+  "passed": false
+ },
+ {
+  "ticker": "WHF",
+  "period": "2022-12-31",
+  "rows": 158,
+  "line_item_sum": 1044967000,
+  "reported_total": 760228000,
+  "diff": 0.3745,
+  "passed": false
+ },
+ {
+  "ticker": "WHF",
+  "period": "2023-03-31",
+  "rows": 168,
+  "line_item_sum": 1058454000,
+  "reported_total": 749223000,
+  "diff": 0.4127,
+  "passed": false
+ },
+ {
+  "ticker": "WHF",
+  "period": "2023-06-30",
+  "rows": 168,
+  "line_item_sum": 1053058000,
+  "reported_total": 728352000,
+  "diff": 0.4458,
+  "passed": false
+ },
+ {
+  "ticker": "WHF",
+  "period": "2023-09-30",
+  "rows": 162,
+  "line_item_sum": 1019810000,
+  "reported_total": 706790000,
+  "diff": 0.4429,
+  "passed": false
+ },
+ {
+  "ticker": "WHF",
+  "period": "2023-12-31",
+  "rows": 173,
+  "line_item_sum": 1008395000,
+  "reported_total": 696168000,
+  "diff": 0.4485,
+  "passed": false
+ },
+ {
+  "ticker": "WHF",
+  "period": "2024-03-31",
+  "rows": 179,
+  "line_item_sum": 1007210000,
+  "reported_total": 697869000,
+  "diff": 0.4433,
+  "passed": false
+ },
+ {
+  "ticker": "WHF",
+  "period": "2024-06-30",
+  "rows": 186,
+  "line_item_sum": 984753000,
+  "reported_total": 660005000,
+  "diff": 0.492,
+  "passed": false
+ },
+ {
+  "ticker": "WHF",
+  "period": "2024-09-30",
+  "rows": 187,
+  "line_item_sum": 964046000,
+  "reported_total": 654338000,
+  "diff": 0.4733,
+  "passed": false
+ },
+ {
+  "ticker": "WHF",
+  "period": "2024-12-31",
+  "rows": 178,
+  "line_item_sum": 932490000,
+  "reported_total": 642213000,
+  "diff": 0.452,
+  "passed": false
+ },
+ {
+  "ticker": "WHF",
+  "period": "2025-03-31",
+  "rows": 191,
+  "line_item_sum": 961041000,
+  "reported_total": 650999000,
+  "diff": 0.4763,
+  "passed": false
+ },
+ {
+  "ticker": "WHF",
+  "period": "2025-06-30",
+  "rows": 197,
+  "line_item_sum": 956017000,
+  "reported_total": 629264000,
+  "diff": 0.5193,
+  "passed": false
+ },
+ {
+  "ticker": "WHF",
+  "period": "2025-09-30",
+  "rows": 187,
+  "line_item_sum": 909578000,
+  "reported_total": 568434000,
+  "diff": 0.6001,
+  "passed": false
+ },
+ {
+  "ticker": "WHF",
+  "period": "2025-12-31",
+  "rows": 179,
+  "line_item_sum": 901824000,
+  "reported_total": 578649000,
+  "diff": 0.5585,
+  "passed": false
+ },
+ {
+  "ticker": "WHF",
+  "period": "2026-03-31",
+  "rows": 178,
+  "line_item_sum": 869836000,
+  "reported_total": 543040000,
+  "diff": 0.6018,
+  "passed": false
+ },
+ {
+  "ticker": "WHF",
+  "period": "2026-06-30",
+  "rows": 188,
+  "line_item_sum": 907008000,
+  "reported_total": 569202000,
+  "diff": 0.5935,
+  "passed": false
+ }
+]

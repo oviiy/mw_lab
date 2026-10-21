@@ -1,0 +1,1129 @@
+<!doctype html>
+<html lang="en" data-lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Same Loan, Different Price: Valuation Dispersion and Gradual Loss Recognition in Private Credit</title>
+<meta name="description" content="Working paper and open dataset: how 18 business development companies value the same private loans, from SEC inline XBRL filings.">
+<meta property="og:title" content="Same Loan, Different Price: Valuation Dispersion and Gradual Loss Recognition in Private Credit">
+<meta property="og:description" content="On 31 Dec 2023 one lender marked Pluralsight&#39;s loan at 89, another at 99. Evidence from 2,000 loans shared across BDCs.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@400;500;600&family=Noto+Serif+SC:wght@400;600;700&family=Spectral:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* Two inks carry meaning everywhere on the page: blue = the lender that marked lower / earlier,
+     claret = the lender that marked higher / later. Same pairing in every chart. */
+  --paper: #f8f1e7;
+  --paper-deep: #f1e5d5;
+  --paper-hi: #fbf7f0;
+  --ink: #1c1a17;
+  --ink-2: #4a443d;
+  --muted: #6e655b;
+  --rule: #dccfbf;
+  --grid: #e8dccb;
+  --claret: #990f3d;
+  --claret-soft: #e9c6cf;
+  --blue: #0f5499;
+  --blue-mid: #5b8fd0;
+  --blue-soft: #c9d9ea;
+  --ochre: #e0a526;
+  --stone: #6e655b;
+  --serif: "Spectral", "Noto Serif SC", "Songti SC", Georgia, serif;
+  --sans: "IBM Plex Sans Condensed", "PingFang SC", "Noto Sans SC", "Arial Narrow", sans-serif;
+  --t-xs: .8125rem; --t-sm: .9375rem; --t-md: 1.1875rem; --t-lg: 1.5rem; --t-xl: 2rem; --t-2xl: 2.75rem;
+  --t-3xl: clamp(2.3rem, 5vw, 4.1rem);
+  --measure: 38rem; --wide: 74rem; --gutter: clamp(1.25rem, 4vw, 3rem);
+}
+* { box-sizing: border-box; }
+html { background: var(--paper); color: var(--ink); -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+body { margin: 0; font-family: var(--serif); font-size: var(--t-md); line-height: 1.7; font-feature-settings: "kern", "liga", "onum"; text-rendering: optimizeLegibility; }
+html[data-lang="en"] body { line-height: 1.6; }
+html[data-lang="zh"] [data-l="en"], html[data-lang="en"] [data-l="zh"] { display: none !important; }
+img, svg { display: block; }
+a { color: var(--blue); text-decoration-thickness: 1px; text-underline-offset: .18em; }
+a:hover { text-decoration-thickness: 2px; }
+:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; border-radius: 2px; }
+::selection { background: var(--claret-soft); }
+h1, h2, h3 { font-weight: 600; line-height: 1.15; letter-spacing: -.012em; margin: 0; text-wrap: balance; }
+p { margin: 0 0 1em; text-wrap: pretty; }
+strong { font-weight: 600; }
+.sans, .num { font-family: var(--sans); }
+.num { font-feature-settings: "tnum", "lnum"; }
+.claret { color: var(--claret); } .blue { color: var(--blue); } .muted { color: var(--muted); }
+.wrap { max-width: var(--wide); margin: 0 auto; padding: 0 var(--gutter); }
+.measure { max-width: var(--measure); }
+.swatch { display: inline-block; width: 1.3em; height: .32em; vertical-align: .22em; border-radius: 2px; margin-right: .15em; }
+.swatch.blue { background: var(--blue); } .swatch.claret { background: var(--claret); }
+.vh { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* masthead */
+.masthead { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+  padding-top: 1.1rem; padding-bottom: 1.1rem; font-family: var(--sans); font-size: var(--t-sm); border-bottom: 1px solid var(--rule); }
+.brand { font-family: var(--serif); font-weight: 700; font-size: var(--t-md); color: var(--ink); text-decoration: none; }
+.masthead nav { display: flex; gap: 1.3rem; flex-wrap: wrap; align-items: baseline; }
+.masthead nav a { color: var(--ink-2); text-decoration: none; }
+.masthead nav a:hover { color: var(--blue); text-decoration: underline; }
+.lang { display: inline-flex; border: 1px solid var(--rule); border-radius: 999px; overflow: hidden; }
+.lang button { font: inherit; font-size: var(--t-xs); border: 0; background: none; color: var(--ink-2); padding: .15rem .65rem; cursor: pointer; }
+.lang button.on { background: var(--ink); color: var(--paper); }
+
+/* hero */
+.hero { padding: clamp(2.5rem, 7vw, 5rem) 0 1rem; }
+.hero-top { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(16rem, .9fr); gap: clamp(1.5rem, 5vw, 4rem); align-items: center; }
+.hero h1 { font-size: var(--t-3xl); font-weight: 700; letter-spacing: -.022em; line-height: 1.08; max-width: 17ch; }
+html[data-lang="zh"] .hero h1 { line-height: 1.22; letter-spacing: 0; max-width: 14em; }
+.hero h1 .blue { color: var(--blue); } .hero h1 .claret { color: var(--claret); }
+.dek { margin-top: 1.3rem; max-width: 38rem; font-size: var(--t-lg); line-height: 1.5; color: var(--ink-2); }
+.byline { display: flex; flex-wrap: wrap; gap: .35rem 1.6rem; margin-top: 1.3rem; font-family: var(--sans); font-size: var(--t-sm); color: var(--ink-2); }
+.byline span:first-child { color: var(--ink); font-weight: 600; }
+.cast { list-style: none; padding: 0; margin: 1.3rem 0 0; display: flex; flex-wrap: wrap; gap: .35rem .45rem; font-family: var(--sans); font-size: var(--t-xs); }
+.cast li { border: 1px solid var(--rule); border-radius: 999px; padding: .1rem .55rem; color: var(--ink-2); background: var(--paper-hi); }
+.cast li b { color: var(--ink); font-weight: 600; margin-right: .3rem; }
+.hero-art { width: 100%; max-width: 30rem; justify-self: center; }
+.hero-art .stamp { transform-box: fill-box; transform-origin: center; transform: rotate(var(--r)); animation: stamp .7s cubic-bezier(.2,.9,.3,1.3) backwards; }
+.hero-art .stamp.s2 { animation-delay: .55s; }
+@keyframes stamp { from { opacity: 0; transform: scale(1.8) rotate(var(--r)); } to { opacity: 1; transform: scale(1) rotate(var(--r)); } }
+
+.front { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: clamp(1.5rem, 4vw, 4rem); margin-top: 2.4rem; padding-top: 1.6rem; border-top: 2px solid var(--ink); }
+.front-h { font-family: var(--sans); font-size: var(--t-sm); font-weight: 600; color: var(--ink); margin-bottom: .6rem; letter-spacing: .02em; }
+.abstract p { font-size: var(--t-md); line-height: 1.7; }
+.findings ol { margin: 0; padding-left: 1.4rem; font-size: var(--t-sm); line-height: 1.55; }
+.findings li { margin-bottom: .7rem; padding-left: .2rem; }
+.findings li::marker { font-family: var(--sans); color: var(--claret); font-weight: 600; }
+.findings a { font-family: var(--sans); font-size: var(--t-xs); white-space: nowrap; }
+
+/* primer */
+.primer { padding: clamp(2.5rem, 6vw, 4rem) 0 1rem; }
+.primer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: 1.2rem; margin-top: 1.2rem; }
+.card { background: var(--paper-hi); border: 1px solid var(--rule); border-top: 3px solid var(--ink); padding: 1.1rem 1.2rem 1.2rem; }
+.card .ic { width: 42px; height: 42px; margin-bottom: .6rem; }
+.card h3 { font-size: var(--t-md); margin-bottom: .45rem; }
+.card p { font-family: var(--sans); font-size: var(--t-sm); line-height: 1.6; color: var(--ink-2); margin: 0; }
+.mark-scale { margin-top: .8rem; }
+
+/* chapters */
+.chapter { padding: clamp(3rem, 8vw, 5.5rem) 0 1rem; border-top: 1px solid var(--rule); }
+.chapter-n { display: block; font-style: italic; font-weight: 400; font-size: var(--t-lg); color: var(--muted); margin-bottom: .35rem; }
+.chapter h2 { font-size: var(--t-2xl); max-width: 32ch; margin-bottom: 1.3rem; }
+html[data-lang="zh"] .chapter h2 { max-width: 16em; letter-spacing: 0; }
+.prose p { font-size: var(--t-md); }
+.pull { font-size: var(--t-lg); line-height: 1.45; font-style: italic; border-left: 3px solid var(--claret); padding: .2rem 0 .2rem 1.1rem; margin: 2rem 0; max-width: 34rem; color: var(--ink); }
+html[data-lang="zh"] .pull { font-style: normal; }
+
+/* scrolly */
+.scrolly { display: grid; grid-template-columns: minmax(16rem, 22rem) 1fr; gap: clamp(1.5rem, 4vw, 3.5rem); margin-top: 1rem; }
+.scrolly-steps { grid-column: 1; grid-row: 1; padding: 14vh 0 26vh; }
+.scrolly-graphic { grid-column: 2; grid-row: 1; position: sticky; top: 9vh; align-self: start; }
+.step { margin-bottom: 48vh; opacity: .3; transition: opacity 300ms; }
+.step:last-child { margin-bottom: 8vh; }
+.step.is-active { opacity: 1; }
+.step .when { display: block; font-family: var(--sans); font-size: var(--t-xs); font-weight: 600; color: var(--claret); letter-spacing: .04em; margin-bottom: .3rem; }
+.step p { font-size: var(--t-md); line-height: 1.65; }
+@media (max-width: 860px) {
+  .scrolly { display: block; }
+  .scrolly-graphic { position: sticky; top: 0; z-index: 1; background: var(--paper); padding: .5rem 0 .25rem; }
+  .scrolly-steps { position: relative; z-index: 2; padding: 20vh 0 10vh; }
+  .step { opacity: 1; margin-bottom: 60vh; }
+  .step > * { background: var(--paper); box-shadow: 0 0 0 .75rem var(--paper), 0 0 0 calc(.75rem + 1px) var(--rule); }
+  .hero-top, .front { grid-template-columns: 1fr; }
+  html[data-lang="zh"] .hero h1 { font-size: 1.95rem; }
+  .hero h1 br { display: none; }
+  .scrolly-graphic .frame-title, .scrolly-graphic .frame-foot { display: none; }
+}
+
+/* figure frame */
+.frame { margin: 2.6rem 0 3rem; }
+.frame-number { display: block; font-family: var(--sans); font-weight: 600; font-size: var(--t-xs); color: var(--claret); margin-bottom: .15rem; }
+.frame-title { font-family: var(--serif); font-weight: 600; font-size: var(--t-md); line-height: 1.35; margin-bottom: .5rem; max-width: 50rem; }
+.frame-how { font-family: var(--sans); font-size: var(--t-xs); color: var(--ink-2); margin: 0 0 .9rem; max-width: 52rem; line-height: 1.5; }
+.frame-body { position: relative; }
+.frame-body svg { width: 100%; height: auto; overflow: visible; }
+.frame-foot { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-top: .6rem; padding-top: .5rem; border-top: 1px solid var(--rule);
+  font-family: var(--sans); font-size: var(--t-xs); color: var(--muted); line-height: 1.5; }
+.frame-foot em { color: var(--ink-2); font-style: italic; }
+.frame-foot .notes { max-width: 52rem; }
+.legend { display: flex; flex-wrap: wrap; gap: .4rem 1.3rem; font-family: var(--sans); font-size: var(--t-xs); color: var(--ink-2); margin: 0 0 .7rem; }
+.legend span { display: inline-flex; align-items: center; gap: .4rem; }
+.legend i { display: inline-block; width: 12px; height: 12px; border-radius: 2px; }
+.legend i.ln { width: 18px; height: 3px; }
+.chips { display: flex; flex-wrap: wrap; gap: .35rem; font-family: var(--sans); font-size: var(--t-xs); margin-bottom: .9rem; }
+.chip { font: inherit; padding: .25rem .7rem; border: 1px solid var(--rule); background: transparent; color: var(--ink-2); cursor: pointer; border-radius: 999px; }
+.chip:hover { border-color: var(--ink-2); }
+.chip.on { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+
+svg text { font-family: var(--sans); fill: var(--muted); font-size: 12px; }
+svg .lbl { fill: var(--ink-2); font-size: 12.5px; }
+svg .lbl-b { fill: var(--ink); font-size: 13px; font-weight: 600; }
+svg .halo { paint-order: stroke; stroke: var(--paper); stroke-width: 4px; stroke-linejoin: round; }
+svg .big { fill: var(--ink); font-family: var(--serif); font-size: 22px; font-weight: 600; }
+svg .gl line { stroke: var(--grid); }
+svg .base { stroke: var(--ink); stroke-width: 1; }
+/* entrance animations: the resting state is fully drawn, so a paused or skipped animation never hides data */
+svg .draw { stroke-dasharray: 1; animation: draw 1.4s ease-out backwards; }
+svg .fade { animation: fade .6s ease-out backwards; }
+@keyframes draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { svg .draw, svg .fade, .hero-art .stamp { animation: none; } }
+
+/* hover card */
+.card-tip { position: absolute; z-index: 9; pointer-events: none; width: 270px; background: var(--paper); border: 1px solid var(--ink);
+  padding: .65rem .8rem .55rem; font-family: var(--sans); font-size: var(--t-xs); line-height: 1.4; box-shadow: 3px 3px 0 var(--rule); opacity: 0; transition: opacity .08s; }
+.card-tip b { font-weight: 600; } .card-tip .t { font-family: var(--serif); font-size: var(--t-sm); font-weight: 600; margin-bottom: .25rem; }
+.card-tip .r { display: flex; justify-content: space-between; gap: 1rem; font-feature-settings: "tnum"; }
+.card-tip .r i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: .35rem; vertical-align: -1px; }
+.card-tip .m { color: var(--muted); }
+
+/* gallery */
+.gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(21rem, 1fr)); gap: 1.4rem 1.6rem; }
+.gcell { border-top: 2px solid var(--ink); padding-top: .55rem; }
+.gcell h4 { font-family: var(--serif); font-size: var(--t-md); margin: 0 0 .1rem; font-weight: 600; }
+.gcell .sub { font-family: var(--sans); font-size: var(--t-xs); color: var(--muted); margin-bottom: .25rem; }
+.gcell p { font-family: var(--sans); font-size: var(--t-xs); color: var(--ink-2); line-height: 1.5; margin: .35rem 0 0; }
+
+/* waffle */
+.waffle-wrap { display: grid; grid-template-columns: minmax(14rem, 20rem) 1fr; gap: clamp(1.2rem, 4vw, 3rem); align-items: start; }
+.waffle-say { font-size: var(--t-md); line-height: 1.6; }
+.waffle-say .k { font-family: var(--sans); font-weight: 600; font-feature-settings: "tnum"; }
+@media (max-width: 760px) { .waffle-wrap { grid-template-columns: 1fr; } }
+
+/* tables */
+table { border-collapse: collapse; width: 100%; font-family: var(--sans); font-size: var(--t-sm); }
+table.booktabs thead tr { border-top: 2px solid var(--ink); border-bottom: 1px solid var(--ink); }
+table.booktabs th { font-weight: 500; font-size: var(--t-xs); color: var(--ink-2); padding: .5rem .6rem; text-align: left; vertical-align: bottom; line-height: 1.25; }
+table.booktabs td { padding: .4rem .6rem; }
+table.booktabs tbody tr:last-child { border-bottom: 2px solid var(--ink); }
+table.booktabs tbody tr:hover { background: var(--paper-deep); }
+table.booktabs tr.grp td { padding-top: .9rem; border-bottom: 1px solid var(--rule); color: var(--ink); }
+td.n, th.n { text-align: right; font-feature-settings: "tnum", "lnum"; }
+.table-wrap { overflow-x: auto; }
+.table-scroll { max-height: 34rem; overflow: auto; border-top: 2px solid var(--ink); border-bottom: 2px solid var(--ink); }
+.table-scroll thead th { position: sticky; top: 0; background: var(--paper); border-bottom: 1px solid var(--ink); }
+.table-scroll td { border-bottom: 1px solid var(--rule); }
+.marks a { margin-right: .75rem; white-space: nowrap; text-decoration: none; color: var(--ink); }
+.marks a:hover { color: var(--blue); text-decoration: underline; }
+.gapbar { display: inline-block; height: 7px; background: var(--claret); vertical-align: 1px; margin-left: .45rem; border-radius: 0 3px 3px 0; }
+.controls { display: flex; flex-wrap: wrap; gap: .8rem 1.4rem; align-items: end; font-family: var(--sans); font-size: var(--t-sm); margin: 1rem 0; }
+.controls label { display: grid; gap: .2rem; color: var(--muted); font-size: var(--t-xs); }
+.controls select, .controls input { font: inherit; font-size: var(--t-sm); color: var(--ink); background: var(--paper-hi); border: 1px solid var(--rule); padding: .35rem .55rem; min-width: 9rem; }
+.controls input[type=search] { min-width: 17rem; }
+button.more { font: inherit; font-family: var(--sans); font-size: var(--t-sm); margin-top: .8rem; padding: .35rem .9rem; border: 1px solid var(--rule); background: var(--paper-hi); color: var(--blue); cursor: pointer; }
+
+/* back matter */
+.back { font-family: var(--sans); font-size: var(--t-sm); line-height: 1.65; color: var(--ink-2); }
+.back h2 { font-family: var(--serif); color: var(--ink); }
+.back h3 { font-family: var(--serif); font-size: var(--t-md); color: var(--ink); margin: 1.6rem 0 .4rem; }
+.back ul { padding-left: 1.2rem; } .back li { margin-bottom: .45rem; }
+.qa { margin-bottom: 1.2rem; } .qa b { display: block; font-family: var(--serif); font-size: var(--t-md); color: var(--ink); font-weight: 600; margin-bottom: .15rem; }
+code { font-size: .88em; background: var(--paper-deep); padding: .05em .3em; border-radius: 2px; }
+footer { border-top: 1px solid var(--rule); margin-top: 3rem; padding: 1.5rem 0 3rem; font-family: var(--sans); font-size: var(--t-xs); color: var(--muted); }
+
+/* journal furniture */
+.series { font-family: var(--sans); font-size: var(--t-xs); font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--claret); margin-bottom: .9rem; }
+.subtitle { margin-top: 1rem; font-size: var(--t-lg); font-style: italic; color: var(--ink-2); line-height: 1.4; max-width: 34rem; }
+html[data-lang="zh"] .subtitle { font-style: normal; }
+.hero h1 { font-size: clamp(2rem, 4.2vw, 3.3rem) !important; max-width: 22ch !important; }
+html[data-lang="zh"] .hero h1 { max-width: 18em !important; }
+.hero-fig { margin: 0; justify-self: center; max-width: 30rem; }
+.hero-fig figcaption { font-family: var(--sans); font-size: var(--t-xs); color: var(--muted); line-height: 1.45; margin-top: .4rem; }
+.quiet { color: var(--ink-2); }
+.kw { font-family: var(--sans); font-size: var(--t-xs) !important; color: var(--ink-2); line-height: 1.6 !important; margin-top: 1rem; }
+.kw b { color: var(--ink); font-weight: 600; }
+.sn { font-family: var(--sans); font-weight: 600; color: var(--claret); margin-right: .55em; font-feature-settings: "tnum"; }
+.chapter h3 { font-size: var(--t-lg); margin: 2rem 0 .8rem; }
+.chapter h3:first-child { margin-top: 0; }
+.two-col { display: grid; grid-template-columns: minmax(0, 38rem) minmax(14rem, 20rem); gap: clamp(1.5rem, 4vw, 3rem); align-items: start; }
+.box { background: var(--paper-deep); border-left: 3px solid var(--claret); padding: 1rem 1.2rem 1.1rem; font-family: var(--sans); font-size: var(--t-sm); line-height: 1.55; color: var(--ink-2); }
+.box-h { font-weight: 600; color: var(--ink); margin-bottom: .5rem; }
+.box p { margin: .7rem 0 0; }
+.refs { padding-left: 0; list-style: none; }
+.refs li { font-family: var(--serif); font-size: var(--t-sm); padding-left: 1.6em; text-indent: -1.6em; margin-bottom: .55rem; }
+.cite { font-family: var(--sans); font-size: var(--t-sm); background: var(--paper-deep); padding: .8rem 1rem; border-left: 3px solid var(--ink); }
+@media (max-width: 860px) { .two-col { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<header class="masthead wrap">
+  <a class="brand" href="#top"><span data-l="en">The Last Mark</span><span data-l="zh">最后的估值</span></a>
+  <nav aria-label="Sections">
+    <a href="#s1"><span data-l="en">Paper</span><span data-l="zh">正文</span></a>
+    <a href="#data"><span data-l="en">Data</span><span data-l="zh">数据</span></a>
+    <a href="#refs"><span data-l="en">References</span><span data-l="zh">参考文献</span></a>
+    <span class="lang" role="group" aria-label="Language"><button data-set="en">EN</button><button data-set="zh">中文</button></span>
+  </nav>
+</header>
+
+<main id="top">
+<section class="hero">
+  <div class="wrap">
+    <div class="hero-top">
+      <div>
+        <div class="series"><span data-l="en">Working paper · October 2026</span><span data-l="zh">工作论文 · 2026 年 10 月</span></div>
+        <h1>
+          <span data-l="en">Same Loan, Different Price: Valuation Dispersion and Gradual Loss Recognition in Private Credit</span>
+          <span data-l="zh">同一笔贷款，不同的价格：<br>私募信贷中的估值分歧与渐进式损失确认</span>
+        </h1>
+        <p class="subtitle">
+          <span data-l="en">Evidence from loans shared across business development companies, 2022–2026</span>
+          <span data-l="zh">基于多家 BDC 共同持有贷款的证据（2022–2026）</span>
+        </p>
+        <div class="byline">
+          <span>Michael Wang</span>
+          <span data-l="en">Data through <span data-m="last_q"></span> · SEC EDGAR inline XBRL</span><span data-l="zh">数据截至 <span data-m="last_q"></span> · SEC EDGAR inline XBRL</span>
+          <a class="quiet" href="#cite"><span data-l="en">How to cite</span><span data-l="zh">引用方式</span></a>
+        </div>
+        <ul class="cast" id="cast" aria-label="BDCs in the sample"></ul>
+      </div>
+      <figure class="hero-fig">
+        <svg class="hero-art" viewBox="0 0 420 330" role="img" aria-label="A loan note stamped with two different prices">
+          <defs>
+            <filter id="rough"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.2"/></filter>
+          </defs>
+          <g transform="rotate(-2 210 165)">
+            <rect x="40" y="22" width="320" height="270" fill="#fbf7f0" stroke="#1c1a17" stroke-width="1.4"/>
+            <rect x="50" y="32" width="300" height="250" fill="none" stroke="#dccfbf" stroke-width="1"/>
+            <text x="66" y="66" style="font-family:var(--sans);font-size:11px;letter-spacing:.14em;fill:#6e655b">SCHEDULE OF INVESTMENTS · 31 DEC 2023</text>
+            <text x="66" y="98" style="font-family:var(--serif);font-size:24px;font-weight:600;fill:#1c1a17">Pluralsight, LLC</text>
+            <text x="66" y="122" style="font-family:var(--sans);font-size:13px;fill:#4a443d">First lien term loan · coupon 13.56%</text>
+            <g stroke="#dccfbf" stroke-width="1"><line x1="66" x2="334" y1="146" y2="146"/><line x1="66" x2="334" y1="170" y2="170"/><line x1="66" x2="334" y1="194" y2="194"/><line x1="66" x2="250" y1="218" y2="218"/></g>
+            <text x="66" y="262" style="font-family:var(--sans);font-size:12px;fill:#6e655b">Principal $1.00 · Fair value ?</text>
+          </g>
+          <g class="stamp s1" style="--r:-14deg" filter="url(#rough)">
+            <circle cx="150" cy="200" r="62" fill="none" stroke="#0f5499" stroke-width="4"/>
+            <circle cx="150" cy="200" r="53" fill="none" stroke="#0f5499" stroke-width="1.5"/>
+            <text x="150" y="190" text-anchor="middle" style="font-family:var(--sans);font-size:12px;font-weight:600;letter-spacing:.16em;fill:#0f5499">ARES</text>
+            <text x="150" y="228" text-anchor="middle" style="font-family:var(--serif);font-size:42px;font-weight:700;fill:#0f5499">89¢</text>
+          </g>
+          <g class="stamp s2" style="--r:9deg" filter="url(#rough)">
+            <circle cx="285" cy="168" r="62" fill="none" stroke="#990f3d" stroke-width="4"/>
+            <circle cx="285" cy="168" r="53" fill="none" stroke="#990f3d" stroke-width="1.5"/>
+            <text x="285" y="158" text-anchor="middle" style="font-family:var(--sans);font-size:12px;font-weight:600;letter-spacing:.16em;fill:#990f3d">GOLUB</text>
+            <text x="285" y="196" text-anchor="middle" style="font-family:var(--serif);font-size:42px;font-weight:700;fill:#990f3d">99¢</text>
+          </g>
+        </svg>
+        <figcaption><span data-l="en">The same first-lien loan to Pluralsight, as reported at fair value by two of its lenders on 31 December 2023 (cents per dollar of principal).</span><span data-l="zh">2023 年 12 月 31 日，Pluralsight 同一笔一留置权贷款在两家放款人申报中的公允价值（每 1 美元本金对应的美分）。</span></figcaption>
+      </figure>
+    </div>
+
+    <div class="front">
+      <div class="abstract">
+        <h2 class="front-h"><span data-l="en">Abstract</span><span data-l="zh">摘要</span></h2>
+        <p data-l="en">Most private loans have no market price, so the value investors see is the lender's own estimate. Business development companies (BDCs) publish that estimate for every loan each quarter, and large loans are often held by several of them at once. Using <span data-m="lender_quarters"></span> schedules of investments from <span data-m="lenders"></span> BDCs (2022–2026) that reconcile to their reported totals, I identify <span data-m="pairs_fmt"></span> loan-quarters in which two or more BDCs hold the same facility (<span data-m="pair_borrowers"></span> borrowers). Four results emerge. First, marks on performing loans are nearly identical across lenders (median gap <span data-m="gap97"></span>), while on loans marked below 85 the median gap is <span data-m="gapLow"></span> (n = <span data-m="n_low"></span>) and the widest single case is <span data-m="widest"></span> points. Second, most losses are recognized gradually: among <span data-m="ev_full"></span> loans first marked below 60 with a full year of history, <span data-m="ge90_year"></span> were at 90 or above four quarters earlier and <span data-m="ge90_q"></span> one quarter earlier, although about one case in five moves from 90+ to distress or restructuring within a single quarter. Third, disagreement is not simply one lender lagging another: neither the higher nor the lower mark is systematically closer to where the loan stood a year later, and many gaps never close. Fourth, the dollar effect on any one fund is small, a few tenths of a percent of its loan book, so the issue is the timing of the signal investors receive rather than inflated net asset values.</p>
+        <p data-l="zh">私募贷款大多没有市场价格，投资者看到的价值是放款机构自己的估计。BDC 每季度公布每一笔贷款的这一估计，而大额贷款常由多家 BDC 同时持有。基于 <span data-m="lenders"></span> 家 BDC 在 2022–2026 年间、与申报总额核对一致的 <span data-m="lender_quarters"></span> 份持仓表，本文识别出 <span data-m="pairs_fmt"></span> 个由两家及以上 BDC 共同持有同一笔贷款的贷款-季度观测（涉及 <span data-m="pair_borrowers"></span> 个借款人）。主要结论有四。第一，正常贷款的估值在各机构间几乎一致（中位差距 <span data-m="gap97"></span>）；估值低于 85 的贷款中位差距为 <span data-m="gapLow"></span>（n = <span data-m="n_low"></span>），最大单一案例相差 <span data-m="widest"></span> 个点。第二，大部分损失是逐步确认的：在 <span data-m="ev_full"></span> 笔首次低于 60 且有完整一年历史的贷款中，四个季度前有 <span data-m="ge90_year"></span> 按 90 以上计价，前一季度为 <span data-m="ge90_q"></span>；但约五分之一的案例在一个季度内从 90 以上直接陷入困境或被重组。第三，分歧并不只是某家机构"慢半拍"：较高或较低的估值都不系统性地更接近一年后的状态，许多差距始终没有收敛。第四，对单只基金的美元影响很小，仅占其贷款组合的千分之几，因此问题在于投资者获得信号的时点，而非净值被系统性抬高。</p>
+        <p class="kw"><b data-l="en">Keywords:</b><b data-l="zh">关键词：</b> <span data-l="en">private credit; fair value; business development companies; valuation dispersion; loss recognition; payment-in-kind</span><span data-l="zh">私募信贷；公允价值；BDC；估值分歧；损失确认；实物支付利息</span><br><b>JEL:</b> G23, G33, M41</p>
+      </div>
+      <div class="findings">
+        <h2 class="front-h"><span data-l="en">Main results</span><span data-l="zh">主要结果</span></h2>
+        <ol id="findings"></ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 1. Introduction ============ -->
+<section class="chapter" id="s1">
+  <div class="wrap">
+    <h2><span class="sn">1</span><span data-l="en">Introduction</span><span data-l="zh">引言</span></h2>
+    <div class="measure prose">
+      <p data-l="en">Private credit has become one of the largest sources of financing for mid-sized companies, much of it lent to sponsor-owned firms through bilateral or club deals that rarely trade. With no secondary-market price, the value at which these loans are carried is a model-based estimate (a "Level 3" fair value in accounting terms). These estimates set reported net asset values; at most externally managed BDCs they also set the base management fee, which is charged on gross assets; and they are the main measure of credit losses most investors see. That audience is widening as non-traded BDCs are sold to wealth-management clients.</p>
+      <p data-l="zh">私募信贷已成为中型企业最主要的融资来源之一，其中大部分通过双边或俱乐部贷款借给由私募股权控股的企业，这些贷款很少交易。由于没有二级市场价格，贷款的账面价值是基于模型的估计（会计上称为"第三层级"公允价值）。这些估计决定了基金申报的净值；在大多数外部管理的 BDC 中，基础管理费按总资产收取，因此也取决于这些估计；它们还是多数投资者能看到的主要信用损失度量。随着非上市 BDC 向财富管理客户销售，这一受众正在扩大。</p>
+      <p data-l="en">A recurring concern is that such marks are slow to reflect bad news: loans are said to remain "at par until default." Testing the concern is difficult because the true value of an illiquid loan is unobserved. This paper uses a natural benchmark. When several BDCs hold the same loan, they are valuing an identical claim on the same date, under the same accounting standard. Differences between their marks therefore isolate valuation judgment from differences in the underlying asset.</p>
+      <p data-l="zh">一个反复出现的担忧是，这类估值对坏消息反应迟缓，即所谓"违约前一直按面值计价"。由于流动性差的贷款真实价值不可观测，这一担忧难以检验。本文利用一个天然的基准：当多家 BDC 持有同一笔贷款时，它们是在同一日期、同一会计准则下，为完全相同的债权估值。因此，它们之间的估值差异可以把估值判断与资产本身的差异区分开来。</p>
+      <p data-l="en">The paper builds an open, loan-level panel of BDC marks directly from inline XBRL filings, admitting a filing only if its line items sum to the portfolio total the company reports. It then asks four questions: how much lenders disagree about the same loan, and how that varies with credit quality; how marks evolve before a loan becomes distressed; whether the lender that marks lower turns out to be right; and what a given mark implies a year later. Industry analysts have reported cross-lender dispersion using proprietary data (PIMCO, 2026) and normalized non-accruals across lenders (Octus, 2026). What is new here is that the analysis uses public filings only, matches individual facilities, and links every observation to its source document so that any figure can be checked.</p>
+      <p data-l="zh">本文直接从 inline XBRL 申报文件构建公开的、逐笔贷款层面的 BDC 估值面板，只纳入逐笔加总与公司自报组合总额一致的文件。在此基础上回答四个问题：各机构对同一笔贷款的分歧有多大，如何随信用质量变化；贷款陷入困境前估值如何演变；估值较低的机构事后是否更正确；某一估值水平对一年后意味着什么。业界分析曾利用付费数据报告机构间估值分歧（PIMCO，2026），并在机构间对齐不良贷款（Octus，2026）。本文的新意在于：只用公开申报、逐笔匹配贷款，并将每个观测链接到原始文件，任何数字都可核查。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 2. Background ============ -->
+<section class="chapter" id="s2">
+  <div class="wrap">
+    <h2><span class="sn">2</span><span data-l="en">Institutional background</span><span data-l="zh">制度背景</span></h2>
+    <div class="two-col">
+      <div class="measure prose">
+        <p data-l="en">BDCs are closed-end investment companies, many of them exchange-listed, that lend primarily to private middle-market firms. Under the Investment Company Act they must report their investments at fair value each quarter; since 2022 Rule 2a-5 has governed how boards (or a designated valuation adviser) determine those values. Each 10-Q and 10-K contains a schedule of investments listing every position with its principal, amortized cost and fair value, and these schedules are tagged in inline XBRL.</p>
+        <p data-l="zh">BDC 是封闭式投资公司，许多在交易所上市，主要向未上市的中型企业放贷。根据《投资公司法》，BDC 须每季度按公允价值申报其投资；自 2022 年起，Rule 2a-5 规范了董事会（或指定估值顾问）确定公允价值的方式。每份 10-Q 和 10-K 都包含一张持仓明细表（schedule of investments），逐笔列出本金、摊余成本和公允价值，并以 inline XBRL 标注。</p>
+        <p data-l="en">Throughout, a loan's <i>mark</i> is its fair value divided by its principal, in cents per dollar. A mark of 100 means the lender values the loan at par. A mark of 80 means it values it at 80 cents, which reflects both the losses it expects and the higher return a buyer would now demand for the risk; it is not a pure loss forecast. Box 1 shows the scale used in the figures.</p>
+        <p data-l="zh">本文中，贷款的<b>估值（mark）</b>定义为公允价值除以本金，以每 1 美元本金对应的美分表示。100 表示按面值计价；80 表示按 80 美分计价，它既反映预期损失，也反映买方现在对该风险要求的更高回报，并非单纯的损失预测。框 1 给出图中使用的刻度。</p>
+      </div>
+      <aside class="box">
+        <div class="box-h"><span data-l="en">Box 1. Reading a mark</span><span data-l="zh">框 1　如何读懂一个估值</span></div>
+        <svg class="mark-scale" viewBox="0 0 260 34" id="markscale"></svg>
+        <p data-l="en">Fair value ÷ principal, in cents. The two dots are the Pluralsight marks shown above: <span class="blue">Ares 89</span> and <span class="claret">Golub 99</span>. A BDC's net asset value is mostly the sum of such marks across its portfolio, less its borrowings, so a ten-point difference on the same loan is a difference in what two funds report to their investors about one risk.</p>
+        <p data-l="zh">公允价值 ÷ 本金，单位为美分。两个点即上文 Pluralsight 的估值：<span class="blue">Ares 89</span>、<span class="claret">Golub 99</span>。BDC 的净值主要是组合中所有估值之和减去借款，因此同一笔贷款相差 10 个点，意味着两只基金就同一风险向投资者报告了不同的信息。</p>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 3. Data ============ -->
+<section class="chapter" id="s3">
+  <div class="wrap">
+    <h2><span class="sn">3</span><span data-l="en">Data and sample construction</span><span data-l="zh">数据与样本构建</span></h2>
+    <div class="measure prose">
+      <h3><span class="sn">3.1</span><span data-l="en">Source and reconciliation</span><span data-l="zh">数据来源与核对</span></h3>
+      <p data-l="en">I download the XBRL instance of every 10-Q and 10-K filed by 28 BDCs from mid-2022 through <span data-m="last_q"></span> and retain facts dated at the period end that carry an investment identifier: fair value, amortized cost, principal, interest rate and PIK rate. Filers differ in how they tag subtotals, affiliated positions and joint ventures. Each filing must therefore pass a reconciliation test before use: the sum of line-item fair values must lie within 3% of the total investments at fair value that the company itself reports. <span data-m="lq_pass"></span> lender-quarters pass; the remainder are excluded (Appendix Figure A1). Ten BDCs, including FS KKR and Oaktree Specialty Lending, never pass, chiefly because of joint-venture tagging.</p>
+      <p data-l="zh">本文下载了 28 家 BDC 自 2022 年中至 <span data-m="last_q"></span> 提交的每一份 10-Q 和 10-K 的 XBRL 实例文件，保留期末日期、带有投资标识的事实：公允价值、摊余成本、本金、利率和 PIK 利率。各申报方在小计、关联方持仓和合资企业的标注方式上存在差异，因此每份文件在使用前须通过核对检验：逐笔公允价值之和须与公司自报的投资总额相差不超过 3%。共有 <span data-m="lq_pass"></span> 个机构-季度通过检验，其余剔除（见附录图 A1）。包括 FS KKR 和 Oaktree Specialty Lending 在内的 10 家 BDC 从未通过，主要原因是合资企业持仓的标注方式。</p>
+      <h3><span class="sn">3.2</span><span data-l="en">Identifying the same loan</span><span data-l="zh">识别同一笔贷款</span></h3>
+      <p data-l="en">The unit of analysis is a lender's exposure to a borrower in a quarter. Two holdings are treated as the same loan only if the borrower, the interest rate (to within 0.15 percentage points) and the seniority all match, and the match recurs in an adjacent quarter. The repeat test matters because most of these loans pay a floating rate that resets with SOFR, the benchmark rate: two different loans may share a coupon by coincidence once, but rarely twice. Revolving credit lines and delayed-draw tranches, whose reported principal can include undrawn amounts, are excluded, as are split "first-out/last-out" structures, in which one first-lien loan is divided into senior and junior pieces. The comparison uses <i>par loans</i> only: lines carried at an amortized cost of 90–105% of principal, which removes discounted purchases and restructured paper.</p>
+      <p data-l="zh">分析单位为某机构在某季度对某借款人的敞口。只有当借款人、利率（误差不超过 0.15 个百分点）和清偿顺位都一致，且在相邻季度再次匹配时，两笔持仓才被视为同一笔贷款。重复匹配很关键：这类贷款大多按随基准利率 SOFR 重置的浮动利率计息，两笔不同的贷款可能偶然一次利率相同，却很难连续两次相同。循环信贷额度与延迟提款额度（其申报本金可能含未提款部分）以及"first-out/last-out"分层结构（一笔一留置权贷款被拆成优先和次级两部分）均被排除。比较只使用<b>正常贷款</b>：摊余成本为本金 90%–105% 的持仓，以剔除折价买入和重组后的债务。</p>
+    </div>
+    <figure class="frame" id="tab1">
+      <span class="frame-number"><span data-l="en">Table 1</span><span data-l="zh">表 1</span></span>
+      <div class="frame-title"><span data-l="en">Sample composition by BDC</span><span data-l="zh">样本构成（按 BDC）</span></div>
+      <div class="table-wrap"><table class="booktabs" id="t-lenders"></table></div>
+      <div class="frame-foot"><span class="notes"><em data-l="en">Notes:</em><em data-l="zh">注：</em> <span data-l="en">Quarters used are those passing reconciliation. Par-loan principal is for the latest reconciled quarter. Matched counts loan-quarters shared with at least one other BDC under the rule in Section 3.2. Blue Owl Capital Corp (OBDC) does not tag interest rates and therefore cannot be matched.</span><span data-l="zh">"覆盖季度"为通过核对的季度；"正常贷款本金"为最近一个通过核对季度的数值；"匹配"为按 3.2 节规则与至少一家其他 BDC 共同持有的贷款-季度数。Blue Owl Capital Corp（OBDC）未标注利率，无法参与匹配。</span></span></div>
+    </figure>
+  </div>
+</section>
+
+<!-- ============ 4. Results ============ -->
+<section class="chapter" id="s4">
+  <div class="wrap">
+    <h2><span class="sn">4</span><span data-l="en">Results</span><span data-l="zh">实证结果</span></h2>
+    <div class="measure prose">
+      <h3><span class="sn">4.1</span><span data-l="en">A motivating case</span><span data-l="zh">一个引例</span></h3>
+      <p data-l="en">Pluralsight, an online technology-skills provider, was acquired by Vista Equity Partners in 2021 in a transaction financed in large part with private credit. Ares Capital and Golub Capital BDC both held its first-lien term loan. Figure 1 traces their marks on this single facility; scrolling advances the narrative.</p>
+      <p data-l="zh">Pluralsight 是一家在线技术技能培训公司，2021 年被 Vista Equity Partners 收购，交易资金很大一部分来自私募信贷。Ares Capital 与 Golub Capital BDC 均持有其一留置权定期贷款。图 1 追踪了两家机构对这一笔贷款的估值，随页面滚动逐步展开。</p>
+    </div>
+    <div class="scrolly" id="scrolly">
+      <div class="scrolly-graphic">
+        <div class="frame" id="fig1" style="margin:0">
+          <span class="frame-number"><span data-l="en">Figure 1</span><span data-l="zh">图 1</span></span>
+          <div class="frame-title"><span data-l="en">Marks on the Pluralsight first-lien loan, by lender</span><span data-l="zh">Pluralsight 一留置权贷款的估值（按放款机构）</span></div>
+          <div class="legend"><span><i class="ln" style="background:var(--blue)"></i>Ares Capital (ARCC)</span><span><i class="ln" style="background:var(--claret)"></i>Golub Capital BDC (GBDC)</span></div>
+          <div class="frame-body" id="c-scrolly"></div>
+          <div class="frame-foot"><span class="notes"><em data-l="en">Notes:</em><em data-l="zh">注：</em> <span data-l="en">Fair value ÷ principal, cents. Series end when restructured debt replaced the loan.</span><span data-l="zh">公允价值 ÷ 本金，单位美分。贷款被重组后的新债务取代时，序列终止。</span> <em data-l="en">Source:</em><em data-l="zh">来源：</em> <span data-l="en">ARCC and GBDC 10-Q/10-K schedules of investments.</span><span data-l="zh">ARCC 与 GBDC 的 10-Q/10-K 持仓明细表。</span></span></div>
+        </div>
+      </div>
+      <div class="scrolly-steps">
+        <div class="step" data-step="0"><span class="when"><span data-l="en">Q1 2023</span><span data-l="zh">2023 年一季度</span></span>
+          <p data-l="en">Both lenders carry the loan close to par, at 98 and 99, as would be expected for a performing credit.</p>
+          <p data-l="zh">两家机构均按接近面值计价，分别为 98 和 99，符合一笔正常履约贷款的预期。</p></div>
+        <div class="step" data-step="1"><span class="when"><span data-l="en">Q2–Q4 2023</span><span data-l="zh">2023 年二至四季度</span></span>
+          <p data-l="en">Ares reduces its mark in successive quarters, to 97, 94 and then 89. Golub leaves its mark at 99.</p>
+          <p data-l="zh">Ares 逐季下调估值，依次为 97、94、89；Golub 维持在 99。</p></div>
+        <div class="step" data-step="2"><span class="when"><span data-l="en">31 December 2023</span><span data-l="zh">2023 年 12 月 31 日</span></span>
+          <p data-l="en">On the same date, for the same loan and the same 13.56% coupon, <strong class="blue">Ares reports 89</strong> and <strong class="claret">Golub reports 99</strong>. An investor holding both funds is given two valuations of one exposure.</p>
+          <p data-l="zh">同一日期、同一笔贷款、同一 13.56% 利率：<strong class="blue">Ares 申报 89</strong>，<strong class="claret">Golub 申报 99</strong>。同时持有两只基金的投资者，就同一风险敞口得到了两个估值。</p></div>
+        <div class="step" data-step="3"><span class="when"><span data-l="en">Q2 2024</span><span data-l="zh">2024 年二季度</span></span>
+          <p data-l="en">Golub reduces its mark in a single step, from 97 to <strong>50</strong>.</p>
+          <p data-l="zh">Golub 一次性将估值从 97 下调至 <strong>50</strong>。</p></div>
+        <div class="step" data-step="4"><span class="when"><span data-l="en">August 2024</span><span data-l="zh">2024 年 8 月</span></span>
+          <p data-l="en">The lender group takes ownership of the company and the sponsor's equity is written off (Bloomberg Law, 2024a). Fair value is a range, and nothing in the filings shows either lender acting outside its stated valuation policy; the two series differ in timing.</p>
+          <p data-l="zh">贷款人团体取得公司所有权，原发起人的股权被核销（Bloomberg Law，2024a）。公允价值是一个区间，申报文件中没有任何迹象表明哪一方超出其既定的估值政策；两组序列的区别在于时点。</p></div>
+      </div>
+    </div>
+
+    <div class="measure prose">
+      <h3><span class="sn">4.2</span><span data-l="en">Dispersion and credit quality</span><span data-l="zh">估值分歧与信用质量</span></h3>
+      <p data-l="en">Figure 2 generalizes the case. For each shared loan-quarter it plots the gap between the highest and lowest mark, grouped by the lenders' median mark. Agreement on performing loans is close to exact: where the median is 97 or above (n = <span data-m="n_97"></span>), the median gap is <span data-m="gap97"></span>. The gap widens as credit quality declines, to <span data-m="gapLow"></span> below 85, where <span data-m="share5Low"></span> of observations differ by five points or more. That last group is small (n = <span data-m="n_low"></span>), and part of the pattern is mechanical, since marks near par have little room to differ. Scaled by the discount the median mark implies, however, the disagreement is substantial throughout: below 93 the gap is typically <span data-m="rel_mid"></span> of the distance to par. The median gap on stressed loans (median mark below 97) rose from about 2 points in 2022–24 to <span data-m="trend_last"></span> points in 2026; on a fixed panel of lenders present throughout, the rise is smaller (<span data-m="trend_panel"></span>) and rests on few observations.</p>
+      <p data-l="zh">图 2 将这一案例推广到全样本。对每个共同持有的贷款-季度，图中给出最高与最低估值之差，并按各机构估值中位数分组。正常贷款的估值几乎完全一致：中位数在 97 以上时（n = <span data-m="n_97"></span>），中位差距为 <span data-m="gap97"></span>。随信用质量下降，差距扩大；中位数低于 85 时为 <span data-m="gapLow"></span>，且 <span data-m="share5Low"></span> 的观测相差 5 个点以上。最后一组样本较小（n = <span data-m="n_low"></span>），且部分规律是机械性的：接近面值的估值本就没有多少分歧空间。但若按中位估值隐含的折价来衡量，分歧在各组都不小：低于 93 时，差距通常相当于距面值距离的 <span data-m="rel_mid"></span>。承压贷款（中位估值低于 97）的中位差距从 2022–24 年的约 2 个点升至 2026 年的 <span data-m="trend_last"></span> 个点；在全程在样本中的固定机构组合上，升幅较小（<span data-m="trend_panel"></span>），且观测数有限。</p>
+    </div>
+    <figure class="frame" id="fig2">
+      <span class="frame-number"><span data-l="en">Figure 2</span><span data-l="zh">图 2</span></span>
+      <div class="frame-title"><span data-l="en">Cross-lender valuation gap on the same loan, by credit quality</span><span data-l="zh">同一笔贷款的机构间估值差距（按信用质量分组）</span></div>
+      <p class="frame-how"><span data-l="en">Each dot is one loan-quarter held by two or more BDCs; the vertical axis is the highest minus the lowest mark, in points. Columns group observations by the median mark across lenders; black bars are group medians; claret dots are the cases in Figure 3. Hover for details.</span><span data-l="zh">每个点为一个由两家及以上 BDC 持有的贷款-季度；纵轴为最高与最低估值之差（点）。横向按各机构估值中位数分组；黑色横线为组内中位数；红点为图 3 中的案例。悬停可查看详情。</span></p>
+      <div class="frame-body" id="c-disp"></div>
+      <div class="frame-foot"><span class="notes"><em data-l="en">Notes:</em><em data-l="zh">注：</em> <span data-l="en">Matching rule as in Section 3.2. Gaps above 36 points are drawn at the top of the scale.</span><span data-l="zh">匹配规则见 3.2 节。超过 36 个点的差距绘于刻度顶端。</span></span></div>
+    </figure>
+
+    <div class="measure prose">
+      <h3><span class="sn">4.3</span><span data-l="en">Case evidence</span><span data-l="zh">案例证据</span></h3>
+      <p data-l="en">Figure 3 presents six facilities from the matched sample. In Wellpath, a correctional-healthcare provider that filed for Chapter 11 in November 2024 (Bloomberg Law, 2024b), the two lenders' marks on the same first-lien loan differed by 14 to 28 points for more than a year; in December 2023 Prospect Capital carried its second-lien loan to the company at 92.8, above Ares's mark on the senior debt. The widest gap in the sample is on Help/Systems (Fortra): at 30 June 2026 Prospect Capital carried its $56.3m second-lien term loan (SOFR + 9.00% paid in kind, maturing May 2029) at 82.6, while Palmer Square BDC carried a $3.9m position in the same tranche (same coupon and spread, maturing two days later according to its schedule) at 47.5. The direction of the gap is not fixed: in Maverick, Blackstone Secured Lending marked below Ares throughout.</p>
+      <p data-l="zh">图 3 展示了匹配样本中的六笔贷款。监狱医疗服务商 Wellpath 于 2024 年 11 月申请破产保护（Bloomberg Law，2024b）；此前一年多里，两家机构对同一笔一留置权贷款的估值相差 14–28 个点。2023 年 12 月，Prospect Capital 对其二留置权贷款的估值为 92.8，高于 Ares 对优先债务的估值。样本中差距最大的是 Help/Systems（Fortra）：2026 年 6 月 30 日，Prospect Capital 将其 5,630 万美元的二留置权定期贷款（SOFR + 9.00%，以实物支付，2029 年 5 月到期）计为 82.6，而 Palmer Square BDC 持有同一档次 390 万美元（利率与利差相同，其持仓表所列到期日晚两天），计为 47.5。差距方向并不固定：在 Maverick 一例中，Blackstone Secured Lending 的估值始终低于 Ares。</p>
+    </div>
+    <figure class="frame" id="fig3">
+      <span class="frame-number"><span data-l="en">Figure 3</span><span data-l="zh">图 3</span></span>
+      <div class="frame-title"><span data-l="en">Marks on six shared facilities</span><span data-l="zh">六笔共同持有贷款的估值</span></div>
+      <p class="frame-how"><span data-l="en">Each panel shows one facility. <span class="swatch blue"></span>Blue denotes the lender with the lower mark at the labelled date, <span class="swatch claret"></span>claret the higher; shading is the gap.</span><span data-l="zh">每个小图为一笔贷款。<span class="swatch blue"></span>蓝色为标注日期估值较低的机构，<span class="swatch claret"></span>红色为较高者；阴影为二者差距。</span></p>
+      <div class="gallery" id="gallery"></div>
+      <div class="frame-foot"><span class="notes"><em data-l="en">Notes:</em><em data-l="zh">注：</em> <span data-l="en">Gaps in a series are quarters in which that lender's filing did not pass reconciliation.</span><span data-l="zh">序列中的空缺为该机构当季申报未通过核对。</span></span></div>
+    </figure>
+
+    <div class="measure prose">
+      <h3><span class="sn">4.4</span><span data-l="en">Lender-level differences</span><span data-l="zh">机构层面的差异</span></h3>
+      <p data-l="en">Do some lenders sit consistently above or below their peers? For each lender I compute the difference between its mark and the average of the other lenders' marks on the same loan, over shared loans whose median mark is below 97. Figure 4 reports the mean with an approximate 95% interval, clustered by borrower. Only lenders with at least ten distinct borrowers are ranked; the others are shown for completeness but their averages rest on a handful of loans. Among the ranked lenders, Prospect Capital sits highest, <span data-m="psec_dev"></span> points above its peers on average (median <span data-m="psec_med"></span>; <span data-m="psec_b"></span> borrowers), and holds the lowest mark in only <span data-m="psec_low"></span> of cases. Ares Capital sits slightly below its peers (<span data-m="arcc_dev"></span> points, <span data-m="arcc_b"></span> borrowers) and Golub Capital BDC slightly above (<span data-m="gbdc_dev"></span>, <span data-m="gbdc_b"></span> borrowers). These figures describe where each lender's marks sat relative to others on a limited set of shared loans. They are not a measure of the quality of its valuation process, and Section 4.6 finds no evidence that either side of a disagreement is systematically right.</p>
+      <p data-l="zh">是否有机构的估值持续高于或低于同行？本文对每家机构，在估值中位数低于 97 的共同持有贷款上，计算其估值与其他机构平均估值之差。图 4 给出均值及按借款人聚类的近似 95% 区间。只有至少涉及 10 个不同借款人的机构才参与排序；其余机构仅作展示，其均值仅基于少数几笔贷款。在参与排序的机构中，Prospect Capital 最高，平均比同行高 <span data-m="psec_dev"></span> 个点（中位数 <span data-m="psec_med"></span>；<span data-m="psec_b"></span> 个借款人），仅在 <span data-m="psec_low"></span> 的情形下给出最低估值。Ares Capital 略低于同行（<span data-m="arcc_dev"></span> 个点，<span data-m="arcc_b"></span> 个借款人），Golub Capital BDC 略高（<span data-m="gbdc_dev"></span>，<span data-m="gbdc_b"></span> 个借款人）。这些数字描述的是在有限的共同贷款上各机构估值相对同行的位置，并不衡量其估值流程的质量；4.6 节也没有发现分歧中的任何一方系统性地更正确。</p>
+    </div>
+    <figure class="frame" id="fig4">
+      <span class="frame-number"><span data-l="en">Figure 4</span><span data-l="zh">图 4</span></span>
+      <div class="frame-title"><span data-l="en">Average deviation from peers on stressed shared loans, by lender</span><span data-l="zh">承压共同持有贷款上各机构相对同行的平均偏离</span></div>
+      <p class="frame-how"><span data-l="en">Mean of (own mark − mean of other lenders' marks), in points, over shared loan-quarters with a median mark below 97. <span class="swatch blue"></span>Negative values indicate more conservative marks; <span class="swatch claret"></span>positive values more generous ones. Right: number of distinct borrowers, number of observations, and share in which the lender held the lowest mark.</span><span data-l="zh">（本机构估值 − 其他机构平均估值）的均值，单位为点；样本为估值中位数低于 97 的共同持有贷款-季度。<span class="swatch blue"></span>负值表示更保守，<span class="swatch claret"></span>正值表示更宽松。右侧为不同借款人数、观测数及该机构给出最低估值的比例。</span></p>
+      <div class="frame-body" id="c-rel"></div>
+      <div class="frame-foot"><span class="notes"><em data-l="en">Notes:</em><em data-l="zh">注：</em> <span data-l="en">Bars are approximate 95% intervals (±1.96 standard errors, clustered by borrower). Grey rows have fewer than ten borrowers and are not ranked. Medians appear on hover.</span><span data-l="zh">横线为近似 95% 区间（±1.96 个按借款人聚类的标准误）。灰色行为借款人少于 10 个的机构，不参与排序。悬停可查看中位数。</span></span></div>
+    </figure>
+
+    <div class="measure prose">
+      <h3><span class="sn">4.5</span><span data-l="en">The path to distress</span><span data-l="zh">陷入困境的路径</span></h3>
+      <p data-l="en">The "par until default" view predicts that marks stay near 100 until shortly before a loan becomes distressed. I define a distress event as the first quarter in which a lender's mark on a borrower falls below 60, with an observed mark above 60 the quarter before. For this test the mark covers all of the lender's term debt to the borrower, not only par loans, so that loans written down or exchanged do not drop out of view. There are <span data-m="events"></span> events (<span data-m="events_par"></span> of principal, <span data-m="ev_borrowers"></span> borrowers). Figure 5 follows the <span data-m="ev_full"></span> with a mark in each of the four preceding quarters, so every share below has the same denominator. Four quarters before the event, <span data-m="ge90_year"></span> were still carried at 90 or above; one quarter before, <span data-m="ge90_q"></span> were. The typical path is a slide over about a year. It is not the only path. Counting every case in which a mark of 90 or above was followed within one quarter by a mark below 60 or by a debt-for-equity exchange, there are <span data-m="jumps"></span> abrupt cases against <span data-m="glides"></span> gradual ones, or about <span data-m="abrupt_share"></span> of the total. Pluralsight at Golub is one of them.</p>
+      <p data-l="zh">"违约前按面值计价"的观点意味着，在贷款陷入困境前不久，估值都应接近 100。本文将困境事件定义为某机构对某借款人的估值首次低于 60 的季度，并要求前一季度有观测且高于 60。在这一检验中，估值涵盖该机构对该借款人的全部定期债务，而不仅是正常贷款，以免被减记或置换的贷款从视野中消失。共有 <span data-m="events"></span> 个事件（本金 <span data-m="events_par"></span>，<span data-m="ev_borrowers"></span> 个借款人）。图 5 跟踪其中 <span data-m="ev_full"></span> 个在此前四个季度均有估值的事件，因此以下比例的分母相同。事件前四个季度，<span data-m="ge90_year"></span> 仍按 90 以上计价；前一个季度为 <span data-m="ge90_q"></span>。典型路径是在约一年内逐步下滑，但并非唯一路径。统计所有"90 以上之后一个季度内即低于 60 或发生债转股"的情形，共有 <span data-m="jumps"></span> 个突然案例、<span data-m="glides"></span> 个渐进案例，突然案例约占 <span data-m="abrupt_share"></span>。Golub 持有的 Pluralsight 即属此类。</p>
+    </div>
+    <figure class="frame" id="fig5">
+      <span class="frame-number"><span data-l="en">Figure 5</span><span data-l="zh">图 5</span></span>
+      <div class="frame-title"><span data-l="en">Marks in event time before a loan is first marked below 60</span><span data-l="zh">事件时间下的估值路径：首次低于 60 之前</span></div>
+      <p class="frame-how"><span data-l="en">Thin lines are individual lender–borrower series aligned on the event quarter (0). The band is the interquartile range and the thick line the median. Figures above the plot give the share still marked at 90 or above. Hover a line to identify the loan.</span><span data-l="zh">细线为单个机构-借款人序列，以事件季度（0）对齐；色带为四分位区间，粗线为中位数。图上方数字为仍按 90 以上计价的比例。悬停可识别具体贷款。</span></p>
+      <div class="frame-body" id="c-glide"></div>
+      <div class="frame-foot"><span class="notes"><em data-l="en">Notes:</em><em data-l="zh">注：</em> <span data-l="en">Mark = fair value ÷ principal over all of the lender's term debt to the borrower (revolvers and delayed-draw lines excluded). Only events with a mark in each of the four preceding quarters are shown.</span><span data-l="zh">估值 = 该机构对该借款人全部定期债务的公允价值 ÷ 本金（不含循环与延迟提款额度）。仅显示此前四个季度均有估值的事件。</span></span></div>
+    </figure>
+
+
+    <div class="measure prose">
+      <h3><span class="sn">4.6</span><span data-l="en">Who was right?</span><span data-l="zh">谁更接近事实？</span></h3>
+      <p data-l="en">If the higher-marking lender were simply slow, the gap would close over time with that lender moving down, and the lower mark would prove the better forecast. Neither happens consistently. Taking the first disagreement of at least three points on each stressed shared loan and comparing both marks with where the same lenders stood four quarters later, the lower mark was closer in <span data-m="xp_low"></span> cases and the higher mark in <span data-m="xp_high"></span> (with <span data-m="xp_rst"></span> restructured and <span data-m="xp_exit"></span> exited). Following each pair of lenders through time from the first quarter in which their marks diverged by five points or more, <span data-m="ll_open"></span> of <span data-m="ll_ep"></span> gaps had not closed to within two points by the end of the sample. Of those that did close (after a median of <span data-m="ll_q"></span> quarters), the lower-marking lender moved up in <span data-m="ll_leader"></span> cases and the higher-marking lender moved down in <span data-m="ll_follower"></span>. Pluralsight and Wellpath, where the lower mark was vindicated, are vivid but not representative. The evidence points to genuine, durable differences of opinion rather than a uniform lag.</p>
+      <p data-l="zh">如果估值较高的机构只是反应慢，差距会随时间收敛，且由该机构下调来完成，较低的估值也会被证明是更好的预测。但这两点都没有一致地出现。取每笔承压共同贷款上首次出现的、至少 3 个点的分歧，将两方估值与同一批机构四个季度后的估值比较：较低估值更接近的有 <span data-m="xp_low"></span> 例，较高估值更接近的有 <span data-m="xp_high"></span> 例（另有 <span data-m="xp_rst"></span> 例重组、<span data-m="xp_exit"></span> 例退出）。从两家机构估值首次相差 5 个点以上的季度起跟踪，<span data-m="ll_ep"></span> 个差距中有 <span data-m="ll_open"></span> 个到样本期末仍未收敛到 2 个点以内。在收敛的案例中（中位用时 <span data-m="ll_q"></span> 个季度），估值较低的一方上调的有 <span data-m="ll_leader"></span> 例，估值较高的一方下调的有 <span data-m="ll_follower"></span> 例。Pluralsight 和 Wellpath 中较低的估值事后被证明是对的，这些案例很鲜明，但并不具有代表性。证据指向真实而持久的意见分歧，而非统一的滞后。</p>
+    </div>
+    <figure class="frame" id="tab2">
+      <span class="frame-number"><span data-l="en">Table 2</span><span data-l="zh">表 2</span></span>
+      <div class="frame-title"><span data-l="en">Robustness and additional tests</span><span data-l="zh">稳健性与补充检验</span></div>
+      <div class="table-wrap"><table class="booktabs" id="t-robust"></table></div>
+      <div class="frame-foot"><span class="notes"><em data-l="en">Notes:</em><em data-l="zh">注：</em> <span data-l="en">Stressed = median mark below 97. Dollar effect = Σ (own mark − mean of other lenders' marks) × own principal over the lender's stressed shared loans in its latest matched quarter, as a share of its par-loan principal in that quarter; illustrative, not a restatement.</span><span data-l="zh">承压 = 估值中位数低于 97。美元影响 = 该机构最近一个匹配季度内，其承压共同持有贷款上（本机构估值 − 其他机构平均估值）× 本机构本金之和，并以该季度正常贷款本金的百分比表示；仅为示意，不构成重述。</span></span></div>
+    </figure>
+    <div class="measure prose">
+      <h3><span class="sn">4.7</span><span data-l="en">The information content of marks</span><span data-l="zh">估值的信息含量</span></h3>
+      <p data-l="en">Whatever their timing, marks should carry information about where a loan is going. For every lender–borrower–quarter I record the same lender's position four quarters later: at or above 90, between 60 and 90, below 60, restructured (the lender received equity while its debt shrank or was impaired), or no longer held. Figure 6 lets the reader select a starting mark; Figure 7 reports all buckets. A loan at 97 or above is still at 90 or above <span data-m="t97_par"></span> of the time; fewer than <span data-m="t97_bad"></span> in a hundred are below 60 or restructured. At 85–90 the share back at 90 or above falls to <span data-m="t85_par"></span>. At 60–70, <span data-m="t60_bad"></span> are below 60 or restructured a year later; because <span data-m="t60_gone"></span> are no longer held and the filings do not say why, the true distress rate for that bucket lies between <span data-m="t60_bad"></span> (if every exit was a full repayment) and <span data-m="t60_bad_hi"></span> (if none was).</p>
+      <p data-l="zh">无论时点如何，估值都应包含有关贷款走向的信息。本文对每个机构-借款人-季度，记录同一机构四个季度后的状态：90 及以上、60–90、低于 60、已重组（机构获得股权，同时其债务缩减或减值）、不再持有。图 6 供读者选择起始估值，图 7 列出全部分组。估值在 97 以上的贷款，一年后仍在 90 以上的比例为 <span data-m="t97_par"></span>，低于 60 或被重组的不到 <span data-m="t97_bad"></span>%。85–90 区间回到 90 以上的比例降至 <span data-m="t85_par"></span>。60–70 区间一年后有 <span data-m="t60_bad"></span> 低于 60 或被重组；由于有 <span data-m="t60_gone"></span> 不再持有且申报未说明原因，该区间真实的困境比例介于 <span data-m="t60_bad"></span>（若退出均为全额偿还）与 <span data-m="t60_bad_hi"></span>（若均非偿还）之间。</p>
+    </div>
+    <figure class="frame" id="fig6">
+      <span class="frame-number"><span data-l="en">Figure 6</span><span data-l="zh">图 6</span></span>
+      <div class="frame-title"><span data-l="en">Outcomes four quarters later, by initial mark (select a bucket)</span><span data-l="zh">四个季度后的结局（按初始估值，可选择分组）</span></div>
+      <div class="chips" id="wf-chips" role="group" aria-label="Initial mark"></div>
+      <div class="waffle-wrap">
+        <div class="waffle-say" id="wf-say"></div>
+        <div class="frame-body" id="c-waffle"></div>
+      </div>
+      <div class="legend" id="lg-out" style="margin-top:.8rem"></div>
+      <div class="frame-foot"><span class="notes"><em data-l="en">Notes:</em><em data-l="zh">注：</em> <span data-l="en">Each square ≈ 1% of observations. "Restructured": the lender received equity while its debt shrank or was impaired. "No longer held" may reflect repayment, refinancing, sale or write-off, which filings do not distinguish; it is never treated as a default.</span><span data-l="zh">每格约代表 1% 的观测。"已重组"：机构获得股权，同时其债务缩减或减值。"不再持有"可能是还款、再融资、出售或核销，申报文件无法区分，因此不视为违约。</span></span></div>
+    </figure>
+    <figure class="frame" id="fig7">
+      <span class="frame-number"><span data-l="en">Figure 7</span><span data-l="zh">图 7</span></span>
+      <div class="frame-title"><span data-l="en">Transition from initial mark to outcome four quarters later</span><span data-l="zh">由初始估值到四个季度后结局的转移</span></div>
+      <p class="frame-how"><span data-l="en">Rows are initial mark buckets; bars show the distribution of outcomes. Right: number of lender–borrower–quarter observations.</span><span data-l="zh">每行为一个初始估值分组，横条为结局分布；右侧为机构-借款人-季度观测数。</span></p>
+      <div class="frame-body" id="c-trans"></div>
+    </figure>
+
+    <div class="measure prose">
+      <h3><span class="sn">4.8</span><span data-l="en">Payment-in-kind interest</span><span data-l="zh">实物支付利息（PIK）</span></h3>
+      <p data-l="en">Payment-in-kind interest is added to principal rather than paid in cash. It can be part of the original structure or a concession to a struggling borrower. In a fixed panel of five BDCs that pass reconciliation in every quarter, the share of par-loan principal carrying a PIK component rose from <span data-m="pik_first"></span> to <span data-m="pik_last"></span> (Figure 8), although the series is noisy and the panel's loan book also grew by about two fifths over the period. Among loans marked 85–90, <span data-m="pik85"></span> of PIK loans were below 60 or restructured a year later, against <span data-m="cash85"></span> of cash-pay loans; the 95% intervals (<span data-m="pik85_ci"></span> and <span data-m="cash85_ci"></span>) overlap, so the difference is suggestive rather than conclusive.</p>
+      <p data-l="zh">PIK 利息计入本金而非以现金支付，既可能是贷款的原始结构，也可能是对困难借款人的让步。在每个季度均通过核对的五家 BDC 固定样本中，带有 PIK 成分的正常贷款本金占比由 <span data-m="pik_first"></span> 升至 <span data-m="pik_last"></span>（图 8），但序列波动较大，且该组合的贷款规模同期增长约五分之二。在估值为 85–90 的贷款中，PIK 贷款一年后低于 60 或被重组的比例为 <span data-m="pik85"></span>，现金付息贷款为 <span data-m="cash85"></span>；两者的 95% 区间（<span data-m="pik85_ci"></span> 与 <span data-m="cash85_ci"></span>）相互重叠，因此差异只是提示性的，并不确定。</p>
+    </div>
+    <figure class="frame" id="fig8">
+      <span class="frame-number"><span data-l="en">Figure 8</span><span data-l="zh">图 8</span></span>
+      <div class="frame-title"><span data-l="en">Share of par-loan principal with a PIK component, fixed panel</span><span data-l="zh">带 PIK 成分的正常贷款本金占比（固定样本）</span></div>
+      <p class="frame-how"><span data-l="en">Panel: <span data-m="pik_panel"></span>. A line counts if it tags a PIK rate, even if only part of the coupon is paid in kind.</span><span data-l="zh">样本：<span data-m="pik_panel"></span>。只要持仓行标注了 PIK 利率即计入，即使仅部分利息以实物支付。</span></p>
+      <div class="frame-body" id="c-pik"></div>
+      <div class="frame-foot"><span class="notes"><em data-l="en">Source:</em><em data-l="zh">来源：</em> <span data-l="en">InvestmentInterestRatePaidInKind tags in each schedule of investments.</span><span data-l="zh">各期持仓表中的 InvestmentInterestRatePaidInKind 标签。</span></span></div>
+    </figure>
+  </div>
+</section>
+
+<!-- ============ 5. Robustness ============ -->
+<section class="chapter" id="s5">
+  <div class="wrap">
+    <h2><span class="sn">5</span><span data-l="en">Robustness and limitations</span><span data-l="zh">稳健性与局限</span></h2>
+    <div class="measure prose">
+      <p data-l="en"><b>Matching error.</b> Participants in a club deal report the same coupon because it belongs to the facility, and requiring a repeat match in an adjacent quarter guards against coincidental coupon equality. Several candidate matches with very large gaps were inspected against the filings and excluded because they combined different tranches (for example, a split first-out/last-out structure or a largely undrawn delayed-draw line); the rules in Section 3.2 now exclude these categories. Residual mismatches are possible, so individual observations should be checked against the linked filings.</p>
+      <p data-l="zh"><b>匹配误差。</b>俱乐部贷款的参与方报告相同的利率，因为利率属于贷款本身；要求相邻季度再次匹配，可防止利率偶然相同造成的误配。本文对若干差距极大的候选匹配逐一对照原始申报，发现其混合了不同档次（如 first-out/last-out 分层结构，或基本未提款的延迟提款额度），因而剔除；3.2 节的规则已排除这些类别。仍可能存在少量误配，单个观测应对照所附原始文件核实。</p>
+      <p data-l="en"><b>Information differences.</b> Lenders may hold different information about a borrower, for example if one is the agent or sits on a lender committee. The filings do not record these roles. The marks compared are nonetheless as of the same date, and a persistent gap remains a difference in what each fund's investors are told.</p>
+      <p data-l="zh"><b>信息差异。</b>各机构对借款人掌握的信息可能不同，例如其中一方担任代理行或进入贷款人委员会；申报文件不记录这些角色。但所比较的估值日期相同，持续存在的差距依然意味着各基金投资者获得的信息不同。</p>
+      <p data-l="en"><b>Exits and restructurings.</b> Loans that leave the schedule may have been repaid at par, so they are never counted as defaults; Section 4.7 reports bounds. A restructuring is inferred when a lender newly holds equity in a borrower while its debt shrinks by more than a quarter, is marked below 90 or disappears. This captures debt-for-equity exchanges such as Pluralsight's but may miss restructurings that only extend maturities or switch interest to PIK.</p>
+      <p data-l="zh"><b>退出与重组。</b>从持仓表消失的贷款可能已按面值偿还，因此从不计为违约；4.7 节给出了上下界。当某机构新持有某借款人的股权，同时其债务缩减超过四分之一、估值低于 90 或消失时，推断发生了重组。这能识别 Pluralsight 式的债转股，但可能遗漏仅延长期限或改为 PIK 的重组。</p>
+      <p data-l="en"><b>Coverage and independence.</b> The sample covers BDCs whose filings reconcile; most smaller BDCs do so only from mid-2025, so time-series results rest mainly on the larger filers, and ten BDCs, including FS KKR, one of the largest, are absent. Events and matched loan-quarters are not independent: the same borrower can appear at several lenders and in several quarters, which is why lender-level intervals are clustered by borrower. Private funds, insurers and CLOs, which hold much of the market, disclose less or nothing at the loan level.</p>
+<p data-l="en"><b>Named firms.</b> Lenders and borrowers are named because the figures come from their public filings. The companies have not reviewed this draft; before publication each named BDC should be sent its figures and the linked filings and given the opportunity to respond, and responses will be reported here.</p>
+      <p data-l="zh"><b>覆盖范围与独立性。</b>样本仅含申报能通过核对的 BDC；多数小型 BDC 自 2025 年中起才通过，因此时间序列结果主要依赖大型申报方，且有 10 家 BDC（包括规模最大的机构之一 FS KKR）缺席。事件与匹配观测并不独立：同一借款人可能出现在多家机构和多个季度，因此机构层面的区间按借款人聚类。持有市场相当份额的私募基金、保险公司和 CLO 在逐笔层面披露更少或不披露。</p>
+<p data-l="zh"><b>关于具名机构。</b>文中提及的放款机构和借款人均来自其公开申报。相关公司尚未审阅本稿；发表前应向每家具名 BDC 发送其数据与原始文件链接并给予回应机会，回应将在此处列出。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 6. Conclusion ============ -->
+<section class="chapter" id="s6">
+  <div class="wrap">
+    <h2><span class="sn">6</span><span data-l="en">Conclusion</span><span data-l="zh">结论</span></h2>
+    <div class="measure prose">
+      <p data-l="en">Private-credit marks are neither fictitious nor uniformly slow. Lenders agree closely on performing loans; most losses are recognized over several quarters rather than at default, though a meaningful minority arrive in a single step; and lenders diverge most when a loan's value is most uncertain, without either side being systematically right. The dollar effect on any one fund is small today. What matters is the timing of the signal: two investors holding the same risk can be told different things for a year or more. Loan-level, cross-lender comparison of the kind presented here costs little, uses only data the SEC already requires, and could be run every quarter.</p>
+      <p data-l="zh">私募信贷的估值既非虚构，也并非一律迟缓。各机构对正常贷款的估值高度一致；大部分损失在若干季度内逐步确认，而非等到违约，但也有相当一部分是一步到位的；在贷款价值最不确定时，机构间分歧最大，而任何一方都不系统性地更正确。目前对单只基金的美元影响很小，真正重要的是信号的时点：持有同一风险的两位投资者，可能在一年或更长时间里得到不同的信息。本文所示的逐笔、跨机构比较成本低，只用 SEC 已要求披露的数据，每个季度都可以重复进行。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ Data availability ============ -->
+<section class="chapter" id="data">
+  <div class="wrap">
+    <h2><span data-l="en">Data availability</span><span data-l="zh">数据可得性</span></h2>
+    <p class="measure prose"><span data-l="en">All matched observations are listed below; each mark links to the SEC filing from which it was taken. Search by borrower or ticker.</span><span data-l="zh">全部匹配观测列于下表，每个估值均链接至其来源 SEC 文件。可按借款人或机构代码检索。</span></p>
+    <div class="controls">
+      <label><span data-l="en">Search</span><span data-l="zh">检索</span><input id="q" type="search" placeholder="Pluralsight, ARCC…"></label>
+      <label><span data-l="en">Gap at least (pts)</span><span data-l="zh">差距至少（点）</span>
+        <select id="gmin"><option value="0">0</option><option value="2">2</option><option value="5" selected>5</option><option value="10">10</option></select></label>
+      <label><span data-l="en">Sort</span><span data-l="zh">排序</span>
+        <select id="sort"><option value="gap">gap / 差距</option><option value="q">newest / 最新</option><option value="med">lowest mark / 估值最低</option></select></label>
+      <span class="muted" id="ex-count" style="font-size:var(--t-xs)"></span>
+    </div>
+    <div class="table-scroll"><table>
+      <thead><tr><th><span data-l="en">Borrower</span><span data-l="zh">借款人</span></th><th><span data-l="en">Quarter</span><span data-l="zh">季度末</span></th><th class="n"><span data-l="en">Coupon</span><span data-l="zh">利率</span></th><th><span data-l="en">Marks by lender</span><span data-l="zh">各机构估值</span></th><th class="n"><span data-l="en">Gap</span><span data-l="zh">差距</span></th></tr></thead>
+      <tbody id="ex-body"></tbody>
+    </table></div>
+    <button class="more" id="ex-more"><span data-l="en">Show more</span><span data-l="zh">显示更多</span></button>
+    <p class="back" style="margin-top:1rem"><span data-l="en">Downloads:</span><span data-l="zh">下载：</span> <a href="data/same_loan_pairs.csv">same_loan_pairs.csv</a> · <a href="data/marks.csv">marks.csv</a> · <a href="data/validation.json">validation.json</a>. <span data-l="en">Code: pipeline/fetch.py, pipeline/build.py, web/build_page.py.</span><span data-l="zh">代码：pipeline/fetch.py、pipeline/build.py、web/build_page.py。</span></p>
+  </div>
+</section>
+
+<!-- ============ References + Appendix ============ -->
+<section class="chapter" id="refs">
+  <div class="wrap back">
+    <h2><span data-l="en">References</span><span data-l="zh">参考文献</span></h2>
+    <ol class="refs measure">
+      <li>Bloomberg Law (2024a). <a href="https://news.bloomberglaw.com/bankruptcy-law/blue-owl-led-private-debt-group-takes-ownership-of-pluralsight">Blue Owl-led private debt group takes ownership of Pluralsight</a>. August 2024.</li>
+      <li>Bloomberg Law (2024b). <a href="https://news.bloomberglaw.com/private-equity/pe-backed-prison-health-care-firm-wellpath-declares-bankruptcy">PE-backed prison health care firm Wellpath declares bankruptcy</a>. November 2024.</li>
+      <li>Financial Accounting Standards Board. <i>Accounting Standards Codification Topic 820, Fair Value Measurement</i>.</li>
+      <li>Laux, C., and C. Leuz (2009). The crisis of fair-value accounting: Making sense of the recent debate. <i>Accounting, Organizations and Society</i> 34(6–7), 826–834.</li>
+      <li>Octus (2026). <a href="https://octus.com/resources/blog/one-in-five-bdc-loans-marked-below-90-falls-into-nonaccrual-within-15-months/">One in five BDC loans marked below 90 falls into nonaccrual within 15 months</a>.</li>
+      <li>PIMCO (2026). <a href="https://www.pimco.com/eu/en/insights/the-credit-market-lens-differing-signals-in-bdcs-and-orderly-defaults-in-high-yield">The credit market lens: Differing signals in BDCs, and orderly defaults in high yield</a>. April 2026.</li>
+      <li>Plantin, G., H. Sapra, and H. S. Shin (2008). Marking-to-market: Panacea or Pandora's box? <i>Journal of Accounting Research</i> 46(2), 435–460.</li>
+      <li>U.S. Securities and Exchange Commission (2020). <i>Good Faith Determinations of Fair Value</i> (Investment Company Act Rule 2a-5).</li>
+    </ol>
+
+    <h2 id="cite" style="margin-top:2.4rem"><span data-l="en">Suggested citation</span><span data-l="zh">建议引用格式</span></h2>
+    <p class="measure cite">Wang, M. (2026). Same Loan, Different Price: Valuation Dispersion and Gradual Loss Recognition in Private Credit. Working paper and open dataset, data through <span data-m="last_q"></span>.</p>
+
+    <h2 style="margin-top:2.4rem"><span data-l="en">Appendix</span><span data-l="zh">附录</span></h2>
+    <figure class="frame" id="figA1">
+      <span class="frame-number"><span data-l="en">Figure A1</span><span data-l="zh">图 A1</span></span>
+      <div class="frame-title"><span data-l="en">Filings passing the reconciliation test, by BDC and quarter</span><span data-l="zh">通过核对检验的申报文件（按 BDC 与季度）</span></div>
+      <p class="frame-how"><span data-l="en">Filled cells passed (line items within 3% of the reported total) and are used; empty cells were excluded or not filed.</span><span data-l="zh">实心格为通过（逐笔加总与申报总额相差不超过 3%）并使用；空心格为剔除或未申报。</span></p>
+      <div class="frame-body" id="c-cov"></div>
+    </figure>
+    <p class="measure muted"><span data-l="en">Not investment advice. Marks are as reported by each company; any errors in matching are the author's.</span><span data-l="zh">本文不构成投资建议。估值以各公司申报为准；匹配中的任何错误由作者负责。</span></p>
+  </div>
+</section>
+</main>
+<footer><div class="wrap"><span data-l="en">Michael Wang · Same Loan, Different Price · Built from SEC EDGAR inline XBRL</span><span data-l="zh">Michael Wang · 同一笔贷款，不同的价格 · 数据来自 SEC EDGAR inline XBRL</span></div></footer>
+<div class="card-tip" id="tip" role="status" aria-live="polite"></div>
+
+<script>
+const D = /*__DATA__*/null;
+const M = D.metrics;
+const NS = "http://www.w3.org/2000/svg";
+let LANG = (new URLSearchParams(location.search).get("lang")) || localStorage.getItem("lastmark-lang") || "en";
+const L = (zh, en) => LANG === "zh" ? zh : en;
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const C = () => ({ blue: css("--blue"), claret: css("--claret"), ink: css("--ink"), ink2: css("--ink-2"), muted: css("--muted"), grid: css("--grid"), rule: css("--rule"), paper: css("--paper"), hi: css("--paper-hi"), bmid: css("--blue-mid"), ochre: css("--ochre"), stone: css("--stone"), bsoft: css("--blue-soft"), csoft: css("--claret-soft") });
+const pct = (x, d = 0) => (x * 100).toFixed(d) + "%";
+const pts = x => L((x * 100).toFixed(1) + " 个点", (x * 100).toFixed(1) + " pts");
+const cents = x => (x * 100).toFixed(1);
+const qi = q => +q.slice(0, 4) * 4 + (+q.slice(-1)) - 1;
+const iq = i => `${Math.floor(i / 4)}Q${i % 4 + 1}`;
+const qlab = q => L(`${q.slice(0, 4)}年${["3", "6", "9", "12"][+q.slice(-1) - 1]}月`, ["Mar", "Jun", "Sep", "Dec"][+q.slice(-1) - 1] + " " + q.slice(0, 4));
+const qshort = q => L(`${q.slice(2, 4)}年Q${q.slice(-1)}`, "Q" + q.slice(-1) + " ’" + q.slice(2, 4));
+const short = t => (D.lenders[t] || {}).short || t;
+const money = x => L(x >= 1e9 ? (x / 1e8).toFixed(0) + " 亿美元" : x >= 1e8 ? (x / 1e8).toFixed(1) + " 亿美元" : (x / 1e6).toFixed(0) + " 百万美元", x >= 1e9 ? "$" + (x / 1e9).toFixed(1) + "B" : "$" + Math.round(x / 1e6) + "M");
+const tip = document.getElementById("tip");
+
+function el(tag, a = {}, p) { const e = document.createElementNS(NS, tag); for (const k in a) e.setAttribute(k, a[k]); if (p) p.appendChild(e); return e; }
+function tx(p, x, y, s, a = {}) { const t = el("text", { x, y, ...a }, p); t.textContent = s; return t; }
+const lin = (d0, d1, r0, r1) => v => r0 + (v - d0) / (d1 - d0) * (r1 - r0);
+function show(evt, html) {
+  tip.innerHTML = html; tip.style.opacity = 1;
+  const r = tip.getBoundingClientRect();
+  let x = evt.pageX + 16, y = evt.pageY + 16;
+  if (x + r.width > scrollX + innerWidth - 10) x = evt.pageX - r.width - 16;
+  if (y + r.height > scrollY + innerHeight - 10) y = evt.pageY - r.height - 16;
+  tip.style.left = x + "px"; tip.style.top = y + "px";
+}
+const hide = () => { tip.style.opacity = 0; };
+function svgFor(id, h) {
+  const host = document.getElementById(id); host.innerHTML = "";
+  const w = Math.max(300, host.clientWidth);
+  const svg = el("svg", { viewBox: `0 0 ${w} ${h}`, role: "img" }, host);
+  return { host, svg, w, h };
+}
+function ptr(svg, e) { const p = svg.createSVGPoint(); p.x = e.clientX; p.y = e.clientY; return p.matrixTransform(svg.getScreenCTM().inverse()); }
+function drawPath(svg, d, a, animate) { const p = el("path", { d, fill: "none", ...a }, svg); if (animate && canAnimate()) { p.setAttribute("pathLength", 1); p.classList.add("draw"); } return p; }
+function pathOf(pts_) { let d = "", pen = false; pts_.forEach(p => { if (!p) { pen = false; return; } d += (pen ? "L" : "M") + p[0].toFixed(1) + "," + p[1].toFixed(1); pen = true; }); return d; }
+// break a quarterly series into segments wherever a quarter is missing
+function seriesPts(series, x, y, upto) {
+  const out = []; let prev = null;
+  series.forEach(([q, v]) => { if (upto != null && qi(q) > upto) return; if (prev != null && qi(q) - prev > 1) out.push(null); out.push([x(qi(q)), y(v)]); prev = qi(q); });
+  return out;
+}
+const seen = new Set();
+// animate only when someone can see it; a hidden or throttled page gets the finished chart
+const canAnimate = () => document.visibilityState === "visible" && !matchMedia("(prefers-reduced-motion: reduce)").matches;
+function onVisible(id, fn) {
+  const node = document.getElementById(id);
+  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting && !seen.has(id)) { seen.add(id); fn(true); io.disconnect(); } }), { threshold: .25 });
+  io.observe(node); fn(false, true);
+}
+
+/* ---------------- text ---------------- */
+function fillText() {
+  const tr = Object.fromEntries(D.transitions.map(r => [r.bucket, r]));
+  const dg = Object.fromEntries(D.disagreement.map(r => [r.band, r]));
+  const ps = Object.fromEntries(D.path_stats.map(r => [r.k, r]));
+  const bad = r => r.share.distress + r.share.other;
+  const rel = Object.fromEntries(D.lender_rel.map(r => [r.lender, r]));
+  const V = {
+    lenders: M.lenders, lender_quarters: M.lender_quarters, last_q: qlab(M.quarters[1]),
+    lq_pass: L(`${M.lender_quarters_total} 份中的 ${M.lender_quarters}`, `${M.lender_quarters} of ${M.lender_quarters_total}`),
+    pairs_fmt: M.pairs.toLocaleString(), pair_borrowers: M.pair_borrowers,
+    gap97: pts(dg["97+"].median_gap), gapLow: pts(dg["below 85"].median_gap), share5Low: pct(dg["below 85"].share_gap_ge5),
+    events: M.events, events_par: money(M.events_par), ge90_year: pct(ps[-4].share_ge90), ge90_q: pct(ps[-1].share_ge90),
+    t97_par: pct(tr["0.97"].share.par), t97_bad: Math.round(bad(tr["0.97"]) * 100), t85_par: pct(tr["0.85"].share.par), t60_bad: pct(bad(tr["0.60"])),
+    pik_first: `${pct(M.pik_first.share, 1)}（${qlab(M.pik_first.q)}）`.replace(/（(.*)）/, L("（$1）", " ($1)")), pik_last: `${pct(M.pik_latest.share, 1)}（${qlab(M.pik_latest.q)}）`.replace(/（(.*)）/, L("（$1）", " ($1)")),
+    pik_panel: M.pik_panel.map(short).join(L("、", ", ")),
+    pik85: pct(tr["0.85"].pik.distress_or_other), cash85: pct(tr["0.85"].cash.distress_or_other),
+  };
+  document.querySelectorAll("[data-m]").forEach(n => { const v = V[n.dataset.m]; if (v !== undefined) n.textContent = v; });
+  const ps_ = rel.PSEC, ar = rel.ARCC;
+  const devs = D.lender_rel.map(r => r.mean_dev);
+  const sg = v => (v > 0 ? "+" : v < 0 ? "−" : "") + Math.abs(v * 100).toFixed(1);
+  const R = D.robust, XP = R.expost, LL = R.leadlag, gb = rel.GBDC;
+  const wilson = (p, n) => { const z = 1.96, d = 1 + z * z / n, c = (p + z * z / (2 * n)) / d, h = z * Math.sqrt(p * (1 - p) / n + z * z / (4 * n * n)) / d; return `${pct(c - h)}–${pct(c + h)}`; };
+  const tr60 = tr["0.60"], tr85 = tr["0.85"];
+  const tY = R.trend.filter(t => t.year >= "2022"), tLast = tY[tY.length - 1];
+  const rels = D.disagreement.filter(d => d.lo < 0.93).map(d => d.median_gap_rel_loss);
+  Object.assign(V, {
+    psec_dev: (ps_.mean_dev * 100).toFixed(1), psec_med: sg(ps_.median_dev), psec_b: ps_.borrowers, psec_low: pct(ps_.share_lowest),
+    arcc_dev: sg(ar.mean_dev), arcc_b: ar.borrowers, gbdc_dev: sg(gb.mean_dev), gbdc_b: gb.borrowers,
+    dev_lo: sg(Math.min(...devs)), dev_hi: sg(Math.max(...devs)),
+    n_low: dg["below 85"].n, n_97: dg["97+"].n.toLocaleString(), widest: (D.pairs[0][4] * 100).toFixed(0),
+    ev_full: R.events_full, ev_borrowers: R.events_borrowers, jumps: R.jumps, glides: R.glides, abrupt_share: pct(R.jumps / (R.jumps + R.glides)),
+    xp_low: XP.closer_low, xp_high: XP.closer_high, xp_rst: XP.restructured, xp_exit: XP.exited,
+    ll_ep: LL.episodes, ll_open: LL.open, ll_q: LL.median_quarters, ll_leader: LL.leader_moved, ll_follower: LL.follower_moved,
+    rel_mid: `${pct(Math.min(...rels))}–${pct(Math.max(...rels))}`,
+    trend_last: (tLast.median_gap * 100).toFixed(1), trend_panel: L(`${(tY[0].median_gap_panel * 100).toFixed(1)} → ${(tLast.median_gap_panel * 100).toFixed(1)} 个点`, `${(tY[0].median_gap_panel * 100).toFixed(1)} → ${(tLast.median_gap_panel * 100).toFixed(1)} points`),
+    t60_gone: pct(tr60.share.gone), t60_bad_hi: pct(bad(tr60) + tr60.share.gone),
+    pik85_ci: wilson(tr85.pik.distress_or_other, tr85.pik.n), cash85_ci: wilson(tr85.cash.distress_or_other, tr85.cash.n),
+  });
+  document.querySelectorAll("[data-m]").forEach(n => { const v = V[n.dataset.m]; if (v !== undefined) n.textContent = v; });
+  const F = [
+    [L(`正常贷款的估值在各机构间几乎一致：估值中位数在 97 以上时，最高与最低估值的中位差距为 <strong>${pts(dg["97+"].median_gap)}</strong>（n = ${dg["97+"].n.toLocaleString()}）。`,
+       `Marks on performing loans are nearly identical across lenders: where the median mark is 97 or above, the median high–low gap is <strong>${pts(dg["97+"].median_gap)}</strong> (n = ${dg["97+"].n.toLocaleString()}).`), "fig2"],
+    [L(`分歧随信用恶化而扩大：估值低于 85 时中位差距为 <strong>${pts(dg["below 85"].median_gap)}</strong>（n = ${dg["below 85"].n}）；最大案例 Help/Systems 相差 ${V.widest} 个点。`,
+       `Dispersion widens with credit stress: below a median mark of 85 the median gap is <strong>${pts(dg["below 85"].median_gap)}</strong> (n = ${dg["below 85"].n}); the widest case, Help/Systems, is ${V.widest} points.`), "fig3"],
+    [L(`大部分损失逐步确认：${R.events_full} 个完整事件中，四个季度前 <strong>${pct(ps[-4].share_ge90)}</strong> 仍在 90 以上，前一季度为 ${pct(ps[-1].share_ge90)}；但约 ${V.abrupt_share} 的案例一个季度内即陷入困境或被重组。`,
+       `Most losses are recognized gradually: of ${R.events_full} complete events, <strong>${pct(ps[-4].share_ge90)}</strong> were at 90+ four quarters earlier and ${pct(ps[-1].share_ge90)} one quarter earlier; but about ${V.abrupt_share} of cases fall from 90+ to distress or restructuring within a quarter.`), "fig5"],
+    [L(`分歧不只是"慢半拍"：较低估值更接近一年后状态的有 ${XP.closer_low} 例，较高的有 ${XP.closer_high} 例；${LL.episodes} 个 5 点以上的差距中 ${LL.open} 个始终未收敛。`,
+       `Disagreement is not simple lag: the lower mark was closer a year later in ${XP.closer_low} cases and the higher in ${XP.closer_high}; ${LL.open} of ${LL.episodes} gaps of 5+ points never closed.`), "tab2"],
+    [L(`在承压共同贷款上，Prospect Capital 平均比同行高 <strong>${(ps_.mean_dev * 100).toFixed(1)}</strong> 个点（${ps_.borrowers} 个借款人）；对单只基金的美元影响仅占其贷款组合的千分之几。`,
+       `On stressed shared loans Prospect Capital sits <strong>${(ps_.mean_dev * 100).toFixed(1)}</strong> points above its peers (${ps_.borrowers} borrowers); the dollar effect on any fund is a few tenths of a percent of its loan book.`), "fig4"],
+    [L(`估值具有信息含量：初始估值 85–90 的贷款一年后仅 <strong>${pct(tr["0.85"].share.par)}</strong> 回到 90 以上，97 以上的为 ${pct(tr["0.97"].share.par)}。`,
+       `Marks are informative: a loan marked 85–90 is back at 90+ a year later in <strong>${pct(tr["0.85"].share.par)}</strong> of cases, against ${pct(tr["0.97"].share.par)} for loans at 97+.`), "fig7"],
+  ];
+  document.getElementById("findings").innerHTML = F.map(([s, a]) => `<li>${s} <a href="#${a}">${a.startsWith("tab") ? L("表", "Table") : L("图", "Fig.")} ${a.replace(/\D/g, "")}</a></li>`).join("");
+  robustTable(V);
+  document.getElementById("cast").innerHTML = D.lender_table.slice().sort((a, b) => b.quarters - a.quarters).map(r => `<li><b>${r.lender}</b>${short(r.lender)}</li>`).join("");
+}
+
+/* ---------------- mark scale in the primer ---------------- */
+function markScale() {
+  const svg = document.getElementById("markscale"); svg.innerHTML = ""; const c = C();
+  const x = lin(40, 100, 8, 252);
+  el("line", { x1: 8, x2: 252, y1: 14, y2: 14, stroke: c.ink, "stroke-width": 1 }, svg);
+  [[100, L("全额", "full")], [80, L("亏两成", "−20%")], [60, L("困境", "distress")], [40, ""]].forEach(([v, s]) => {
+    el("line", { x1: x(v), x2: x(v), y1: 9, y2: 19, stroke: c.ink }, svg);
+    tx(svg, x(v), 31, v + (s ? " " + s : ""), { "text-anchor": v === 100 ? "end" : v === 40 ? "start" : "middle", style: "font-size:10.5px" });
+  });
+  el("circle", { cx: x(89), cy: 14, r: 4.5, fill: c.blue }, svg); el("circle", { cx: x(99), cy: 14, r: 4.5, fill: c.claret }, svg);
+}
+
+/* ---------------- Fig 1: scrolly ---------------- */
+const SCR = { steps: [qi("2023Q1"), qi("2023Q4"), qi("2023Q4"), qi("2024Q2"), qi("2024Q3")], last: -1 };
+function scrolly(step, animate) {
+  const cs = D.cases["pluralsight"], c = C();
+  const narrow = document.getElementById("c-scrolly").clientWidth < 600;
+  const { svg, w } = svgFor("c-scrolly", narrow ? 300 : 400), h = narrow ? 300 : 400;
+  const m = { l: 34, r: narrow ? 104 : 138, t: 20, b: 34 };
+  const q0 = qi("2023Q1"), q1 = qi("2024Q3");
+  const x = lin(q0, q1, m.l, w - m.r), y = lin(0.4, 1.03, h - m.b, m.t);
+  const g = el("g", { class: "gl" }, svg);
+  [40, 50, 60, 70, 80, 90, 100].forEach(v => { el("line", { x1: m.l, x2: w - m.r, y1: y(v / 100), y2: y(v / 100) }, g); tx(svg, m.l - 8, y(v / 100) + 4, v, { "text-anchor": "end" }); });
+  for (let i = q0; i <= q1; i++) if (!narrow || i % 2 === 0) tx(svg, x(i), h - m.b + 20, qshort(iq(i)), { "text-anchor": "middle" });
+  const upto = SCR.steps[step];
+  const prevUpto = SCR.last >= 0 ? SCR.steps[SCR.last] : q0 - 1;
+  const cols = { ARCC: c.blue, GBDC: c.claret };
+  // gap shading on step 2
+  if (step >= 2) {
+    const a = cs.series.ARCC, b = cs.series.GBDC;
+    const qs = a.map(([q]) => q).filter(q => b.some(([qq]) => qq === q) && qi(q) <= Math.min(upto, qi("2024Q1")));
+    const top = qs.map(q => [x(qi(q)), y(b.find(z => z[0] === q)[1])]), bot = qs.map(q => [x(qi(q)), y(a.find(z => z[0] === q)[1])]).reverse();
+    el("path", { d: "M" + top.concat(bot).map(p => p.join(",")).join("L") + "Z", fill: c.csoft, opacity: .55, class: animate && canAnimate() ? "fade" : "" }, svg);
+  }
+  ["ARCC", "GBDC"].forEach(t => {
+    const s = cs.series[t];
+    const old = seriesPts(s, x, y, Math.min(prevUpto, upto));
+    drawPath(svg, pathOf(old), { stroke: cols[t], "stroke-width": 2.6, "stroke-linejoin": "round", "stroke-linecap": "round" }, false);
+    if (upto > prevUpto) {
+      const seg = s.filter(([q]) => qi(q) >= prevUpto && qi(q) <= upto);
+      if (seg.length > 1) drawPath(svg, pathOf(seriesPts(seg, x, y)), { stroke: cols[t], "stroke-width": 2.6, "stroke-linejoin": "round", "stroke-linecap": "round" }, true);
+    }
+    s.filter(([q]) => qi(q) <= upto).forEach(([q, v]) => el("circle", { cx: x(qi(q)), cy: y(v), r: 4.5, fill: cols[t], stroke: c.paper, "stroke-width": 2 }, svg));
+    const vis = s.filter(([q]) => qi(q) <= upto); if (!vis.length) return;
+    const [lq, lv] = vis[vis.length - 1];
+    const lx = w - m.r + 12, ly = y(lv) + (t === "GBDC" && Math.abs(y(lv) - y((cs.series.ARCC.filter(([q]) => qi(q) <= upto).slice(-1)[0] || [0, 0])[1])) < 30 ? -16 : t === "ARCC" ? 14 : 0);
+    el("line", { x1: x(qi(lq)) + 6, x2: lx - 3, y1: y(lv), y2: ly, stroke: c.rule }, svg);
+    tx(svg, lx, ly - 2, short(t), { class: "lbl-b" });
+    tx(svg, lx, ly + 14, cents(lv) + L(" 美分", "¢"), { class: "lbl" });
+  });
+  if (step >= 2) {
+    const xa = x(qi("2023Q4")), ya = y(0.89), yb = y(0.99);
+    el("line", { x1: xa, x2: xa, y1: yb + 7, y2: ya - 7, stroke: c.ink, "stroke-width": 1.2 }, svg);
+    const tg = el("g", { class: animate && canAnimate() ? "fade" : "" }, svg);
+    el("line", { x1: xa, x2: xa, y1: ya + 8, y2: ya + 30, stroke: c.rule }, tg);
+    tx(tg, xa, ya + 46, L("相差 10 个点", "gap of 10 points"), { "text-anchor": "middle", class: "lbl-b halo" });
+    tx(tg, xa, ya + 62, L("同一贷款 · 利率 13.56%", "same facility · coupon 13.56%"), { "text-anchor": "middle", class: "lbl halo" });
+  }
+  if (step >= 3) { const xg = x(qi("2024Q2")), yg = y(0.5); tx(svg, xg - 10, yg + 4, L("单季 −47", "−47 in one quarter"), { "text-anchor": "end", class: "lbl-b halo " + (animate && canAnimate() ? "fade" : "") }); }
+  if (step >= 4) {
+    const ex = x(qi("2024Q3"));
+    el("line", { x1: ex, x2: ex, y1: m.t, y2: h - m.b, stroke: c.ink, "stroke-width": 1 }, svg);
+    tx(svg, ex - 6, m.t + 12, L("2024年8月", "Aug 2024"), { "text-anchor": "end", class: "lbl-b" });
+    tx(svg, ex - 6, m.t + 28, L("贷款人接管", "lenders take ownership"), { "text-anchor": "end", class: "lbl" });
+  }
+  SCR.last = step;
+}
+function setupScrolly() {
+  const steps = [...document.querySelectorAll(".step")];
+  let active = 0; scrolly(0, false);
+  const io = new IntersectionObserver(es => es.forEach(e => {
+    if (e.isIntersecting) { const s = +e.target.dataset.step; if (s !== active) { active = s; steps.forEach(n => n.classList.toggle("is-active", +n.dataset.step === s)); scrolly(s, true); } }
+  }), { rootMargin: "-45% 0px -45% 0px" });
+  steps.forEach(n => io.observe(n)); steps[0].classList.add("is-active");
+  return () => { SCR.last = -1; scrolly(active, false); };
+}
+
+/* ---------------- Fig 2: beeswarm ---------------- */
+const NAMED = ["pluralsight", "wellpath", "help/systems", "wellful", "maverick", "triple lift"];
+function disp(animate) {
+  const B = D.disagreement, c = C();
+  const { svg, w } = svgFor("c-disp", 430), h = 430;
+  const m = { l: 46, r: 10, t: 24, b: 66 }, cap = 0.36;
+  const bw = (w - m.l - m.r) / B.length, y = lin(0, cap, h - m.b, m.t);
+  const g = el("g", { class: "gl" }, svg);
+  [0, 5, 10, 15, 20, 25, 30, 35].forEach(v => { el("line", { x1: m.l, x2: w - m.r, y1: y(v / 100), y2: y(v / 100) }, g); tx(svg, m.l - 8, y(v / 100) + 4, v, { "text-anchor": "end" }); });
+  tx(svg, m.l - 8, m.t - 10, L("相差（点）", "gap (pts)"), { "text-anchor": "start" });
+  el("line", { x1: m.l, x2: w - m.r, y1: y(0), y2: y(0), class: "base" }, svg);
+  const R = 3.1;
+  B.forEach((b, i) => {
+    const cx = m.l + bw * (i + .5);
+    const hi = i ? B[i - 1].lo : 9;
+    const pool = D.pairs.filter(p => p[5] >= b.lo && p[5] < hi).sort((a, b2) => a[4] - b2[4]);
+    // simple beeswarm: place each dot at the closest free x offset in its row band
+    const placed = [];
+    const r = pool.length > 600 ? 2.1 : R;
+    pool.forEach((p, j) => {
+      const py = y(Math.min(p[4], cap));
+      let off = 0, k = 0;
+      while (k < 400) {
+        const cand = (k % 2 ? 1 : -1) * Math.ceil(k / 2) * (r * 1.05);
+        if (!placed.some(q => Math.abs(q[1] - py) < r * 2 && Math.abs(q[0] - cand) < r * 2)) { off = cand; break; }
+        k++;
+      }
+      if (Math.abs(off) > bw * .46) off = Math.sign(off) * bw * .46;
+      placed.push([off, py]);
+      const named = NAMED.some(n => p[0].toLowerCase().includes(n));
+      const dot = el("circle", { cx: cx + off, cy: py, r: named ? r + 1.6 : r, fill: named ? c.claret : c.blue, "fill-opacity": named ? 1 : .55, stroke: c.paper, "stroke-width": named ? 1.5 : .6, class: animate && canAnimate() ? "fade" : "" }, svg);
+      if (animate && canAnimate()) dot.style.animationDelay = (j / pool.length * .5) + "s";
+      dot.addEventListener("mousemove", e => show(e, `<div class="t">${p[0]}</div><div class="m">${qlab(p[1])} · ${L("利率", "coupon")} ${(p[2] * 100).toFixed(2)}%</div>` +
+        Object.entries(p[3]).sort((a, b) => b[1] - a[1]).map(([t, v]) => `<div class="r"><span>${short(t)}</span><b>${cents(v)}</b></div>`).join("") + `<div class="r" style="border-top:1px solid var(--rule);margin-top:.2rem;padding-top:.2rem"><span>${L("差距", "Gap")}</span><b>${pts(p[4])}</b></div>`));
+      dot.addEventListener("mouseleave", hide);
+    });
+    const my = y(b.median_gap);
+    el("rect", { x: cx - bw * .4, y: my - 1.5, width: bw * .8, height: 3, fill: c.ink }, svg);
+    tx(svg, cx, h - m.b + 18, L("估值中位数 ", "median mark ") + (b.band === "below 85" ? L("低于 85", "below 85") : b.band), { "text-anchor": "middle", class: "lbl" });
+    tx(svg, cx, h - m.b + 36, L("典型差距 ", "typical gap ") + pts(b.median_gap), { "text-anchor": "middle", class: "lbl-b" });
+    tx(svg, cx, h - m.b + 53, b.n.toLocaleString() + L(" 次", " loan-quarters"), { "text-anchor": "middle" });
+  });
+  // annotate the widest
+  const top = D.pairs[0];
+  tx(svg, w - m.r, m.t + 4, L(`最大：${top[0].split(",")[0]} ${qlab(top[1])}，${Object.values(top[3]).map(v => cents(v)).join(" vs ")}`, `Widest: ${top[0].split(",")[0]}, ${qlab(top[1])}: ${Object.values(top[3]).map(v => cents(v)).join(" vs ")}`), { "text-anchor": "end", class: "lbl" });
+}
+
+/* ---------------- Fig 3: gallery ---------------- */
+function gallery(animate) {
+  const host = document.getElementById("gallery"); host.innerHTML = ""; const c = C();
+  D.case_order.forEach(key => {
+    const cs = D.cases[key]; if (!cs) return;
+    const cell = document.createElement("div"); cell.className = "gcell";
+    const at = q => t => (cs.series[t].find(z => z[0] === q) || [])[1];
+    const [t1, t2] = cs.lenders;
+    const v1 = at(cs.q)(t1), v2 = at(cs.q)(t2);
+    const lowT = v1 <= v2 ? t1 : t2, highT = lowT === t1 ? t2 : t1;
+    cell.innerHTML = `<h4>${cs.name}</h4><div class="sub">${L("利率", "coupon")} ${cs.coupon} · ${qlab(cs.q)}: <span class="blue">${short(lowT)} ${cents(Math.min(v1, v2))}</span> vs <span class="claret">${short(highT)} ${cents(Math.max(v1, v2))}</span></div><div class="gchart"></div><p>${L(cs.zh, cs.en)}</p>`;
+    host.appendChild(cell);
+    const ch = cell.querySelector(".gchart");
+    const w = Math.max(280, ch.clientWidth || 320), h = 190;
+    const svg = el("svg", { viewBox: `0 0 ${w} ${h}` }, ch);
+    const all = [...cs.series[t1], ...cs.series[t2]];
+    const qs = all.map(z => qi(z[0])); if (cs.event) qs.push(qi(cs.event.q));
+    const q0 = Math.min(...qs), q1 = Math.max(...qs);
+    const lo = Math.min(.4, Math.floor(Math.min(...all.map(z => z[1])) * 10) / 10);
+    const m = { l: 30, r: 10, t: 12, b: 24 };
+    const x = lin(q0, q1, m.l, w - m.r), y = lin(lo, 1.02, h - m.b, m.t);
+    const g = el("g", { class: "gl" }, svg);
+    for (let v = Math.ceil(lo * 10) / 10; v <= 1.001; v += .2) { el("line", { x1: m.l, x2: w - m.r, y1: y(v), y2: y(v) }, g); tx(svg, m.l - 6, y(v) + 4, Math.round(v * 100), { "text-anchor": "end", style: "font-size:10.5px" }); }
+    for (let i = q0; i <= q1; i++) if (iq(i).endsWith("Q1") || i === q0) tx(svg, x(i), h - 6, iq(i).endsWith("Q1") ? iq(i).slice(0, 4) : qshort(iq(i)), { "text-anchor": "middle", style: "font-size:10.5px" });
+    // gap band where both exist
+    const both = cs.series[t1].filter(([q]) => cs.series[t2].some(z => z[0] === q)).map(([q]) => q);
+    for (let k = 0; k < both.length - 1; k++) {
+      const qa = both[k], qb = both[k + 1]; if (qi(qb) - qi(qa) !== 1) continue;
+      const pa = [x(qi(qa)), y(at(qa)(t1))], pb = [x(qi(qb)), y(at(qb)(t1))], pc = [x(qi(qb)), y(at(qb)(t2))], pd = [x(qi(qa)), y(at(qa)(t2))];
+      el("path", { d: `M${pa}L${pb}L${pc}L${pd}Z`, fill: c.csoft, opacity: .5 }, svg);
+    }
+    if (cs.event) { const ex = x(qi(cs.event.q)); el("line", { x1: ex, x2: ex, y1: m.t, y2: h - m.b, stroke: c.ink, "stroke-width": 1 }, svg); tx(svg, ex - 4, h - m.b - 6, L(cs.event.zh, cs.event.en), { "text-anchor": "end", class: "lbl halo", style: "font-size:11px" }); }
+    [[lowT, c.blue], [highT, c.claret]].forEach(([t, col]) => {
+      drawPath(svg, pathOf(seriesPts(cs.series[t], x, y)), { stroke: col, "stroke-width": 2.2, "stroke-linejoin": "round" }, animate);
+      cs.series[t].forEach(([q, v]) => el("circle", { cx: x(qi(q)), cy: y(v), r: 3.2, fill: col, stroke: c.paper, "stroke-width": 1.5 }, svg));
+    });
+    const hit = el("rect", { x: m.l, y: m.t, width: w - m.l - m.r, height: h - m.t - m.b, fill: "transparent" }, svg);
+    const cross = el("line", { y1: m.t, y2: h - m.b, stroke: c.muted, opacity: 0 }, svg);
+    hit.addEventListener("mousemove", e => {
+      const i = Math.round(q0 + (ptr(svg, e).x - m.l) / (w - m.l - m.r) * (q1 - q0)), q = iq(i);
+      const a = at(q)(lowT), b = at(q)(highT);
+      if (a == null && b == null) { hide(); cross.setAttribute("opacity", 0); return; }
+      cross.setAttribute("x1", x(i)); cross.setAttribute("x2", x(i)); cross.setAttribute("opacity", .6);
+      show(e, `<div class="t">${cs.name} · ${qlab(q)}</div>` + [[lowT, a, c.blue], [highT, b, c.claret]].map(([t, v, col]) => `<div class="r"><span><i style="background:${col}"></i>${short(t)}</span><b>${v == null ? "—" : cents(v)}</b></div>`).join("") + (a != null && b != null ? `<div class="r m"><span>${L("差距", "Gap")}</span><span>${pts(Math.abs(b - a))}</span></div>` : ""));
+    });
+    hit.addEventListener("mouseleave", () => { hide(); cross.setAttribute("opacity", 0); });
+  });
+}
+
+/* ---------------- Fig 4: lender comparison ---------------- */
+function relChart(animate) {
+  const R = D.lender_rel, c = C();
+  const rowH = 34;
+  const { svg, w } = svgFor("c-rel", R.length * rowH + 50), h = R.length * rowH + 50;
+  const m = { l: 190, r: 170, t: 30 };
+  const lim = 0.16, x = lin(-lim, lim, m.l, w - m.r);
+  [-15, -10, -5, 0, 5, 10, 15].forEach(v => { el("line", { x1: x(v / 100), x2: x(v / 100), y1: m.t - 6, y2: h - 14, stroke: v === 0 ? c.ink : c.grid }, svg); tx(svg, x(v / 100), m.t - 12, (v > 0 ? "+" : "") + v, { "text-anchor": "middle" }); });
+  tx(svg, x(-lim), h - 2, L("← 较同行保守", "← more conservative"), { "text-anchor": "start", class: "lbl" });
+  tx(svg, x(lim), h - 2, L("较同行宽松 →", "more generous →"), { "text-anchor": "end", class: "lbl" });
+  tx(svg, w - m.r + 16, m.t - 12, L("借款人 · 观测 · 最低", "borrowers · obs · lowest"), { "text-anchor": "start" });
+  R.forEach((r, i) => {
+    const yy = m.t + i * rowH + rowH / 2;
+    tx(svg, m.l - 12, yy + 4, `${short(r.lender)} (${r.lender})`, { "text-anchor": "end", class: "lbl", style: r.borrowers >= 10 ? "" : "fill:var(--muted)" });
+    const ranked = r.borrowers >= 10;
+    const v = Math.max(-lim, Math.min(lim, r.mean_dev)), col = !ranked ? c.muted : r.mean_dev < 0 ? c.blue : c.claret;
+    if (r.se) { const lo = Math.max(-lim, r.mean_dev - 1.96 * r.se), hi = Math.min(lim, r.mean_dev + 1.96 * r.se);
+      el("line", { x1: x(lo), x2: x(hi), y1: yy, y2: yy, stroke: col, "stroke-width": 1.4, opacity: ranked ? .8 : .5 }, svg);
+      [lo, hi].forEach(e => el("line", { x1: x(e), x2: x(e), y1: yy - 5, y2: yy + 5, stroke: col, "stroke-width": 1.4, opacity: ranked ? .8 : .5 }, svg)); }
+    const dot = el("circle", { cx: x(v), cy: yy, r: 7, fill: col, stroke: c.paper, "stroke-width": 2, class: animate && canAnimate() ? "fade" : "" }, svg);
+    if (animate && canAnimate()) dot.style.animationDelay = (i * .06) + "s";
+    tx(svg, x(v) + (r.mean_dev < 0 ? -12 : 12), yy - 9, (r.mean_dev > 0 ? "+" : "") + (r.mean_dev * 100).toFixed(1), { "text-anchor": r.mean_dev < 0 ? "end" : "start", class: "lbl-b halo" });
+    tx(svg, w - m.r + 16, yy + 4, `${r.borrowers} · ${r.n} · ${pct(r.share_lowest)}`, { class: "num lbl" });
+    const hit = el("rect", { x: 0, y: yy - rowH / 2, width: w, height: rowH, fill: "transparent" }, svg);
+    hit.addEventListener("mousemove", e => show(e, `<div class="t">${short(r.lender)}</div><div class="r"><span>${L("平均偏离", "Mean difference")}</span><b>${(r.mean_dev * 100).toFixed(1)} ${L("点", "pts")}</b></div><div class="r"><span>${L("中位数偏离", "Median difference")}</span><b>${(r.median_dev * 100).toFixed(1)} ${L("点", "pts")}</b></div><div class="r"><span>${L("标得最低的比例", "Lowest mark")}</span><b>${pct(r.share_lowest)}</b></div><div class="r"><span>${L("95% 区间", "95% interval")}</span><b>${r.se ? ((r.mean_dev - 1.96 * r.se) * 100).toFixed(1) + " … " + ((r.mean_dev + 1.96 * r.se) * 100).toFixed(1) : "—"}</b></div><div class="m">${r.borrowers} ${L("个借款人", "borrowers")}, ${r.n} ${L("次承压共同持有", "stressed shared loan-quarters")}${r.borrowers < 10 ? L("（少于 10 个借款人，不排序）", " (fewer than 10 borrowers: not ranked)") : ""}</div>`));
+    hit.addEventListener("mouseleave", hide);
+  });
+}
+
+/* ---------------- Fig 5: glide ---------------- */
+function glide(animate) {
+  const c = C();
+  const { svg, w } = svgFor("c-glide", 420), h = 420;
+  const m = { l: 44, r: 20, t: 60, b: 40 };
+  const x = lin(-4, 0, m.l + 14, w - m.r - 14), y = lin(0, 1.03, h - m.b, m.t);
+  const g = el("g", { class: "gl" }, svg);
+  [0, 20, 40, 60, 80, 100].forEach(v => { el("line", { x1: m.l, x2: w - m.r, y1: y(v / 100), y2: y(v / 100) }, g); tx(svg, m.l - 8, y(v / 100) + 4, v, { "text-anchor": "end" }); });
+  el("line", { x1: m.l, x2: w - m.r, y1: y(.6), y2: y(.6), stroke: c.claret, "stroke-width": 1.2 }, svg);
+  tx(svg, m.l + 6, y(.6) - 6, L("60：困境阈值", "60: distress threshold"), { "text-anchor": "start", class: "halo", style: "fill:" + c.claret });
+  const lines = D.events.filter(e => e[3][0] != null).map(e => { const p = e[3].map((v, k) => v == null ? null : [x(k - 4), y(v)]); return { e, p, node: drawPath(svg, pathOf(p), { stroke: c.ink2, "stroke-width": 1, opacity: .16 }, false) }; });
+  const S = D.path_stats;
+  el("path", { d: S.map((s, i) => (i ? "L" : "M") + x(s.k) + "," + y(s.p75)).join("") + S.slice().reverse().map(s => "L" + x(s.k) + "," + y(s.p25)).join("") + "Z", fill: c.blue, opacity: .15 }, svg);
+  drawPath(svg, S.map((s, i) => (i ? "L" : "M") + x(s.k) + "," + y(s.median)).join(""), { stroke: c.blue, "stroke-width": 3.2, "stroke-linejoin": "round" }, animate);
+  S.forEach(s => {
+    el("circle", { cx: x(s.k), cy: y(s.median), r: 5.5, fill: c.blue, stroke: c.paper, "stroke-width": 2 }, svg);
+    tx(svg, x(s.k), h - m.b + 22, s.k === 0 ? L("t = 0（首次低于 60）", "t = 0 (first below 60)") : `t ${s.k}`, { "text-anchor": "middle", class: s.k === 0 ? "lbl-b" : "lbl" });
+    if (s.k < 0) { tx(svg, x(s.k), m.t - 16, pct(s.share_ge90), { "text-anchor": "middle", class: "big" }); }
+  });
+  tx(svg, m.l, 16, L("仍按 90 以上计价的比例", "Share still marked at 90 or above"), { class: "lbl" });
+  const hl = el("path", { fill: "none", stroke: c.claret, "stroke-width": 2.4, opacity: 0 }, svg);
+  const hit = el("rect", { x: m.l, y: m.t, width: w - m.l - m.r, height: h - m.t - m.b, fill: "transparent" }, svg);
+  hit.addEventListener("mousemove", ev => {
+    const p = ptr(svg, ev); let best = null, bd = 1e9;
+    lines.forEach(L_ => L_.p.forEach((q, k) => { if (!q) return; const d = Math.hypot(q[0] - p.x, q[1] - p.y); if (d < bd) { bd = d; best = L_; } }));
+    if (!best || bd > 24) { hl.setAttribute("opacity", 0); hide(); return; }
+    hl.setAttribute("d", best.node.getAttribute("d")); hl.setAttribute("opacity", 1);
+    const e = best.e;
+    show(ev, `<div class="t">${e[1]}</div><div class="m">${short(e[0])} · ${L("跌破 60：", "below 60: ")}${qlab(e[2])}</div>` + e[3].map((v, k) => `<div class="r"><span>${k === 4 ? L("当季", "that quarter") : L(`前 ${4 - k} 季`, `${k - 4} q`)}</span><b>${v == null ? "—" : cents(v)}</b></div>`).join("") + `<div class="m">${L("本金 ", "principal ")}${money(e[4])}</div>`);
+  });
+  hit.addEventListener("mouseleave", () => { hl.setAttribute("opacity", 0); hide(); });
+}
+
+/* ---------------- Fig 6 + 7: outcomes ---------------- */
+const OUT = () => [["par", L("90 及以上", "At or above 90"), C().blue], ["mid", L("60–90", "60–90"), C().bmid], ["distress", L("低于 60", "Below 60"), C().claret], ["other", L("已重组", "Restructured"), C().ochre], ["gone", L("不再持有", "No longer held"), C().stone]];
+const blab = r => r.lo >= 0.97 ? L("97 以上", "97+") : `${Math.round(r.lo * 100)}–${Math.round(r.hi * 100)}`;
+let WF = "0.85";
+function waffle(animate) {
+  const O = OUT(), r = D.transitions.find(z => z.bucket === WF);
+  document.getElementById("wf-chips").innerHTML = `<span style="align-self:center;color:var(--muted);margin-right:.3rem">${L("初始估值：", "Initial mark:")}</span>` + D.transitions.map(z => `<button class="chip${z.bucket === WF ? " on" : ""}" data-b="${z.bucket}">${blab(z)}</button>`).join("");
+  document.querySelectorAll("#wf-chips .chip").forEach(b => b.addEventListener("click", () => { WF = b.dataset.b; waffle(true); }));
+  // largest-remainder rounding to 100 squares
+  const raw = O.map(([k]) => r.share[k] * 100), base = raw.map(Math.floor);
+  let left = 100 - base.reduce((a, b) => a + b, 0);
+  raw.map((v, i) => [v - base[i], i]).sort((a, b) => b[0] - a[0]).forEach(([, i]) => { if (left > 0) { base[i]++; left--; } });
+  const { svg, w } = svgFor("c-waffle", 300), h = 300;
+  const size = Math.min(26, (Math.min(w, 420) - 9 * 4) / 10), gap = 4, ox = 0;
+  let n = 0;
+  O.forEach(([k, name, col], oi) => {
+    for (let j = 0; j < base[oi]; j++, n++) {
+      const cx = ox + (n % 10) * (size + gap), cy = Math.floor(n / 10) * (size + gap);
+      const sq = el("rect", { x: cx, y: cy, width: size, height: size, rx: 3, fill: col, class: animate && canAnimate() ? "fade" : "" }, svg);
+      if (animate && canAnimate()) sq.style.animationDelay = (n * 0.008) + "s";
+      sq.addEventListener("mousemove", e => show(e, `<div class="t">${name}</div><div>${pct(r.share[k], 1)} · ${Math.round(r.share[k] * r.n)} / ${r.n.toLocaleString()} ${L("次", "loan-quarters")}</div>`));
+      sq.addEventListener("mouseleave", hide);
+    }
+  });
+  svg.setAttribute("viewBox", `0 0 ${10 * (size + gap)} ${10 * (size + gap)}`);
+  svg.style.maxWidth = "420px";
+  const say = document.getElementById("wf-say");
+  say.innerHTML = L(`初始估值 <b>${blab(r)}</b>：四个季度后的结局分布`, `Initial mark <b>${blab(r)}</b>: distribution of outcomes four quarters later`) +
+    `<div style="margin-top:.7rem;display:grid;gap:.35rem">` + O.map(([k, name, col], i) => `<div><span class="k" style="display:inline-block;min-width:3em;color:${col === C().stone ? "var(--ink-2)" : col}">${pct(r.share[k])}</span> ${name}</div>`).join("") + `</div>` +
+    `<p class="muted" style="font-family:var(--sans);font-size:var(--t-xs);margin-top:.8rem">${L("样本：", "Based on ")}${r.n.toLocaleString()}${L(" 次贷款-季度观察。", " loan-quarter observations.")}</p>`;
+  document.getElementById("lg-out").innerHTML = O.map(o => `<span><i style="background:${o[2]}"></i>${o[1]}</span>`).join("");
+}
+function trans(animate) {
+  const O = OUT(), R = D.transitions, c = C();
+  const rowH = 30, gap = 12;
+  const { svg, w } = svgFor("c-trans", R.length * (rowH + gap) + 34), h = R.length * (rowH + gap) + 34;
+  const m = { l: 80, r: 66, t: 26 };
+  const x = lin(0, 1, m.l, w - m.r);
+  [0, .25, .5, .75, 1].forEach(v => { el("line", { x1: x(v), x2: x(v), y1: m.t - 6, y2: h - 6, stroke: c.grid }, svg); tx(svg, x(v), m.t - 12, pct(v), { "text-anchor": v === 1 ? "end" : "middle" }); });
+  tx(svg, 0, m.t - 12, L("初始估值", "Initial mark"), { class: "lbl-b" });
+  tx(svg, w - m.r + 10, m.t - 12, L("样本", "n"), {});
+  R.forEach((r, i) => {
+    const yy = m.t + i * (rowH + gap); let acc = 0;
+    tx(svg, 0, yy + rowH / 2 + 4, blab(r), { class: "lbl" });
+    tx(svg, w - m.r + 10, yy + rowH / 2 + 4, r.n.toLocaleString(), { class: "num" });
+    O.forEach(([k, name, col]) => {
+      const v = r.share[k]; if (!v) return;
+      const x0 = x(acc) + (acc ? 1 : 0), x1 = x(acc + v) - (acc + v < .9999 ? 1 : 0);
+      const rect = el("rect", { x: x0, y: yy, width: Math.max(0, x1 - x0), height: rowH, fill: col }, svg);
+      if (animate && canAnimate()) { rect.style.transformOrigin = `${m.l}px 0`; rect.animate([{ transform: "scaleX(0)" }, { transform: "scaleX(1)" }], { duration: 700 + i * 60, easing: "ease-out" }); }
+      if (x1 - x0 > 40) tx(svg, (x0 + x1) / 2, yy + rowH / 2 + 4, pct(v), { "text-anchor": "middle", style: `fill:${k === "mid" || k === "other" ? "#1c1a17" : "#fff"};font-weight:600` });
+      rect.addEventListener("mousemove", e => show(e, `<div class="t">${L("初始估值", "Initial mark")} ${blab(r)} → ${name}</div><div class="r"><span>${L("比例", "Share")}</span><b>${pct(v, 1)}</b></div><div class="r"><span>${L("样本", "Observations")}</span><b>${r.n.toLocaleString()}</b></div><div class="m" style="margin-top:.25rem">${L("跌破 60 或被重组：PIK 贷款", "Below 60 or restructured: PIK")} ${pct(r.pik.distress_or_other ?? 0, 1)}${L("，现金付息", ", cash-pay")} ${pct(r.cash.distress_or_other ?? 0, 1)}</div>`));
+      rect.addEventListener("mouseleave", hide);
+      acc += v;
+    });
+  });
+}
+
+/* ---------------- Fig 8: PIK ---------------- */
+function pik(animate) {
+  const P = D.pik, c = C();
+  const { svg, w } = svgFor("c-pik", 320), h = 320;
+  const m = { l: 46, r: 70, t: 20, b: 34 };
+  const x = lin(qi(P[0].q), qi(P[P.length - 1].q), m.l, w - m.r), y = lin(0, .2, h - m.b, m.t);
+  const g = el("g", { class: "gl" }, svg);
+  [0, .05, .1, .15, .2].forEach(v => { el("line", { x1: m.l, x2: w - m.r, y1: y(v), y2: y(v) }, g); tx(svg, m.l - 8, y(v) + 4, pct(v), { "text-anchor": "end" }); });
+  el("line", { x1: m.l, x2: w - m.r, y1: y(0), y2: y(0), class: "base" }, svg);
+  P.forEach(p => { if (p.q.endsWith("Q1")) tx(svg, x(qi(p.q)), h - m.b + 18, p.q.slice(0, 4), { "text-anchor": "middle" }); });
+  const d = P.map((p, i) => (i ? "L" : "M") + x(qi(p.q)) + "," + y(p.share)).join("");
+  el("path", { d: d + `L${x(qi(P[P.length - 1].q))},${y(0)}L${x(qi(P[0].q))},${y(0)}Z`, fill: c.claret, opacity: .08 }, svg);
+  drawPath(svg, d, { stroke: c.claret, "stroke-width": 2.6, "stroke-linejoin": "round" }, animate);
+  const Lp = P[P.length - 1];
+  el("circle", { cx: x(qi(Lp.q)), cy: y(Lp.share), r: 5, fill: c.claret, stroke: c.paper, "stroke-width": 2 }, svg);
+  tx(svg, x(qi(Lp.q)) + 10, y(Lp.share) + 5, pct(Lp.share, 1), { class: "big" });
+  tx(svg, x(qi(P[0].q)), y(P[0].share) - 12, pct(P[0].share, 1), { class: "lbl-b" });
+  const hit = el("rect", { x: m.l, y: m.t, width: w - m.l - m.r, height: h - m.t - m.b, fill: "transparent" }, svg);
+  const cross = el("line", { y1: m.t, y2: h - m.b, stroke: c.muted, opacity: 0 }, svg);
+  hit.addEventListener("mousemove", e => {
+    const i = Math.round(qi(P[0].q) + (ptr(svg, e).x - m.l) / (w - m.l - m.r) * (qi(Lp.q) - qi(P[0].q)));
+    const dd = P.find(z => qi(z.q) === i); if (!dd) return;
+    cross.setAttribute("x1", x(i)); cross.setAttribute("x2", x(i)); cross.setAttribute("opacity", .6);
+    show(e, `<div class="t">${qlab(dd.q)}</div><div class="r"><span>${L("带 PIK", "With PIK")}</span><b>${pct(dd.share, 1)}</b></div><div class="r"><span>${L("正常贷款本金", "Par-loan principal")}</span><b>${money(dd.par)}</b></div>`);
+  });
+  hit.addEventListener("mouseleave", () => { hide(); cross.setAttribute("opacity", 0); });
+}
+
+/* ---------------- Fig 9: coverage ---------------- */
+function cov() {
+  const c = C(), Q = [];
+  for (let i = qi("2022Q3"); i <= qi(M.quarters[1]); i++) Q.push(iq(i));
+  const Ls = Object.keys(D.coverage).sort((a, b) => D.coverage[b].length - D.coverage[a].length || a.localeCompare(b));
+  const cell = 17, gp = 3, m = { l: 200, t: 28 };
+  const { svg, w } = svgFor("c-cov", m.t + Ls.length * (cell + gp)), h = m.t + Ls.length * (cell + gp);
+  const cw = Math.min(30, (w - m.l - 6) / Q.length - gp);
+  Q.forEach((q, j) => { if (q.endsWith("Q1")) tx(svg, m.l + j * (cw + gp), m.t - 10, q.slice(0, 4), {}); });
+  Ls.forEach((t, i) => {
+    const yy = m.t + i * (cell + gp);
+    tx(svg, m.l - 10, yy + cell - 4, `${short(t)} (${t})`, { "text-anchor": "end", class: "lbl" });
+    Q.forEach((q, j) => {
+      const ok = D.coverage[t].includes(q);
+      const r = el("rect", { x: m.l + j * (cw + gp), y: yy, width: cw, height: cell, fill: ok ? c.blue : "none", stroke: ok ? "none" : c.rule }, svg);
+      r.addEventListener("mousemove", e => show(e, `<div class="t">${short(t)} · ${qlab(q)}</div><div>${ok ? L("通过核对，已使用", "Passed: used") : L("未通过或未申报", "Excluded or not filed")}</div>`));
+      r.addEventListener("mouseleave", hide);
+    });
+  });
+}
+
+/* ---------------- Table 1 + explorer ---------------- */
+function table1() {
+  const T = D.lender_table.slice().sort((a, b) => b.par_latest - a.par_latest);
+  const head = `<thead><tr><th>BDC</th><th>${L("覆盖季度", "Quarters used")}</th><th class="n">${L("季度数", "#")}</th><th class="n">${L("借款人", "Borrowers")}</th><th class="n">${L("正常贷款本金", "Par-loan principal")}</th><th class="n">${L("匹配", "Matched")}</th><th class="n">${L("跌破 60", "Below-60 events")}</th></tr></thead>`;
+  const body = T.map(r => `<tr><td><b>${short(r.lender)}</b> <span class="muted">${r.lender}</span></td><td>${qshort(r.first)} – ${qshort(r.last)}</td><td class="n">${r.quarters}</td><td class="n">${r.borrowers.toLocaleString()}</td><td class="n">${money(r.par_latest)}</td><td class="n">${r.matched ? r.matched.toLocaleString() : "—"}</td><td class="n">${r.events || "—"}</td></tr>`).join("");
+  document.getElementById("t-lenders").innerHTML = head + "<tbody>" + body + "</tbody>";
+}
+function robustTable(V) {
+  const R = D.robust, st = R.stakes;
+  const usd = x => Math.abs(x) < 5e5 ? L("约 0", "≈ $0") : (x < 0 ? "−" : "+") + money(Math.abs(x));
+  const sp = x => (x < 0 ? "−" : x > 0 ? "+" : "") + Math.abs(x * 100).toFixed(2) + "%";
+  const rows = [
+    [L("事件研究（全部定期债务口径）", "Event study (all term debt)"), "", ""],
+    [L("首次低于 60 的事件 / 有完整一年历史", "Events first below 60 / with a full year of history"), `${D.metrics.events} / ${R.events_full}`, L("图 5", "Fig. 5")],
+    [L("四个季度前 ≥ 90 / 一个季度前 ≥ 90", "At 90+ four quarters before / one quarter before"), `${V.ge90_year} / ${V.ge90_q}`, L("同一分母", "same denominator")],
+    [L("突然案例：90+ 后一个季度内低于 60 / 债转股", "Abrupt: 90+ then below 60 / debt-for-equity within a quarter"), `${R.jump_distress} / ${R.jump_other}`, L(`占全部 ${V.abrupt_share}`, `${V.abrupt_share} of all`)],
+    [L("谁更接近事实（首次 ≥3 点分歧，四个季度后）", "Who was closer (first ≥3-pt disagreement, four quarters on)"), "", ""],
+    [L("较低估值更接近 / 较高估值更接近", "Lower mark closer / higher mark closer"), `${R.expost.closer_low} / ${R.expost.closer_high}`, L(`另 ${R.expost.restructured} 重组、${R.expost.exited} 退出`, `plus ${R.expost.restructured} restructured, ${R.expost.exited} exited`)],
+    [L("≥5 点差距：未收敛 / 共计", "Gaps ≥5 pts: never closed / total"), `${R.leadlag.open} / ${R.leadlag.episodes}`, L(`收敛中位 ${R.leadlag.median_quarters} 季`, `median ${R.leadlag.median_quarters} quarters to close`)],
+    [L("收敛时：低估方上调 / 高估方下调 / 双方", "When closed: lower moved up / higher moved down / both"), `${R.leadlag.leader_moved} / ${R.leadlag.follower_moved} / ${R.leadlag.both}`, ""],
+    [L("天花板效应与趋势", "Ceiling and trend"), "", ""],
+    ...D.disagreement.map(d => [L(`差距 ÷ 隐含折价，估值中位数 ${d.band === "below 85" ? "低于 85" : d.band}`, `Gap ÷ implied discount, median mark ${d.band}`), d.median_gap_rel_loss == null ? "—" : pct(d.median_gap_rel_loss), `n = ${d.n.toLocaleString()}`]),
+    ...R.trend.map(t => [L(`${t.year} 年承压贷款中位差距：全部 / 固定组合`, `${t.year} median gap on stressed loans: all / fixed panel`), `${(t.median_gap * 100).toFixed(1)} / ${t.median_gap_panel == null ? "—" : (t.median_gap_panel * 100).toFixed(1)}`, `n = ${t.n} / ${t.n_panel}`]),
+    [L("美元影响（最近匹配季度）", "Dollar effect (latest matched quarter)"), "", ""],
+    ...Object.entries(st).filter(([t]) => (D.lender_rel.find(r => r.lender === t) || {}).borrowers >= 10).sort((a, b) => b[1].usd - a[1].usd)
+      .map(([t, v]) => [`${short(t)} (${qlab(v.q)})`, usd(v.usd), v.share_of_par == null ? "" : L(`占正常贷款本金 ${sp(v.share_of_par)}`, `${sp(v.share_of_par)} of par-loan principal`)]),
+  ];
+  const head = `<thead><tr><th>${L("检验", "Test")}</th><th class="n">${L("结果", "Result")}</th><th>${L("说明", "Note")}</th></tr></thead>`;
+  document.getElementById("t-robust").innerHTML = head + "<tbody>" + rows.map(r => r[1] === "" && r[2] === "" ? `<tr class="grp"><td colspan="3"><b>${r[0]}</b></td></tr>` : `<tr><td>${r[0]}</td><td class="n">${r[1]}</td><td class="muted">${r[2]}</td></tr>`).join("") + "</tbody>";
+}
+let shown = 50;
+function explorer(reset) {
+  if (reset) shown = 50;
+  const q = document.getElementById("q").value.trim().toLowerCase(), gmin = +document.getElementById("gmin").value / 100, sort = document.getElementById("sort").value;
+  let rows = D.pairs.filter(p => p[4] >= gmin - 1e-9 && (!q || p[0].toLowerCase().includes(q) || Object.keys(p[3]).some(t => t.toLowerCase() === q || short(t).toLowerCase().includes(q))));
+  if (sort === "q") rows = rows.slice().sort((a, b) => qi(b[1]) - qi(a[1]) || b[4] - a[4]);
+  if (sort === "med") rows = rows.slice().sort((a, b) => a[5] - b[5]);
+  document.getElementById("ex-count").textContent = rows.length.toLocaleString() + L(" 条匹配", " matches");
+  document.getElementById("ex-body").innerHTML = rows.slice(0, shown).map(p => `<tr><td>${p[0]}</td><td>${qlab(p[1])}</td><td class="n">${(p[2] * 100).toFixed(2)}%</td><td class="marks">` +
+    Object.entries(p[3]).sort((a, b) => b[1] - a[1]).map(([t, v]) => `<a href="${(D.lenders[t] || {}).filings?.[p[1]] || "#"}" target="_blank" rel="noopener" title="${short(t)} · ${qlab(p[1])}">${t} <b>${cents(v)}</b></a>`).join("") +
+    `</td><td class="n">${(p[4] * 100).toFixed(1)}<span class="gapbar" style="width:${Math.min(70, p[4] * 200)}px"></span></td></tr>`).join("");
+  document.getElementById("ex-more").style.display = rows.length > shown ? "" : "none";
+}
+["q", "gmin", "sort"].forEach(id => document.getElementById(id).addEventListener("input", () => explorer(true)));
+document.getElementById("ex-more").addEventListener("click", () => { shown += 100; explorer(); });
+
+/* ---------------- boot ---------------- */
+const charts = [["c-disp", disp], ["gallery", gallery], ["c-rel", relChart], ["c-glide", glide], ["c-waffle", waffle], ["c-trans", trans], ["c-pik", pik]];
+let rerunScrolly;
+function renderStatic() { fillText(); markScale(); table1(); explorer(true); cov(); charts.forEach(([id, fn]) => fn(false)); if (rerunScrolly) rerunScrolly(); }
+function setLang(l) {
+  LANG = l; localStorage.setItem("lastmark-lang", l);
+  document.documentElement.dataset.lang = l; document.documentElement.lang = l === "zh" ? "zh-CN" : "en";
+  document.title = L("同一笔贷款，不同的价格：私募信贷中的估值分歧与渐进式损失确认", "Same Loan, Different Price: Valuation Dispersion and Gradual Loss Recognition in Private Credit");
+  document.querySelectorAll(".lang button").forEach(b => b.classList.toggle("on", b.dataset.set === l));
+  renderStatic();
+}
+document.querySelectorAll(".lang button").forEach(b => b.addEventListener("click", () => setLang(b.dataset.set)));
+document.documentElement.dataset.lang = LANG; document.documentElement.lang = LANG === "zh" ? "zh-CN" : "en";
+document.title = L("同一笔贷款，不同的价格：私募信贷中的估值分歧与渐进式损失确认", "Same Loan, Different Price: Valuation Dispersion and Gradual Loss Recognition in Private Credit");
+document.querySelectorAll(".lang button").forEach(b => b.classList.toggle("on", b.dataset.set === LANG));
+fillText(); markScale(); table1(); explorer(true); cov();
+rerunScrolly = setupScrolly();
+charts.forEach(([id, fn]) => onVisible(id, (anim, first) => { if (first) fn(false); else fn(true); }));
+let rt; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(renderStatic, 160); });
+if (document.fonts) document.fonts.ready.then(() => renderStatic());
+</script>
+</body>
+</html>

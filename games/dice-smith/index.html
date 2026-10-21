@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+    <title>骰匠 · 夜市皮影骰宝</title>
+    <meta name="description" content="夜市皮影戏台上的骰子构筑肉鸽：扣骰、重掷、出手，铭刻骰面，收集法器，六幕赢下命运之匠。" />
+    <meta name="theme-color" content="#1a0e08" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="骰匠" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="骰匠 · 夜市皮影骰宝" />
+    <meta property="og:description" content="三颗骰子，六幕戏。扣骰重掷凑牌型，筹 × 倍一路翻番，赢下命运之匠。" />
+    <meta property="og:image" content="icon-512.png" />
+    <meta name="twitter:card" content="summary" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="icon" type="image/png" href="icon-192.png" />
+    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@400;600;900&display=swap" rel="stylesheet" />
+    <style>
+      #boot {
+        position: fixed;
+        inset: 0;
+        z-index: 100;
+        display: grid;
+        place-items: center;
+        background: radial-gradient(ellipse at center, #1c1430, #05060f);
+        color: #e2b13c;
+        font: 22px 'STKaiti', 'KaiTi', serif;
+        letter-spacing: 8px;
+        transition: opacity 0.5s;
+      }
+      #boot.gone {
+        opacity: 0;
+        pointer-events: none;
+      }
+      #boot i {
+        display: block;
+        margin: 14px auto 0;
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background: #ff9a3a;
+        box-shadow: 0 0 18px 6px rgba(255, 140, 60, 0.6);
+        animation: boot 1.2s ease-in-out infinite;
+      }
+      @keyframes boot {
+        50% {
+          opacity: 0.3;
+          transform: scale(0.7);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="boot"><div>开锣中<i></i></div></div>
+    <div id="app"></div>
+    <noscript>骰匠需要启用 JavaScript 才能运行。</noscript>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

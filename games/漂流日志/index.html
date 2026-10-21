@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>漂流日志 · Drift Log</title>
+<style>
+:root{
+  --bg1:rgba(32,37,42,.93); --bg2:rgba(17,20,24,.93); --line:rgba(255,255,255,.08);
+  --text:#ece8df; --dim:#97a1a7; --gold:#f2c14e; --gold2:#ffd977; --green:#3d9a4b; --green2:#58c26a;
+  --red:#d24a3e; --cyan:#5ad8ec; --water:#4aa8ff; --tide:#3fe0c5; --amber:#ffb054;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;background:#0b1820;color:var(--text);
+  font-family:"PingFang SC","Noto Sans SC","Microsoft YaHei",system-ui,sans-serif;user-select:none;-webkit-font-smoothing:antialiased}
+canvas#view{position:fixed;inset:0;width:100%;height:100%;display:block}
+.hud{position:fixed;z-index:5}
+.panel{background:linear-gradient(180deg,var(--bg1),var(--bg2));border:1px solid var(--line);border-radius:12px;
+  box-shadow:0 10px 30px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.06);backdrop-filter:blur(6px)}
+.hidden{display:none!important}
+button{font-family:inherit;cursor:pointer;border:none;color:var(--text)}
+.btn{background:linear-gradient(180deg,#39424a,#2a3137);border:1px solid rgba(255,255,255,.09);border-radius:9px;padding:8px 14px;font-size:14px;
+  transition:transform .08s,background .12s;box-shadow:0 2px 6px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.07)}
+.btn:hover{background:linear-gradient(180deg,#46505a,#333b42)}
+.btn:active{transform:translateY(1px)}
+.btn:disabled{opacity:.38;cursor:not-allowed}
+.btn.green{background:linear-gradient(180deg,#4bb05a,#358a43);border-color:#6fd07e}
+.btn.green:hover{background:linear-gradient(180deg,#5cc46b,#3d9a4b)}
+.btn.gold{background:linear-gradient(180deg,#3a321c,#241f12);color:var(--gold);border:1px solid #7a6530;font-weight:700;letter-spacing:2px}
+.btn.gold:hover{background:linear-gradient(180deg,#4a3f22,#2e2716);color:var(--gold2)}
+.btn.on{outline:2px solid var(--gold);outline-offset:1px}
+.sm{font-size:12px;color:var(--dim)}
+.ph3{font-size:14px;color:var(--gold);margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;font-weight:700}
+.chip{display:inline-flex;align-items:center;gap:4px;font-size:12px;padding:3px 8px;border-radius:6px;background:rgba(255,255,255,.06);margin:2px}
+.tag-red{background:var(--red);color:#fff;font-weight:700}
+.loadbar{height:7px;background:rgba(255,255,255,.07);border-radius:4px;overflow:hidden;margin:5px 0 8px}
+.loadbar div{height:100%;background:linear-gradient(90deg,#3d9a4b,#6fd07e);transition:width .3s}
+.loadbar.warn div{background:linear-gradient(90deg,#c98a2a,#ffb054)}
+.loadbar.over div{background:linear-gradient(90deg,#a3322a,#e05a4c)}
+
+/* ===== 阶段一 ===== */
+#timer{top:12px;left:50%;transform:translateX(-50%);padding:8px 26px 10px;text-align:center;min-width:330px}
+#timer .t{font-size:34px;font-weight:800;letter-spacing:2px;font-variant-numeric:tabular-nums;line-height:1.1}
+#timer .t span{font-size:22px;margin-right:6px}
+#timer .sub{font-size:12px;color:var(--dim);margin-top:2px}
+#timer .sub b{color:var(--tide)}
+#tidebar{height:6px;border-radius:3px;background:rgba(255,255,255,.07);margin-top:7px;overflow:hidden;position:relative}
+#tidebar div{height:100%;background:linear-gradient(90deg,#2a9d8f,var(--tide));width:0;transition:width .5s}
+#timer .note{font-size:11px;color:#7f8a90;margin-top:5px}
+#cash{top:14px;right:16px;padding:8px 20px;font-size:30px;font-weight:800;color:var(--gold);border-right:4px solid var(--gold);font-variant-numeric:tabular-nums}
+#cash small{display:block;font-size:11px;color:var(--dim);font-weight:400;text-align:right}
+#spotter{top:118px;left:16px;width:256px;padding:12px 14px}
+.chk{display:flex;align-items:center;font-size:13px;margin:7px 0;gap:8px}
+.chk .bx{width:17px;height:17px;border-radius:5px;border:1px solid #556;display:grid;place-items:center;font-size:11px}
+.chk.ok .bx{background:var(--green);border-color:var(--green2)}
+.chk .v{margin-left:auto;color:var(--dim);font-variant-numeric:tabular-nums;font-size:12px}
+.chk.ok .v{color:var(--green2)}
+#bagbox{left:16px;bottom:72px;width:256px;padding:12px 14px}
+#endprep{left:16px;bottom:16px;width:256px;padding:11px}
+#dockbtns{left:50%;transform:translateX(-50%);bottom:18px;display:flex;gap:10px}
+#dockbtns .btn{padding:11px 20px;font-size:15px}
+#raftbox{right:16px;bottom:16px;width:320px;padding:12px 14px;max-height:52vh;overflow:auto}
+#docktitle{display:none;top:96px;left:50%;transform:translateX(-50%);padding:6px 16px;font-size:13px;color:var(--dim)}
+
+/* ===== 阶段二 ===== */
+#clockbox{top:12px;right:16px;display:flex;align-items:center;gap:14px;padding:10px 18px}
+#weather{font-size:30px;filter:drop-shadow(0 2px 4px rgba(0,0,0,.4))}
+#daytxt{font-size:46px;font-weight:900;line-height:1;letter-spacing:1px}
+#daytxt small{display:block;font-size:12px;font-weight:600;color:var(--gold);background:rgba(242,193,78,.12);border:1px solid rgba(242,193,78,.25);border-radius:10px;padding:2px 8px;margin-top:5px;text-align:center}
+#dialwrap{display:flex;flex-direction:column;align-items:center}
+#dial{width:80px;height:80px;display:block}
+#clocktxt{font-size:22px;font-weight:700;color:var(--cyan);font-variant-numeric:tabular-nums;margin-top:2px}
+#sidebtns{top:138px;right:16px;display:flex;flex-direction:column;gap:8px;align-items:flex-end}
+#sidebtns .btn{min-width:118px;text-align:left}
+#stats{right:16px;bottom:16px;width:310px;padding:12px 14px}
+.stat{display:flex;align-items:center;gap:8px;margin:6px 0;font-size:13px}
+.stat .nm{width:64px;display:flex;gap:5px;align-items:center}
+.stat .bar{flex:1;height:16px;border-radius:5px;background:rgba(255,255,255,.07);overflow:hidden}
+.stat .bar div{height:100%;border-radius:5px;transition:width .3s}
+.stat .num{width:58px;text-align:right;font-variant-numeric:tabular-nums}
+.res{display:grid;grid-template-columns:1fr 1fr;gap:5px 10px;font-size:12px;color:var(--dim);margin-top:9px;border-top:1px solid var(--line);padding-top:9px}
+.res b{color:var(--text);font-weight:600}
+.res .warn b{color:#ff7a6a}
+#actions{left:16px;bottom:16px;display:flex;flex-wrap:wrap;gap:6px;width:min(560px,40vw)}
+#actions .btn{font-size:13px;padding:8px 12px}
+#actions .btn .c{color:var(--dim);font-size:11px;margin-left:3px}
+#timectl{left:50%;transform:translateX(-50%);bottom:16px;display:flex;gap:6px;align-items:center;padding:6px}
+#timectl .btn{width:46px;padding:7px 0;text-align:center}
+#wish{left:50%;transform:translateX(-50%);bottom:72px;padding:7px 14px;font-size:13px;display:flex;gap:10px;align-items:center}
+#wish .w{color:var(--gold);font-weight:700}
+#wish .pk{background:rgba(242,193,78,.18);color:var(--gold);padding:1px 8px;border-radius:4px;font-size:12px}
+#alert{top:14px;left:16px;padding:10px 16px;min-width:270px;background:linear-gradient(90deg,rgba(150,32,30,.95),rgba(90,20,20,.75));border-radius:10px;border:1px solid rgba(255,120,100,.3);box-shadow:0 8px 24px rgba(0,0,0,.4)}
+#alert .h{font-size:22px;font-weight:800;letter-spacing:1px}
+#alert .row{font-size:13px;margin-top:5px;display:flex;align-items:center;gap:8px}
+#pausehint{left:50%;transform:translateX(-50%);bottom:118px;padding:6px 14px;font-size:13px;color:var(--gold)}
+
+/* 建造面板（码头 & 漂流共用） */
+#buildpanel{top:118px;left:16px;width:310px;max-height:calc(100vh - 210px);overflow:auto;padding:12px}
+.bcard{display:flex;gap:10px;align-items:center;padding:7px 8px;border-radius:9px;cursor:pointer;border:1px solid transparent;transition:background .1s}
+.bcard:hover{background:rgba(255,255,255,.06)}
+.bcard.sel{border-color:var(--gold);background:rgba(242,193,78,.1)}
+.bcard.no{opacity:.42}
+.bcard .ic{font-size:24px;width:34px;height:34px;display:grid;place-items:center;background:rgba(255,255,255,.05);border-radius:8px}
+.bcard .nm{font-size:14px;font-weight:600}
+.bcard .ds{font-size:11px;color:var(--dim);margin:1px 0}
+.bcard .cs{font-size:11px}
+#hint{top:142px;left:50%;transform:translateX(-50%);padding:6px 16px;font-size:13px;color:var(--gold)}
+
+/* 提示流 */
+#feed{left:50%;transform:translateX(-50%);bottom:150px;width:560px;pointer-events:none;display:flex;flex-direction:column;gap:5px;align-items:center}
+.toast{background:rgba(14,17,20,.9);padding:7px 15px;border-radius:8px;font-size:13px;border-left:3px solid var(--cyan);animation:fade 5s forwards;box-shadow:0 4px 14px rgba(0,0,0,.35)}
+.toast.bad{border-color:var(--red)}.toast.good{border-color:var(--green2)}.toast.gold{border-color:var(--gold)}
+@keyframes fade{0%{opacity:0;transform:translateY(8px)}6%{opacity:1;transform:none}82%{opacity:1}100%{opacity:0}}
+
+/* 弹窗 */
+#modal{position:fixed;inset:0;z-index:20;background:rgba(2,8,12,.55);display:grid;place-items:center;backdrop-filter:blur(2px)}
+#modal .box{max-width:min(1120px,95vw);max-height:92vh;overflow:auto;padding:22px 26px;position:relative;animation:pop .18s ease-out}
+@keyframes pop{from{transform:scale(.97);opacity:0}to{transform:none;opacity:1}}
+#modal h2{font-size:22px;margin-bottom:12px}
+#modal .x{position:absolute;right:14px;top:10px;background:none;font-size:22px;color:var(--dim);box-shadow:none}
+.shopwrap{display:grid;grid-template-columns:360px 1fr;gap:22px}
+.grid{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;margin-top:6px}
+.cell{aspect-ratio:1;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:7px;display:grid;place-items:center;font-size:24px;position:relative}
+.cell small{position:absolute;right:4px;bottom:1px;font-size:11px;color:var(--dim)}
+.sitem{display:flex;align-items:center;gap:12px;padding:9px 10px;border-radius:10px;margin-bottom:4px;background:rgba(255,255,255,.025)}
+.sitem:hover{background:rgba(255,255,255,.05)}
+.sitem .ic{font-size:30px;width:48px;height:48px;display:grid;place-items:center;background:radial-gradient(circle,rgba(255,255,255,.08),rgba(255,255,255,.02));border-radius:10px}
+.sitem .nm{font-weight:700;font-size:15px}
+.sitem .meta{font-size:11px;color:var(--dim)}
+.sitem .right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.sitem .rem{font-size:11px;color:var(--dim);width:52px;text-align:right}
+.sitem .pr{color:var(--gold);font-weight:800;font-size:17px;width:54px;text-align:right}
+.qty{display:flex;align-items:center;gap:4px}
+.qty button{width:28px;height:28px;border-radius:7px;font-size:16px;padding:0}
+.qty b{width:22px;text-align:center;font-variant-numeric:tabular-nums}
+.cartbar{margin-top:12px;padding:12px 14px;border-radius:10px;background:rgba(0,0,0,.25);display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.cartbar .tot{font-size:20px;color:var(--gold);font-weight:800}
+.cartbar label{font-size:13px;display:flex;align-items:center;gap:6px;cursor:pointer}
+.cards{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
+.ccard{width:240px;padding:18px;border-radius:14px;background:linear-gradient(180deg,rgba(44,50,56,.95),rgba(26,30,34,.95));border:1px solid var(--line);cursor:pointer;transition:.15s}
+.ccard:hover{border-color:var(--gold);transform:translateY(-3px);box-shadow:0 10px 24px rgba(0,0,0,.4)}
+.ccard .big{font-size:46px}
+.ccard h4{font-size:18px;margin:8px 0 4px}
+.ccard p{font-size:13px;color:var(--dim);line-height:1.65}
+.ccard .money{color:var(--gold);font-weight:700}
+.node{width:200px}
+
+/* 标题 */
+#title{position:fixed;inset:0;z-index:10;display:flex;flex-direction:column;justify-content:center;padding-left:8vw;background:linear-gradient(90deg,rgba(4,10,16,.88),rgba(4,10,16,.35) 50%,transparent 70%)}
+#title h1{font-size:92px;font-weight:900;letter-spacing:12px;line-height:1;text-shadow:0 6px 40px rgba(0,0,0,.7)}
+#title h1 span{color:var(--gold)}
+#title .en{font-size:18px;letter-spacing:16px;color:var(--gold);margin:12px 0 22px;opacity:.85}
+#title .lead{max-width:520px;font-size:15px;color:#c8cdd0;line-height:2;margin-bottom:28px}
+#title .btn{font-size:18px;padding:13px 30px;width:280px;margin-bottom:10px}
+#bottles{margin-top:22px;max-width:580px}
+#bottles .b{display:inline-block;background:rgba(30,60,70,.6);border:1px solid rgba(90,170,180,.35);border-radius:9px;padding:6px 10px;margin:3px;font-size:12px}
+.story{max-width:640px;font-size:17px;line-height:2.1;color:#dfe5e8}
+.story p{opacity:0;animation:fadein 1s forwards}
+@keyframes fadein{to{opacity:1}}
+table.log{width:100%;font-size:13px;border-collapse:collapse}
+table.log td{padding:5px 8px;border-bottom:1px solid var(--line)}
+table.log td:first-child{color:var(--cyan);width:110px;font-variant-numeric:tabular-nums}
+::-webkit-scrollbar{width:8px}::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:4px}
+
+/* ===== v3 ===== */
+#gear{position:fixed;z-index:6;top:14px;left:16px;width:44px;height:44px;padding:0;font-size:20px;border-radius:12px}
+#alert{left:72px!important}
+#goal{top:98px;left:50%;transform:translateX(-50%);padding:7px 16px;font-size:13px;max-width:620px;display:flex;gap:8px;align-items:center;border-color:rgba(242,193,78,.35)}
+#goal b{color:var(--gold);white-space:nowrap}
+#p2 #goal{top:16px}
+#tip{position:fixed;z-index:15;pointer-events:none;padding:9px 12px;font-size:12px;max-width:260px;line-height:1.6;border-radius:10px}
+#tip h5{font-size:14px;margin-bottom:3px;color:var(--gold)}
+#tip .ok{color:var(--green2)}#tip .no{color:#ff7a6a}
+#skip{width:auto!important;padding:7px 12px!important;font-size:13px}
+.menu .btn{display:block;width:100%;margin:8px 0;padding:12px;font-size:15px}
+.setrow{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line);font-size:14px}
+.setrow input[type=range]{width:180px}
+.toggle{width:46px;height:26px;border-radius:13px;background:#444;position:relative;cursor:pointer;transition:.2s}
+.toggle::after{content:'';position:absolute;left:3px;top:3px;width:20px;height:20px;border-radius:50%;background:#ddd;transition:.2s}
+.toggle.on{background:var(--green)}.toggle.on::after{left:23px}
+.achgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px}
+.ach{display:flex;gap:10px;align-items:center;padding:10px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid var(--line)}
+.ach.lock{opacity:.4;filter:grayscale(1)}
+.ach .i{font-size:26px}.ach b{font-size:14px}.ach p{font-size:11px;color:var(--dim)}
+.diffrow{display:flex;gap:8px;justify-content:center;margin-bottom:16px}
+.diffrow .btn.on{background:linear-gradient(180deg,#4a3f22,#2e2716);color:var(--gold)}
+.statsgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:14px 0}
+.statsgrid div{background:rgba(255,255,255,.04);border-radius:10px;padding:10px;text-align:center}
+.statsgrid b{display:block;font-size:22px;color:var(--gold)}.statsgrid span{font-size:11px;color:var(--dim)}
+.help h3{color:var(--gold);font-size:15px;margin:14px 0 6px}.help p,.help li{font-size:13px;line-height:1.8;color:#cfd5d8}.help ul{padding-left:18px}
+kbd{background:#333;border:1px solid #555;border-bottom-width:2px;border-radius:4px;padding:0 5px;font-size:12px}
+.tabs{display:flex;gap:6px;margin-bottom:10px}.tabs .btn.on{color:var(--gold)}
+.journal p{font-size:14px;line-height:1.9;margin-bottom:10px;padding:10px 14px;background:rgba(255,240,210,.04);border-left:3px solid rgba(242,193,78,.4);border-radius:4px}
+.journal p b{color:var(--gold)}
+.uselist .chip{cursor:pointer}.uselist .chip:hover{background:rgba(242,193,78,.2)}
+#title .row2{display:flex;gap:8px;width:280px}#title .row2 .btn{width:auto;flex:1;font-size:14px;padding:10px 0}
+@media (max-width:1300px){.hud,#gear{zoom:.86}#modal .box{zoom:.9}}
+@media (max-width:1050px){.hud,#gear{zoom:.72}#modal .box{zoom:.8}#title h1{font-size:64px}}
+@media (max-height:720px){.hud,#gear{zoom:.8}#modal .box{zoom:.85}}
+</style>
+</head>
+<body>
+<canvas id="view"></canvas>
+
+<div id="title">
+  <h1>漂流<span>日志</span></h1>
+  <div class="en">DRIFT LOG</div>
+  <div class="lead">你溺死过一次。<br>睁开眼，是大潮来临前的 <b style="color:var(--tide)">10 小时</b>——今晚之后，整座港城会沉进海里。<br>买齐物资，在码头把木筏造好，然后活下去，找到传说中的「方舟」。</div>
+  <button class="btn gold hidden" id="btnContinue">继续上次</button>
+  <button class="btn gold" id="btnStart">开始轮回</button>
+  <div class="row2"><button class="btn" id="btnAch">🏆 成就</button><button class="btn" id="btnHelp">❔ 玩法</button><button class="btn" id="btnSet">⚙ 设置</button></div>
+  <button class="btn" id="btnReset" style="margin-top:10px;font-size:13px;padding:8px;opacity:.7">清除所有存档</button>
+  <div id="bottles"></div>
+</div>
+
+<!-- 阶段一 -->
+<div id="p1" class="hidden">
+  <div id="timer" class="hud panel">
+    <div class="t"><span>🕗</span><b id="tnow">08:00</b></div>
+    <div class="sub" id="tsub"></div>
+    <div id="tidebar"><div></div></div>
+    <div class="note">⏸ 时间只在行动时流逝——慢慢想</div>
+  </div>
+  <div id="cash" class="hud panel">$ 0</div>
+  <div id="cityui">
+    <div id="spotter" class="hud panel"></div>
+    <div id="bagbox" class="hud panel"></div>
+  </div>
+  <div id="dockui" class="hidden">
+    <div id="docktitle" class="hud panel">⚓ 码头 · 在大潮之前把木筏造好。组装设施会花时间。</div>
+    <div id="raftbox" class="hud panel"></div>
+    <div id="dockbtns" class="hud"></div>
+  </div>
+  <button id="endprep" class="hud btn gold">⛵ 启 航（结束准备）</button>
+</div>
+
+<!-- 阶段二 -->
+<div id="p2" class="hidden">
+  <div id="alert" class="hud hidden"></div>
+  <div id="clockbox" class="hud panel">
+    <div id="weather">☀️</div>
+    <div id="daytxt"><span id="daynum">DAY1</span><small id="looptxt">Loop: 1</small></div>
+    <div id="dialwrap"><canvas id="dial" width="160" height="160"></canvas><div id="clocktxt">18:00</div></div>
+  </div>
+  <div id="sidebtns" class="hud">
+    <button class="btn" id="bBuild">🔨 建造 <span class="sm">B</span></button>
+    <button class="btn" id="bStock">📦 物资</button>
+    <button class="btn" id="bChart">🧭 海图</button>
+    <button class="btn" id="bLog">📓 日志</button>
+  </div>
+  <div id="stats" class="hud panel"></div>
+  <div id="actions" class="hud"></div>
+  <div id="wish" class="hud panel hidden"></div>
+  <div id="pausehint" class="hud panel hidden">⏸ 已暂停 · 按 ▶ 或空格继续</div>
+  <div id="timectl" class="hud panel">
+    <button class="btn" data-s="0">⏸</button>
+    <button class="btn" data-s="1">▶</button>
+    <button class="btn" data-s="2">▶▶</button>
+    <button class="btn" data-s="3">▶▶▶</button>
+    <button class="btn hidden" id="skip">⏭ 跳到天亮</button>
+  </div>
+</div>
+
+<div id="buildpanel" class="hud panel hidden"></div>
+<button id="gear" class="btn hidden" title="菜单（Esc）">☰</button>
+<div id="goal" class="hud panel hidden"></div>
+<div id="tip" class="panel hidden"></div>
+<div id="hint" class="hud panel hidden"></div>
+<div id="feed" class="hud"></div>
+<div id="modal" class="hidden"><div class="box panel"></div></div>
+
+<script src="data.js?v=13"></script>
+<script src="audio.js?v=13"></script>
+<script src="render.js?v=13"></script>
+<script src="game.js?v=13"></script>
+</body>
+</html>

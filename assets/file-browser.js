@@ -75,10 +75,10 @@
     actionCell.className = "action-cell";
     actionCell.setAttribute("role", "cell");
     if (isFolder) {
-      const entry = item.node.files.includes("index.html")
-        ? `${path}/index.html`
-        : item.node.folders.get("dist")?.files.includes("index.html")
-          ? `${path}/dist/index.html`
+      const entry = item.node.folders.get("dist")?.files.includes("index.html")
+        ? `${path}/dist/index.html`
+        : item.node.files.includes("index.html")
+          ? `${path}/index.html`
         : null;
       if (entry) actionCell.append(link("Launch ↗", fileUrl(entry), "launch-link"));
       actionCell.append(link("Browse →", browseUrl(path)));

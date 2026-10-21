@@ -12,6 +12,8 @@ Browser games, research tools, and knowledge pages. The [file browser](https://o
 | Mathematical Finance Map | [Read](./knowledge/math-finance-map.html) |
 | AI Industry Encyclopedia | [Read](./knowledge/ai-industry-chain-encyclopedia.html) |
 | Theorem Library | [Read](./knowledge/theorem-library.html) |
+| Same Loan, Different Price | [Read research](./knowledge/last-mark/web/) · [Source and data notes](./knowledge/last-mark/README.md) |
+| 浮垣记 | [Read](./knowledge/浮垣记/) · [Browse source](./index.html?path=knowledge/浮垣记) |
 
 ## Tools
 
@@ -44,6 +46,8 @@ Browser games, research tools, and knowledge pages. The [file browser](https://o
 | Neon Heist | [Play](./games/neon-heist/dist/) · [Source](./games/neon-heist/README.md) |
 | Open Outcry: 1987 | [Play](./games/trading-floor-87/dist/) · [Source](./games/trading-floor-87/README.md) |
 | Atlas of Ice & Fire | [Play](./games/westeros-atlas/dist/) · [Source](./games/westeros-atlas/README.md) |
+| 骰匠 · 夜市皮影骰宝 | [Play](./games/dice-smith/dist/) · [Source](./games/dice-smith/README.md) |
+| 漂流日志 · Drift Log | [Play](./games/漂流日志/) · [Source](./games/漂流日志/设计文档.md) |
 
 ## Publishing
 
