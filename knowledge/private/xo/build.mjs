@@ -1,5 +1,6 @@
 import * as esbuild from 'esbuild';
 import fs from 'fs';
+import { createHash } from 'node:crypto';
 
 const res = await esbuild.build({
   entryPoints: ['src/main.js'],
@@ -12,7 +13,8 @@ const res = await esbuild.build({
   logLevel: 'warning',
 });
 const js = res.outputFiles[0].text;
-const html = fs.readFileSync('src/index.html', 'utf8').replace('<!--APP_SCRIPT-->', '<script defer src="app.js"></script>');
+const version = createHash('sha256').update(js).digest('hex').slice(0, 12);
+const html = fs.readFileSync('src/index.html', 'utf8').replace('<!--APP_SCRIPT-->', `<script defer src="app.js?v=${version}"></script>`);
 fs.mkdirSync('dist', { recursive: true });
 fs.writeFileSync('dist/index.html', html);
 fs.writeFileSync('dist/app.js', js);
