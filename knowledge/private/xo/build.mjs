@@ -11,8 +11,9 @@ const res = await esbuild.build({
   legalComments: 'none',
   logLevel: 'warning',
 });
-const js = res.outputFiles[0].text.replace(/<\/script/gi, '<\\/script');
-const html = fs.readFileSync('src/index.html', 'utf8').replace('<!--APP_SCRIPT-->', () => `<script>${js}</script>`);
+const js = res.outputFiles[0].text;
+const html = fs.readFileSync('src/index.html', 'utf8').replace('<!--APP_SCRIPT-->', '<script defer src="app.js"></script>');
 fs.mkdirSync('dist', { recursive: true });
 fs.writeFileSync('dist/index.html', html);
-console.log('dist/index.html', (html.length / 1024).toFixed(0) + ' KB');
+fs.writeFileSync('dist/app.js', js);
+console.log('dist/index.html', (html.length / 1024).toFixed(0) + ' KB', 'dist/app.js', (js.length / 1024).toFixed(0) + ' KB');

@@ -9,7 +9,8 @@ import { makeTurtle, makeEnemy, makeHubby, makeBull, makeHorse, makeBike, makePi
 import { WAVES, ENEMY_NAMES } from './config.js';
 
 const canvas = document.getElementById('scene');
-const world = createWorld(canvas);
+const phone = matchMedia('(pointer: coarse)').matches && Math.min(screen.width, screen.height) <= 820;
+const world = createWorld(canvas, { lowPower: phone });
 const { scene, camera, renderer } = world;
 const fx = createFx(scene);
 const ui = createUI(camera);
@@ -120,7 +121,7 @@ function makeZone(kind) {
 
 // the cast poses in a ring for the title screen
 const showcase = new THREE.Group();
-['durian', 'ginger', 'orange', 'dingding', 'oyster', 'goat', 'caesar', 'chenwei', 'jia', 'mao', 'guo', 'thief'].forEach((type, i, arr) => {
+(phone ? ['durian', 'ginger', 'orange', 'dingding'] : ['durian', 'ginger', 'orange', 'dingding', 'oyster', 'goat', 'caesar', 'chenwei', 'jia', 'mao', 'guo', 'thief']).forEach((type, i, arr) => {
   const m = instantiate(tplFor(type));
   const a = (i / arr.length) * Math.PI * 2;
   m.position.set(Math.cos(a) * 4.6, 0, Math.sin(a) * 4.6);
@@ -169,22 +170,33 @@ document.addEventListener('visibilitychange', () => { if (document.hidden && g.s
 // floating joystick: put a finger down anywhere and drag
 const stickEl = document.getElementById('stick'), knob = stickEl.firstElementChild;
 const stick = { active: false, id: null, ox: 0, oy: 0, x: 0, y: 0 };
+let stickDrawPending = false;
+function drawStick() {
+  if (stickDrawPending) return;
+  stickDrawPending = true;
+  requestAnimationFrame(() => {
+    stickDrawPending = false;
+    if (stick.active) knob.style.transform = `translate(${stick.x * 56}px, ${-stick.y * 56}px)`;
+  });
+}
 canvas.addEventListener('pointerdown', (e) => {
   audio.unlock();
   if (g.state !== 'play' || stick.active) return;
+  e.preventDefault();
   Object.assign(stick, { active: true, id: e.pointerId, ox: e.clientX, oy: e.clientY, x: 0, y: 0 });
   stickEl.style.left = e.clientX + 'px'; stickEl.style.top = e.clientY + 'px';
   stickEl.hidden = false; knob.style.transform = '';
   try { canvas.setPointerCapture(e.pointerId); } catch {}
-});
+}, { passive: false });
 canvas.addEventListener('pointermove', (e) => {
   if (!stick.active || e.pointerId !== stick.id) return;
+  e.preventDefault();
   let dx = e.clientX - stick.ox, dy = e.clientY - stick.oy;
   const d = Math.hypot(dx, dy), R = 56;
   if (d > R) { dx *= R / d; dy *= R / d; }
   stick.x = dx / R; stick.y = -dy / R;
-  knob.style.transform = `translate(${dx}px, ${dy}px)`;
-});
+  drawStick();
+}, { passive: false });
 const endStick = (e) => { if (e.pointerId === stick.id) { stick.active = false; stick.x = stick.y = 0; stickEl.hidden = true; } };
 canvas.addEventListener('pointerup', endStick);
 canvas.addEventListener('pointercancel', endStick);
@@ -612,7 +624,7 @@ function drainEvents() {
 }
 
 // adaptive quality: drop bloom, then resolution, if frames run long
-let quality = 2, slow = 0, fast = 0;
+let quality = phone ? 0 : 2, slow = 0, fast = 0;
 function adapt(dt) {
   if (g.state !== 'play') return;
   if (dt > 1 / 40) slow++; else if (dt < 1 / 58) fast++;
@@ -629,6 +641,7 @@ addEventListener('resize', onResize);
 onResize();
 
 let last = performance.now(), acc = 0, hitstop = 0;
+let lastHud = 0, lastLabels = 0, lastRender = 0;
 function frame(now) {
   requestAnimationFrame(frame);
   const dt = Math.min(0.1, (now - last) / 1000);
@@ -652,14 +665,16 @@ function frame(now) {
   if (g.state === 'title') syncTitle(t);
   else if (g.hero) { syncHero(t); syncWorld(t); }
   if (g.state === 'pick' && g.offer) ui.renderPick(g, (i) => { press('pick', i); });
-  if (g.hero && g.state !== 'title') ui.hud(g);
-  ui.updateLabels(g);
+  if (g.hero && g.state !== 'title' && (!phone || now - lastHud >= 100)) { ui.hud(g); lastHud = now; }
+  if (!phone || now - lastLabels >= 33) { ui.updateLabels(g); lastLabels = now; }
   fx.update();
   world.update(t, dt);
   frameCamera(t, dt);
-  world.render();
+  if (!phone || now - lastRender >= 33) { world.render(); lastRender = now; }
 }
 onState('title');
+$('startBtn').disabled = false;
+$('startBtn').textContent = '开始';
 requestAnimationFrame(frame);
 
 // tiny debug handle for testing from the console

@@ -13,7 +13,7 @@ A little arena survivor in the style of Brotato: hold out for ten waves in a Bei
 
 ## Stack
 
-Same as `skerry`: Three.js + esbuild, bundled into a single `dist/index.html` with no external images, fonts or audio. Everything is generated in code.
+Same as `skerry`: Three.js + esbuild, bundled into `dist/index.html` and `dist/app.js` with no external images, fonts or audio. Everything is generated in code. Deploy both files together.
 
 | Module | Role |
 | --- | --- |
@@ -29,6 +29,6 @@ Same as `skerry`: Three.js + esbuild, bundled into a single `dist/index.html` wi
 
 ```bash
 npm install
-node build.mjs        # -> dist/index.html (open it directly in a browser)
+node build.mjs        # -> dist/index.html + dist/app.js (deploy both files)
 npm test              # simulation unit tests (node:test)
 ```

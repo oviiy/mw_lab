@@ -19,7 +19,7 @@
   * { box-sizing: border-box; }
   html, body { margin: 0; height: 100%; overflow: hidden; background: #1d1a24; color: var(--ink); font-family: var(--sans); -webkit-font-smoothing: antialiased; }
   body { touch-action: none; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; }
-  #scene { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
+  #scene { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
   .vignette { position: fixed; inset: 0; pointer-events: none; background: radial-gradient(ellipse at 50% 50%, transparent 58%, rgba(20, 14, 24, 0.38) 100%); }
   #hurtFlash { position: fixed; inset: 0; pointer-events: none; box-shadow: inset 0 0 120px 30px rgba(216, 57, 43, 0.75); opacity: 0; transition: opacity .35s; }
   #hurtFlash.on { opacity: 1; transition: none; }
@@ -223,7 +223,7 @@
     <p class="tagline" id="tagline"></p>
     <p class="cast" id="cast"></p>
     <div class="actions">
-      <button class="btn primary" id="startBtn">开始</button>
+      <button class="btn primary" id="startBtn" disabled>加载中…</button>
       <button class="btn ghost" id="muteBtn">声音：开</button>
     </div>
     <p class="hint">电脑：WASD / 方向键移动，空格放超级蜘蛛，1 2 3 选海克斯 · 手机：按住屏幕任意处拖动</p>

@@ -23,9 +23,9 @@ function canvasTex(w, h, draw, repeat) {
 let seed = 11;
 const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
 
-const paving = () => canvasTex(2048, 2048, (x, w, h) => {
+const paving = (lowPower) => canvasTex(lowPower ? 1024 : 2048, lowPower ? 1024 : 2048, (x, w, h) => {
   x.fillStyle = '#6f6b64'; x.fillRect(0, 0, w, h);
-  const n = 16, s = w / n;
+  const n = lowPower ? 12 : 16, s = w / n;
   for (let j = 0; j < n; j++) for (let i = -1; i < n; i++) {
     const off = (j % 2) * s * 0.5, px = i * s + off + 5, py = j * s + 5, sz = s - 10;
     const v = 148 + rnd() * 34 | 0, warm = rnd() * 10 | 0;
@@ -34,7 +34,7 @@ const paving = () => canvasTex(2048, 2048, (x, w, h) => {
     g.addColorStop(0, `rgb(${v + 22 + warm},${v + 18},${v + 8})`); g.addColorStop(0.5, `rgb(${v + warm},${v - 3},${v - 12})`); g.addColorStop(1, `rgb(${v - 26},${v - 30},${v - 36})`);
     x.fillStyle = g; x.fillRect(px, py, sz, sz);
     x.fillStyle = `rgb(${v + 4 + warm},${v},${v - 9})`; x.fillRect(px + 7, py + 7, sz - 14, sz - 14);
-    for (let k = 0; k < 70; k++) { x.fillStyle = `rgba(${rnd() < 0.5 ? '40,30,20' : '255,250,240'},${rnd() * 0.07})`; const r = 1 + rnd() * 5; x.beginPath(); x.arc(px + rnd() * sz, py + rnd() * sz, r, 0, 7); x.fill(); }
+    for (let k = 0; k < (lowPower ? 18 : 70); k++) { x.fillStyle = `rgba(${rnd() < 0.5 ? '40,30,20' : '255,250,240'},${rnd() * 0.07})`; const r = 1 + rnd() * 5; x.beginPath(); x.arc(px + rnd() * sz, py + rnd() * sz, r, 0, 7); x.fill(); }
     if (rnd() < 0.18) { x.strokeStyle = 'rgba(40,30,20,.35)'; x.lineWidth = 2; x.beginPath(); let cx = px + rnd() * sz, cy = py + rnd() * sz; x.moveTo(cx, cy); for (let k = 0; k < 4; k++) { cx += (rnd() - 0.5) * 50; cy += (rnd() - 0.5) * 50; x.lineTo(cx, cy); } x.stroke(); }
   }
   // a worn stone medallion in the middle of the yard
@@ -43,7 +43,7 @@ const paving = () => canvasTex(2048, 2048, (x, w, h) => {
   for (let i = 0; i < 8; i++) { x.rotate(Math.PI / 4); x.beginPath(); x.moveTo(30, 0); x.lineTo(150, 0); x.stroke(); }
   x.restore();
   // moss in the cracks near the edges
-  for (let k = 0; k < 1400; k++) { const e = rnd() < 0.5 ? rnd() * 160 : w - rnd() * 160; const [px, py] = rnd() < 0.5 ? [e, rnd() * h] : [rnd() * w, e]; x.fillStyle = `rgba(80,110,50,${rnd() * 0.3})`; x.beginPath(); x.arc(px, py, 2 + rnd() * 7, 0, 7); x.fill(); }
+  for (let k = 0; k < (lowPower ? 400 : 1400); k++) { const e = rnd() < 0.5 ? rnd() * 160 : w - rnd() * 160; const [px, py] = rnd() < 0.5 ? [e, rnd() * h] : [rnd() * w, e]; x.fillStyle = `rgba(80,110,50,${rnd() * 0.3})`; x.beginPath(); x.arc(px, py, 2 + rnd() * 7, 0, 7); x.fill(); }
 });
 
 const bricks = () => canvasTex(512, 256, (x, w, h) => {
@@ -228,9 +228,9 @@ function dagoba() {
   return g;
 }
 
-export function createWorld(canvas) {
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+export function createWorld(canvas, { lowPower = false } = {}) {
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: !lowPower, powerPreference: 'high-performance' });
+  renderer.setPixelRatio(lowPower ? 1 : Math.min(window.devicePixelRatio || 1, 2));
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -243,7 +243,7 @@ export function createWorld(canvas) {
   const hemi = new THREE.HemisphereLight('#fff1dc', '#5a5048', 1.3);
   const sun = new THREE.DirectionalLight('#ffe0b5', 2.6);
   sun.castShadow = true;
-  sun.shadow.mapSize.set(2048, 2048);
+  sun.shadow.mapSize.set(lowPower ? 1024 : 2048, lowPower ? 1024 : 2048);
   Object.assign(sun.shadow.camera, { left: -18, right: 18, top: 18, bottom: -18, near: 1, far: 80 });
   sun.shadow.bias = -0.0005; sun.shadow.normalBias = 0.03;
   scene.add(hemi, sun, sun.target);
@@ -274,7 +274,7 @@ export function createWorld(canvas) {
   // ---------- courtyard ----------
   const yard = new THREE.Group();
   scene.add(yard);
-  const groundMat = new THREE.MeshStandardMaterial({ map: paving(), roughness: 0.92 });
+  const groundMat = new THREE.MeshStandardMaterial({ map: paving(lowPower), roughness: 0.92 });
   const ground = new THREE.Mesh(new THREE.PlaneGeometry(AW * 2, AH * 2), groundMat);
   ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true;
   yard.add(ground);
@@ -473,14 +473,14 @@ export function createWorld(canvas) {
   scene.add(beyond);
 
   // ---------- post ----------
-  const composer = new EffectComposer(renderer);
-  composer.addPass(new RenderPass(scene, camera));
-  const bloom = new UnrealBloomPass(new THREE.Vector2(512, 512), 0.5, 0.45, 0.93);
-  composer.addPass(bloom);
-  composer.addPass(new OutputPass());
+  const composer = lowPower ? null : new EffectComposer(renderer);
+  if (composer) composer.addPass(new RenderPass(scene, camera));
+  const bloom = composer ? new UnrealBloomPass(new THREE.Vector2(512, 512), 0.5, 0.45, 0.93) : null;
+  if (composer) { composer.addPass(bloom); composer.addPass(new OutputPass()); }
   // colour grade, vignette, and the white-out / red-edge flashes for hits and flashbangs
-  const grade = new ShaderPass({
-    uniforms: { tDiffuse: { value: null }, uSat: { value: 1.12 }, uVig: { value: 0.42 }, uFlash: { value: 0 }, uHurt: { value: 0 }, uChroma: { value: 0 }, uWarm: { value: 0.5 } },
+  const post = { tDiffuse: { value: null }, uSat: { value: 1.12 }, uVig: { value: 0.42 }, uFlash: { value: 0 }, uHurt: { value: 0 }, uChroma: { value: 0 }, uWarm: { value: 0.5 } };
+  const grade = composer && new ShaderPass({
+    uniforms: post,
     vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
     fragmentShader: `uniform sampler2D tDiffuse; uniform float uSat, uVig, uFlash, uHurt, uChroma, uWarm; varying vec2 vUv;
       void main(){
@@ -496,9 +496,8 @@ export function createWorld(canvas) {
         gl_FragColor = vec4(clamp(col, 0.0, 1.0), 1.0);
       }`,
   });
-  composer.addPass(grade);
-  let useBloom = true, usePost = true;
-  const post = grade.uniforms;
+  if (composer) composer.addPass(grade);
+  let useBloom = !lowPower, usePost = !lowPower;
 
   // drifting petals by day, fireflies at night
   const NA = 180;
@@ -583,16 +582,17 @@ export function createWorld(canvas) {
   function resize() {
     const w = window.innerWidth, h = window.innerHeight;
     renderer.setSize(w, h, false);
-    composer.setSize(w, h);
+    if (composer) composer.setSize(w, h);
     ambU.uScale.value = renderer.domElement.height / (2 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)));
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
   }
 
-  function render() { if (usePost) composer.render(); else renderer.render(scene, camera); }
+  function render() { if (usePost && composer) composer.render(); else renderer.render(scene, camera); }
   function setQuality(level) {
     // 2: full, 1: no bloom, 0: no bloom and pixel ratio 1
-    useBloom = level >= 2; usePost = level >= 1; bloom.enabled = useBloom;
+    useBloom = level >= 2 && !!composer; usePost = level >= 1 && !!composer;
+    if (bloom) bloom.enabled = useBloom;
     renderer.setPixelRatio(level >= 1 ? Math.min(window.devicePixelRatio || 1, level >= 2 ? 2 : 1.5) : 1);
     const ms = level >= 1 ? 2048 : 1024;
     if (sun.shadow.mapSize.x !== ms) { sun.shadow.mapSize.set(ms, ms); sun.shadow.map?.dispose(); sun.shadow.map = null; }
