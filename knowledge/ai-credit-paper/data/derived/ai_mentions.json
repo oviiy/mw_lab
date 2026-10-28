@@ -1,0 +1,1222 @@
+[
+ {
+  "issuer_id": "meta",
+  "form": "10-K",
+  "filed": "2021-01-28",
+  "period": "2020-12-31",
+  "words": 60376,
+  "ai_token": 0,
+  "ai_phrase": 12,
+  "per_10k": 1.99
+ },
+ {
+  "issuer_id": "meta",
+  "form": "10-Q",
+  "filed": "2021-04-29",
+  "period": "2021-03-31",
+  "words": 44030,
+  "ai_token": 0,
+  "ai_phrase": 10,
+  "per_10k": 2.27
+ },
+ {
+  "issuer_id": "meta",
+  "form": "10-Q",
+  "filed": "2021-07-29",
+  "period": "2021-06-30",
+  "words": 44798,
+  "ai_token": 0,
+  "ai_phrase": 10,
+  "per_10k": 2.23
+ },
+ {
+  "issuer_id": "meta",
+  "form": "10-Q",
+  "filed": "2021-10-26",
+  "period": "2021-09-30",
+  "words": 46324,
+  "ai_token": 0,
+  "ai_phrase": 10,
+  "per_10k": 2.16
+ },
+ {
+  "issuer_id": "meta",
+  "form": "10-K",
+  "filed": "2022-02-03",
+  "period": "2021-12-31",
+  "words": 61519,
+  "ai_token": 0,
+  "ai_phrase": 12,
+  "per_10k": 1.95
+ },
+ {
+  "issuer_id": "meta",
+  "form": "10-Q",
+  "filed": "2022-04-28",
+  "period": "2022-03-31",
+  "words": 46380,
+  "ai_token": 0,
+  "ai_phrase": 11,
+  "per_10k": 2.37
+ },
+ {
+  "issuer_id": "meta",
+  "form": "10-Q",
+  "filed": "2022-07-28",
+  "period": "2022-06-30",
+  "words": 47259,
+  "ai_token": 0,
+  "ai_phrase": 12,
+  "per_10k": 2.54
+ },
+ {
+  "issuer_id": "meta",
+  "form": "10-Q",
+  "filed": "2022-10-27",
+  "period": "2022-09-30",
+  "words": 49569,
+  "ai_token": 0,
+  "ai_phrase": 14,
+  "per_10k": 2.82
+ },
+ {
+  "issuer_id": "meta",
+  "form": "10-K",
+  "filed": "2023-02-02",
+  "period": "2022-12-31",
+  "words": 66873,
+  "ai_token": 7,
+  "ai_phrase": 25,
+  "per_10k": 4.79
+ },
+ {
+  "issuer_id": "meta",
+  "form": "10-Q",
+  "filed": "2023-04-27",
+  "period": "2023-03-31",
+  "words": 49105,
+  "ai_token": 13,
+  "ai_phrase": 21,
+  "per_10k": 6.92
+ },
+ {
+  "issuer_id": "meta",
+  "form": "10-Q",
+  "filed": "2023-07-27",
+  "period": "2023-06-30",
+  "words": 50460,
+  "ai_token": 32,
+  "ai_phrase": 21,
+  "per_10k": 10.5
+ },
+ {
+  "issuer_id": "meta",
+  "form": "10-Q",
+  "filed": "2023-10-26",
+  "period": "2023-09-30",
+  "words": 51661,
+  "ai_token": 42,
+  "ai_phrase": 21,
+  "per_10k": 12.19
+ },
+ {
+  "issuer_id": "meta",
+  "form": "10-K",
+  "filed": "2024-02-02",
+  "period": "2023-12-31",
+  "words": 70411,
+  "ai_token": 57,
+  "ai_phrase": 27,
+  "per_10k": 11.93
+ },
+ {
+  "issuer_id": "meta",
+  "form": "10-Q",
+  "filed": "2024-04-25",
+  "period": "2024-03-31",
+  "words": 49783,
+  "ai_token": 49,
+  "ai_phrase": 22,
+  "per_10k": 14.26
+ },
+ {
+  "issuer_id": "meta",
+  "form": "10-Q",
+  "filed": "2024-08-01",
+  "period": "2024-06-30",
+  "words": 51462,
+  "ai_token": 51,
+  "ai_phrase": 22,
+  "per_10k": 14.19
+ },
+ {
+  "issuer_id": "meta",
+  "form": "10-Q",
+  "filed": "2024-10-31",
+  "period": "2024-09-30",
+  "words": 52311,
+  "ai_token": 53,
+  "ai_phrase": 24,
+  "per_10k": 14.72
+ },
+ {
+  "issuer_id": "meta",
+  "form": "10-K",
+  "filed": "2025-01-30",
+  "period": "2024-12-31",
+  "words": 72234,
+  "ai_token": 77,
+  "ai_phrase": 31,
+  "per_10k": 14.95
+ },
+ {
+  "issuer_id": "meta",
+  "form": "10-Q",
+  "filed": "2025-05-01",
+  "period": "2025-03-31",
+  "words": 52352,
+  "ai_token": 65,
+  "ai_phrase": 27,
+  "per_10k": 17.57
+ },
+ {
+  "issuer_id": "meta",
+  "form": "10-Q",
+  "filed": "2025-07-31",
+  "period": "2025-06-30",
+  "words": 53863,
+  "ai_token": 71,
+  "ai_phrase": 27,
+  "per_10k": 18.19
+ },
+ {
+  "issuer_id": "meta",
+  "form": "10-Q",
+  "filed": "2025-10-30",
+  "period": "2025-09-30",
+  "words": 55798,
+  "ai_token": 82,
+  "ai_phrase": 27,
+  "per_10k": 19.53
+ },
+ {
+  "issuer_id": "meta",
+  "form": "10-K",
+  "filed": "2026-01-29",
+  "period": "2025-12-31",
+  "words": 74454,
+  "ai_token": 133,
+  "ai_phrase": 31,
+  "per_10k": 22.03
+ },
+ {
+  "issuer_id": "meta",
+  "form": "10-Q",
+  "filed": "2026-04-30",
+  "period": "2026-03-31",
+  "words": 56649,
+  "ai_token": 108,
+  "ai_phrase": 27,
+  "per_10k": 23.83
+ },
+ {
+  "issuer_id": "meta",
+  "form": "10-Q",
+  "filed": "2026-07-30",
+  "period": "2026-06-30",
+  "words": 57970,
+  "ai_token": 122,
+  "ai_phrase": 27,
+  "per_10k": 25.7
+ },
+ {
+  "issuer_id": "meta",
+  "form": "10-Q",
+  "filed": "2026-10-22",
+  "period": "2026-09-30",
+  "words": 60558,
+  "ai_token": 142,
+  "ai_phrase": 27,
+  "per_10k": 27.91
+ },
+ {
+  "issuer_id": "alphabet",
+  "form": "10-K",
+  "filed": "2021-02-03",
+  "period": "2020-12-31",
+  "words": 48192,
+  "ai_token": 7,
+  "ai_phrase": 10,
+  "per_10k": 3.53
+ },
+ {
+  "issuer_id": "alphabet",
+  "form": "10-Q",
+  "filed": "2021-04-28",
+  "period": "2021-03-31",
+  "words": 17599,
+  "ai_token": 0,
+  "ai_phrase": 1,
+  "per_10k": 0.57
+ },
+ {
+  "issuer_id": "alphabet",
+  "form": "10-Q",
+  "filed": "2021-07-28",
+  "period": "2021-06-30",
+  "words": 19808,
+  "ai_token": 0,
+  "ai_phrase": 1,
+  "per_10k": 0.5
+ },
+ {
+  "issuer_id": "alphabet",
+  "form": "10-Q",
+  "filed": "2021-10-27",
+  "period": "2021-09-30",
+  "words": 19840,
+  "ai_token": 0,
+  "ai_phrase": 1,
+  "per_10k": 0.5
+ },
+ {
+  "issuer_id": "alphabet",
+  "form": "10-K",
+  "filed": "2022-02-02",
+  "period": "2021-12-31",
+  "words": 46138,
+  "ai_token": 8,
+  "ai_phrase": 5,
+  "per_10k": 2.82
+ },
+ {
+  "issuer_id": "alphabet",
+  "form": "10-Q",
+  "filed": "2022-04-27",
+  "period": "2022-03-31",
+  "words": 16469,
+  "ai_token": 0,
+  "ai_phrase": 1,
+  "per_10k": 0.61
+ },
+ {
+  "issuer_id": "alphabet",
+  "form": "10-Q",
+  "filed": "2022-07-27",
+  "period": "2022-06-30",
+  "words": 17935,
+  "ai_token": 0,
+  "ai_phrase": 1,
+  "per_10k": 0.56
+ },
+ {
+  "issuer_id": "alphabet",
+  "form": "10-Q",
+  "filed": "2022-10-26",
+  "period": "2022-09-30",
+  "words": 19198,
+  "ai_token": 0,
+  "ai_phrase": 1,
+  "per_10k": 0.52
+ },
+ {
+  "issuer_id": "alphabet",
+  "form": "10-K",
+  "filed": "2023-02-03",
+  "period": "2022-12-31",
+  "words": 44323,
+  "ai_token": 23,
+  "ai_phrase": 5,
+  "per_10k": 6.32
+ },
+ {
+  "issuer_id": "alphabet",
+  "form": "10-Q",
+  "filed": "2023-04-26",
+  "period": "2023-03-31",
+  "words": 16976,
+  "ai_token": 2,
+  "ai_phrase": 0,
+  "per_10k": 1.18
+ },
+ {
+  "issuer_id": "alphabet",
+  "form": "10-Q",
+  "filed": "2023-07-26",
+  "period": "2023-06-30",
+  "words": 19094,
+  "ai_token": 4,
+  "ai_phrase": 1,
+  "per_10k": 2.62
+ },
+ {
+  "issuer_id": "alphabet",
+  "form": "10-Q",
+  "filed": "2023-10-25",
+  "period": "2023-09-30",
+  "words": 19376,
+  "ai_token": 4,
+  "ai_phrase": 1,
+  "per_10k": 2.58
+ },
+ {
+  "issuer_id": "alphabet",
+  "form": "10-K",
+  "filed": "2024-01-31",
+  "period": "2023-12-31",
+  "words": 47319,
+  "ai_token": 112,
+  "ai_phrase": 12,
+  "per_10k": 26.21
+ },
+ {
+  "issuer_id": "alphabet",
+  "form": "10-Q",
+  "filed": "2024-04-26",
+  "period": "2024-03-31",
+  "words": 17649,
+  "ai_token": 8,
+  "ai_phrase": 1,
+  "per_10k": 5.1
+ },
+ {
+  "issuer_id": "alphabet",
+  "form": "10-Q",
+  "filed": "2024-07-24",
+  "period": "2024-06-30",
+  "words": 18794,
+  "ai_token": 11,
+  "ai_phrase": 1,
+  "per_10k": 6.39
+ },
+ {
+  "issuer_id": "alphabet",
+  "form": "10-Q",
+  "filed": "2024-10-30",
+  "period": "2024-09-30",
+  "words": 19853,
+  "ai_token": 12,
+  "ai_phrase": 2,
+  "per_10k": 7.05
+ },
+ {
+  "issuer_id": "alphabet",
+  "form": "10-K",
+  "filed": "2025-02-05",
+  "period": "2024-12-31",
+  "words": 48619,
+  "ai_token": 117,
+  "ai_phrase": 10,
+  "per_10k": 26.12
+ },
+ {
+  "issuer_id": "alphabet",
+  "form": "10-Q",
+  "filed": "2025-04-25",
+  "period": "2025-03-31",
+  "words": 17876,
+  "ai_token": 8,
+  "ai_phrase": 1,
+  "per_10k": 5.03
+ },
+ {
+  "issuer_id": "alphabet",
+  "form": "10-Q",
+  "filed": "2025-07-24",
+  "period": "2025-06-30",
+  "words": 19663,
+  "ai_token": 9,
+  "ai_phrase": 1,
+  "per_10k": 5.09
+ },
+ {
+  "issuer_id": "alphabet",
+  "form": "10-Q",
+  "filed": "2025-10-30",
+  "period": "2025-09-30",
+  "words": 19848,
+  "ai_token": 9,
+  "ai_phrase": 1,
+  "per_10k": 5.04
+ },
+ {
+  "issuer_id": "alphabet",
+  "form": "10-K",
+  "filed": "2026-02-05",
+  "period": "2025-12-31",
+  "words": 47402,
+  "ai_token": 121,
+  "ai_phrase": 11,
+  "per_10k": 27.85
+ },
+ {
+  "issuer_id": "alphabet",
+  "form": "10-Q",
+  "filed": "2026-04-30",
+  "period": "2026-03-31",
+  "words": 20009,
+  "ai_token": 15,
+  "ai_phrase": 1,
+  "per_10k": 8.0
+ },
+ {
+  "issuer_id": "alphabet",
+  "form": "10-Q",
+  "filed": "2026-07-23",
+  "period": "2026-06-30",
+  "words": 26135,
+  "ai_token": 26,
+  "ai_phrase": 1,
+  "per_10k": 10.33
+ },
+ {
+  "issuer_id": "amazon",
+  "form": "10-K",
+  "filed": "2021-02-03",
+  "period": "2020-12-31",
+  "words": 34420,
+  "ai_token": 0,
+  "ai_phrase": 6,
+  "per_10k": 1.74
+ },
+ {
+  "issuer_id": "amazon",
+  "form": "10-Q",
+  "filed": "2021-04-30",
+  "period": "2021-03-31",
+  "words": 20493,
+  "ai_token": 0,
+  "ai_phrase": 1,
+  "per_10k": 0.49
+ },
+ {
+  "issuer_id": "amazon",
+  "form": "10-Q",
+  "filed": "2021-07-30",
+  "period": "2021-06-30",
+  "words": 21239,
+  "ai_token": 0,
+  "ai_phrase": 1,
+  "per_10k": 0.47
+ },
+ {
+  "issuer_id": "amazon",
+  "form": "10-Q",
+  "filed": "2021-10-29",
+  "period": "2021-09-30",
+  "words": 20933,
+  "ai_token": 0,
+  "ai_phrase": 2,
+  "per_10k": 0.96
+ },
+ {
+  "issuer_id": "amazon",
+  "form": "10-K",
+  "filed": "2022-02-04",
+  "period": "2021-12-31",
+  "words": 34263,
+  "ai_token": 0,
+  "ai_phrase": 7,
+  "per_10k": 2.04
+ },
+ {
+  "issuer_id": "amazon",
+  "form": "10-Q",
+  "filed": "2022-04-29",
+  "period": "2022-03-31",
+  "words": 21796,
+  "ai_token": 0,
+  "ai_phrase": 2,
+  "per_10k": 0.92
+ },
+ {
+  "issuer_id": "amazon",
+  "form": "10-Q",
+  "filed": "2022-07-29",
+  "period": "2022-06-30",
+  "words": 22610,
+  "ai_token": 0,
+  "ai_phrase": 2,
+  "per_10k": 0.88
+ },
+ {
+  "issuer_id": "amazon",
+  "form": "10-Q",
+  "filed": "2022-10-28",
+  "period": "2022-09-30",
+  "words": 22809,
+  "ai_token": 0,
+  "ai_phrase": 2,
+  "per_10k": 0.88
+ },
+ {
+  "issuer_id": "amazon",
+  "form": "10-K",
+  "filed": "2023-02-03",
+  "period": "2022-12-31",
+  "words": 36274,
+  "ai_token": 0,
+  "ai_phrase": 7,
+  "per_10k": 1.93
+ },
+ {
+  "issuer_id": "amazon",
+  "form": "10-Q",
+  "filed": "2023-04-28",
+  "period": "2023-03-31",
+  "words": 22425,
+  "ai_token": 0,
+  "ai_phrase": 4,
+  "per_10k": 1.78
+ },
+ {
+  "issuer_id": "amazon",
+  "form": "10-Q",
+  "filed": "2023-08-04",
+  "period": "2023-06-30",
+  "words": 22751,
+  "ai_token": 0,
+  "ai_phrase": 4,
+  "per_10k": 1.76
+ },
+ {
+  "issuer_id": "amazon",
+  "form": "10-Q",
+  "filed": "2023-10-27",
+  "period": "2023-09-30",
+  "words": 23122,
+  "ai_token": 0,
+  "ai_phrase": 4,
+  "per_10k": 1.73
+ },
+ {
+  "issuer_id": "amazon",
+  "form": "10-K",
+  "filed": "2024-02-02",
+  "period": "2023-12-31",
+  "words": 38355,
+  "ai_token": 0,
+  "ai_phrase": 15,
+  "per_10k": 3.91
+ },
+ {
+  "issuer_id": "amazon",
+  "form": "10-Q",
+  "filed": "2024-05-01",
+  "period": "2024-03-31",
+  "words": 22282,
+  "ai_token": 0,
+  "ai_phrase": 10,
+  "per_10k": 4.49
+ },
+ {
+  "issuer_id": "amazon",
+  "form": "10-Q",
+  "filed": "2024-08-02",
+  "period": "2024-06-30",
+  "words": 23085,
+  "ai_token": 0,
+  "ai_phrase": 10,
+  "per_10k": 4.33
+ },
+ {
+  "issuer_id": "amazon",
+  "form": "10-Q",
+  "filed": "2024-11-01",
+  "period": "2024-09-30",
+  "words": 24167,
+  "ai_token": 0,
+  "ai_phrase": 10,
+  "per_10k": 4.14
+ },
+ {
+  "issuer_id": "amazon",
+  "form": "10-K",
+  "filed": "2025-02-07",
+  "period": "2024-12-31",
+  "words": 37959,
+  "ai_token": 1,
+  "ai_phrase": 21,
+  "per_10k": 5.8
+ },
+ {
+  "issuer_id": "amazon",
+  "form": "10-Q",
+  "filed": "2025-05-02",
+  "period": "2025-03-31",
+  "words": 22279,
+  "ai_token": 0,
+  "ai_phrase": 15,
+  "per_10k": 6.73
+ },
+ {
+  "issuer_id": "amazon",
+  "form": "10-Q",
+  "filed": "2025-08-01",
+  "period": "2025-06-30",
+  "words": 23044,
+  "ai_token": 0,
+  "ai_phrase": 15,
+  "per_10k": 6.51
+ },
+ {
+  "issuer_id": "amazon",
+  "form": "10-Q",
+  "filed": "2025-10-31",
+  "period": "2025-09-30",
+  "words": 24144,
+  "ai_token": 0,
+  "ai_phrase": 15,
+  "per_10k": 6.21
+ },
+ {
+  "issuer_id": "amazon",
+  "form": "10-K",
+  "filed": "2026-02-06",
+  "period": "2025-12-31",
+  "words": 38353,
+  "ai_token": 1,
+  "ai_phrase": 43,
+  "per_10k": 11.47
+ },
+ {
+  "issuer_id": "amazon",
+  "form": "10-Q",
+  "filed": "2026-04-30",
+  "period": "2026-03-31",
+  "words": 24241,
+  "ai_token": 0,
+  "ai_phrase": 26,
+  "per_10k": 10.73
+ },
+ {
+  "issuer_id": "amazon",
+  "form": "10-Q",
+  "filed": "2026-07-31",
+  "period": "2026-06-30",
+  "words": 26025,
+  "ai_token": 1,
+  "ai_phrase": 26,
+  "per_10k": 10.37
+ },
+ {
+  "issuer_id": "oracle",
+  "form": "10-Q",
+  "filed": "2021-03-11",
+  "period": "2021-02-28",
+  "words": 20931,
+  "ai_token": 0,
+  "ai_phrase": 0,
+  "per_10k": 0.0
+ },
+ {
+  "issuer_id": "oracle",
+  "form": "10-K",
+  "filed": "2021-06-21",
+  "period": "2021-05-31",
+  "words": 60399,
+  "ai_token": 0,
+  "ai_phrase": 11,
+  "per_10k": 1.82
+ },
+ {
+  "issuer_id": "oracle",
+  "form": "10-Q",
+  "filed": "2021-09-13",
+  "period": "2021-08-31",
+  "words": 18764,
+  "ai_token": 0,
+  "ai_phrase": 0,
+  "per_10k": 0.0
+ },
+ {
+  "issuer_id": "oracle",
+  "form": "10-Q",
+  "filed": "2021-12-10",
+  "period": "2021-11-30",
+  "words": 20310,
+  "ai_token": 0,
+  "ai_phrase": 0,
+  "per_10k": 0.0
+ },
+ {
+  "issuer_id": "oracle",
+  "form": "10-Q",
+  "filed": "2022-03-11",
+  "period": "2022-02-28",
+  "words": 22079,
+  "ai_token": 0,
+  "ai_phrase": 0,
+  "per_10k": 0.0
+ },
+ {
+  "issuer_id": "oracle",
+  "form": "10-K",
+  "filed": "2022-06-21",
+  "period": "2022-05-31",
+  "words": 59164,
+  "ai_token": 0,
+  "ai_phrase": 10,
+  "per_10k": 1.69
+ },
+ {
+  "issuer_id": "oracle",
+  "form": "10-Q",
+  "filed": "2022-09-13",
+  "period": "2022-08-31",
+  "words": 20337,
+  "ai_token": 0,
+  "ai_phrase": 0,
+  "per_10k": 0.0
+ },
+ {
+  "issuer_id": "oracle",
+  "form": "10-Q",
+  "filed": "2022-12-13",
+  "period": "2022-11-30",
+  "words": 22324,
+  "ai_token": 0,
+  "ai_phrase": 0,
+  "per_10k": 0.0
+ },
+ {
+  "issuer_id": "oracle",
+  "form": "10-Q",
+  "filed": "2023-03-10",
+  "period": "2023-02-28",
+  "words": 22440,
+  "ai_token": 0,
+  "ai_phrase": 0,
+  "per_10k": 0.0
+ },
+ {
+  "issuer_id": "oracle",
+  "form": "10-K",
+  "filed": "2023-06-20",
+  "period": "2023-05-31",
+  "words": 59243,
+  "ai_token": 5,
+  "ai_phrase": 9,
+  "per_10k": 2.36
+ },
+ {
+  "issuer_id": "oracle",
+  "form": "10-Q",
+  "filed": "2023-09-12",
+  "period": "2023-08-31",
+  "words": 16993,
+  "ai_token": 0,
+  "ai_phrase": 0,
+  "per_10k": 0.0
+ },
+ {
+  "issuer_id": "oracle",
+  "form": "10-Q",
+  "filed": "2023-12-12",
+  "period": "2023-11-30",
+  "words": 17679,
+  "ai_token": 0,
+  "ai_phrase": 0,
+  "per_10k": 0.0
+ },
+ {
+  "issuer_id": "oracle",
+  "form": "10-Q",
+  "filed": "2024-03-12",
+  "period": "2024-02-29",
+  "words": 18404,
+  "ai_token": 0,
+  "ai_phrase": 0,
+  "per_10k": 0.0
+ },
+ {
+  "issuer_id": "oracle",
+  "form": "10-K",
+  "filed": "2024-06-20",
+  "period": "2024-05-31",
+  "words": 57409,
+  "ai_token": 27,
+  "ai_phrase": 16,
+  "per_10k": 7.49
+ },
+ {
+  "issuer_id": "oracle",
+  "form": "10-Q",
+  "filed": "2024-09-10",
+  "period": "2024-08-31",
+  "words": 17805,
+  "ai_token": 0,
+  "ai_phrase": 0,
+  "per_10k": 0.0
+ },
+ {
+  "issuer_id": "oracle",
+  "form": "10-Q",
+  "filed": "2024-12-10",
+  "period": "2024-11-30",
+  "words": 19884,
+  "ai_token": 0,
+  "ai_phrase": 0,
+  "per_10k": 0.0
+ },
+ {
+  "issuer_id": "oracle",
+  "form": "10-Q",
+  "filed": "2025-03-11",
+  "period": "2025-02-28",
+  "words": 20129,
+  "ai_token": 0,
+  "ai_phrase": 0,
+  "per_10k": 0.0
+ },
+ {
+  "issuer_id": "oracle",
+  "form": "10-K",
+  "filed": "2025-06-18",
+  "period": "2025-05-31",
+  "words": 56573,
+  "ai_token": 47,
+  "ai_phrase": 19,
+  "per_10k": 11.67
+ },
+ {
+  "issuer_id": "oracle",
+  "form": "10-Q",
+  "filed": "2025-09-10",
+  "period": "2025-08-31",
+  "words": 18026,
+  "ai_token": 0,
+  "ai_phrase": 0,
+  "per_10k": 0.0
+ },
+ {
+  "issuer_id": "oracle",
+  "form": "10-Q",
+  "filed": "2025-12-11",
+  "period": "2025-11-30",
+  "words": 18728,
+  "ai_token": 0,
+  "ai_phrase": 0,
+  "per_10k": 0.0
+ },
+ {
+  "issuer_id": "oracle",
+  "form": "10-Q",
+  "filed": "2026-03-11",
+  "period": "2026-02-28",
+  "words": 21913,
+  "ai_token": 0,
+  "ai_phrase": 0,
+  "per_10k": 0.0
+ },
+ {
+  "issuer_id": "oracle",
+  "form": "10-K",
+  "filed": "2026-06-22",
+  "period": "2026-05-31",
+  "words": 57470,
+  "ai_token": 114,
+  "ai_phrase": 25,
+  "per_10k": 24.19
+ },
+ {
+  "issuer_id": "oracle",
+  "form": "10-Q",
+  "filed": "2026-09-11",
+  "period": "2026-08-31",
+  "words": 16943,
+  "ai_token": 3,
+  "ai_phrase": 4,
+  "per_10k": 4.13
+ },
+ {
+  "issuer_id": "microsoft",
+  "form": "10-Q",
+  "filed": "2021-01-26",
+  "period": "2020-12-31",
+  "words": 26615,
+  "ai_token": 12,
+  "ai_phrase": 1,
+  "per_10k": 4.88
+ },
+ {
+  "issuer_id": "microsoft",
+  "form": "10-Q",
+  "filed": "2021-04-27",
+  "period": "2021-03-31",
+  "words": 28187,
+  "ai_token": 14,
+  "ai_phrase": 2,
+  "per_10k": 5.68
+ },
+ {
+  "issuer_id": "microsoft",
+  "form": "10-K",
+  "filed": "2021-07-29",
+  "period": "2021-06-30",
+  "words": 46814,
+  "ai_token": 36,
+  "ai_phrase": 8,
+  "per_10k": 9.4
+ },
+ {
+  "issuer_id": "microsoft",
+  "form": "10-Q",
+  "filed": "2021-10-26",
+  "period": "2021-09-30",
+  "words": 26116,
+  "ai_token": 16,
+  "ai_phrase": 2,
+  "per_10k": 6.89
+ },
+ {
+  "issuer_id": "microsoft",
+  "form": "10-Q",
+  "filed": "2022-01-25",
+  "period": "2021-12-31",
+  "words": 27435,
+  "ai_token": 16,
+  "ai_phrase": 2,
+  "per_10k": 6.56
+ },
+ {
+  "issuer_id": "microsoft",
+  "form": "10-Q",
+  "filed": "2022-04-26",
+  "period": "2022-03-31",
+  "words": 28376,
+  "ai_token": 18,
+  "ai_phrase": 3,
+  "per_10k": 7.4
+ },
+ {
+  "issuer_id": "microsoft",
+  "form": "10-K",
+  "filed": "2022-07-28",
+  "period": "2022-06-30",
+  "words": 46775,
+  "ai_token": 38,
+  "ai_phrase": 8,
+  "per_10k": 9.83
+ },
+ {
+  "issuer_id": "microsoft",
+  "form": "10-Q",
+  "filed": "2022-10-25",
+  "period": "2022-09-30",
+  "words": 26178,
+  "ai_token": 17,
+  "ai_phrase": 2,
+  "per_10k": 7.26
+ },
+ {
+  "issuer_id": "microsoft",
+  "form": "10-Q",
+  "filed": "2023-01-24",
+  "period": "2022-12-31",
+  "words": 28299,
+  "ai_token": 19,
+  "ai_phrase": 2,
+  "per_10k": 7.42
+ },
+ {
+  "issuer_id": "microsoft",
+  "form": "10-Q",
+  "filed": "2023-04-25",
+  "period": "2023-03-31",
+  "words": 28254,
+  "ai_token": 21,
+  "ai_phrase": 3,
+  "per_10k": 8.49
+ },
+ {
+  "issuer_id": "microsoft",
+  "form": "10-K",
+  "filed": "2023-07-27",
+  "period": "2023-06-30",
+  "words": 45851,
+  "ai_token": 87,
+  "ai_phrase": 19,
+  "per_10k": 23.12
+ },
+ {
+  "issuer_id": "microsoft",
+  "form": "10-Q",
+  "filed": "2023-10-24",
+  "period": "2023-09-30",
+  "words": 24838,
+  "ai_token": 38,
+  "ai_phrase": 9,
+  "per_10k": 18.92
+ },
+ {
+  "issuer_id": "microsoft",
+  "form": "10-Q",
+  "filed": "2024-01-30",
+  "period": "2023-12-31",
+  "words": 27895,
+  "ai_token": 47,
+  "ai_phrase": 9,
+  "per_10k": 20.08
+ },
+ {
+  "issuer_id": "microsoft",
+  "form": "10-Q",
+  "filed": "2024-04-25",
+  "period": "2024-03-31",
+  "words": 28042,
+  "ai_token": 49,
+  "ai_phrase": 10,
+  "per_10k": 21.04
+ },
+ {
+  "issuer_id": "microsoft",
+  "form": "10-K",
+  "filed": "2024-07-30",
+  "period": "2024-06-30",
+  "words": 48140,
+  "ai_token": 126,
+  "ai_phrase": 20,
+  "per_10k": 30.33
+ },
+ {
+  "issuer_id": "microsoft",
+  "form": "10-Q",
+  "filed": "2024-10-30",
+  "period": "2024-09-30",
+  "words": 26620,
+  "ai_token": 61,
+  "ai_phrase": 9,
+  "per_10k": 26.3
+ },
+ {
+  "issuer_id": "microsoft",
+  "form": "10-Q",
+  "filed": "2025-01-29",
+  "period": "2024-12-31",
+  "words": 27677,
+  "ai_token": 65,
+  "ai_phrase": 9,
+  "per_10k": 26.74
+ },
+ {
+  "issuer_id": "microsoft",
+  "form": "10-Q",
+  "filed": "2025-04-30",
+  "period": "2025-03-31",
+  "words": 28087,
+  "ai_token": 74,
+  "ai_phrase": 9,
+  "per_10k": 29.55
+ },
+ {
+  "issuer_id": "microsoft",
+  "form": "10-K",
+  "filed": "2025-07-30",
+  "period": "2025-06-30",
+  "words": 42233,
+  "ai_token": 107,
+  "ai_phrase": 12,
+  "per_10k": 28.18
+ },
+ {
+  "issuer_id": "microsoft",
+  "form": "10-Q",
+  "filed": "2025-10-29",
+  "period": "2025-09-30",
+  "words": 25050,
+  "ai_token": 76,
+  "ai_phrase": 7,
+  "per_10k": 33.13
+ },
+ {
+  "issuer_id": "microsoft",
+  "form": "10-Q",
+  "filed": "2026-01-28",
+  "period": "2025-12-31",
+  "words": 26836,
+  "ai_token": 86,
+  "ai_phrase": 7,
+  "per_10k": 34.65
+ },
+ {
+  "issuer_id": "microsoft",
+  "form": "10-Q",
+  "filed": "2026-04-29",
+  "period": "2026-03-31",
+  "words": 27356,
+  "ai_token": 95,
+  "ai_phrase": 4,
+  "per_10k": 36.19
+ },
+ {
+  "issuer_id": "microsoft",
+  "form": "10-K",
+  "filed": "2026-07-29",
+  "period": "2026-06-30",
+  "words": 43515,
+  "ai_token": 152,
+  "ai_phrase": 8,
+  "per_10k": 36.77
+ },
+ {
+  "issuer_id": "coreweave",
+  "form": "10-Q",
+  "filed": "2025-05-15",
+  "period": "2025-03-31",
+  "words": 59285,
+  "ai_token": 108,
+  "ai_phrase": 25,
+  "per_10k": 22.43
+ },
+ {
+  "issuer_id": "coreweave",
+  "form": "10-Q",
+  "filed": "2025-08-13",
+  "period": "2025-06-30",
+  "words": 64786,
+  "ai_token": 108,
+  "ai_phrase": 25,
+  "per_10k": 20.53
+ },
+ {
+  "issuer_id": "coreweave",
+  "form": "10-Q",
+  "filed": "2025-11-13",
+  "period": "2025-09-30",
+  "words": 64881,
+  "ai_token": 117,
+  "ai_phrase": 33,
+  "per_10k": 23.12
+ },
+ {
+  "issuer_id": "coreweave",
+  "form": "10-K",
+  "filed": "2026-03-02",
+  "period": "2025-12-31",
+  "words": 85358,
+  "ai_token": 259,
+  "ai_phrase": 49,
+  "per_10k": 36.08
+ },
+ {
+  "issuer_id": "coreweave",
+  "form": "10-Q",
+  "filed": "2026-05-08",
+  "period": "2026-03-31",
+  "words": 59483,
+  "ai_token": 123,
+  "ai_phrase": 16,
+  "per_10k": 23.37
+ },
+ {
+  "issuer_id": "coreweave",
+  "form": "10-Q",
+  "filed": "2026-08-12",
+  "period": "2026-06-30",
+  "words": 64231,
+  "ai_token": 129,
+  "ai_phrase": 18,
+  "per_10k": 22.89
+ }
+]

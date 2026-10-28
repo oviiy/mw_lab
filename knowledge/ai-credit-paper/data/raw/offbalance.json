@@ -1,0 +1,32 @@
+{
+ "meta": {
+  "dataset_version": "2026.10.15",
+  "generated_at": "2026-10-15",
+  "sources": [
+   "SEC EDGAR",
+   "SEC XBRL API",
+   "FRED (ICE BofA indices, H.10 FX)"
+  ],
+  "license": "CC-BY-4.0"
+ },
+ "items": [
+  {
+   "id": "meta-louisiana-venture",
+   "issuer_id": "meta",
+   "name": "Louisiana data center campus Venture (Hyperion)",
+   "date": "2025-10-01",
+   "structure": "Unconsolidated VIE; Meta holds 20%, partner funds the rest. Meta leases the campus back.",
+   "development_cost_usd": 27000000000,
+   "max_exposure_usd": 45950000000,
+   "initial_lease_years": 4,
+   "max_lease_years": 20,
+   "residual_value_guarantee_usd": 28000000000,
+   "source_url": "https://www.sec.gov/Archives/edgar/data/1326801/000162828026003942/meta-20251231.htm",
+   "quotes": [
+    "The parties have committed to fund their respective pro rata share of approximately $ 27 billion in total estimated development costs.",
+    "Our maximum exposure to loss related to the Venture was $ 45.95 billion as of December 31, 2025",
+    "with each property having an initial four-year lease term and options to renew for a total lease period of up to 20 years"
+   ]
+  }
+ ]
+}

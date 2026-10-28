@@ -13,6 +13,7 @@ Browser games, research tools, and knowledge pages. The [file browser](https://o
 | AI Industry Encyclopedia | [Read](./knowledge/ai-industry-chain-encyclopedia.html) |
 | Theorem Library | [Read](./knowledge/theorem-library.html) |
 | Same Loan, Different Price | [Read research](./knowledge/last-mark/web/) · [Source and data notes](./knowledge/last-mark/README.md) |
+| AI Credit Paper · AI Credit Monitor | [Read research](./knowledge/ai-credit-paper/) · [Browse source and data](./index.html?path=knowledge/ai-credit-paper) |
 | 浮垣记 | [Read](./knowledge/浮垣记/) · [Browse source](./index.html?path=knowledge/浮垣记) |
 
 ## Tools
@@ -41,6 +42,7 @@ Browser games, research tools, and knowledge pages. The [file browser](https://o
 | Three Body | [Play](./games/ThreeBody.html) |
 | Tiny Gods | [Play](./games/tiny-gods.html) |
 | Dragon Turf | [Play](./games/dragon-turf/) · [Source](./games/dragon-turf/README.md) |
+| Skerry | [Play](./games/skerry/dist/) · [Source](./games/skerry/README.md) |
 | Hexloop | [Play](./games/hexloop/dist/) · [Source](./games/hexloop/) |
 | Proverbs: Four Paintings | [Play](./games/proverbs/) · [Source](./games/proverbs/) |
 | Neon Heist | [Play](./games/neon-heist/dist/) · [Source](./games/neon-heist/README.md) |

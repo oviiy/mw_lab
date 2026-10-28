@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Big Tech has lost its borrowing discount · AI Credit Monitor</title>
+<meta name="description" content="On 30-year bonds, Meta, Alphabet and Amazon went from paying less than the average investment-grade borrower to paying more. Their shareholders see almost no risk. Interactive, from public data.">
+<meta name="theme-color" content="#f8f1e7">
+<style>/*__FONTS__*/</style>
+<style>/*__CSS__*/</style>
+</head>
+<body>
+<a class="skip" href="#story">Skip to the story</a>
+<div class="progress" aria-hidden="true"></div>
+<header class="masthead">
+  <div class="wrap">
+    <a class="brand" href="#top"><span class="dot"></span>AI Credit Monitor</a>
+    <nav aria-label="Sections">
+      <a href="#discount">The discount</a><a href="#long-end">30-year money</a><a href="#stocks">Shareholders</a><a href="#lab">Stress lab</a><a href="#iceberg">Leases</a><a href="#watch">Watch</a><a href="#method">Method</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+<section class="hero">
+  <div class="wrap">
+    <div class="hero-top">
+    <div class="hero-text">
+    <div class="kicker">AI Credit Monitor · follow-up to the AI Debt Tracker</div>
+    <h1>Big Tech has lost its borrowing discount</h1>
+    <p class="dek">On 30-year bonds, Meta, Alphabet and Amazon went from paying {{meta_l0a}} to {{alphabet_l0a}} basis points less than the average investment-grade borrower to paying more. Their shareholders see almost no risk. Here is what that confidence rests on.</p>
+    <div class="byline"><span>Michael Wang</span><span>Version {{version}}</span><span>Market data to {{price_last}}</span><span>Public data only</span></div>
+    <ul class="cast" aria-label="Companies">
+      <li><span class="mark" style="--c:var(--meta)"></span>Meta Platforms</li><li><span class="mark" style="--c:var(--alphabet)"></span>Alphabet</li><li><span class="mark" style="--c:var(--amazon)"></span>Amazon</li><li><span class="mark" style="--c:var(--oracle)"></span>Oracle</li><li><span class="mark" style="--c:var(--microsoft)"></span>Microsoft</li><li><span class="mark" style="--c:var(--coreweave)"></span>CoreWeave</li>
+    </ul>
+    </div>
+    <figure class="hero-art" aria-label="30-year bond spread against the average long investment-grade bond, first AI-era deal and latest">
+      <div class="hero-art-title">Thirty-year money got dearer</div>
+      <div class="hero-art-sub">What each company's 30-year bond paid over or under the average long-dated investment-grade bond, basis points</div>
+      <div id="hero-art"></div>
+      <figcaption class="hero-art-note">First AI-era deal (left) and latest (right). Hover a line for dates. Source: SEC term sheets; ICE BofA 15+ year index.</figcaption>
+    </figure>
+    </div>
+
+    <figure class="frame solo reveal" data-id="two-verdicts" data-csv="deals" id="two-verdicts">
+      <span class="frame-number">Figure 1</span>
+      <figcaption class="frame-title">First AI-era bond deal to latest: the discount closed at five years and turned into a premium at thirty</figcaption>
+      <p class="frame-how">Basis points over Treasuries on each new bond, minus the average for comparable bonds that day. Left: the 5-year bond against the ICE BofA index for its rating band (AA; BBB for Oracle). Right: the 30-year bond against the index of all investment-grade bonds of 15 years or more. Hollow circle: first deal since 2024. Arrow: latest. Hover a row for every deal.</p>
+      <div class="frame-body" id="hero-chart"></div>
+      <div class="frame-foot"><span class="frame-source">Source: SEC pricing term sheets (AI Debt Tracker); ICE BofA indices via FRED. Market prices, not a model. The long index averages about 20 years to maturity and a lower rating than these companies, so read the change, not the level. Meta's and Alphabet's first deals priced during market sell-offs, when top names price unusually tight against the index.</span><span class="frame-actions"></span></div>
+    </figure>
+
+    <div class="stats" role="list">
+      <div class="stat" role="listitem"><div class="v"><span data-to="{{alphabet_l1}}" data-pre="+">{{alphabet_l1}}</span><small>bp</small></div><div class="l">Alphabet's 30-year bond in {{alphabet_ld1}} against the average long investment-grade bond. In {{alphabet_ld0}} it was {{alphabet_l0a}} bp below</div></div>
+      <div class="stat" role="listitem"><div class="v"><span data-to="{{alphabet_v1}}" data-pre="+">{{alphabet_v1}}</span><small>bp</small></div><div class="l">Alphabet's latest 5-year bond against the AA average. Its first, in {{alphabet_d0}}, was {{alphabet_v0a}} bp below</div></div>
+      <div class="stat" role="listitem"><div class="v">$<span data-to="{{leases_tn}}" data-dec="2">{{leases_tn}}</span><small>T</small></div><div class="l">Data-center leases these six companies have signed but not started: {{leases_x}}× the bonds tracked, and not yet on any balance sheet</div></div>
+      <div class="stat" role="listitem"><div class="v"><span data-to="{{meta_van}}">{{meta_van}}</span><small>%</small></div><div class="l">Share of Meta's stock-market value added since ChatGPT beyond what the S&amp;P 500 delivered: much of the cushion under its bonds</div></div>
+    </div>
+
+    <div class="front">
+      <div>
+        <h2>In short</h2>
+        <p class="lede">Bond investors have not panicked about AI debt. They have done something quieter: they stopped giving the biggest technology companies a discount, and the change is largest on the longest loans.</p>
+        <p>On recent deals Meta, Alphabet and Amazon paid about what any AA-rated company pays for five-year money. For thirty-year money, the decades after the servers it pays for are written off, each now pays more than the average investment-grade bond, having paid less on its first AI-era deal.</p>
+        <p>Shareholders see it differently. Read through a standard credit model, these share prices imply almost no chance of default, because the companies' market values dwarf their debts. Much of that value arrived after ChatGPT. The <a href="#lab">stress lab</a> lets you take it out and see what is left.</p>
+      </div>
+      <div class="findings">
+        <h2>Key findings</h2>
+        <ol>
+          <li><b>The five-year discount is gone.</b> Alphabet's 5-year bonds went from {{alphabet_v0a}} bp below the AA average to {{alphabet_v1a}} bp above, Amazon's from {{amazon_v0a}} below to {{amazon_v1a}} above, Meta's from {{meta_v0a}} below to {{meta_v1a}} above. Oracle went from {{oracle_v0a}} bp below the BBB average to {{oracle_v1a}} above. <a href="#discount">Chapter 1</a></li>
+          <li><b>The biggest swing is in 30-year money.</b> Against the average long investment-grade bond, Alphabet's 30-year bond went from {{alphabet_l0}} to {{alphabet_l1}} bp, Amazon's from {{amazon_l0}} to {{amazon_l1}}, Meta's from {{meta_l0}} to {{meta_l1}}, Oracle's from {{oracle_l0}} to {{oracle_l1}}. <a href="#long-end">Chapter 2</a></li>
+          <li><b>We can't say why.</b> The borrowing, the AI stock rally and time all rose together; with {{n_reg}} comparable deals they cannot be told apart. <a href="#long-end">Chapter 2</a></li>
+          <li><b>Shareholders see almost no risk, and much of their cushion arrived after ChatGPT.</b> Net of the market, {{meta_van}}% of Meta's value was added since. <a href="#stocks">Chapter 3</a></li>
+          <li><b>Count the signed leases and remove the gains beyond the market,</b> and Meta's market value would cover what it owes {{meta_cush_mkt}} times instead of {{meta_cush_now}}. Alphabet's and Microsoft's would still cover it more than ten times. <a href="#lab">Chapter 4</a></li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div id="story"></div>
+
+<!-- ===================== CHAPTER 1 ===================== -->
+<section class="chapter" id="discount">
+  <div class="wrap chapter-head">
+    <span class="chapter-n"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 18L10 12L14 15L20 6"/><path d="M15 6h5v5"/></svg>Chapter 1</span>
+    <h2>The discount is gone</h2>
+  </div>
+  <div class="wrap">
+    <div class="scrolly" id="scrolly-five">
+      <div class="scrolly-graphic">
+        <figure class="frame" data-id="five-year" data-csv="deals" id="five-year">
+          <span class="frame-number">Figure 2</span>
+          <figcaption class="frame-title">5-year new-bond spreads against the average for their rating</figcaption>
+          <ul class="key"><li><span class="k-line" style="--c:var(--index)"></span>AA average</li><li><span class="k-dash" style="--c:var(--index)"></span>BBB average</li><li><span class="k-dot" style="--c:var(--ink-2)"></span>New 5-year bond (dotted: gap to the average that day)</li></ul>
+          <div class="frame-body" id="fig-five"></div>
+          <div class="frame-foot"><span class="frame-source">Basis points over Treasuries. Source: SEC pricing term sheets; ICE BofA AA and BBB US Corporate indices via FRED.</span><span class="frame-actions"></span></div>
+        </figure>
+      </div>
+      <div class="scrolly-steps">
+        <div class="step on"><p>The grey line is what an ordinary top-rated company pays to borrow: the average spread over Treasuries on bonds rated AA. It drifted down through 2025 as corporate credit got cheaper.</p></div>
+        <div class="step"><p>In {{alphabet_d0}}, Alphabet sold 5-year bonds at <b>{{alphabet_s0}} bp</b> over Treasuries, {{alphabet_v0a}} bp less than the AA average: investors accepted a lower return to hold Alphabet than other AA companies. By {{alphabet_d1}}, after ${{alphabet_cum1}} billion more of borrowing, its 5-year bond paid <b>{{alphabet_s1}} bp</b>, {{alphabet_v1a}} bp above the average.</p></div>
+        <div class="step"><p>Amazon followed the same path, from {{amazon_v0a}} bp below the AA average to {{amazon_v1a}} bp above. Meta's own 5-year spreads barely moved ({{meta_5s}} bp); what changed is that the average fell to meet them.</p></div>
+        <div class="step"><p>Oracle is compared with the BBB average, the rating band its bonds sit in. In {{oracle_d0}} it borrowed {{oracle_v0a}} bp below that average. In {{oracle_d1}} it paid <b>{{oracle_v1a}} bp above</b>.</p><p class="note">Each deal is priced against one benchmark Treasury; the averages cover thousands of bonds. Read the direction, not single basis points. As a ratio of the average, the shift is the same: Alphabet from {{alphabet_rt0}}× to {{alphabet_rt1}}×, Oracle from {{oracle_rt0}}× to {{oracle_rt1}}×.</p></div>
+      </div>
+    </div>
+    <div class="measure after reveal">
+      <p>A discount like that is a scarcity premium. Before the AI build-out, bonds from these companies were rare and investors paid up for them. Two years of record-sized deals have made them common. Over five years, lenders are not charging these companies more than their rating suggests. They have simply stopped giving them a better deal.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== CHAPTER 2 ===================== -->
+<section class="chapter" id="long-end">
+  <div class="wrap chapter-head">
+    <span class="chapter-n"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M3 18C7 17 9 14 12 11S18 6 21 5.5"/><circle cx="21" cy="5.5" r="1.5"/></svg>Chapter 2</span>
+    <h2>Paying for the decades after the chips wear out</h2>
+  </div>
+  <div class="wrap">
+    <div class="measure">
+      <p>The <a href="https://oviiy.github.io/mw_lab/tools/ai-debt-tracker/web/dist/">AI Debt Tracker</a> found that 73% of this borrowing falls due after the servers it paid for have been written off. Servers last five or six years. Meta, Alphabet, Amazon and Oracle have all sold 30- and 40-year bonds, and Alphabet a 100-year one. That is where the price has moved most.</p>
+      <p>Pick a company and a deal. Each dot is one bond at its maturity, sized by amount. The grey curve is what the average investment-grade bond paid at each maturity that day.</p>
+    </div>
+    <figure class="frame solo reveal" data-id="curves" data-csv="tranches" id="curves">
+      <span class="frame-number">Figure 3</span>
+      <figcaption class="frame-title">Each deal's spread at every maturity, against the market's curve that day</figcaption>
+      <div class="controls">
+        <div class="control"><span>Company</span><div class="segmented" id="curve-issuers"><button type="button" class="on" data-id="meta"><span class="mark" style="--c:var(--meta)"></span>Meta</button><button type="button" data-id="alphabet"><span class="mark" style="--c:var(--alphabet)"></span>Alphabet</button><button type="button" data-id="amazon"><span class="mark" style="--c:var(--amazon)"></span>Amazon</button><button type="button" data-id="oracle"><span class="mark" style="--c:var(--oracle)"></span>Oracle</button></div></div>
+        <div class="control"><span>Deal</span><div class="segmented" id="curve-deals"></div></div>
+      </div>
+      <p class="frame-how" id="curve-readout" aria-live="polite"></p>
+      <ul class="key"><li><span class="k-dot" style="--c:var(--ink-2)"></span>This deal (faint lines: the company's other deals)</li><li><span class="k-line" style="--c:var(--index)"></span>All investment-grade bonds, by maturity</li><li><span class="k-dash" style="--c:var(--index)"></span>Average for the company's rating band</li></ul>
+      <div class="frame-body" id="fig-curve"></div>
+      <div class="frame-foot"><span class="frame-source">Source: SEC pricing term sheets (AI Debt Tracker); ICE BofA US Corporate maturity-bucket indices (1–3, 3–5, 5–7, 7–10, 10–15, 15+ years) via FRED, plotted at bucket midpoints.</span><span class="frame-actions"></span></div>
+    </figure>
+    <div class="measure reveal">
+      <p>Meta's first 30-year bond, in {{meta_ld0}}, paid {{meta_long0}} bp over Treasuries when the average long investment-grade bond paid {{meta_mlong0}}. Its latest, in {{meta_ld1}}, paid {{meta_long1}} bp against {{meta_mlong1}}. Alphabet's and Amazon's moved the same way. Their curves also got steeper than the market's: the extra a 30-year bond paid over the same company's 5-year, beyond what the market charged for that stretch, rose from {{meta_x0}} to {{meta_x1}} bp for Meta, {{alphabet_x0}} to {{alphabet_x1}} for Alphabet, {{amazon_x0}} to {{amazon_x1}} for Amazon and {{oracle_x0}} to {{oracle_x1}} for Oracle.</p>
+      <p class="pull">Lenders are relaxed about the next five years. They want to be paid for the decades after the chips are gone.</p>
+      <h3 class="sans" style="font-size:var(--t-md);margin:2rem 0 .4rem">Was it the AI frenzy?</h3>
+      <p>It is tempting to say so. But three things rose together over the same two years: the borrowing, Nvidia's lead over the market (it has returned {{nvda_x}} times as much as the S&amp;P 500 since ChatGPT), and the price of these bonds against their peers. With {{n_reg}} comparable deals there is no way to tell which one moved bond prices, or whether time alone did.</p>
+      <p>What we can say is narrower. The repricing happened during the largest borrowing spree these companies have ever undertaken, and it has not reversed. Whether the cause is the AI story, the volume of bonds, or both, bond investors have stopped treating these companies as special. The tests are in the <a href="#method">method notes</a>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== CHAPTER 3 ===================== -->
+<section class="chapter" id="stocks">
+  <div class="wrap chapter-head">
+    <span class="chapter-n"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="4" y="12" width="4" height="8"/><rect x="10" y="8" width="4" height="12"/><rect x="16" y="4" width="4" height="16"/></svg>Chapter 3</span>
+    <h2>Shareholders see almost no risk</h2>
+  </div>
+  <div class="wrap">
+    <div class="measure">
+      <p>Share prices carry their own view of default. Shareholders are paid only after lenders, so a share price is a bet that the company's assets will stay worth more than its debts. From the market value of the shares, how much they swing and how much the company owes, a standard credit model works out how likely the assets are to fall below the debt, and what a lender should charge for that risk.</p>
+    </div>
+    <figure class="frame solo reveal" data-id="stock-implied" data-csv="equity" id="stock-implied">
+      <span class="frame-number">Figure 4</span>
+      <figcaption class="frame-title">The 5-year spread each share price implies, with the 5-year bonds actually sold (◆)</figcaption>
+      <p class="frame-how">Weekly. Inputs: market value, one-year share-price volatility, reported debt plus borrowing since the last report. Same scale for all but CoreWeave. Hover for values.</p>
+      <div class="frame-body" id="fig-equity"></div>
+      <div class="frame-foot"><span class="frame-source">Source: Yahoo Finance prices; SEC XBRL balance sheets; AI Debt Tracker. This model understates spreads for top-rated companies; read it for direction and comparison.</span><span class="frame-actions"></span></div>
+    </figure>
+    <div class="measure reveal">
+      <p>For Alphabet, Amazon and Microsoft the line sits on the floor, under 1 bp. Meta's is {{meta_eq}} bp. Their market values are many times their debts, so even a deep fall in the shares would leave lenders whole. Oracle is the exception; Chapter 6 returns to it.</p>
+      <p>That cushion is what bondholders are leaning on. Figure 5 splits each company's market value into what it was worth on 30 November 2022, the day ChatGPT launched, what it would be worth had its shares only kept pace with the S&amp;P 500 since, and the rest.</p>
+    </div>
+    <figure class="frame solo reveal" data-id="value-added" data-csv="scenarios" id="value-added">
+      <span class="frame-number">Figure 5</span>
+      <figcaption class="frame-title">How much of today's market value came from beating the market since ChatGPT</figcaption>
+      <ul class="key"><li><span class="k-band" style="--c:var(--index);opacity:.55"></span>Value at the 30 Nov 2022 price</li><li><span class="k-band" style="--c:var(--index);opacity:.25"></span>Added by keeping pace with the S&amp;P 500</li><li><span class="k-band" style="--c:var(--claret);opacity:.9"></span>Added beyond the market (company colour)</li></ul>
+      <div class="frame-body" id="fig-value"></div>
+      <div class="frame-foot"><span class="frame-source">Market value: closing price × today's diluted shares. Pace of the market: total return of SPY against the company's own total return. 30 Nov 2022 was near the bottom of a bear market for several of these stocks, which flatters any "since then" figure. Source: Yahoo Finance; SEC XBRL.</span><span class="frame-actions"></span></div>
+    </figure>
+    <div class="measure reveal">
+      <p>Net of the market, {{meta_van}}% of Meta's value was added after ChatGPT, {{alphabet_van}}% of Alphabet's, {{amazon_van}}% of Amazon's and {{microsoft_van}}% of Microsoft's. Not all of that is AI: Meta's earnings recovered sharply from a 2022 low. But it is the part of the cushion that depends on the market continuing to believe these companies will out-earn everyone else.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== CHAPTER 4: LAB ===================== -->
+<section class="chapter" id="lab">
+  <div class="wrap chapter-head">
+    <span class="chapter-n"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.8 3h10.4a2 2 0 0 0 1.8-3l-5-9V3"/><path d="M7.5 15h9"/></svg>Chapter 4</span>
+    <h2>Stress lab: take the rally out</h2>
+  </div>
+  <div class="wrap">
+    <div class="measure">
+      <p>Choose a company, a share price and what counts as owed ahead of shareholders. The model recomputes the spread that share price would imply. By default the business is assumed to stay as volatile as it is today, so a lower share price always means more risk; you can change that under Advanced.</p>
+    </div>
+    <figure class="frame solo reveal" data-id="stress-lab" data-csv="scenarios" id="stress-lab">
+      <span class="frame-number">Figure 6</span>
+      <figcaption class="frame-title">What the share price would imply for credit, under your assumptions</figcaption>
+      <div class="lab">
+        <div class="lab-controls">
+          <div class="control"><span>Company</span><div class="chips" id="lab-issuers">
+            <button type="button" class="chip" data-id="meta"><span class="mark" style="--c:var(--meta)"></span>Meta</button>
+            <button type="button" class="chip" data-id="alphabet"><span class="mark" style="--c:var(--alphabet)"></span>Alphabet</button>
+            <button type="button" class="chip" data-id="amazon"><span class="mark" style="--c:var(--amazon)"></span>Amazon</button>
+            <button type="button" class="chip" data-id="microsoft"><span class="mark" style="--c:var(--microsoft)"></span>Microsoft</button>
+            <button type="button" class="chip" data-id="oracle"><span class="mark" style="--c:var(--oracle)"></span>Oracle</button>
+            <button type="button" class="chip" data-id="coreweave"><span class="mark" style="--c:var(--coreweave)"></span>CoreWeave</button>
+          </div></div>
+          <div class="control"><span>Share price</span><div class="segmented" id="lab-presets">
+            <button type="button" data-p="now">Today</button>
+            <button type="button" data-p="mkt">Had it only matched the S&amp;P since 30 Nov 2022</button>
+            <button type="button" data-p="nov22">Back to 30 Nov 2022 (a market low)</button>
+          </div>
+            <label class="sans" style="display:flex;justify-content:space-between;font-size:var(--t-xs);color:var(--muted);margin-top:.4rem" for="lab-move">Or drag: change from today <span class="price-val" id="lab-move-val"></span></label>
+            <input type="range" id="lab-move" min="-90" max="30" step="1" value="0">
+          </div>
+          <div class="control"><span>Owed ahead of shareholders</span>
+            <span class="toggle" style="color:var(--muted)">Debt and finance leases: always</span>
+            <label class="toggle"><input type="checkbox" id="lab-ops" checked>Operating leases on the balance sheet</label>
+            <label class="toggle"><input type="checkbox" id="lab-signed" checked>Signed leases not yet started</label>
+            <label class="sans" style="display:flex;justify-content:space-between;font-size:var(--t-xs);color:var(--muted)" for="lab-pv">…counted at <span class="price-val" id="lab-pv-val"></span></label>
+            <input type="range" id="lab-pv" min="10" max="100" step="1" value="{{lease_pv_pct}}">
+          </div>
+          <details class="control"><summary class="sans" style="cursor:pointer;font-size:var(--t-xs);color:var(--muted)">Advanced</summary>
+            <label class="sans" style="display:flex;justify-content:space-between;font-size:var(--t-xs);color:var(--muted);margin-top:.6rem" for="lab-vol">Business volatility <span class="price-val" id="lab-vol-val"></span></label>
+            <input type="range" id="lab-vol" min="15" max="70" step="1" value="40">
+            <span style="display:block;margin:.6rem 0 .3rem">Share of the debt lost if a default happens</span><div class="segmented" id="lab-lgd"><button type="button" data-v="0.4">40%</button><button type="button" data-v="0.6">60%</button></div>
+          </details>
+        </div>
+        <div class="lab-out">
+          <div class="readout"><div class="big" id="lab-big" aria-live="polite"></div><div class="band" id="lab-band"></div></div>
+          <p class="explain" id="lab-explain"></p>
+          <div class="frame-body" id="lab-chart"></div>
+          <p class="caveat">A model spread for comparing scenarios, not a forecast or a rating, and not comparable with real bond prices: for top-rated companies this model gives far lower spreads than bond markets charge. The result is sensitive to the business volatility and to how much of the 15-to-30-year signed leases you count against a five-year horizon; try both. Default: {{lease_pv_pct}}% of face, level payments over 15 years starting in two years, at 5%.</p>
+        </div>
+      </div>
+      <div class="frame-foot"><span class="frame-source">Model: Merton. Asset value and volatility calibrated to today's share price and one-year volatility; 5-year horizon; 5-year Treasury rate. Source: Yahoo Finance; SEC XBRL; 10-Q lease notes.</span><span class="frame-actions"></span></div>
+    </figure>
+    <div class="measure reveal">
+      <p>Try Meta at "had it only matched the S&amp;P" with its signed leases counted. Its market value would cover what it owes {{meta_cush_mkt}} times rather than {{meta_cush_now}} times today, and its model spread rises further than any other hyperscaler's. Alphabet and Microsoft barely move under the same settings: their market values would still cover their claims {{alphabet_cush_mkt}} and {{microsoft_cush_mkt}} times over.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== CHAPTER 5: ICEBERG ===================== -->
+<section class="chapter" id="iceberg">
+  <div class="wrap chapter-head">
+    <span class="chapter-n"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M2 12h20"/><path d="M8 12l3-7 3 4 2-2 2 5"/><path d="M6 12l3 8h7l3-8"/></svg>Chapter 5</span>
+    <h2>${{leases_tn}} trillion below the waterline</h2>
+  </div>
+  <div class="wrap">
+    <div class="measure">
+      <p>The bonds are the visible part. Below them sit data-center leases the companies have signed but which have not started, so they are not yet on any balance sheet. They are disclosed in the notes to each quarterly report and add up to {{leases_x}} times the bonds tracked since 2024. As each lease starts, it becomes a liability much like debt.</p>
+    </div>
+    <figure class="frame solo reveal" data-id="leases" data-csv="iceberg" id="leases">
+      <span class="frame-number">Figure 7</span>
+      <figcaption class="frame-title">On the balance sheet, and below it</figcaption>
+      <ul class="key"><li><span class="k-band" style="--c:var(--ink);opacity:1"></span>Debt and finance leases</li><li><span class="k-band" style="--c:var(--ink-2);opacity:.55"></span>Operating leases</li><li><span class="k-band" style="--c:var(--claret);opacity:.8"></span>Signed, not yet started (face value, company colour)</li></ul>
+      <div class="lab" style="grid-template-columns:minmax(0,1fr) minmax(14rem,19rem);background:none;border:0;padding:0">
+        <div class="frame-body" id="fig-iceberg"></div>
+        <div id="ice-card" class="sidebar" style="align-self:start"></div>
+      </div>
+      <div class="frame-foot"><span class="frame-source">Click a column for the filing's own words. Face value, undiscounted, as disclosed; payments run 15 to 30 years. Source: latest 10-Q and 10-K lease notes (AI Debt Tracker); SEC XBRL.</span><span class="frame-actions"></span></div>
+    </figure>
+    <div class="measure reveal">
+      <p>Microsoft has sold no bonds since 2024, which is why the Debt Tracker leaves it out, yet it has signed ${{microsoft_lease_bn}} billion of leases that have not started, more than any company here. Meta's ${{meta_lease_bn}} billion, including ${{meta_sub_bn}} billion signed after its June quarter, exceeds its entire stock-market value on the day ChatGPT launched (${{meta_E_pre_bn}} billion). Rating agencies already treat leases as debt-like. The question for bondholders is how much of this wave is in the price.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== CHAPTER 6: ORACLE & COREWEAVE ===================== -->
+<section class="chapter" id="oracle">
+  <div class="wrap chapter-head">
+    <span class="chapter-n"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 6h16M4 12h10M4 18h6"/><circle cx="18" cy="16" r="3"/></svg>Chapter 6</span>
+    <h2>Where shareholders already agree: Oracle and CoreWeave</h2>
+  </div>
+  <div class="wrap">
+    <div class="measure">
+      <p>Oracle has become an AI stock: its shares now move with Nvidia's, which two years ago they did not. The spread its share price implies was near zero until mid-2025, reached {{orc_eq_dec25}} bp by the end of 2025 and peaked at {{orc_eq_peak}} bp in {{orc_eq_peak_m}}. It is {{oracle_eq}} bp today, above the {{oracle_s1}} bp its last 5-year bond paid in {{oracle_d1}}, nine months ago. Here the stock market came round to the bond market's view.</p>
+    </div>
+    <figure class="frame solo reveal" data-id="oracle-chart" id="oracle-chart">
+      <span class="frame-number">Figure 8</span>
+      <figcaption class="frame-title">Oracle: the share price started pricing credit risk in late 2025</figcaption>
+      <div class="frame-body" id="fig-oracle"></div>
+      <div class="frame-foot"><span class="frame-source">Model spread as in Figure 4, with Oracle's new 5-year bonds. Source: Yahoo Finance; SEC.</span><span class="frame-actions"></span></div>
+    </figure>
+    <div class="sidebar measure reveal">
+      <p class="sans" style="font-weight:600;margin-bottom:.4rem">CoreWeave, in brief</p>
+      <p style="font-size:var(--t-sm);margin:0">CoreWeave has no investment-grade rating, and its unsecured notes have paid {{cw_lo}} to {{cw_hi}} bp over Treasuries. Its share price implies more: {{coreweave_eq}} bp, from a ${{cw_E_bn}} billion market value against ${{cw_debt_bn}} billion of debt and shares that swing {{cw_vol}}% a year. For the most leveraged company here, the stock is the more worried of the two markets. Much of its borrowing is secured on its GPUs, so its lenders rely on collateral more than on an equity cushion.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== WATCH ===================== -->
+<section class="chapter" id="watch">
+  <div class="wrap chapter-head">
+    <span class="chapter-n"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>For investors</span>
+    <h2>What to watch</h2>
+  </div>
+  <div class="wrap">
+    <div class="watch">
+      <div class="reveal"><h3>The next 5-year bond <span class="now">latest: {{meta_v1}} to {{alphabet_v1}} bp vs AA</span></h3><p>A hyperscaler pricing clearly above the AA average would mean lenders have moved from removing the discount to charging a premium. Oracle crossed its own average in 2026.</p></div>
+      <div class="reveal"><h3>The 30-year bond <span class="now">latest: {{amazon_l1}} to {{meta_l1}} bp vs the long index</span></h3><p>The swing is largest here. Watch whether companies keep selling 30- and 40-year bonds or shorten maturities to save cost.</p></div>
+      <div class="reveal"><h3>Signed leases not yet started <span class="now">now: ${{leases_tn}}T</span></h3><p>In every 10-Q lease note. They become debt-like as each lease starts in 2027–2028. Growth faster than revenue is the signal.</p></div>
+      <div class="reveal"><h3>The cushion without the rally <span class="now">Meta: {{meta_cush_mkt}}×</span></h3><p>Market value at an S&amp;P-matched share price, divided by everything owed ahead of shareholders including signed leases. The stress lab recomputes it for any company.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== EXPLORE ===================== -->
+<section class="chapter" id="explore">
+  <div class="wrap chapter-head">
+    <span class="chapter-n">Data</span>
+    <h2>Every bond, every spread</h2>
+  </div>
+  <div class="wrap">
+    <figure class="frame" data-id="explore-table" data-csv="tranches" id="explore-table">
+      <div class="explorer-bar"><div class="chips" id="ex-chips"></div><input class="search" id="ex-search" type="search" placeholder="Search name or CUSIP" aria-label="Search bonds"></div>
+      <div class="table-wrap" style="max-height:34rem;overflow:auto"><table id="ex-table"></table></div>
+      <div class="frame-foot"><span class="frame-source" id="ex-count"></span><span class="frame-actions"></span></div>
+      <p class="table-notes">USD fixed-rate senior notes only. Spread: over the benchmark Treasury from the pricing term sheet; for CoreWeave's 144A notes, computed from coupon and price (* = issued at par, assumed). "vs rating average": AA for Meta, Alphabet and Amazon, BBB for Oracle, high yield for CoreWeave. "vs same-maturity average": the all-investment-grade ICE BofA maturity bucket. Click a header to sort.</p>
+    </figure>
+  </div>
+</section>
+
+<!-- ===================== METHOD ===================== -->
+<section class="chapter method" id="method">
+  <div class="wrap chapter-head"><span class="chapter-n">Method</span><h2>How this was made</h2></div>
+  <div class="wrap method-grid">
+    <div class="measure">
+      <p>Everything here is built from public data. Nothing proprietary was used.</p>
+      <h3>Bond prices</h3>
+      <p>{{n_tranches}} USD fixed-rate senior notes from {{n_deals}} investment-grade deals and CoreWeave's notes, from SEC pricing term sheets as extracted and checked by the AI Debt Tracker (version 2026.10.15). Spreads are as stated on the term sheet, against a single benchmark Treasury. No maturity adjustment: bonds are compared at the maturity they were sold. "5-year" means tranches of 4.5 to 6.6 years; "30-year" means the tranche closest to 30 years among those of 25 to 35, which every first and latest deal has. Rating comparison: ICE BofA US Corporate AA and BBB indices, which span all maturities. Maturity comparison: ICE BofA US Corporate 1–3, 3–5, 5–7, 7–10, 10–15 and 15+ year indices, which span all investment-grade ratings; the 15+ index averages about 20 years to maturity, shorter than a 30-year bond, so its level understates what a 30-year bond would pay. All are option-adjusted spreads from FRED on the pricing date. Rating bands are approximate and held fixed over the period. The first deals for Meta (7 August 2024) and Alphabet (28 April 2025) priced during market sell-offs, which widens the index and exaggerates the starting discount; ratios to the index show the same direction.</p>
+      <h3>What the data can and cannot separate</h3>
+      <p>Deal-level regressions of the 30-year curve premium (30-year minus 5-year spread, less the market's 15+ minus 3–5 year spread) on a separate intercept per company plus one variable at a time, {{n_reg}} deals with both tranches, ordinary standard errors: a time trend gives R² {{reg_time_r2}}; prior borrowing {{reg_borrow}} bp per $100B (p = {{reg_borrow_p}}); Nvidia relative to the S&amp;P 500 {{reg_nvda}} bp per unit (p = {{reg_nvda_p}}). With time added, borrowing falls to {{reg_borrow_t}} bp (s.e. {{reg_borrow_t_se}}) and Nvidia to {{reg_nvda_t}} bp. Tranche level ({{cr_n}} bonds, clustered by deal): the spread over the same-maturity index rises {{cr_before}} bp per doubling of maturity, and the change in 2026 ({{cr_change}} bp per doubling, s.e. {{cr_change_se}}) is too small to tell apart from noise. Each company's comparison rests on its first and latest deals; with three or four deals each, treat the direction as solid and the size as approximate.</p>
+      <h3>Share-price model</h3>
+      <p>Merton model, solved weekly for asset value and asset volatility from market value (close × diluted weighted shares), trailing 252-day share-price volatility (at least 120 days) and the default point: reported total debt (the most comprehensive XBRL tag, with zero treated as missing; tags describing single bond issues are never used), plus finance leases, plus bonds and loans priced since the last reported quarter. Oracle reports a debt total only once a year, so its debt between reports is the last total plus new borrowing. The five-year risk-neutral default probability is converted to a spread with a 60% loss given default. Scenarios hold asset volatility at today's calibrated level unless changed, and solve for the asset value consistent with the scenario's share price. Counting long leases in full against a five-year horizon is aggressive; credit-desk practice often counts half of long-term obligations.</p>
+      <h3>Limits</h3>
+      <p>Few deals, all in one market regime. No free secondary-market bond prices (TRACE) or CDS quotes, so new-issue concessions cannot be separated from a repricing of bonds already outstanding. Lease commitments are disclosed as totals, not schedules. Meta's Hyperion venture exposure may overlap with its lease commitments, so it is shown but not added. Volatility is backward-looking.</p>
+      <h3>Review and corrections</h3>
+      <p>The analysis was read before publication by an independent credit-markets referee and a markets editor, in two rounds each. Their review led to: rating- and maturity-matched benchmarks in place of the all-investment-grade index; no maturity adjustment; a fixed 30-year tenor in place of each deal's longest bond; withdrawing a draft estimate of the effect of borrowing that was a time trend; two fixes to Oracle's debt series; value added measured net of the S&amp;P 500's total return; stress scenarios that respond to leverage; and no rating comparisons on model output.</p>
+    </div>
+    <aside class="method-side">
+      <p style="font-weight:600;color:var(--ink)">Sources</p>
+      <a href="https://oviiy.github.io/mw_lab/tools/ai-debt-tracker/web/dist/">AI Debt Tracker</a><a href="https://www.sec.gov/edgar/search/">SEC EDGAR</a><a href="https://fred.stlouisfed.org/">FRED (ICE BofA indices)</a><a href="https://finance.yahoo.com/">Yahoo Finance</a>
+      <p style="margin-top:1.2rem">Not investment advice. Model outputs are illustrations, not ratings or forecasts.</p>
+    </aside>
+  </div>
+</section>
+</main>
+<footer><div class="wrap">AI Credit Monitor · Michael Wang · Version {{version}} · Built from public data: SEC EDGAR, FRED (ICE BofA indices), Yahoo Finance and the AI Debt Tracker dataset (CC-BY-4.0).</div></footer>
+<div class="tip" id="tip" role="tooltip"></div>
+<script>/*__D3__*/</script>
+<script>/*__MERTON__*/</script>
+<script>/*__DATA__*/</script>
+<script>/*__APP__*/</script>
+</body>
+</html>

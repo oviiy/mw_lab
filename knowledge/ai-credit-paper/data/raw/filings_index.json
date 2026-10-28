@@ -1,0 +1,868 @@
+{
+ "meta": [
+  {
+   "form": "10-K",
+   "filed": "2021-01-28",
+   "period": "2020-12-31",
+   "acc": "0001326801-21-000014",
+   "url": "https://www.sec.gov/Archives/edgar/data/1326801/000132680121000014/fb-20201231.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2021-04-29",
+   "period": "2021-03-31",
+   "acc": "0001326801-21-000033",
+   "url": "https://www.sec.gov/Archives/edgar/data/1326801/000132680121000033/fb-20210331.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2021-07-29",
+   "period": "2021-06-30",
+   "acc": "0001326801-21-000049",
+   "url": "https://www.sec.gov/Archives/edgar/data/1326801/000132680121000049/fb-20210630.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2021-10-26",
+   "period": "2021-09-30",
+   "acc": "0001326801-21-000065",
+   "url": "https://www.sec.gov/Archives/edgar/data/1326801/000132680121000065/fb-20210930.htm"
+  },
+  {
+   "form": "10-K",
+   "filed": "2022-02-03",
+   "period": "2021-12-31",
+   "acc": "0001326801-22-000018",
+   "url": "https://www.sec.gov/Archives/edgar/data/1326801/000132680122000018/fb-20211231.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2022-04-28",
+   "period": "2022-03-31",
+   "acc": "0001326801-22-000057",
+   "url": "https://www.sec.gov/Archives/edgar/data/1326801/000132680122000057/meta-20220331.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2022-07-28",
+   "period": "2022-06-30",
+   "acc": "0001326801-22-000082",
+   "url": "https://www.sec.gov/Archives/edgar/data/1326801/000132680122000082/meta-20220630.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2022-10-27",
+   "period": "2022-09-30",
+   "acc": "0001326801-22-000108",
+   "url": "https://www.sec.gov/Archives/edgar/data/1326801/000132680122000108/meta-20220930.htm"
+  },
+  {
+   "form": "10-K",
+   "filed": "2023-02-02",
+   "period": "2022-12-31",
+   "acc": "0001326801-23-000013",
+   "url": "https://www.sec.gov/Archives/edgar/data/1326801/000132680123000013/meta-20221231.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2023-04-27",
+   "period": "2023-03-31",
+   "acc": "0001326801-23-000067",
+   "url": "https://www.sec.gov/Archives/edgar/data/1326801/000132680123000067/meta-20230331.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2023-07-27",
+   "period": "2023-06-30",
+   "acc": "0001326801-23-000093",
+   "url": "https://www.sec.gov/Archives/edgar/data/1326801/000132680123000093/meta-20230630.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2023-10-26",
+   "period": "2023-09-30",
+   "acc": "0001326801-23-000103",
+   "url": "https://www.sec.gov/Archives/edgar/data/1326801/000132680123000103/meta-20230930.htm"
+  },
+  {
+   "form": "10-K",
+   "filed": "2024-02-02",
+   "period": "2023-12-31",
+   "acc": "0001326801-24-000012",
+   "url": "https://www.sec.gov/Archives/edgar/data/1326801/000132680124000012/meta-20231231.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2024-04-25",
+   "period": "2024-03-31",
+   "acc": "0001326801-24-000049",
+   "url": "https://www.sec.gov/Archives/edgar/data/1326801/000132680124000049/meta-20240331.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2024-08-01",
+   "period": "2024-06-30",
+   "acc": "0001326801-24-000069",
+   "url": "https://www.sec.gov/Archives/edgar/data/1326801/000132680124000069/meta-20240630.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2024-10-31",
+   "period": "2024-09-30",
+   "acc": "0001326801-24-000081",
+   "url": "https://www.sec.gov/Archives/edgar/data/1326801/000132680124000081/meta-20240930.htm"
+  },
+  {
+   "form": "10-K",
+   "filed": "2025-01-30",
+   "period": "2024-12-31",
+   "acc": "0001326801-25-000017",
+   "url": "https://www.sec.gov/Archives/edgar/data/1326801/000132680125000017/meta-20241231.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2025-05-01",
+   "period": "2025-03-31",
+   "acc": "0001326801-25-000054",
+   "url": "https://www.sec.gov/Archives/edgar/data/1326801/000132680125000054/meta-20250331.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2025-07-31",
+   "period": "2025-06-30",
+   "acc": "0001628280-25-036791",
+   "url": "https://www.sec.gov/Archives/edgar/data/1326801/000162828025036791/meta-20250630.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2025-10-30",
+   "period": "2025-09-30",
+   "acc": "0001628280-25-047240",
+   "url": "https://www.sec.gov/Archives/edgar/data/1326801/000162828025047240/meta-20250930.htm"
+  },
+  {
+   "form": "10-K",
+   "filed": "2026-01-29",
+   "period": "2025-12-31",
+   "acc": "0001628280-26-003942",
+   "url": "https://www.sec.gov/Archives/edgar/data/1326801/000162828026003942/meta-20251231.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2026-04-30",
+   "period": "2026-03-31",
+   "acc": "0001628280-26-028526",
+   "url": "https://www.sec.gov/Archives/edgar/data/1326801/000162828026028526/meta-20260331.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2026-07-30",
+   "period": "2026-06-30",
+   "acc": "0001628280-26-050705",
+   "url": "https://www.sec.gov/Archives/edgar/data/1326801/000162828026050705/meta-20260630.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2026-10-22",
+   "period": "2026-09-30",
+   "acc": "0001628280-26-066773",
+   "url": "https://www.sec.gov/Archives/edgar/data/1326801/000162828026066773/meta-20260930.htm"
+  }
+ ],
+ "alphabet": [
+  {
+   "form": "10-K",
+   "filed": "2021-02-03",
+   "period": "2020-12-31",
+   "acc": "0001652044-21-000010",
+   "url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204421000010/goog-20201231.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2021-04-28",
+   "period": "2021-03-31",
+   "acc": "0001652044-21-000020",
+   "url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204421000020/goog-20210331.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2021-07-28",
+   "period": "2021-06-30",
+   "acc": "0001652044-21-000047",
+   "url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204421000047/goog-20210630.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2021-10-27",
+   "period": "2021-09-30",
+   "acc": "0001652044-21-000057",
+   "url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204421000057/goog-20210930.htm"
+  },
+  {
+   "form": "10-K",
+   "filed": "2022-02-02",
+   "period": "2021-12-31",
+   "acc": "0001652044-22-000019",
+   "url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204422000019/goog-20211231.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2022-04-27",
+   "period": "2022-03-31",
+   "acc": "0001652044-22-000029",
+   "url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204422000029/goog-20220331.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2022-07-27",
+   "period": "2022-06-30",
+   "acc": "0001652044-22-000071",
+   "url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204422000071/goog-20220630.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2022-10-26",
+   "period": "2022-09-30",
+   "acc": "0001652044-22-000090",
+   "url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204422000090/goog-20220930.htm"
+  },
+  {
+   "form": "10-K",
+   "filed": "2023-02-03",
+   "period": "2022-12-31",
+   "acc": "0001652044-23-000016",
+   "url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204423000016/goog-20221231.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2023-04-26",
+   "period": "2023-03-31",
+   "acc": "0001652044-23-000045",
+   "url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204423000045/goog-20230331.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2023-07-26",
+   "period": "2023-06-30",
+   "acc": "0001652044-23-000070",
+   "url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204423000070/goog-20230630.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2023-10-25",
+   "period": "2023-09-30",
+   "acc": "0001652044-23-000094",
+   "url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204423000094/goog-20230930.htm"
+  },
+  {
+   "form": "10-K",
+   "filed": "2024-01-31",
+   "period": "2023-12-31",
+   "acc": "0001652044-24-000022",
+   "url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204424000022/goog-20231231.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2024-04-26",
+   "period": "2024-03-31",
+   "acc": "0001652044-24-000053",
+   "url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204424000053/goog-20240331.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2024-07-24",
+   "period": "2024-06-30",
+   "acc": "0001652044-24-000079",
+   "url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204424000079/goog-20240630.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2024-10-30",
+   "period": "2024-09-30",
+   "acc": "0001652044-24-000118",
+   "url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204424000118/goog-20240930.htm"
+  },
+  {
+   "form": "10-K",
+   "filed": "2025-02-05",
+   "period": "2024-12-31",
+   "acc": "0001652044-25-000014",
+   "url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204425000014/goog-20241231.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2025-04-25",
+   "period": "2025-03-31",
+   "acc": "0001652044-25-000043",
+   "url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204425000043/goog-20250331.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2025-07-24",
+   "period": "2025-06-30",
+   "acc": "0001652044-25-000062",
+   "url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204425000062/goog-20250630.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2025-10-30",
+   "period": "2025-09-30",
+   "acc": "0001652044-25-000091",
+   "url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204425000091/goog-20250930.htm"
+  },
+  {
+   "form": "10-K",
+   "filed": "2026-02-05",
+   "period": "2025-12-31",
+   "acc": "0001652044-26-000018",
+   "url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204426000018/goog-20251231.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2026-04-30",
+   "period": "2026-03-31",
+   "acc": "0001652044-26-000048",
+   "url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204426000048/goog-20260331.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2026-07-23",
+   "period": "2026-06-30",
+   "acc": "0001652044-26-000071",
+   "url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204426000071/goog-20260630.htm"
+  }
+ ],
+ "amazon": [
+  {
+   "form": "10-K",
+   "filed": "2021-02-03",
+   "period": "2020-12-31",
+   "acc": "0001018724-21-000004",
+   "url": "https://www.sec.gov/Archives/edgar/data/1018724/000101872421000004/amzn-20201231.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2021-04-30",
+   "period": "2021-03-31",
+   "acc": "0001018724-21-000010",
+   "url": "https://www.sec.gov/Archives/edgar/data/1018724/000101872421000010/amzn-20210331.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2021-07-30",
+   "period": "2021-06-30",
+   "acc": "0001018724-21-000020",
+   "url": "https://www.sec.gov/Archives/edgar/data/1018724/000101872421000020/amzn-20210630.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2021-10-29",
+   "period": "2021-09-30",
+   "acc": "0001018724-21-000028",
+   "url": "https://www.sec.gov/Archives/edgar/data/1018724/000101872421000028/amzn-20210930.htm"
+  },
+  {
+   "form": "10-K",
+   "filed": "2022-02-04",
+   "period": "2021-12-31",
+   "acc": "0001018724-22-000005",
+   "url": "https://www.sec.gov/Archives/edgar/data/1018724/000101872422000005/amzn-20211231.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2022-04-29",
+   "period": "2022-03-31",
+   "acc": "0001018724-22-000013",
+   "url": "https://www.sec.gov/Archives/edgar/data/1018724/000101872422000013/amzn-20220331.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2022-07-29",
+   "period": "2022-06-30",
+   "acc": "0001018724-22-000019",
+   "url": "https://www.sec.gov/Archives/edgar/data/1018724/000101872422000019/amzn-20220630.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2022-10-28",
+   "period": "2022-09-30",
+   "acc": "0001018724-22-000023",
+   "url": "https://www.sec.gov/Archives/edgar/data/1018724/000101872422000023/amzn-20220930.htm"
+  },
+  {
+   "form": "10-K",
+   "filed": "2023-02-03",
+   "period": "2022-12-31",
+   "acc": "0001018724-23-000004",
+   "url": "https://www.sec.gov/Archives/edgar/data/1018724/000101872423000004/amzn-20221231.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2023-04-28",
+   "period": "2023-03-31",
+   "acc": "0001018724-23-000008",
+   "url": "https://www.sec.gov/Archives/edgar/data/1018724/000101872423000008/amzn-20230331.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2023-08-04",
+   "period": "2023-06-30",
+   "acc": "0001018724-23-000012",
+   "url": "https://www.sec.gov/Archives/edgar/data/1018724/000101872423000012/amzn-20230630.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2023-10-27",
+   "period": "2023-09-30",
+   "acc": "0001018724-23-000018",
+   "url": "https://www.sec.gov/Archives/edgar/data/1018724/000101872423000018/amzn-20230930.htm"
+  },
+  {
+   "form": "10-K",
+   "filed": "2024-02-02",
+   "period": "2023-12-31",
+   "acc": "0001018724-24-000008",
+   "url": "https://www.sec.gov/Archives/edgar/data/1018724/000101872424000008/amzn-20231231.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2024-05-01",
+   "period": "2024-03-31",
+   "acc": "0001018724-24-000083",
+   "url": "https://www.sec.gov/Archives/edgar/data/1018724/000101872424000083/amzn-20240331.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2024-08-02",
+   "period": "2024-06-30",
+   "acc": "0001018724-24-000130",
+   "url": "https://www.sec.gov/Archives/edgar/data/1018724/000101872424000130/amzn-20240630.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2024-11-01",
+   "period": "2024-09-30",
+   "acc": "0001018724-24-000161",
+   "url": "https://www.sec.gov/Archives/edgar/data/1018724/000101872424000161/amzn-20240930.htm"
+  },
+  {
+   "form": "10-K",
+   "filed": "2025-02-07",
+   "period": "2024-12-31",
+   "acc": "0001018724-25-000004",
+   "url": "https://www.sec.gov/Archives/edgar/data/1018724/000101872425000004/amzn-20241231.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2025-05-02",
+   "period": "2025-03-31",
+   "acc": "0001018724-25-000036",
+   "url": "https://www.sec.gov/Archives/edgar/data/1018724/000101872425000036/amzn-20250331.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2025-08-01",
+   "period": "2025-06-30",
+   "acc": "0001018724-25-000086",
+   "url": "https://www.sec.gov/Archives/edgar/data/1018724/000101872425000086/amzn-20250630.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2025-10-31",
+   "period": "2025-09-30",
+   "acc": "0001018724-25-000123",
+   "url": "https://www.sec.gov/Archives/edgar/data/1018724/000101872425000123/amzn-20250930.htm"
+  },
+  {
+   "form": "10-K",
+   "filed": "2026-02-06",
+   "period": "2025-12-31",
+   "acc": "0001018724-26-000004",
+   "url": "https://www.sec.gov/Archives/edgar/data/1018724/000101872426000004/amzn-20251231.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2026-04-30",
+   "period": "2026-03-31",
+   "acc": "0001018724-26-000014",
+   "url": "https://www.sec.gov/Archives/edgar/data/1018724/000101872426000014/amzn-20260331.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2026-07-31",
+   "period": "2026-06-30",
+   "acc": "0001018724-26-000026",
+   "url": "https://www.sec.gov/Archives/edgar/data/1018724/000101872426000026/amzn-20260630.htm"
+  }
+ ],
+ "oracle": [
+  {
+   "form": "10-Q",
+   "filed": "2021-03-11",
+   "period": "2021-02-28",
+   "acc": "0001564590-21-012539",
+   "url": "https://www.sec.gov/Archives/edgar/data/1341439/000156459021012539/orcl-10q_20210228.htm"
+  },
+  {
+   "form": "10-K",
+   "filed": "2021-06-21",
+   "period": "2021-05-31",
+   "acc": "0001564590-21-033616",
+   "url": "https://www.sec.gov/Archives/edgar/data/1341439/000156459021033616/orcl-10k_20210531.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2021-09-13",
+   "period": "2021-08-31",
+   "acc": "0001564590-21-047772",
+   "url": "https://www.sec.gov/Archives/edgar/data/1341439/000156459021047772/orcl-10q_20210831.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2021-12-10",
+   "period": "2021-11-30",
+   "acc": "0001564590-21-060022",
+   "url": "https://www.sec.gov/Archives/edgar/data/1341439/000156459021060022/orcl-10q_20211130.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2022-03-11",
+   "period": "2022-02-28",
+   "acc": "0001564590-22-009859",
+   "url": "https://www.sec.gov/Archives/edgar/data/1341439/000156459022009859/orcl-10q_20220228.htm"
+  },
+  {
+   "form": "10-K",
+   "filed": "2022-06-21",
+   "period": "2022-05-31",
+   "acc": "0001564590-22-023675",
+   "url": "https://www.sec.gov/Archives/edgar/data/1341439/000156459022023675/orcl-10k_20220531.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2022-09-13",
+   "period": "2022-08-31",
+   "acc": "0001564590-22-031545",
+   "url": "https://www.sec.gov/Archives/edgar/data/1341439/000156459022031545/orcl-10q_20220831.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2022-12-13",
+   "period": "2022-11-30",
+   "acc": "0001564590-22-039278",
+   "url": "https://www.sec.gov/Archives/edgar/data/1341439/000156459022039278/orcl-10q_20221130.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2023-03-10",
+   "period": "2023-02-28",
+   "acc": "0001564590-23-003413",
+   "url": "https://www.sec.gov/Archives/edgar/data/1341439/000156459023003413/orcl-10q_20230228.htm"
+  },
+  {
+   "form": "10-K",
+   "filed": "2023-06-20",
+   "period": "2023-05-31",
+   "acc": "0000950170-23-028914",
+   "url": "https://www.sec.gov/Archives/edgar/data/1341439/000095017023028914/orcl-20230531.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2023-09-12",
+   "period": "2023-08-31",
+   "acc": "0000950170-23-047713",
+   "url": "https://www.sec.gov/Archives/edgar/data/1341439/000095017023047713/orcl-20230831.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2023-12-12",
+   "period": "2023-11-30",
+   "acc": "0000950170-23-069682",
+   "url": "https://www.sec.gov/Archives/edgar/data/1341439/000095017023069682/orcl-20231130.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2024-03-12",
+   "period": "2024-02-29",
+   "acc": "0000950170-24-029904",
+   "url": "https://www.sec.gov/Archives/edgar/data/1341439/000095017024029904/orcl-20240229.htm"
+  },
+  {
+   "form": "10-K",
+   "filed": "2024-06-20",
+   "period": "2024-05-31",
+   "acc": "0000950170-24-075605",
+   "url": "https://www.sec.gov/Archives/edgar/data/1341439/000095017024075605/orcl-20240531.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2024-09-10",
+   "period": "2024-08-31",
+   "acc": "0000950170-24-104905",
+   "url": "https://www.sec.gov/Archives/edgar/data/1341439/000095017024104905/orcl-20240831.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2024-12-10",
+   "period": "2024-11-30",
+   "acc": "0000950170-24-134973",
+   "url": "https://www.sec.gov/Archives/edgar/data/1341439/000095017024134973/orcl-20241130.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2025-03-11",
+   "period": "2025-02-28",
+   "acc": "0000950170-25-037143",
+   "url": "https://www.sec.gov/Archives/edgar/data/1341439/000095017025037143/orcl-20250228.htm"
+  },
+  {
+   "form": "10-K",
+   "filed": "2025-06-18",
+   "period": "2025-05-31",
+   "acc": "0000950170-25-087926",
+   "url": "https://www.sec.gov/Archives/edgar/data/1341439/000095017025087926/orcl-20250531.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2025-09-10",
+   "period": "2025-08-31",
+   "acc": "0001193125-25-200095",
+   "url": "https://www.sec.gov/Archives/edgar/data/1341439/000119312525200095/orcl-20250831.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2025-12-11",
+   "period": "2025-11-30",
+   "acc": "0001193125-25-315925",
+   "url": "https://www.sec.gov/Archives/edgar/data/1341439/000119312525315925/orcl-20251130.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2026-03-11",
+   "period": "2026-02-28",
+   "acc": "0001193125-26-101045",
+   "url": "https://www.sec.gov/Archives/edgar/data/1341439/000119312526101045/orcl-20260228.htm"
+  },
+  {
+   "form": "10-K",
+   "filed": "2026-06-22",
+   "period": "2026-05-31",
+   "acc": "0001193125-26-277521",
+   "url": "https://www.sec.gov/Archives/edgar/data/1341439/000119312526277521/orcl-20260531.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2026-09-11",
+   "period": "2026-08-31",
+   "acc": "0001193125-26-389274",
+   "url": "https://www.sec.gov/Archives/edgar/data/1341439/000119312526389274/orcl-20260831.htm"
+  }
+ ],
+ "microsoft": [
+  {
+   "form": "10-Q",
+   "filed": "2021-01-26",
+   "period": "2020-12-31",
+   "acc": "0001564590-21-002316",
+   "url": "https://www.sec.gov/Archives/edgar/data/789019/000156459021002316/msft-10q_20201231.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2021-04-27",
+   "period": "2021-03-31",
+   "acc": "0001564590-21-020891",
+   "url": "https://www.sec.gov/Archives/edgar/data/789019/000156459021020891/msft-10q_20210331.htm"
+  },
+  {
+   "form": "10-K",
+   "filed": "2021-07-29",
+   "period": "2021-06-30",
+   "acc": "0001564590-21-039151",
+   "url": "https://www.sec.gov/Archives/edgar/data/789019/000156459021039151/msft-10k_20210630.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2021-10-26",
+   "period": "2021-09-30",
+   "acc": "0001564590-21-051992",
+   "url": "https://www.sec.gov/Archives/edgar/data/789019/000156459021051992/msft-10q_20210930.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2022-01-25",
+   "period": "2021-12-31",
+   "acc": "0001564590-22-002324",
+   "url": "https://www.sec.gov/Archives/edgar/data/789019/000156459022002324/msft-10q_20211231.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2022-04-26",
+   "period": "2022-03-31",
+   "acc": "0001564590-22-015675",
+   "url": "https://www.sec.gov/Archives/edgar/data/789019/000156459022015675/msft-10q_20220331.htm"
+  },
+  {
+   "form": "10-K",
+   "filed": "2022-07-28",
+   "period": "2022-06-30",
+   "acc": "0001564590-22-026876",
+   "url": "https://www.sec.gov/Archives/edgar/data/789019/000156459022026876/msft-10k_20220630.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2022-10-25",
+   "period": "2022-09-30",
+   "acc": "0001564590-22-035087",
+   "url": "https://www.sec.gov/Archives/edgar/data/789019/000156459022035087/msft-10q_20220930.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2023-01-24",
+   "period": "2022-12-31",
+   "acc": "0001564590-23-000733",
+   "url": "https://www.sec.gov/Archives/edgar/data/789019/000156459023000733/msft-10q_20221231.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2023-04-25",
+   "period": "2023-03-31",
+   "acc": "0000950170-23-014423",
+   "url": "https://www.sec.gov/Archives/edgar/data/789019/000095017023014423/msft-20230331.htm"
+  },
+  {
+   "form": "10-K",
+   "filed": "2023-07-27",
+   "period": "2023-06-30",
+   "acc": "0000950170-23-035122",
+   "url": "https://www.sec.gov/Archives/edgar/data/789019/000095017023035122/msft-20230630.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2023-10-24",
+   "period": "2023-09-30",
+   "acc": "0000950170-23-054855",
+   "url": "https://www.sec.gov/Archives/edgar/data/789019/000095017023054855/msft-20230930.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2024-01-30",
+   "period": "2023-12-31",
+   "acc": "0000950170-24-008814",
+   "url": "https://www.sec.gov/Archives/edgar/data/789019/000095017024008814/msft-20231231.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2024-04-25",
+   "period": "2024-03-31",
+   "acc": "0000950170-24-048288",
+   "url": "https://www.sec.gov/Archives/edgar/data/789019/000095017024048288/msft-20240331.htm"
+  },
+  {
+   "form": "10-K",
+   "filed": "2024-07-30",
+   "period": "2024-06-30",
+   "acc": "0000950170-24-087843",
+   "url": "https://www.sec.gov/Archives/edgar/data/789019/000095017024087843/msft-20240630.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2024-10-30",
+   "period": "2024-09-30",
+   "acc": "0000950170-24-118967",
+   "url": "https://www.sec.gov/Archives/edgar/data/789019/000095017024118967/msft-20240930.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2025-01-29",
+   "period": "2024-12-31",
+   "acc": "0000950170-25-010491",
+   "url": "https://www.sec.gov/Archives/edgar/data/789019/000095017025010491/msft-20241231.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2025-04-30",
+   "period": "2025-03-31",
+   "acc": "0000950170-25-061046",
+   "url": "https://www.sec.gov/Archives/edgar/data/789019/000095017025061046/msft-20250331.htm"
+  },
+  {
+   "form": "10-K",
+   "filed": "2025-07-30",
+   "period": "2025-06-30",
+   "acc": "0000950170-25-100235",
+   "url": "https://www.sec.gov/Archives/edgar/data/789019/000095017025100235/msft-20250630.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2025-10-29",
+   "period": "2025-09-30",
+   "acc": "0001193125-25-256321",
+   "url": "https://www.sec.gov/Archives/edgar/data/789019/000119312525256321/msft-20250930.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2026-01-28",
+   "period": "2025-12-31",
+   "acc": "0001193125-26-027207",
+   "url": "https://www.sec.gov/Archives/edgar/data/789019/000119312526027207/msft-20251231.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2026-04-29",
+   "period": "2026-03-31",
+   "acc": "0001193125-26-191507",
+   "url": "https://www.sec.gov/Archives/edgar/data/789019/000119312526191507/msft-20260331.htm"
+  },
+  {
+   "form": "10-K",
+   "filed": "2026-07-29",
+   "period": "2026-06-30",
+   "acc": "0001193125-26-323660",
+   "url": "https://www.sec.gov/Archives/edgar/data/789019/000119312526323660/msft-20260630.htm"
+  }
+ ],
+ "coreweave": [
+  {
+   "form": "10-Q",
+   "filed": "2025-05-15",
+   "period": "2025-03-31",
+   "acc": "0001769628-25-000014",
+   "url": "https://www.sec.gov/Archives/edgar/data/1769628/000176962825000014/crwv-20250331.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2025-08-13",
+   "period": "2025-06-30",
+   "acc": "0001769628-25-000041",
+   "url": "https://www.sec.gov/Archives/edgar/data/1769628/000176962825000041/crwv-20250630.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2025-11-13",
+   "period": "2025-09-30",
+   "acc": "0001769628-25-000062",
+   "url": "https://www.sec.gov/Archives/edgar/data/1769628/000176962825000062/crwv-20250930.htm"
+  },
+  {
+   "form": "10-K",
+   "filed": "2026-03-02",
+   "period": "2025-12-31",
+   "acc": "0001769628-26-000104",
+   "url": "https://www.sec.gov/Archives/edgar/data/1769628/000176962826000104/crwv-20251231.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2026-05-08",
+   "period": "2026-03-31",
+   "acc": "0001769628-26-000222",
+   "url": "https://www.sec.gov/Archives/edgar/data/1769628/000176962826000222/crwv-20260331.htm"
+  },
+  {
+   "form": "10-Q",
+   "filed": "2026-08-12",
+   "period": "2026-06-30",
+   "acc": "0001769628-26-000366",
+   "url": "https://www.sec.gov/Archives/edgar/data/1769628/000176962826000366/crwv-20260630.htm"
+  }
+ ]
+}
