@@ -121,7 +121,7 @@ function makeZone(kind) {
 
 // the cast poses in a ring for the title screen
 const showcase = new THREE.Group();
-(phone ? ['durian', 'ginger', 'orange', 'dingding'] : ['durian', 'ginger', 'orange', 'dingding', 'oyster', 'goat', 'caesar', 'chenwei', 'jia', 'mao', 'guo', 'thief']).forEach((type, i, arr) => {
+['durian', 'ginger', 'orange', 'dingding', 'oyster', 'goat', 'caesar', 'chenwei', 'jia', 'mao', 'guo', 'thief'].forEach((type, i, arr) => {
   const m = instantiate(tplFor(type));
   const a = (i / arr.length) * Math.PI * 2;
   m.position.set(Math.cos(a) * 4.6, 0, Math.sin(a) * 4.6);
@@ -605,6 +605,7 @@ function drainEvents() {
       case 'tideWarn': ui.banner('潮汐来了！', ev.dir > 0 ? '从左边冲过来 →' : '← 从右边冲过来', false); break;
       case 'stampede': ui.toast('白牛冲锋！', 'pickup', '#ffffff'); break;
       case 'waveEnd': world.flash(0.25); break;
+      case 'cleanup': ui.banner('清场', '打完场上的敌人，再选海克斯'); break;
       case 'fire': muzzle = 1; break;
       case 'ult': fx.superSpider(ev.x, ev.y); cam.zoom = 1.18; break;
       case 'meteor': fx.meteor(ev.x, ev.y, ev.t); break;
@@ -629,7 +630,7 @@ function adapt(dt) {
   if (g.state !== 'play') return;
   if (dt > 1 / 40) slow++; else if (dt < 1 / 58) fast++;
   if (slow + fast < 120) return;
-  if (slow > 60 && quality > 0) { quality--; world.setQuality(quality); onResize(); }
+  if (slow > 60 && quality > (phone ? -1 : 0)) { quality--; world.setQuality(quality); onResize(); }
   slow = fast = 0;
 }
 

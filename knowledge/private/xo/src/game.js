@@ -40,8 +40,8 @@ const POOLS = [
   { durian: 2, orange: 3, goat: 3, dingding: 3, ginger: 6, jia: 3, yi: 3, oyster: 3, guo: 3, thief: 2, mao: 3, caesar: 2, chenwei: 2 },
   { durian: 3, orange: 2, ginger: 5, jia: 1, yi: 1 },
 ];
-// short waves, so a few minutes of play meets the whole cast
-const WAVE_SECONDS = [0, 15, 18, 20, 22, 0, 24, 26, 28, 30, 0]; // 0 = boss wave, ends when the boss falls
+// The timer stops new arrivals; the player clears the remaining enemies before picking an augment.
+const WAVE_SECONDS = [0, 28, 32, 36, 40, 0, 44, 48, 52, 56, 0]; // 0 = boss wave, ends when the boss falls
 // elites per wave, spread across the wave; boss waves bring their own
 const ELITES = [0, 0, 0, 1, 1, 1, 2, 2, 3, 4, 2];
 const BOSS_OF = { 5: 'bigmao', 10: 'judge' };
@@ -336,7 +336,12 @@ export function step(g, inp) {
   if (--h.idleT <= 0) { if (h.sayT <= 0) say(g, pick(g, Q.idle), 150); h.idleT = rnd(g, 600, 900); }
 
   // Waves
-  if (!g.bossWave) { if (--g.waveT <= 0) { endWave(g); return; } }
+  if (!g.bossWave) {
+    const timerEnded = g.waveT === 1;
+    g.waveT = Math.max(0, g.waveT - 1);
+    if (g.waveT === 0 && g.enemies.length === 0 && g.spawns.length === 0) { endWave(g); return; }
+    if (timerEnded) emit(g, 'cleanup');
+  }
   else if (!g.boss && !g.spawns.some((sp) => DEF[sp.type].boss)) { endWave(g); return; }
   g.waveClock++;
   while (g.eliteAt.length && g.waveClock >= g.eliteAt[0]) { g.eliteAt.shift(); spawnElite(g); }
@@ -344,7 +349,7 @@ export function step(g, inp) {
   if (h.bless > 0) h.bless--;
   updatePickups(g);
   updateTides(g);
-  if (--g.spawnT <= 0 && g.enemies.length < MAX_ENEMIES) {
+  if ((g.bossWave || g.waveT > 0) && --g.spawnT <= 0 && g.enemies.length < MAX_ENEMIES) {
     queueSpawns(g);
     g.spawnT = Math.max(14, 66 - g.wave * 6) * (g.bossWave ? 2.6 : 1) * rnd(g, 0.8, 1.2);
   }

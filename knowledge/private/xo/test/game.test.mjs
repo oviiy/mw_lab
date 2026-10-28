@@ -35,10 +35,17 @@ test('enemies spawn after a telegraph and the turtle auto-fires at them', () => 
   assert.ok(g.kills > 0, 'killed something');
 });
 
-test('a timed wave ends in the 海克斯 pick, which leads to the next wave', () => {
+test('a timed wave waits for the remaining enemies before the 海克斯 pick', () => {
   const g = started();
   g.hero.inv = 1e9;
-  run(g, 20 * HZ + 5);
+  run(g, 120);
+  assert.ok(g.enemies.length > 0);
+  g.waveT = 1; g.spawnT = 9999; g.spawns = [];
+  run(g, 1);
+  assert.equal(g.state, 'play');
+  assert.equal(g.waveT, 0);
+  g.enemies = [];
+  run(g, 1);
   assert.equal(g.state, 'pick');
   assert.equal(g.offer.list.length, 3);
   const tier = g.offer.tier;
@@ -75,7 +82,8 @@ test('a wave ends in exactly one pick, however many levels were gained', () => {
   const g = started();
   g.hero.inv = 1e9;
   for (let i = 0; i < 200; i++) g.gems.push({ id: 5000 + i, x: 0, y: 0, v: 1, mag: false, vx: 0, vy: 0 });
-  run(g, 20 * HZ + 5);
+  g.waveT = 1; g.spawnT = 9999; g.enemies = []; g.spawns = [];
+  run(g, 1);
   assert.equal(g.state, 'pick');
   assert.equal(g.picks, 1);
   assert.ok(g.hero.lvl > 3);

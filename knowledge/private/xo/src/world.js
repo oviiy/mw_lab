@@ -230,7 +230,7 @@ function dagoba() {
 
 export function createWorld(canvas, { lowPower = false } = {}) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: !lowPower, powerPreference: 'high-performance' });
-  renderer.setPixelRatio(lowPower ? 1 : Math.min(window.devicePixelRatio || 1, 2));
+  renderer.setPixelRatio(lowPower ? Math.min(window.devicePixelRatio || 1, 1.5) : Math.min(window.devicePixelRatio || 1, 2));
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -590,10 +590,10 @@ export function createWorld(canvas, { lowPower = false } = {}) {
 
   function render() { if (usePost && composer) composer.render(); else renderer.render(scene, camera); }
   function setQuality(level) {
-    // 2: full, 1: no bloom, 0: no bloom and pixel ratio 1
+    // 2: full, 1: no bloom, 0: mobile sharp mode, -1: mobile fallback
     useBloom = level >= 2 && !!composer; usePost = level >= 1 && !!composer;
     if (bloom) bloom.enabled = useBloom;
-    renderer.setPixelRatio(level >= 1 ? Math.min(window.devicePixelRatio || 1, level >= 2 ? 2 : 1.5) : 1);
+    renderer.setPixelRatio(level >= 1 ? Math.min(window.devicePixelRatio || 1, level >= 2 ? 2 : 1.5) : level === 0 && lowPower ? Math.min(window.devicePixelRatio || 1, 1.5) : 1);
     const ms = level >= 1 ? 2048 : 1024;
     if (sun.shadow.mapSize.x !== ms) { sun.shadow.mapSize.set(ms, ms); sun.shadow.map?.dispose(); sun.shadow.map = null; }
     resize();

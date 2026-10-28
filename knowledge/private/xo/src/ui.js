@@ -90,7 +90,8 @@ export function createUI(camera) {
     $('waveNum').textContent = `第 ${g.wave} / ${WAVES} 波`;
     const wt = $('waveTime');
     if (g.bossWave) { wt.textContent = 'BOSS'; wt.classList.remove('low'); }
-    else { const sec = Math.max(0, Math.ceil(g.waveT / 60)); wt.textContent = `${sec / 60 | 0}:${String(sec % 60).padStart(2, '0')}`; wt.classList.toggle('low', sec <= 5); }
+    else if (g.waveT === 0) { wt.textContent = `清场 ${g.enemies.length + g.spawns.length}`; wt.classList.remove('low'); }
+    else { const sec = Math.ceil(g.waveT / 60); wt.textContent = `${sec / 60 | 0}:${String(sec % 60).padStart(2, '0')}`; wt.classList.toggle('low', sec <= 5); }
     const bb = $('bossbar');
     if (g.boss) { bb.hidden = false; $('bossName').textContent = g.boss.name; $('bossFill').style.width = Math.max(0, g.boss.hp / g.boss.max * 100) + '%'; } else bb.hidden = true;
     $('kills').textContent = '击败 ' + g.kills;
