@@ -1,7 +1,7 @@
 // Pure simulation: no DOM, no three. Runs at a fixed 60 steps a second and reports what
 // happened through g.events, which the renderer, UI and audio drain each frame.
 // Plane coordinates: x to the right, y "up the screen" (the renderer maps y to -z).
-import { AUGMENTS, ENEMY_NAMES, SHOUTS, Q, WAVES, LEVEL_BONUS, PICKUPS, ELITE_AFFIX, STREAKS } from './config.js';
+import { AUGMENTS, STAT_UPGRADES, ENEMY_NAMES, SHOUTS, Q, WAVES, LEVEL_BONUS, PICKUPS, ELITE_AFFIX, STREAKS } from './config.js';
 
 export const HZ = 60;
 export const AW = 12.5, AH = 12.5; // half-size of the courtyard
@@ -23,7 +23,7 @@ export const DEF = {
   thief: { r: 0.55, hp: 16, sp: 0.085, dmg: 0, xp: 3, thief: true },
   mao: { r: 0.8, hp: 40, sp: 0.032, dmg: 2, xp: 5, split: 4 },
   maoqiu: { r: 0.32, hp: 4, sp: 0.08, dmg: 1, xp: 0.5 },
-  bigmao: { r: 1.6, hp: 300, sp: 0.03, dmg: 2, xp: 40, split: 6, boss: true },
+  bigmao: { r: 1.6, hp: 500, sp: 0.03, dmg: 2, xp: 40, split: 6, boss: true },
   judge: { r: 1.35, hp: 1700, sp: 0.028, dmg: 3, xp: 0, boss: true },
 };
 
@@ -75,11 +75,11 @@ export function say(g, text, dur = 150) {
 export function startGame(g) {
   g.hero = {
     x: 0, y: 0, r: 0.5, vx: 0, vy: 0, face: 0, inv: 60, s: baseStats(), xp: 0, lvl: 1, cd: 30,
-    say: '', sayT: 0, idleT: 400, afk: 0, ult: 0, shields: 0, bless: 0, lowSaid: false, timers: { voice: 0, bomb: 0, hubby: 0, shield: 0, regen: 0, meteor: 0, horse: 0, tide: 0, bike: 0 }, augs: [], moving: false, ride: 0, mount: 'horse',
+    say: '', sayT: 0, idleT: 400, afk: 0, ult: 0, shields: 0, bless: 0, lowSaid: false, timers: { voice: 0, bomb: 0, hubby: 0, shield: 0, regen: 0, meteor: 0, horse: 0, tide: 0, bike: 0 }, augs: [], statUps: [], moving: false, ride: 0, mount: 'horse',
   };
   g.wave = 0; g.kills = 0; g.hitsTotal = 0; g.shots = 0; g.recentKills = []; g.missStreak = 0;
   g.enemies = []; g.bullets = []; g.ebullets = []; g.gems = []; g.spawns = []; g.zones = []; g.bombs = []; g.meteors = [];
-  g.bull = null; g.hubbyRun = null; g.rerolls = 2; g.picks = 0; g.offer = null; g.saidBomb = false; g.saidWind = false;
+  g.bull = null; g.hubbyRun = null; g.rerolls = 2; g.picks = 0; g.pickPhase = null; g.offer = null; g.saidBomb = false; g.saidWind = false;
   g.time = 0; g.score = 0; g.combo = 0; g.comboT = 0; g.bestCombo = 0; g.streakIdx = 0;
   g.pickups = []; g.pickT = 420; g.stampede = null; g.tides = [];
   nextWave(g);
@@ -156,8 +156,29 @@ export function rollOffer(g, forceTier) {
   const pool = AUGMENTS.filter((a) => a.tier === tier && count(a.id) < (STACK_CAP[a.id] ?? 99));
   const out = [];
   while (out.length < 3 && pool.length) out.push(pool.splice(Math.floor(R(g) * pool.length), 1)[0]);
-  g.offer = { tier, list: out.map((a) => a.id) };
+  g.offer = { kind: 'hex', tier, list: out.map((a) => a.id) };
   return g.offer;
+}
+
+export function rollStatOffer(g) {
+  if (g.wave === 1 && g.hero.statUps.length === 0) {
+    g.offer = { kind: 'stat', list: ['shots', 'damage', 'health'] };
+    return g.offer;
+  }
+  const pool = STAT_UPGRADES.filter((a) => !a.available || a.available(g.hero.s));
+  const out = [];
+  while (out.length < 3 && pool.length) out.push(pool.splice(Math.floor(R(g) * pool.length), 1)[0]);
+  g.offer = { kind: 'stat', list: out.map((a) => a.id) };
+  return g.offer;
+}
+
+export function applyStatUpgrade(g, id) {
+  const a = STAT_UPGRADES.find((item) => item.id === id);
+  if (!a || (a.available && !a.available(g.hero.s))) return false;
+  a.apply(g.hero.s);
+  g.hero.statUps.push(id);
+  emit(g, 'statUp', { text: a.name });
+  return true;
 }
 
 export function applyAugment(g, id) {
@@ -179,8 +200,8 @@ function endWave(g) {
   h.s.hp = Math.min(h.s.maxhp, h.s.hp + 2);
   sfx(g, 'waveEnd');
   if (g.wave >= WAVES) { g.state = 'win'; g.st = 0; sfx(g, 'win'); return; }
-  // one 海克斯 per wave, plus a rating for how cleanly the wave went
-  g.picks = 1;
+  // One stat choice, then one 海克斯 choice, after each completed wave.
+  g.picks = 2; g.pickPhase = 'stat';
   if (g.bossWave) g.rerolls += 1;
   const ws = g.ws;
   const rating = ws.dmg === 0 ? 'S' : ws.dmg < 3 ? 'A' : ws.dmg < 6 ? 'B' : 'C';
@@ -189,7 +210,7 @@ function endWave(g) {
   if (rating === 'S') g.rerolls += 1;
   g.lastWave = { n: g.wave, kills: ws.kills, best: ws.best, rating, bonus, reroll: rating === 'S' };
   g.state = 'pick'; g.st = 0;
-  rollOffer(g);
+  rollStatOffer(g);
   say(g, pick(g, Q.waveClear), 120);
   emit(g, 'waveEnd', { ...g.lastWave });
 }
@@ -304,11 +325,13 @@ export function step(g, inp) {
   if (g.state === 'pause') { if (pr.pause || pr.start) g.state = 'play'; return; }
   if (g.state === 'pick') {
     g.st++;
-    if (pr.reroll && g.rerolls > 0) { g.rerolls--; rollOffer(g, g.offer.tier); sfx(g, 'reroll'); }
+    if (pr.reroll && g.pickPhase === 'hex' && g.rerolls > 0) { g.rerolls--; rollOffer(g, g.offer.tier); sfx(g, 'reroll'); }
     if (pr.pick != null && g.offer && g.offer.list[pr.pick] && g.st > 20) {
-      applyAugment(g, g.offer.list[pr.pick]);
+      if (g.pickPhase === 'stat') applyStatUpgrade(g, g.offer.list[pr.pick]);
+      else applyAugment(g, g.offer.list[pr.pick]);
       g.picks--; g.st = 0;
-      if (g.picks > 0) rollOffer(g); else { g.offer = null; nextWave(g); }
+      if (g.picks > 0) { g.pickPhase = 'hex'; rollOffer(g); }
+      else { g.offer = null; g.pickPhase = null; nextWave(g); }
     }
     return;
   }
@@ -336,20 +359,24 @@ export function step(g, inp) {
   if (--h.idleT <= 0) { if (h.sayT <= 0) say(g, pick(g, Q.idle), 150); h.idleT = rnd(g, 600, 900); }
 
   // Waves
+  let bossActive = false;
   if (!g.bossWave) {
     const timerEnded = g.waveT === 1;
     g.waveT = Math.max(0, g.waveT - 1);
     if (g.waveT === 0 && g.enemies.length === 0 && g.spawns.length === 0) { endWave(g); return; }
     if (timerEnded) emit(g, 'cleanup');
   }
-  else if (!g.boss && !g.spawns.some((sp) => DEF[sp.type].boss)) { endWave(g); return; }
+  else {
+    bossActive = !!g.boss || g.spawns.some((sp) => DEF[sp.type].boss);
+    if (!bossActive && g.enemies.length === 0 && g.spawns.length === 0) { endWave(g); return; }
+  }
   g.waveClock++;
   while (g.eliteAt.length && g.waveClock >= g.eliteAt[0]) { g.eliteAt.shift(); spawnElite(g); }
   if (g.comboT > 0 && --g.comboT === 0) { g.combo = 0; g.streakIdx = 0; }
   if (h.bless > 0) h.bless--;
   updatePickups(g);
   updateTides(g);
-  if ((g.bossWave || g.waveT > 0) && --g.spawnT <= 0 && g.enemies.length < MAX_ENEMIES) {
+  if ((g.bossWave ? bossActive : g.waveT > 0) && --g.spawnT <= 0 && g.enemies.length < MAX_ENEMIES) {
     queueSpawns(g);
     g.spawnT = Math.max(14, 66 - g.wave * 6) * (g.bossWave ? 2.6 : 1) * rnd(g, 0.8, 1.2);
   }

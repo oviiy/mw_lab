@@ -161,6 +161,7 @@
   .pickhead h2 { margin: 0; font-size: clamp(26px, 5vw, 40px); font-weight: 900; text-shadow: 0 3px 0 var(--ink); }
   .pickhead h2 em { font-style: normal; padding: 0 10px; border-radius: 10px; color: var(--ink); text-shadow: none; }
   .pickhead h2 em.silver { background: var(--silver); } .pickhead h2 em.gold { background: var(--goldg); } .pickhead h2 em.prism { background: var(--prism); background-size: 200% 200%; animation: holo 3s linear infinite; }
+  .pickhead h2 em.stat { background: linear-gradient(135deg, #a8f0d1, #54b99c); }
   .pickhead p { margin: 6px 0 0; font-size: 15px; font-weight: 700; opacity: .9; }
   .cards { display: flex; gap: 14px; width: min(920px, 100%); }
   @media (max-aspect-ratio: 1/1) { .cards { flex-direction: column; } }
@@ -169,11 +170,13 @@
   @keyframes cardIn { from { transform: translateY(40px) rotate(-3deg); opacity: 0; } }
   .card:hover, .card:focus-visible { transform: translateY(-6px); outline: none; }
   .card.silver { background: var(--silver); } .card.gold { background: var(--goldg); }
+  .card.stat { background: linear-gradient(135deg, #a8f0d1, #54b99c); }
   .card.prism { background: var(--prism); background-size: 200% 200%; animation: cardIn .4s cubic-bezier(.3,1.5,.5,1) backwards, holo 3s linear infinite; }
   @keyframes holo { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
   .card .in { height: 100%; background: #2a2233; color: #fff; border-radius: 17px; padding: 16px 16px 18px; display: flex; flex-direction: column; gap: 8px; }
-  .card .hex { width: 46px; height: 52px; clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); display: grid; place-items: center; font-weight: 900; font-size: 20px; color: var(--ink); }
+  .card .hex { width: 46px; height: 52px; clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); display: grid; place-items: center; font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif; font-size: 27px; line-height: 1; }
   .card.silver .hex { background: var(--silver); } .card.gold .hex { background: var(--goldg); } .card.prism .hex { background: var(--prism); }
+  .card.stat .hex { background: linear-gradient(135deg, #a8f0d1, #54b99c); }
   .card h3 { margin: 0; font-size: 19px; line-height: 1.25; }
   .card p { margin: 0; font-size: 14px; line-height: 1.45; color: rgba(255,255,255,.8); }
   .card .own { font-size: 11px; color: #ffd35a; font-weight: 700; }
@@ -182,7 +185,7 @@
   .pickfoot { display: flex; gap: 10px; align-items: center; }
   /* short screens, e.g. phones held sideways */
   @media (max-height: 360px) { #title { padding-bottom: 8px; } #title .hint { display: none; } .wordmark { text-shadow: 0 4px 0 var(--ink); } }
-  @media (max-height: 460px) { #title { padding-bottom: 16px; } .wordmark .l1 { font-size: 52px; } .wordmark .l2 { font-size: 24px; margin-top: 2px; } .tagline { margin: 4px 0 4px; font-size: 14px; } .cast { margin-bottom: 8px; gap: 3px; } .pill { font-size: 10px; padding: 1px 6px; } .cast b { font-size: 10px; } .hint { margin-top: 8px; } .screen { overflow-y: auto; } #pick { justify-content: flex-start; padding-top: 10px; gap: 8px; } .pickhead h2 { font-size: 20px; } .pickhead p { font-size: 12px; margin-top: 2px; } .summary { margin-top: 4px; gap: 4px; } .summary span { font-size: 11px; padding: 2px 6px; } .summary .rate { font-size: 14px; } .card .in { padding: 10px 12px; gap: 4px; } .card .hex { width: 30px; height: 34px; font-size: 13px; } .card h3 { font-size: 15px; } .card p { font-size: 12px; } .btn { padding: 9px 18px; font-size: 14px; } .panel { padding: 14px 16px; } .panel h2 { font-size: 22px; } .panel .sub { margin: 4px 0 8px; font-size: 13px; } .stats { grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 10px; } .stats b { font-size: 16px; } .stats div { padding: 4px; } #waveTime { font-size: 24px; } #waveNum { font-size: 11px; } #banner { top: 22%; } #banner h2 { font-size: 40px; -webkit-text-stroke: 4px var(--ink); } #banner p { font-size: 13px; } #toasts { top: calc(64px + var(--safe-t)); } .toast { font-size: 12px; padding: 4px 10px; } #streak { top: 30%; } #streak h3 { font-size: 30px; } #combo { top: 54px; } #combo b { font-size: 30px; } #ultBtn { width: 66px; height: 66px; } #ultBtn svg { width: 24px; height: 24px; } .augs { display: none; } .hp { height: 18px; } .hp b { line-height: 14px; font-size: 11px; } }
+  @media (max-height: 460px) { #title { padding-bottom: 16px; } .wordmark .l1 { font-size: 52px; } .wordmark .l2 { font-size: 24px; margin-top: 2px; } .tagline { margin: 4px 0 4px; font-size: 14px; } .cast { margin-bottom: 8px; gap: 3px; } .pill { font-size: 10px; padding: 1px 6px; } .cast b { font-size: 10px; } .hint { margin-top: 8px; } .screen { overflow-y: auto; } #pick { justify-content: flex-start; padding-top: 10px; gap: 8px; } .pickhead h2 { font-size: 20px; } .pickhead p { font-size: 12px; margin-top: 2px; } .summary { margin-top: 4px; gap: 4px; } .summary span { font-size: 11px; padding: 2px 6px; } .summary .rate { font-size: 14px; } .card .in { padding: 10px 12px; gap: 4px; } .card .hex { width: 30px; height: 34px; font-size: 20px; } .card h3 { font-size: 15px; } .card p { font-size: 12px; } .btn { padding: 9px 18px; font-size: 14px; } .panel { padding: 14px 16px; } .panel h2 { font-size: 22px; } .panel .sub { margin: 4px 0 8px; font-size: 13px; } .stats { grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 10px; } .stats b { font-size: 16px; } .stats div { padding: 4px; } #waveTime { font-size: 24px; } #waveNum { font-size: 11px; } #banner { top: 22%; } #banner h2 { font-size: 40px; -webkit-text-stroke: 4px var(--ink); } #banner p { font-size: 13px; } #toasts { top: calc(64px + var(--safe-t)); } .toast { font-size: 12px; padding: 4px 10px; } #streak { top: 30%; } #streak h3 { font-size: 30px; } #combo { top: 54px; } #combo b { font-size: 30px; } #ultBtn { width: 66px; height: 66px; } #ultBtn svg { width: 24px; height: 24px; } .augs { display: none; } .hp { height: 18px; } .hp b { line-height: 14px; font-size: 11px; } }
   @media (max-width: 520px) { .hp { width: 30vw; } .hp b { font-size: 11px; } #waveTime { font-size: 28px; } #waveNum { font-size: 12px; } .kills { display: none; } #ultBtn { width: 76px; height: 76px; } .augs { max-width: 60vw; } .augs i { font-size: 10px; padding: 2px 5px; } }
 </style>
 </head>
@@ -231,7 +234,7 @@
 </section>
 
 <section id="pick" class="screen dim" hidden>
-  <div class="pickhead"><h2>海克斯强化 · <em id="pickTier">白银</em></h2><p id="pickSub">蔡博：龟，选一个吧</p><div class="summary" id="summary"></div></div>
+  <div class="pickhead"><h2><span id="pickTitle">海克斯强化</span> · <em id="pickTier">白银</em></h2><p id="pickSub">蔡博：龟，选一个吧</p><div class="summary" id="summary"></div></div>
   <div class="cards" id="cards"></div>
   <div class="pickfoot"><button class="btn" id="rerollBtn">换一批</button></div>
 </section>
@@ -262,6 +265,6 @@
   </div>
 </section>
 
-<script defer src="app.js?v=e0cfb2018f6c"></script>
+<script defer src="app.js?v=770ad0af1155"></script>
 </body>
 </html>

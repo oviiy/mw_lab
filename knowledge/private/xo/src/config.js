@@ -67,37 +67,48 @@ export const Q = {
 // apply(s) edits the hero's stats in place; the game reads them every step.
 export const AUGMENTS = [
   // 白银
-  { id: 'douzhi', tier: 'silver', name: '豆汁儿续命', desc: '最大生命 +3，并回满', apply: (s) => { s.maxhp += 3; s.hp = s.maxhp; } },
-  { id: 'hutong', tier: 'silver', name: '胡同串子', desc: '移动速度 +12%', apply: (s) => { s.speed *= 1.12; } },
-  { id: 'arrow', tier: 'silver', name: '我箭中了', desc: '伤害 +20%', apply: (s) => { s.dmg *= 1.2; } },
-  { id: 'magnet', tier: 'silver', name: '糖葫芦磁铁', desc: '拾取范围 +60%', apply: (s) => { s.pickup *= 1.6; } },
-  { id: 'auntie', tier: 'silver', name: '刚和阿姨说话去了', desc: '每 6 秒回 1 点血', apply: (s) => { s.regen += 1; } },
-  { id: 'yellow', tier: 'silver', name: '黄房上没人', desc: '射程 +25%', apply: (s) => { s.range *= 1.25; } },
-  { id: 'mbappe', tier: 'silver', name: '姆巴佩没有问题', desc: '攻速 +18%', apply: (s) => { s.rate *= 1.18; } },
-  { id: 'armor', tier: 'silver', name: '北京大妞', desc: '受到伤害 -15%', apply: (s) => { s.armor = Math.min(0.6, s.armor + 0.15); } },
+  { id: 'douzhi', tier: 'silver', icon: '🥤', name: '豆汁儿续命', desc: '最大生命 +3，并回满', apply: (s) => { s.maxhp += 3; s.hp = s.maxhp; } },
+  { id: 'hutong', tier: 'silver', icon: '🏃', name: '胡同串子', desc: '移动速度 +12%', apply: (s) => { s.speed *= 1.12; } },
+  { id: 'arrow', tier: 'silver', icon: '🏹', name: '我箭中了', desc: '伤害 +20%', apply: (s) => { s.dmg *= 1.2; } },
+  { id: 'magnet', tier: 'silver', icon: '🧲', name: '糖葫芦磁铁', desc: '拾取范围 +60%', apply: (s) => { s.pickup *= 1.6; } },
+  { id: 'auntie', tier: 'silver', icon: '💚', name: '刚和阿姨说话去了', desc: '每 6 秒回 1 点血', apply: (s) => { s.regen += 1; } },
+  { id: 'yellow', tier: 'silver', icon: '🎯', name: '黄房上没人', desc: '射程 +25%', apply: (s) => { s.range *= 1.25; } },
+  { id: 'mbappe', tier: 'silver', icon: '⚽', name: '姆巴佩没有问题', desc: '攻速 +18%', apply: (s) => { s.rate *= 1.18; } },
+  { id: 'armor', tier: 'silver', icon: '🛡️', name: '北京大妞', desc: '受到伤害 -15%', apply: (s) => { s.armor = Math.min(0.6, s.armor + 0.15); } },
   // 黄金
-  { id: 'multi', tier: 'gold', name: '打死你们这些廊坊娃', desc: '每次多发射 1 枚子弹', apply: (s) => { s.count += 1; } },
-  { id: 'pierce', tier: 'gold', name: '一箭穿糖', desc: '子弹穿透 +1', apply: (s) => { s.pierce += 1; } },
-  { id: 'voice', tier: 'gold', name: '声音没我甜', desc: '每 5 秒甜嗓一声，震晕并伤害周围敌人', apply: (s) => { s.voice += 1; } },
-  { id: 'bomb', tier: 'gold', name: '他应该不会下包的', desc: '每 4 秒在脚下下个包，爆炸伤害', apply: (s) => { s.bomb += 1; } },
-  { id: 'hubby', tier: 'gold', name: '叫队友', desc: '每 15 秒队友蔡博冲过来清一排怪', apply: (s) => { s.hubby += 1; } },
-  { id: 'window', tier: 'gold', name: '你的龟决定关窗户睡觉了', desc: '每 10 秒获得一层护盾，挡一次伤害', apply: (s) => { s.shield += 1; } },
-  { id: 'sweetest', tier: 'gold', name: '没人比我甜', desc: '暴击率 +20%，暴击伤害 ×2', apply: (s) => { s.crit += 0.2; } },
-  { id: 'chief', tier: 'gold', name: '女酋长的祝福', desc: '每波开始回满血，伤害 +15%', apply: (s) => { s.chief += 1; s.dmg *= 1.15; } },
-  { id: 'meteor', tier: 'gold', name: '米拉娜的流星风暴', desc: '每 6 秒流星砸向附近的敌人', apply: (s) => { s.meteor += 1; } },
-  { id: 'aegis', tier: 'gold', name: '不朽盾', desc: '死亡时原地复活一次', apply: (s) => { s.aegis += 1; } },
+  { id: 'multi', tier: 'gold', icon: '🎆', name: '打死你们这些廊坊娃', desc: '每次多发射 1 枚子弹', apply: (s) => { s.count += 1; } },
+  { id: 'pierce', tier: 'gold', icon: '🪡', name: '一箭穿糖', desc: '子弹穿透 +1', apply: (s) => { s.pierce += 1; } },
+  { id: 'voice', tier: 'gold', icon: '🎤', name: '声音没我甜', desc: '每 5 秒甜嗓一声，震晕并伤害周围敌人', apply: (s) => { s.voice += 1; } },
+  { id: 'bomb', tier: 'gold', icon: '💣', name: '他应该不会下包的', desc: '每 4 秒在脚下下个包，爆炸伤害', apply: (s) => { s.bomb += 1; } },
+  { id: 'hubby', tier: 'gold', icon: '🤝', name: '叫队友', desc: '每 15 秒队友蔡博冲过来清一排怪', apply: (s) => { s.hubby += 1; } },
+  { id: 'window', tier: 'gold', icon: '🪟', name: '你的龟决定关窗户睡觉了', desc: '每 10 秒获得一层护盾，挡一次伤害', apply: (s) => { s.shield += 1; } },
+  { id: 'sweetest', tier: 'gold', icon: '🍬', name: '没人比我甜', desc: '暴击率 +20%，暴击伤害 ×2', apply: (s) => { s.crit += 0.2; } },
+  { id: 'chief', tier: 'gold', icon: '👑', name: '女酋长的祝福', desc: '每波开始回满血，伤害 +15%', apply: (s) => { s.chief += 1; s.dmg *= 1.15; } },
+  { id: 'meteor', tier: 'gold', icon: '☄️', name: '米拉娜的流星风暴', desc: '每 6 秒流星砸向附近的敌人', apply: (s) => { s.meteor += 1; } },
+  { id: 'aegis', tier: 'gold', icon: '🛟', name: '不朽盾', desc: '死亡时原地复活一次', apply: (s) => { s.aegis += 1; } },
   // 棱彩
-  { id: 'bull', tier: 'prism', name: '喜欢我的白牛吗', desc: '召唤白牛伙伴，来回冲撞敌人', apply: (s) => { s.bull += 1; } },
-  { id: 'tide', tier: 'gold', name: '潮汐监狱越狱', desc: '每 12 秒放一道潮汐，冲走并伤害一整排敌人', apply: (s) => { s.tide += 1; } },
-  { id: 'bike', tier: 'gold', name: '北京骑行夫妇', desc: '每 12 秒和蔡博骑双人自行车 5 秒：移速 ×1.9，撞飞敌人', apply: (s) => { s.bike += 1; } },
-  { id: 'horse', tier: 'prism', name: '马背上的民族', desc: '每 10 秒周期出发骑马 4 秒：移速 ×1.7，撞飞敌人', apply: (s) => { s.horse += 1; } },
-  { id: 'wind', tier: 'prism', name: '你的龟昨天晚上风好大', desc: '身边环绕龙卷风，持续绞碎敌人', apply: (s) => { s.wind += 1; } },
-  { id: 'ranked', tier: 'prism', name: '你的龟打排位打得好累', desc: '攻速 +60%，但移速 -10%', apply: (s) => { s.rate *= 1.6; s.speed *= 0.9; } },
-  { id: 'notified', tier: 'prism', name: '没人通知我', desc: '25% 闪避，被打前总会有人通知你', apply: (s) => { s.dodge = Math.min(0.6, s.dodge + 0.25); } },
-  { id: 'dahong', tier: 'prism', name: '出大红了', desc: '经验 +50%，3 个大红环绕身边', apply: (s) => { s.xpMul *= 1.5; s.orbit += 3; } },
+  { id: 'bull', tier: 'prism', icon: '🐂', name: '喜欢我的白牛吗', desc: '召唤白牛伙伴，来回冲撞敌人', apply: (s) => { s.bull += 1; } },
+  { id: 'tide', tier: 'gold', icon: '🌊', name: '潮汐监狱越狱', desc: '每 12 秒放一道潮汐，冲走并伤害一整排敌人', apply: (s) => { s.tide += 1; } },
+  { id: 'bike', tier: 'gold', icon: '🚲', name: '北京骑行夫妇', desc: '每 12 秒和蔡博骑双人自行车 5 秒：移速 ×1.9，撞飞敌人', apply: (s) => { s.bike += 1; } },
+  { id: 'horse', tier: 'prism', icon: '🐎', name: '马背上的民族', desc: '每 10 秒周期出发骑马 4 秒：移速 ×1.7，撞飞敌人', apply: (s) => { s.horse += 1; } },
+  { id: 'wind', tier: 'prism', icon: '🌪️', name: '你的龟昨天晚上风好大', desc: '身边环绕龙卷风，持续绞碎敌人', apply: (s) => { s.wind += 1; } },
+  { id: 'ranked', tier: 'prism', icon: '⚡', name: '你的龟打排位打得好累', desc: '攻速 +60%，但移速 -10%', apply: (s) => { s.rate *= 1.6; s.speed *= 0.9; } },
+  { id: 'notified', tier: 'prism', icon: '🔔', name: '没人通知我', desc: '25% 闪避，被打前总会有人通知你', apply: (s) => { s.dodge = Math.min(0.6, s.dodge + 0.25); } },
+  { id: 'dahong', tier: 'prism', icon: '💎', name: '出大红了', desc: '经验 +50%，3 个大红环绕身边', apply: (s) => { s.xpMul *= 1.5; s.orbit += 3; } },
 ];
 
 export const TIER_NAME = { silver: '白银', gold: '黄金', prism: '棱彩' };
+
+// One focused stat choice after each wave, before the 海克斯 choice.
+export const STAT_UPGRADES = [
+  { id: 'shots', icon: '🎯', name: '多一发', desc: '每次射击额外发射 1 枚子弹', available: (s) => s.count < 5, apply: (s) => { s.count += 1; } },
+  { id: 'damage', icon: '💥', name: '火力训练', desc: '子弹伤害 +15%', apply: (s) => { s.dmg *= 1.15; } },
+  { id: 'speed', icon: '⚡', name: '快手连射', desc: '攻击速度 +12%', apply: (s) => { s.rate *= 1.12; } },
+  { id: 'health', icon: '❤️', name: '结实一点', desc: '最大生命 +3，并回复 3 点生命', apply: (s) => { s.maxhp += 3; s.hp = Math.min(s.maxhp, s.hp + 3); } },
+  { id: 'regen', icon: '💚', name: '慢慢回血', desc: '每 6 秒额外恢复 1 点生命', available: (s) => s.regen < 4, apply: (s) => { s.regen += 1; } },
+  { id: 'crit', icon: '✨', name: '找准要害', desc: '暴击率 +6%', available: (s) => s.crit < 0.5, apply: (s) => { s.crit += 0.06; } },
+  { id: 'move', icon: '🏃', name: '脚下生风', desc: '移动速度 +8%', apply: (s) => { s.speed *= 1.08; } },
+];
 
 // Level-ups now give a small bonus straight away; 海克斯 are picked once per wave.
 export const LEVEL_BONUS = [

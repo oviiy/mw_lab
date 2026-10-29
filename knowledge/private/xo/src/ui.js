@@ -1,10 +1,11 @@
 // DOM side: HUD, world-anchored bubbles and numbers, the 海克斯 picker and the screens.
 import * as THREE from 'three';
-import { AUGMENTS, TIER_NAME, SUBTITLE, ENEMY_NAMES, HERO, HUBBY, WAVES, PICKUPS } from './config.js';
+import { AUGMENTS, STAT_UPGRADES, TIER_NAME, SUBTITLE, ENEMY_NAMES, HERO, HUBBY, WAVES, PICKUPS } from './config.js';
 import { xpNeed } from './game.js';
 
 const $ = (id) => document.getElementById(id);
 const AUG = Object.fromEntries(AUGMENTS.map((a) => [a.id, a]));
+const STAT = Object.fromEntries(STAT_UPGRADES.map((a) => [a.id, a]));
 
 export function createUI(camera) {
   const labels = $('labels');
@@ -129,22 +130,27 @@ export function createUI(camera) {
 
   let pickKey = '';
   function renderPick(g, onPick) {
-    const key = g.offer.list.join() + g.picks + g.rerolls;
+    const isStat = g.offer.kind === 'stat';
+    const key = g.offer.kind + g.offer.list.join() + g.picks + g.rerolls;
     if (key === pickKey) return;
     pickKey = key;
-    const tier = g.offer.tier;
+    const tier = isStat ? 'stat' : g.offer.tier;
     const em = $('pickTier');
-    em.textContent = TIER_NAME[tier]; em.className = tier;
-    $('pickSub').textContent = `${HUBBY}：龟，选一个吧`;
+    $('pickTitle').textContent = isStat ? '基础升级' : '海克斯强化';
+    em.textContent = isStat ? '1 / 2' : TIER_NAME[tier] + ' · 2 / 2'; em.className = tier;
+    $('pickSub').textContent = isStat ? `${HUBBY}：先练一项本事，再选海克斯` : `${HUBBY}：再选一个海克斯吧`;
     const lw = g.lastWave;
-    $('summary').innerHTML = lw ? `<span class="rate ${lw.rating}">${lw.rating}</span><span>第 ${lw.n} 波完成</span><span>击败 ${lw.kills}</span><span>最高连杀 ${lw.best}</span>${lw.bonus ? `<span>评价奖励 +${lw.bonus}</span>` : ''}${lw.reroll ? '<span>无伤：换一批 +1</span>' : ''}` : '';
-    const own = (id) => g.hero.augs.filter((a) => a === id).length;
+    const s = g.hero.s;
+    const stats = isStat ? `<span>子弹 ${s.count} 发</span><span>伤害 ${s.dmg.toFixed(1)}</span><span>生命 ${Math.ceil(s.hp)}/${s.maxhp}</span><span>恢复 ${s.regen}/6 秒</span>` : '';
+    $('summary').innerHTML = (lw ? `<span class="rate ${lw.rating}">${lw.rating}</span><span>第 ${lw.n} 波完成</span><span>击败 ${lw.kills}</span><span>最高连杀 ${lw.best}</span>${lw.bonus ? `<span>评价奖励 +${lw.bonus}</span>` : ''}${lw.reroll ? '<span>无伤：海克斯重掷 +1</span>' : ''}` : '') + stats;
+    const own = (id) => (isStat ? g.hero.statUps : g.hero.augs).filter((a) => a === id).length;
     $('cards').innerHTML = g.offer.list.map((id, i) => {
-      const a = AUG[id];
-      return `<button class="card ${tier}" data-i="${i}"><div class="in"><div class="hex">${'甜金彩'[['silver', 'gold', 'prism'].indexOf(tier)]}</div><div><h3>${a.name}</h3><p>${a.desc}</p>${own(id) ? `<div class="own">已拥有 ×${own(id)}</div>` : ''}</div></div><kbd>${i + 1}</kbd></button>`;
+      const a = isStat ? STAT[id] : AUG[id];
+      return `<button class="card ${tier}" data-i="${i}"><div class="in"><div class="hex" aria-hidden="true">${a.icon}</div><div><h3>${a.name}</h3><p>${a.desc}</p>${own(id) ? `<div class="own">已拥有 ×${own(id)}</div>` : ''}</div></div><kbd>${i + 1}</kbd></button>`;
     }).join('');
     for (const el of $('cards').children) el.onclick = () => onPick(Number(el.dataset.i));
     const rb = $('rerollBtn');
+    rb.parentElement.hidden = isStat;
     rb.textContent = `换一批（剩 ${g.rerolls} 次）`;
     rb.disabled = g.rerolls <= 0; rb.style.opacity = g.rerolls > 0 ? 1 : 0.5;
   }
