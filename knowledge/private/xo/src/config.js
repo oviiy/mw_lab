@@ -4,12 +4,12 @@ export const TITLE = '京龟大闹潘家园儿';
 export const SUBTITLE = '北京龟 · 胡同大乱斗';
 export const HERO = '龟';
 export const HUBBY = '蔡博'; // her teammate
-export const WAVES = 10;
+export const WAVES = 14;
 
 export const ENEMY_NAMES = {
   durian: '小榴莲', oyster: '往昔蚝', goat: '徐山羊', dingding: '丁丁', orange: '橘子', ginger: '姜饼人', caesar: 'Caesar', chenwei: '陈伟',
   jia: '甲方', yi: '乙方', guo: '果哥', thief: '吴浩然', mao: '大毛', maoqiu: '小毛球',
-  bigmao: '大毛（超大号）', judge: '沉毅羊（法官）',
+  bigmao: '大毛（超大号）', judge: '沉毅羊（法官）', finaljudge: '沉毅羊（终审）',
 };
 
 export const SHOUTS = {
@@ -99,6 +99,38 @@ export const AUGMENTS = [
 
 export const TIER_NAME = { silver: '白银', gold: '黄金', prism: '棱彩' };
 
+export const BUILD_PATHS = {
+  spider: '超级蜘蛛', bullet: '子弹火力', turtle: '环绕龟', hubby: '蔡博支援',
+};
+
+export const SHOP_UPGRADES = [
+  { id: 'health', name: '结实开局', desc: '初始最大生命 +2', cost: 20, max: 5, apply: (s) => { s.maxhp += 2; s.hp += 2; } },
+  { id: 'damage', name: '练习射击', desc: '初始伤害 +5%', cost: 25, max: 5, apply: (s) => { s.dmg *= 1.05; } },
+  { id: 'rate', name: '提前热手', desc: '初始攻速 +4%', cost: 25, max: 5, apply: (s) => { s.rate *= 1.04; } },
+  { id: 'spider', name: '蜘蛛预热', desc: '开局大招充能 +10', cost: 30, max: 5, apply: () => {} },
+];
+
+const pathOf = {
+  arrow: 'bullet', multi: 'bullet', pierce: 'bullet', ranked: 'bullet', mbappe: 'bullet',
+  wind: 'turtle', dahong: 'turtle', hubby: 'hubby', bike: 'hubby',
+};
+for (const a of AUGMENTS) if (pathOf[a.id]) a.path = pathOf[a.id];
+
+AUGMENTS.push(
+  { id: 'webReach', path: 'spider', tier: 'silver', icon: '🕸️', name: '蜘蛛撒网', desc: '超级蜘蛛范围 +25%', apply: (s) => { s.ultRange *= 1.25; } },
+  { id: 'webCharge', path: 'spider', tier: 'gold', icon: '🕷️', name: '蛛丝蓄力', desc: '普通击杀的蜘蛛充能 +50%', apply: (s) => { s.ultCharge *= 1.5; } },
+  { id: 'webPower', path: 'spider', tier: 'prism', icon: '💜', name: '毒蛛女王', desc: '蛛网持续伤害 +80%', apply: (s) => { s.ultDamage *= 1.8; } },
+  { id: 'webEcho', path: 'spider', tier: 'gold', icon: '🪄', name: '蛛网余响', desc: '每次蜘蛛施放后，蛛网击杀最多返还 20 充能', apply: (s) => { s.ultEcho = true; } },
+  { id: 'bulletPower', path: 'bullet', tier: 'gold', icon: '🔥', name: '穿甲火力', desc: '子弹伤害 +30%，穿透 +1', apply: (s) => { s.dmg *= 1.3; s.pierce += 1; } },
+  { id: 'bulletStorm', path: 'bullet', tier: 'prism', icon: '🌠', name: '弹幕时间', desc: '额外 2 枚子弹，攻速 +20%', apply: (s) => { s.count += 2; s.rate *= 1.2; } },
+  { id: 'turtleGuard', path: 'turtle', tier: 'silver', icon: '🐢', name: '小龟护卫', desc: '召唤 1 只环绕小龟', apply: (s) => { s.turtles += 1; } },
+  { id: 'turtleSquad', path: 'turtle', tier: 'gold', icon: '🐢', name: '龟龟小队', desc: '再召唤 2 只环绕小龟', apply: (s) => { s.turtles += 2; } },
+  { id: 'turtlePower', path: 'turtle', tier: 'prism', icon: '🛡️', name: '龟甲旋风', desc: '环绕小龟伤害翻倍', apply: (s) => { s.turtlePower *= 2; } },
+  { id: 'hubbyQuick', path: 'hubby', tier: 'silver', icon: '⚡', name: '蔡博快来', desc: '蔡博支援冷却缩短 25%', apply: (s) => { s.hubby = Math.max(1, s.hubby); s.hubbyCooldown *= 0.75; } },
+  { id: 'hubbyPower', path: 'hubby', tier: 'gold', icon: '🤜', name: '蔡博认真了', desc: '蔡博冲锋伤害翻倍', apply: (s) => { s.hubby = Math.max(1, s.hubby); s.hubbyPower *= 2; } },
+  { id: 'hubbyStorm', path: 'hubby', tier: 'prism', icon: '🤝', name: '最佳搭档', desc: '蔡博支援更快、冲锋伤害 +50%', apply: (s) => { s.hubby = Math.max(1, s.hubby); s.hubbyCooldown *= 0.65; s.hubbyPower *= 1.5; } },
+);
+
 // One focused stat choice after each wave, before the 海克斯 choice.
 export const STAT_UPGRADES = [
   { id: 'shots', icon: '🎯', name: '多一发', desc: '每次射击额外发射 1 枚子弹', available: (s) => s.count < 5, apply: (s) => { s.count += 1; } },
@@ -112,13 +144,13 @@ export const STAT_UPGRADES = [
 
 // Level-ups now give a small bonus straight away; 海克斯 are picked once per wave.
 export const LEVEL_BONUS = [
-  { text: '伤害 +8%', apply: (s) => { s.dmg *= 1.08; } },
-  { text: '攻速 +7%', apply: (s) => { s.rate *= 1.07; } },
-  { text: '移速 +4%', apply: (s) => { s.speed *= 1.04; } },
-  { text: '最大生命 +2', apply: (s) => { s.maxhp += 2; s.hp += 2; } },
-  { text: '拾取范围 +15%', apply: (s) => { s.pickup *= 1.15; } },
-  { text: '暴击 +4%', apply: (s) => { s.crit += 0.04; } },
-  { text: '射程 +6%', apply: (s) => { s.range *= 1.06; } },
+  { text: '伤害 +8%', lateText: '伤害 +3%', apply: (s, late) => { s.dmg *= late ? 1.03 : 1.08; } },
+  { text: '攻速 +7%', lateText: '攻速 +3%', apply: (s, late) => { s.rate *= late ? 1.03 : 1.07; } },
+  { text: '移速 +4%', lateText: '移速 +2%', apply: (s, late) => { s.speed *= late ? 1.02 : 1.04; } },
+  { text: '最大生命 +2', lateText: '最大生命 +1', apply: (s, late) => { const v = late ? 1 : 2; s.maxhp += v; s.hp += v; } },
+  { text: '拾取范围 +15%', lateText: '拾取范围 +8%', apply: (s, late) => { s.pickup *= late ? 1.08 : 1.15; } },
+  { text: '暴击 +4%', lateText: '暴击 +2%', apply: (s, late) => { s.crit += late ? 0.02 : 0.04; } },
+  { text: '射程 +6%', lateText: '射程 +3%', apply: (s, late) => { s.range *= late ? 1.03 : 1.06; } },
 ];
 
 // Things lying around the yard. Picking one up does something right away.

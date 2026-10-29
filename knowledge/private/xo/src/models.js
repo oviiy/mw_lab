@@ -183,7 +183,7 @@ export function makeTurtle() {
   flash.userData.noInk = true; flash.userData.noBake = true; flash.castShadow = false;
   barrel.add(flash);
   gun.add(barrel);
-  g.add(gun);
+  body.add(gun);
 
   ink(g);
   g.userData = { body, head, legs, gun, barrel, flash, bow, eyes: eyeList };
@@ -473,6 +473,7 @@ export function makeEnemy(type) {
       const look = { jia: { shirt: '#e0563a', pants: '#2b2d3a', hair: '#1c1c22' }, yi: { shirt: '#4f8a6b', pants: '#2b2d3a', hair: '#3a2a20' } }[type];
       const p = person(look);
       Object.assign(ud, p.userData);
+      ud.body = body;
       body.add(p);
       p.userData = {};
       // casual hoodies; 甲方 has his arms folded, ready to ask who asked
@@ -554,6 +555,7 @@ export function makeEnemy(type) {
       // Caesar: laurel wreath, white toga over a red tunic, red cape, round shield and a pilum
       const p = person({ shirt: '#b3261e', pants: '#b3261e', hair: '#3a2a20' });
       Object.assign(ud, p.userData);
+      ud.body = body;
       body.add(p);
       const head = p.userData.head;
       p.userData = {};
@@ -580,6 +582,7 @@ export function makeEnemy(type) {
       // 陈伟: a counter-terrorist in a helmet, goggles and vest with a rifle up
       const p = person({ shirt: '#2b3448', pants: '#232a38', hair: '#1c1c22' });
       Object.assign(ud, p.userData);
+      ud.body = body;
       body.add(p);
       const head = p.userData.head;
       p.userData = {};

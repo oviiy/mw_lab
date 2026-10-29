@@ -1,7 +1,7 @@
 // Pure simulation: no DOM, no three. Runs at a fixed 60 steps a second and reports what
 // happened through g.events, which the renderer, UI and audio drain each frame.
 // Plane coordinates: x to the right, y "up the screen" (the renderer maps y to -z).
-import { AUGMENTS, STAT_UPGRADES, ENEMY_NAMES, SHOUTS, Q, WAVES, LEVEL_BONUS, PICKUPS, ELITE_AFFIX, STREAKS } from './config.js';
+import { AUGMENTS, STAT_UPGRADES, ENEMY_NAMES, SHOUTS, Q, WAVES, LEVEL_BONUS, PICKUPS, ELITE_AFFIX, STREAKS, SHOP_UPGRADES, BUILD_PATHS } from './config.js';
 
 export const HZ = 60;
 export const AW = 12.5, AH = 12.5; // half-size of the courtyard
@@ -23,8 +23,9 @@ export const DEF = {
   thief: { r: 0.55, hp: 16, sp: 0.085, dmg: 0, xp: 3, thief: true },
   mao: { r: 0.8, hp: 40, sp: 0.032, dmg: 2, xp: 5, split: 4 },
   maoqiu: { r: 0.32, hp: 4, sp: 0.08, dmg: 1, xp: 0.5 },
-  bigmao: { r: 1.6, hp: 500, sp: 0.03, dmg: 2, xp: 40, split: 6, boss: true },
-  judge: { r: 1.35, hp: 1700, sp: 0.028, dmg: 3, xp: 0, boss: true },
+  bigmao: { r: 1.6, hp: 800, sp: 0.036, dmg: 3, xp: 40, split: 6, boss: true },
+  judge: { r: 1.35, hp: 2800, sp: 0.034, dmg: 3, xp: 0, boss: true },
+  finaljudge: { r: 1.5, hp: 8500, sp: 0.038, dmg: 4, xp: 0, boss: true },
 };
 
 const POOLS = [
@@ -39,22 +40,49 @@ const POOLS = [
   { durian: 2, orange: 3, goat: 3, dingding: 3, ginger: 6, jia: 3, yi: 3, oyster: 2, guo: 2, thief: 1, mao: 2, caesar: 2, chenwei: 2 },
   { durian: 2, orange: 3, goat: 3, dingding: 3, ginger: 6, jia: 3, yi: 3, oyster: 3, guo: 3, thief: 2, mao: 3, caesar: 2, chenwei: 2 },
   { durian: 3, orange: 2, ginger: 5, jia: 1, yi: 1 },
+  { durian: 2, ginger: 4, goat: 4, chenwei: 3, caesar: 3, mao: 2 },
+  { orange: 4, ginger: 3, jia: 4, yi: 4, guo: 4, thief: 2, oyster: 3 },
+  { goat: 4, dingding: 4, mao: 3, chenwei: 4, caesar: 4, guo: 2 },
+  { ginger: 4, jia: 2, yi: 2, maoqiu: 3 },
 ];
 // The timer stops new arrivals; the player clears the remaining enemies before picking an augment.
-const WAVE_SECONDS = [0, 28, 32, 36, 40, 0, 44, 48, 52, 56, 0]; // 0 = boss wave, ends when the boss falls
+const WAVE_SECONDS = [0, 28, 32, 36, 0, 42, 44, 48, 0, 50, 52, 54, 56, 58, 0]; // 0 = boss wave
 // elites per wave, spread across the wave; boss waves bring their own
-const ELITES = [0, 0, 0, 1, 1, 1, 2, 2, 3, 4, 2];
-const BOSS_OF = { 5: 'bigmao', 10: 'judge' };
+const ELITES = [0, 0, 0, 1, 1, 2, 2, 3, 2, 3, 4, 4, 5, 3, 2];
+const BOSS_OF = { 4: 'bigmao', 8: 'judge', 14: 'finaljudge' };
 
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
 
 export function baseStats() {
-  return { maxhp: 15, hp: 15, speed: 0.115, dmg: 5, rate: 2, range: 7.5, count: 1, pierce: 0, spread: 0.12, crit: 0.05, pickup: 2.2, regen: 0, armor: 0, dodge: 0, xpMul: 1, voice: 0, bomb: 0, hubby: 0, shield: 0, aegis: 0, bull: 0, wind: 0, orbit: 0, chief: 0, meteor: 0, horse: 0, tide: 0, bike: 0 };
+  return { maxhp: 15, hp: 15, speed: 0.115, dmg: 5, rate: 2, range: 7.5, count: 1, pierce: 0, spread: 0.12, crit: 0.05, pickup: 2.2, regen: 0, armor: 0, dodge: 0, xpMul: 1, voice: 0, bomb: 0, hubby: 0, hubbyCooldown: 1, hubbyPower: 1, shield: 0, aegis: 0, bull: 0, wind: 0, orbit: 0, turtles: 0, turtlePower: 1, ultRange: 12, ultDamage: 1, ultCharge: 1, ultEcho: false, chief: 0, meteor: 0, horse: 0, tide: 0, bike: 0 };
 }
 
-export function createGame({ rng = Math.random } = {}) {
-  return { rng, state: 'title', t: 0, st: 0, events: [], uid: 1, wave: 0, hero: null, enemies: [], bullets: [], ebullets: [], gems: [], spawns: [], zones: [], bombs: [], picks: 0, offer: null };
+export function createGame({ rng = Math.random, meta = {} } = {}) {
+  meta = meta && typeof meta === 'object' ? meta : {};
+  const levels = Object.fromEntries(SHOP_UPGRADES.map((a) => [a.id, clamp(Math.floor(Number(meta.levels?.[a.id]) || 0), 0, a.max)]));
+  const points = Number(meta.points);
+  return { rng, meta: { points: Number.isFinite(points) ? Math.max(0, Math.floor(points)) : 0, levels, focus: BUILD_PATHS[meta.focus] ? meta.focus : 'spider' }, state: 'title', t: 0, st: 0, events: [], uid: 1, wave: 0, hero: null, enemies: [], bullets: [], ebullets: [], gems: [], spawns: [], zones: [], bombs: [], picks: 0, offer: null };
+}
+
+export function purchaseMeta(g, id) {
+  if (g.state !== 'title') return false;
+  const a = SHOP_UPGRADES.find((x) => x.id === id), level = g.meta.levels[id];
+  if (!a || level >= a.max || g.meta.points < a.cost) return false;
+  g.meta.points -= a.cost; g.meta.levels[id]++; return true;
+}
+
+export function setBuildFocus(g, focus) {
+  if (g.state !== 'title' || !BUILD_PATHS[focus]) return false;
+  g.meta.focus = focus; return true;
+}
+
+function awardRun(g, won) {
+  if (g.runAwarded) return;
+  g.runAwarded = true;
+  g.earned = 5 + g.wave * 3 + Math.floor(g.kills / 15) + (won ? 25 : 0);
+  g.meta.points += g.earned;
+  emit(g, 'runReward', { amount: g.earned });
 }
 
 const R = (g) => g.rng();
@@ -73,19 +101,23 @@ export function say(g, text, dur = 150) {
 }
 
 export function startGame(g) {
+  const s = baseStats();
+  for (const a of SHOP_UPGRADES) for (let i = 0; i < g.meta.levels[a.id]; i++) a.apply(s);
   g.hero = {
-    x: 0, y: 0, r: 0.5, vx: 0, vy: 0, face: 0, inv: 60, s: baseStats(), xp: 0, lvl: 1, cd: 30,
-    say: '', sayT: 0, idleT: 400, afk: 0, ult: 0, shields: 0, bless: 0, lowSaid: false, timers: { voice: 0, bomb: 0, hubby: 0, shield: 0, regen: 0, meteor: 0, horse: 0, tide: 0, bike: 0 }, augs: [], statUps: [], moving: false, ride: 0, mount: 'horse',
+    x: 0, y: 0, r: 0.5, vx: 0, vy: 0, face: 0, inv: 60, s, xp: 0, lvl: 1, cd: 30,
+    say: '', sayT: 0, idleT: 400, afk: 0, ult: g.meta.levels.spider * 10, shields: 0, bless: 0, lowSaid: false, timers: { voice: 0, bomb: 0, hubby: 0, shield: 0, regen: 0, meteor: 0, horse: 0, tide: 0, bike: 0 }, augs: [], statUps: [], moving: false, ride: 0, mount: 'horse',
   };
+  g.runAwarded = false; g.earned = 0; g.webEchoLeft = 0;
   g.wave = 0; g.kills = 0; g.hitsTotal = 0; g.shots = 0; g.recentKills = []; g.missStreak = 0;
   g.enemies = []; g.bullets = []; g.ebullets = []; g.gems = []; g.spawns = []; g.zones = []; g.bombs = []; g.meteors = [];
   g.bull = null; g.hubbyRun = null; g.rerolls = 2; g.picks = 0; g.pickPhase = null; g.offer = null; g.saidBomb = false; g.saidWind = false;
   g.time = 0; g.score = 0; g.combo = 0; g.comboT = 0; g.bestCombo = 0; g.streakIdx = 0;
   g.pickups = []; g.pickT = 420; g.stampede = null; g.tides = [];
+  g.pendingSupplies = [];
   nextWave(g);
 }
 
-export function xpNeed(lvl) { return 6 + lvl * 4; }
+export function xpNeed(lvl) { return 6 + lvl * 4 + Math.max(0, lvl - 8) ** 2 * 2; }
 
 function nextWave(g) {
   g.wave++;
@@ -105,18 +137,19 @@ function nextWave(g) {
   if (g.bossWave) {
     const type = BOSS_OF[g.wave];
     g.spawns.push({ x: 0, y: g.hero.y > 0 ? -7 : 7, type, t: 110 });
-    say(g, pick(g, type === 'judge' ? Q.boss : Q.bigmao), 200);
+    say(g, pick(g, type === 'bigmao' ? Q.bigmao : Q.boss), 200);
   } else if (g.wave > 1) say(g, pick(g, Q.waveStart), 120);
 }
 
 function mkEnemy(g, type, x, y, elite = null) {
   const d = DEF[type];
   // later waves hit harder, move faster and take more to bring down
-  const scale = d.boss ? 1 : 1 + 0.2 * (g.wave - 1) + 0.025 * (g.wave - 1) ** 2;
-  const spd = d.boss ? 1 : 1 + 0.03 * (g.wave - 1);
-  const dmg = d.dmg + (!d.boss && g.wave >= 7 ? 1 : 0);
+  const late = Math.max(0, g.wave - 7);
+  const scale = d.boss ? 1 : 1 + 0.2 * (g.wave - 1) + 0.025 * (g.wave - 1) ** 2 + 0.09 * late ** 2;
+  const spd = d.boss ? 1 : 1 + 0.03 * (g.wave - 1) + 0.015 * late;
+  const dmg = d.dmg + (!d.boss && g.wave >= 7 ? 1 : 0) + (!d.boss && g.wave >= 11 ? 1 : 0);
   const e = { id: g.uid++, type, name: ENEMY_NAMES[type], x, y, r: d.r, hp: d.hp * scale, max: d.hp * scale, sp: d.sp * spd * rnd(g, 0.9, 1.1), dmg, xp: d.xp, t: Math.floor(rnd(g, 0, 200)), flash: 0, stun: 0, web: 0, kx: 0, ky: 0, mode: 'walk', modeT: 0, carry: 0, cd: rnd(g, 60, 160), hitBy: {} };
-  if (d.boss) { g.boss = e; e.cd = 140; }
+  if (d.boss) { g.boss = e; e.cd = type === 'finaljudge' ? 30 : 100; if (type === 'finaljudge') e.phase = 0; }
   if (elite) {
     e.elite = elite;
     e.name = '精英·' + ELITE_AFFIX[elite] + e.name;
@@ -145,7 +178,8 @@ function queueSpawns(g) {
 }
 
 // ---------- augments ----------
-const STACK_CAP = { aegis: 2, notified: 2, ranked: 2, armor: 4 };
+const STACK_CAP = { aegis: 2, notified: 2, ranked: 2, armor: 4, arrow: 3, mbappe: 3, multi: 3, sweetest: 2, chief: 1, auntie: 2, douzhi: 3, window: 2, wind: 2, dahong: 1, bulletStorm: 2, bulletPower: 3, webReach: 3, webCharge: 3, webPower: 2, webEcho: 1, turtleGuard: 3, turtleSquad: 2, turtlePower: 2, hubbyQuick: 3, hubbyPower: 2, hubbyStorm: 2 };
+const STAT_CAP = { shots: 4, damage: 4, speed: 4, health: 5, regen: 3, crit: 4, move: 4 };
 export function rollOffer(g, forceTier) {
   const w = g.wave;
   const prism = w >= 3 ? Math.min(0.45, 0.05 * w) : 0;
@@ -155,6 +189,8 @@ export function rollOffer(g, forceTier) {
   const count = (id) => g.hero.augs.filter((a) => a === id).length;
   const pool = AUGMENTS.filter((a) => a.tier === tier && count(a.id) < (STACK_CAP[a.id] ?? 99));
   const out = [];
+  const focused = pool.filter((a) => a.path === g.meta.focus);
+  if (focused.length) { const a = focused[Math.floor(R(g) * focused.length)]; out.push(a); pool.splice(pool.indexOf(a), 1); }
   while (out.length < 3 && pool.length) out.push(pool.splice(Math.floor(R(g) * pool.length), 1)[0]);
   g.offer = { kind: 'hex', tier, list: out.map((a) => a.id) };
   return g.offer;
@@ -165,7 +201,7 @@ export function rollStatOffer(g) {
     g.offer = { kind: 'stat', list: ['shots', 'damage', 'health'] };
     return g.offer;
   }
-  const pool = STAT_UPGRADES.filter((a) => !a.available || a.available(g.hero.s));
+  const pool = STAT_UPGRADES.filter((a) => (!a.available || a.available(g.hero.s)) && g.hero.statUps.filter((id) => id === a.id).length < (STAT_CAP[a.id] ?? 99));
   const out = [];
   while (out.length < 3 && pool.length) out.push(pool.splice(Math.floor(R(g) * pool.length), 1)[0]);
   g.offer = { kind: 'stat', list: out.map((a) => a.id) };
@@ -174,7 +210,7 @@ export function rollStatOffer(g) {
 
 export function applyStatUpgrade(g, id) {
   const a = STAT_UPGRADES.find((item) => item.id === id);
-  if (!a || (a.available && !a.available(g.hero.s))) return false;
+  if (!a || (a.available && !a.available(g.hero.s)) || g.hero.statUps.filter((x) => x === id).length >= (STAT_CAP[id] ?? 99)) return false;
   a.apply(g.hero.s);
   g.hero.statUps.push(id);
   emit(g, 'statUp', { text: a.name });
@@ -192,14 +228,17 @@ export function applyAugment(g, id) {
 
 function endWave(g) {
   const h = g.hero;
+  const gems = g.gems.length, supplies = g.pickups.length;
   for (const gem of g.gems) gainXp(g, gem.v);
   g.gems = [];
+  for (const p of g.pickups) collectWaveSupply(g, p);
+  if (gems || supplies) emit(g, 'lootSweep', { gems, supplies });
   for (const e of g.enemies) burst(g, e.x, e.y, 'poof', 6);
   g.enemies = []; g.ebullets = []; g.zones = []; g.spawns = []; g.bombs = []; g.meteors = []; g.hubbyRun = null; g.hero.ride = 0; g.pickups = []; g.stampede = null; g.hero.bless = 0;
   g.combo = 0; g.comboT = 0;
   h.s.hp = Math.min(h.s.maxhp, h.s.hp + 2);
   sfx(g, 'waveEnd');
-  if (g.wave >= WAVES) { g.state = 'win'; g.st = 0; sfx(g, 'win'); return; }
+  if (g.wave >= WAVES) { g.state = 'win'; g.st = 0; awardRun(g, true); sfx(g, 'win'); return; }
   // One stat choice, then one 海克斯 choice, after each completed wave.
   g.picks = 2; g.pickPhase = 'stat';
   if (g.bossWave) g.rerolls += 1;
@@ -208,7 +247,7 @@ function endWave(g) {
   const bonus = { S: 600, A: 300, B: 100, C: 0 }[rating];
   g.score += bonus;
   if (rating === 'S') g.rerolls += 1;
-  g.lastWave = { n: g.wave, kills: ws.kills, best: ws.best, rating, bonus, reroll: rating === 'S' };
+  g.lastWave = { n: g.wave, kills: ws.kills, best: ws.best, rating, bonus, reroll: rating === 'S', gems, supplies };
   g.state = 'pick'; g.st = 0;
   rollStatOffer(g);
   say(g, pick(g, Q.waveClear), 120);
@@ -221,32 +260,47 @@ function gainXp(g, v) {
   while (h.xp >= xpNeed(h.lvl)) {
     h.xp -= xpNeed(h.lvl); h.lvl++;
     const b = pick(g, LEVEL_BONUS);
-    b.apply(h.s);
-    h.s.hp = Math.min(h.s.maxhp, h.s.hp + 2);
-    emit(g, 'levelup', { lvl: h.lvl, text: b.text });
+    const late = h.lvl > 12;
+    b.apply(h.s, late);
+    h.s.hp = Math.min(h.s.maxhp, h.s.hp + (late ? 1 : 2));
+    emit(g, 'levelup', { lvl: h.lvl, text: late ? b.lateText : b.text });
     sfx(g, 'levelup');
   }
 }
 
 // ---------- damage ----------
 function hitEnemy(g, e, dmg, opts = {}) {
-  if (e.dead) return;
+  if (e.dead || e.invulnerable > 0) return;
   const h = g.hero;
   let crit = false;
   if (opts.canCrit && R(g) < h.s.crit) { crit = true; dmg *= 2; }
   if (h.bless > 0) dmg *= 1.5;
+  if (e.type === 'bigmao') dmg *= 0.85;
+  if (e.type === 'judge') dmg *= 0.75;
+  if (e.type === 'finaljudge') dmg *= 0.65;
   e.hp -= dmg; e.flash = 6;
-  if (opts.kx) { const k = e.type === 'judge' || e.type === 'bigmao' ? 0.15 : 1; e.kx += opts.kx * k; e.ky += opts.ky * k; }
+  if (opts.kx) { const k = DEF[e.type].boss ? 0.15 : 1; e.kx += opts.kx * k; e.ky += opts.ky * k; }
   emit(g, 'dmg', { x: e.x, y: e.y, n: Math.round(dmg), crit });
-  if (e.hp <= 0) killEnemy(g, e); else if (opts.sfx !== false) sfx(g, 'hit');
+  if (e.type === 'finaljudge' && e.hp <= e.max * (2 - e.phase) / 3 && e.phase < 2) {
+    e.phase++; e.hp = Math.max(e.hp, e.max * (3 - e.phase) / 3);
+    e.invulnerable = 150; e.cd = 1; e.mode = e.phase === 1 ? 'slam' : 'gavel'; e.modeT = 70;
+    if (e.mode === 'slam') g.zones.push({ id: g.uid++, x: e.x, y: e.y, r: 5, t: 70, T: 70, dmg: 3, kind: 'slam', follow: e.id });
+    else for (let i = 0; i < 7; i++) { const a = i / 7 * Math.PI * 2; g.zones.push({ id: g.uid++, x: g.hero.x + Math.cos(a) * (i ? 3 : 0), y: g.hero.y + Math.sin(a) * (i ? 3 : 0), r: 1.2, t: 75 + i * 6, T: 75 + i * 6, dmg: 2, kind: 'gavel' }); }
+    emit(g, 'bossTell', { move: e.mode });
+    emit(g, 'bossPhase', { n: e.phase });
+  }
+  if (e.hp <= 0) killEnemy(g, e, opts); else if (opts.sfx !== false) sfx(g, 'hit');
 }
 
-function killEnemy(g, e) {
+function killEnemy(g, e, opts = {}) {
   if (e.dead) return;
   e.dead = true;
   const h = g.hero;
   g.kills++; g.ws.kills++;
-  h.ult = Math.min(100, h.ult + (DEF[e.type].boss ? 40 : e.elite ? 25 : 4));
+  const charge = DEF[e.type].boss ? 40 : e.elite ? 25 : 4;
+  if (opts.fromWeb) {
+    if (h.s.ultEcho && g.webEchoLeft > 0) { const gain = Math.min(charge, g.webEchoLeft); h.ult = Math.min(100, h.ult + gain); g.webEchoLeft -= gain; }
+  } else h.ult = Math.min(100, h.ult + Math.round(charge * h.s.ultCharge));
   // combo: kills inside a short window chain, and the chain multiplies points
   g.combo++; g.comboT = 150;
   if (g.combo > g.bestCombo) g.bestCombo = g.combo;
@@ -310,7 +364,7 @@ export function hurtHero(g, dmg, sx, sy) {
     if (h.s.aegis > 0) {
       h.s.aegis--; h.s.hp = h.s.maxhp; h.inv = 150;
       say(g, '不朽盾！买活了！', 160); burst(g, h.x, h.y, 'gold', 40); sfx(g, 'aegis');
-    } else { h.s.hp = 0; g.state = 'over'; g.st = 0; g.overQuote = pick(g, Q.dead); sfx(g, 'over'); }
+    } else { h.s.hp = 0; g.state = 'over'; g.st = 0; g.overQuote = pick(g, Q.dead); awardRun(g, false); sfx(g, 'over'); }
   }
   return true;
 }
@@ -321,7 +375,7 @@ export function step(g, inp) {
   g.t++;
   const pr = inp.pressed || {};
   if (g.state === 'title') { if (pr.start) startGame(g); return; }
-  if (g.state === 'over' || g.state === 'win') { if (++g.st > 60 && pr.start) startGame(g); return; }
+  if (g.state === 'over' || g.state === 'win') { g.st++; if (pr.start) startGame(g); return; }
   if (g.state === 'pause') { if (pr.pause || pr.start) g.state = 'play'; return; }
   if (g.state === 'pick') {
     g.st++;
@@ -390,6 +444,11 @@ export function step(g, inp) {
     if (DEF[sp.type].boss) { emit(g, 'boss', { type: sp.type }); emit(g, 'shake', { amt: 0.8 }); sfx(g, 'slam'); }
   }
   g.spawns = g.spawns.filter((sp) => !sp.done);
+
+  if (g.pendingSupplies.length && (g.boss || g.enemies.length >= 4 || (g.waveClock >= 3 * HZ && g.enemies.length))) {
+    for (const kind of g.pendingSupplies) usePickup(g, { kind, x: h.x, y: h.y });
+    g.pendingSupplies = [];
+  }
 
   autoFire(g);
   abilities(g);
@@ -464,10 +523,10 @@ function abilities(g) {
   }
   g.bombs = g.bombs.filter((b) => !b.done);
 
-  if (s.hubby && ++T.hubby >= 900) {
+  if (s.hubby && ++T.hubby >= Math.max(300, 900 * s.hubbyCooldown)) {
     T.hubby = 0;
     const dir = h.x > 0 ? -1 : 1;
-    g.hubbyRun = { x: -dir * (AW + 2), y: h.y, dir, hit: new Set(), dmg: 40 * s.hubby * dm };
+    g.hubbyRun = { x: -dir * (AW + 2), y: h.y, dir, hit: new Set(), dmg: 40 * s.hubby * s.hubbyPower * dm };
     say(g, pick(g, Q.hubby), 120); sfx(g, 'hubby'); emit(g, 'hubby', {});
   }
   if (g.hubbyRun) {
@@ -510,6 +569,7 @@ function abilities(g) {
   const nw = s.wind ? s.wind + 1 : 0;
   for (let i = 0; i < nw; i++) { const a = g.time * 0.045 + (i / nw) * Math.PI * 2; g.orbiters.push({ kind: 'wind', x: h.x + Math.cos(a) * 2.6, y: h.y + Math.sin(a) * 2.6, r: 0.75, dmg: 3 * s.wind * dm, tick: 15 }); }
   for (let i = 0; i < s.orbit; i++) { const a = -g.time * 0.07 + (i / s.orbit) * Math.PI * 2; g.orbiters.push({ kind: 'dahong', x: h.x + Math.cos(a) * 1.55, y: h.y + Math.sin(a) * 1.55, r: 0.4, dmg: 4 * dm, tick: 20 }); }
+  for (let i = 0; i < s.turtles; i++) { const a = g.time * 0.055 + (i / s.turtles) * Math.PI * 2; g.orbiters.push({ kind: 'turtle' + i, visual: 'turtle', x: h.x + Math.cos(a) * 1.9, y: h.y + Math.sin(a) * 1.9, r: 0.55, dmg: 5 * s.turtlePower * dm, tick: 22 }); }
   if (nw && !g.saidWind) { g.saidWind = true; say(g, Q.wind[0], 160); }
   for (const o of g.orbiters) for (const e of g.enemies) {
     if (Math.hypot(e.x - o.x, e.y - o.y) > o.r + e.r) continue;
@@ -545,9 +605,10 @@ function ult(g) {
   const h = g.hero;
   if (h.ult < 100) { if (h.sayT <= 0) say(g, '超级蜘蛛还没充好', 70); return; }
   h.ult = 0;
+  g.webEchoLeft = h.s.ultEcho ? 20 : 0;
   say(g, pick(g, Q.ult), 150);
-  emit(g, 'ult', { x: h.x, y: h.y }); emit(g, 'shake', { amt: 0.7 }); sfx(g, 'ult');
-  for (const e of g.enemies) if (dist(e, h) < 12) e.web = DEF[e.type].boss ? 100 : 260;
+  emit(g, 'ult', { x: h.x, y: h.y, range: h.s.ultRange }); emit(g, 'shake', { amt: 0.7 }); sfx(g, 'ult');
+  for (const e of g.enemies) if (dist(e, h) < h.s.ultRange) e.web = DEF[e.type].boss ? 100 : 260;
   g.ebullets = [];
 }
 
@@ -569,11 +630,12 @@ function updateEnemies(g) {
   for (const e of es) {
     if (e.dead) continue;
     e.t++;
+    if (e.invulnerable > 0) e.invulnerable--;
     if (e.flash > 0) e.flash--;
     // webbed enemies take damage over time and stay put
     if (e.web > 0) {
       e.web--;
-      if (e.web % 20 === 0) hitEnemy(g, e, 4 * (h.s.dmg / 5), { sfx: false });
+      if (e.web % 20 === 0) hitEnemy(g, e, 4 * h.s.ultDamage * (h.s.dmg / 5), { sfx: false, fromWeb: true });
     }
     e.x += e.kx; e.y += e.ky; e.kx *= 0.82; e.ky *= 0.82;
     const dx = h.x - e.x, dy = h.y - e.y, d = Math.hypot(dx, dy) || 1, ux = dx / d, uy = dy / d;
@@ -713,33 +775,35 @@ function behave(g, e, d, ux, uy) {
       break;
     }
     case 'bigmao':
-      if (e.mode === 'walk') { walk(); if (--e.cd <= 0) { pop(g, e.x, e.y, pick(g, SHOUTS.mao), 'shout'); e.mode = 'leap'; e.modeT = 60; e.tx = h.x; e.ty = h.y; e.sx = e.x; e.sy = e.y; g.zones.push({ id: g.uid++, x: h.x, y: h.y, r: 2.4, t: 60, T: 60, dmg: 2, kind: 'slam' }); } }
+      if (e.mode === 'walk') { walk(); if (--e.cd <= 0) { pop(g, e.x, e.y, pick(g, SHOUTS.mao), 'shout'); e.mode = 'leap'; e.modeT = 55; e.tx = h.x; e.ty = h.y; e.sx = e.x; e.sy = e.y; g.zones.push({ id: g.uid++, x: h.x, y: h.y, r: 2.7, t: 55, T: 55, dmg: 3, kind: 'slam' }); } }
       else if (e.mode === 'leap') {
-        const k = 1 - e.modeT / 60;
+        const k = 1 - e.modeT / 55;
         e.x = e.sx + (e.tx - e.sx) * k; e.y = e.sy + (e.ty - e.sy) * k; e.hop = Math.sin(k * Math.PI) * 4;
-        if (--e.modeT <= 0) { e.mode = 'walk'; e.hop = 0; e.cd = rnd(g, 200, 260); emit(g, 'shake', { amt: 0.6 }); burst(g, e.x, e.y, 'fluff', 30); sfx(g, 'slam'); if (g.enemies.length < MAX_ENEMIES) for (let i = 0; i < 2; i++) g.enemies.push(mkEnemy(g, 'maoqiu', e.x + rnd(g, -1, 1), e.y + rnd(g, -1, 1))); }
+        if (--e.modeT <= 0) { e.mode = 'walk'; e.hop = 0; e.cd = rnd(g, 135, 170); emit(g, 'shake', { amt: 0.6 }); burst(g, e.x, e.y, 'fluff', 30); sfx(g, 'slam'); if (g.enemies.length < MAX_ENEMIES) for (let i = 0; i < 3; i++) g.enemies.push(mkEnemy(g, 'maoqiu', e.x + rnd(g, -1, 1), e.y + rnd(g, -1, 1))); }
       }
       break;
-    case 'judge': {
+    case 'judge': case 'finaljudge': {
+      const final = e.type === 'finaljudge';
       const angry = e.hp < e.max / 2;
       if (e.mode === 'walk') {
         walk(angry ? 1.4 : 1);
         if (--e.cd <= 0) {
           const moves = ['slam', 'papers', 'gavel'];
           e.mode = moves[(e.moveIdx = ((e.moveIdx ?? -1) + 1) % 3)];
-          e.modeT = 50;
+          e.modeT = final ? 70 : 50;
+          if (final) emit(g, 'bossTell', { move: e.mode });
           if (R(g) < 0.6) pop(g, e.x, e.y, pick(g, SHOUTS.judge), 'shout');
-          if (e.mode === 'slam') g.zones.push({ id: g.uid++, x: e.x, y: e.y, r: 4, t: 50, T: 50, dmg: 3, kind: 'slam', follow: e.id });
-          if (e.mode === 'gavel') for (let i = 0; i < (angry ? 7 : 5); i++) { const a = rnd(g, 0, Math.PI * 2), rr = i === 0 ? 0 : rnd(g, 1.5, 4); g.zones.push({ id: g.uid++, x: h.x + Math.cos(a) * rr, y: h.y + Math.sin(a) * rr, r: 1.2, t: 55 + i * 6, T: 55 + i * 6, dmg: 2, kind: 'gavel' }); }
+          if (e.mode === 'slam') g.zones.push({ id: g.uid++, x: e.x, y: e.y, r: final ? 5 : 4, t: e.modeT, T: e.modeT, dmg: 3, kind: 'slam', follow: e.id });
+          if (e.mode === 'gavel') for (let i = 0; i < (angry || final ? 7 : 5); i++) { const a = rnd(g, 0, Math.PI * 2), rr = i === 0 ? 0 : rnd(g, 1.5, final ? 5 : 4); g.zones.push({ id: g.uid++, x: h.x + Math.cos(a) * rr, y: h.y + Math.sin(a) * rr, r: 1.2, t: (final ? 75 : 55) + i * 6, T: (final ? 75 : 55) + i * 6, dmg: 2, kind: 'gavel' }); }
         }
       } else if (--e.modeT <= 0) {
         if (e.mode === 'papers') {
-          const n = angry ? 18 : 12, off = rnd(g, 0, 1);
-          for (let i = 0; i < n; i++) { const a = (i + off) / n * Math.PI * 2; g.ebullets.push({ id: g.uid++, x: e.x, y: e.y, vx: Math.cos(a) * 0.1, vy: Math.sin(a) * 0.1, r: 0.25, life: 260, dmg: 1, kind: 'paper', spin: rnd(g, 0, 6) }); }
+          const n = final ? 24 : angry ? 18 : 12, off = rnd(g, 0, 1);
+          for (let i = 0; i < n; i++) { const a = (i + off) / n * Math.PI * 2; g.ebullets.push({ id: g.uid++, x: e.x, y: e.y, vx: Math.cos(a) * (final ? 0.125 : 0.1), vy: Math.sin(a) * (final ? 0.125 : 0.1), r: 0.25, life: 260, dmg: final ? 2 : 1, kind: 'paper', spin: rnd(g, 0, 6) }); }
           sfx(g, 'throw');
         }
-        if (angry && R(g) < 0.5 && g.enemies.length < MAX_ENEMIES) for (let i = 0; i < 2; i++) g.spawns.push({ x: clamp(e.x + rnd(g, -3, 3), -AW + 1, AW - 1), y: clamp(e.y + rnd(g, -3, 3), -AH + 1, AH - 1), type: R(g) < 0.5 ? 'jia' : 'yi', t: 50 });
-        e.mode = 'walk'; e.cd = angry ? 110 : 160;
+        if ((final ? e.phase >= 1 : angry && R(g) < 0.5) && g.enemies.length < MAX_ENEMIES) for (let i = 0; i < 2; i++) g.spawns.push({ x: clamp(e.x + rnd(g, -3, 3), -AW + 1, AW - 1), y: clamp(e.y + rnd(g, -3, 3), -AH + 1, AH - 1), type: R(g) < 0.5 ? 'jia' : 'yi', t: 50 });
+        e.mode = 'walk'; e.cd = final ? (angry ? 55 : 75) : angry ? 85 : 115;
       }
       break;
     }
@@ -905,6 +969,19 @@ function usePickup(g, p) {
   emit(g, 'pickup', { kind: p.kind, x: p.x, y: p.y, text });
   sfx(g, p.kind === 'chest' ? 'chest' : 'pickup');
   burst(g, p.x, p.y, 'sugar', 18);
+}
+
+function collectWaveSupply(g, p) {
+  const h = g.hero, s = h.s;
+  if (p.kind === 'douzhi') {
+    s.hp = Math.min(s.maxhp, s.hp + s.maxhp * 0.4);
+  } else if (p.kind === 'spider') {
+    h.ult = Math.min(100, h.ult + 50);
+  } else if (p.kind === 'magnet' || g.wave >= WAVES) {
+    // Magnet has already gathered every gem; final-wave combat effects have no next wave.
+    gainXp(g, 2);
+    g.score += 75;
+  } else g.pendingSupplies.push(p.kind); // Activate temporary combat effects once enemies arrive next wave.
 }
 
 // ---------- 潮汐监狱: tides sweep the yard in the late waves ----------

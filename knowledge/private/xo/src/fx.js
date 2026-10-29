@@ -153,8 +153,10 @@ export function createFx(scene) {
   spider.visible = false;
   scene.add(spider);
   let webT = 0;
-  function superSpider(x, y) {
+  let webDiameter = 26;
+  function superSpider(x, y, range = 12) {
     webT = 1;
+    webDiameter = range * (26 / 12);
     web.position.x = x; web.position.z = -y; web.visible = true;
     spider.position.set(x, 18, -y); spider.visible = true;
     burst('web', x, y, 60, 0.3);
@@ -192,7 +194,7 @@ export function createFx(scene) {
     if (webT > 0) {
       webT++;
       const grow = Math.min(1, webT / 30);
-      web.scale.setScalar(26 * (1 - Math.pow(1 - grow, 3)));
+      web.scale.setScalar(webDiameter * (1 - Math.pow(1 - grow, 3)));
       web.rotation.y = webT * 0.002;
       webMat.opacity = webT < 200 ? 0.75 : Math.max(0, 0.75 * (1 - (webT - 200) / 60));
       // drop, hang, climb back up

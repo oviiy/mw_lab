@@ -144,6 +144,19 @@
   .pill.boss { background: #8a1d2a; border-color: #ff8a8a; }
   .actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
   .hint { margin-top: 16px; font-size: 12px; color: rgba(255,255,255,.7); }
+  #shop { z-index: 90; overflow-y: auto; align-items: flex-start; padding: max(18px, var(--safe-t)) 14px max(18px, var(--safe-b)); }
+  #shop .panel { margin: auto; width: min(680px, 100%); max-height: none; }
+  #shop .sub { margin-bottom: 10px; }
+  .shopfocus { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin-bottom: 14px; }
+  .shopfocus .btn { font-size: 13px; padding: 8px 11px; }
+  .shopfocus .btn.ghost { color: var(--ink); background: #fff; border: 2px solid var(--ink); }
+  .shopitems { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-bottom: 15px; }
+  .shopitem { border: 2px solid var(--ink); background: #fff; border-radius: 12px; padding: 10px; text-align: left; color: var(--ink); }
+  .shopitem b, .shopitem small, .shopitem em { display: block; }
+  .shopitem small { margin: 3px 0; font-size: 12px; }
+  .shopitem em { color: #9b4d18; font-style: normal; font-weight: 800; }
+  .shopitem:disabled { opacity: .5; }
+  @media (max-width: 520px) { .shopitems { grid-template-columns: 1fr; } }
 
   .panel { width: min(560px, 100%); background: var(--paper); border: 3px solid var(--ink); border-radius: 22px; padding: 26px 24px 22px; box-shadow: 0 8px 0 var(--ink), 0 30px 60px rgba(0,0,0,.4); text-align: center; animation: panelIn .35s cubic-bezier(.3,1.5,.5,1); }
   @keyframes panelIn { from { transform: translateY(30px) scale(.94); opacity: 0; } }
@@ -227,9 +240,21 @@
     <p class="cast" id="cast"></p>
     <div class="actions">
       <button class="btn primary" id="startBtn" disabled>加载中…</button>
+      <button class="btn ghost" id="shopBtn">开局商店</button>
       <button class="btn ghost" id="muteBtn">声音：开</button>
     </div>
     <p class="hint">电脑：WASD / 方向键移动，空格放超级蜘蛛，1 2 3 选海克斯 · 手机：按住屏幕任意处拖动</p>
+  </div>
+</section>
+
+<section id="shop" class="screen dim" hidden>
+  <div class="panel">
+    <h2>开局商店</h2>
+    <p class="sub">糖票 <b id="shopPoints">0</b> · 每局结束获得，升级永久保留</p>
+    <p class="sub">本局想走的流派 · 每次海克斯至少有一个相关候选</p>
+    <div class="shopfocus" id="shopFocus"></div>
+    <div class="shopitems" id="shopItems"></div>
+    <div class="actions"><button class="btn primary" id="shopClose">返回标题</button></div>
   </div>
 </section>
 
@@ -252,7 +277,7 @@
     <h2 id="overTitle">没人通知我啊！！</h2>
     <p class="sub">你的龟打排位打得好累</p>
     <div class="stats" id="overStats"></div>
-    <div class="actions"><button class="btn primary" id="againBtn">再来一把</button></div>
+    <div class="actions"><button class="btn primary" id="againBtn">再来一把</button><button class="btn" id="overShopBtn">回标题 · 商店</button></div>
   </div>
 </section>
 
@@ -261,7 +286,7 @@
     <h2>全胡同最甜！</h2>
     <p class="sub">没人比我甜！ —— 队友蔡博：龟你真棒</p>
     <div class="stats" id="winStats"></div>
-    <div class="actions"><button class="btn primary" id="winAgain">再来一把</button></div>
+    <div class="actions"><button class="btn primary" id="winAgain">再来一把</button><button class="btn" id="winShopBtn">回标题 · 商店</button></div>
   </div>
 </section>
 

@@ -4,9 +4,9 @@ import { createWorld } from './world.js';
 import { createFx } from './fx.js';
 import { createUI } from './ui.js';
 import * as audio from './audio.js';
-import { createGame, step, startGame, HZ, AW, AH, DEF } from './game.js';
+import { createGame, step, startGame, purchaseMeta, setBuildFocus, HZ, AW, AH, DEF } from './game.js';
 import { makeTurtle, makeEnemy, makeHubby, makeBull, makeHorse, makeBike, makePickup, PICKUP_COL, makeTornado, makeDahong, makeBomb, gemGeometry, gemMaterial, glow, glossy, toon, template, instantiate } from './models.js';
-import { WAVES, ENEMY_NAMES } from './config.js';
+import { WAVES, ENEMY_NAMES, SHOP_UPGRADES, BUILD_PATHS } from './config.js';
 
 const canvas = document.getElementById('scene');
 const phone = matchMedia('(pointer: coarse)').matches && Math.min(screen.width, screen.height) <= 820;
@@ -14,11 +14,16 @@ const world = createWorld(canvas, { lowPower: phone });
 const { scene, camera, renderer } = world;
 const fx = createFx(scene);
 const ui = createUI(camera);
-const g = createGame();
+const SAVE_KEY = 'xo.progress.v1';
+const readSave = () => { try { return JSON.parse(localStorage.getItem(SAVE_KEY) || '{}'); } catch { return {}; } };
+const g = createGame({ meta: readSave() });
+const saveProgress = () => { try { localStorage.setItem(SAVE_KEY, JSON.stringify(g.meta)); } catch { /* Storage may be disabled in an embedded browser. */ } };
 
 const WAVE_SUBS = [
-  '', '小榴莲、姜饼人……橘子来了！', '徐山羊开始冲了，丁丁要抱抱', '甲方乙方吵上门了，往昔蚝在想当年', '果哥在问号，吴浩然在偷糖', '大毛（超大号）来了',
-  '大毛一家都来了', '你的龟昨天晚上风好大', '他应该不会下包的', '黄房上没人', '沉毅羊（法官）开庭了',
+  '', '小榴莲、姜饼人……橘子来了！', '徐山羊开始冲了，丁丁要抱抱', '甲方乙方吵上门了，往昔蚝在想当年',
+  '大毛（超大号）来了', '大毛一家都来了', '果哥在问号，吴浩然在偷糖', '你的龟昨天晚上风好大',
+  '沉毅羊（法官）开庭了', '他应该不会下包的', '黄房上没人', '胡同双线突围',
+  '甲乙双方一起上', '精英头目乱斗', '沉毅羊终审开庭：小心技能预警',
 ];
 
 // ---------- models ----------
@@ -36,7 +41,7 @@ pickupRing.position.y = 0.025;
 scene.add(pickupRing);
 
 const enemyTpl = {};
-const tplFor = (type) => (enemyTpl[type] ||= template(makeEnemy(type)));
+const tplFor = (type) => (enemyTpl[type] ||= template(makeEnemy(type === 'finaljudge' ? 'judge' : type)));
 const hubby = instantiate(template(makeHubby()));
 hubby.visible = false; scene.add(hubby);
 const bullTpl = template(makeBull());
@@ -52,7 +57,7 @@ bikeRider.position.set(-0.5, 0.2, 0);
 bikeM.userData.body.add(bikeRider);
 bikeM.visible = false; scene.add(bikeM);
 const tornadoTpl = template(makeTornado()), dahongTpl = template(makeDahong()), bombTpl = template(makeBomb());
-const tornados = [], dahongs = [];
+const tornados = [], dahongs = [], orbitTurtles = [];
 function pool(arr, tpl, n) {
   while (arr.length < n) { const m = instantiate(tpl); scene.add(m); arr.push(m); }
   arr.forEach((m, i) => { m.visible = i < n; });
@@ -214,8 +219,20 @@ function readMove() {
 const $ = (id) => document.getElementById(id);
 const tap = (id, fn) => $(id).addEventListener('click', (e) => { e.stopPropagation(); audio.unlock(); audio.sfx('click'); fn(); });
 tap('startBtn', () => press('start'));
+const shop = $('shop');
+function renderShop() {
+  $('shopPoints').textContent = g.meta.points;
+  $('shopFocus').innerHTML = Object.entries(BUILD_PATHS).map(([id, name]) => `<button class="btn ${g.meta.focus === id ? 'primary' : 'ghost'}" data-focus="${id}">${name}</button>`).join('');
+  $('shopItems').innerHTML = SHOP_UPGRADES.map((a) => { const n = g.meta.levels[a.id]; return `<button class="shopitem" data-buy="${a.id}" ${n >= a.max || g.meta.points < a.cost ? 'disabled' : ''}><b>${a.name} · ${n}/${a.max}</b><small>${a.desc}</small><em>${n >= a.max ? '已满级' : a.cost + ' 糖票'}</em></button>`; }).join('');
+  for (const el of $('shopFocus').children) el.onclick = () => { setBuildFocus(g, el.dataset.focus); saveProgress(); renderShop(); };
+  for (const el of $('shopItems').children) el.onclick = () => { if (purchaseMeta(g, el.dataset.buy)) { saveProgress(); renderShop(); } };
+}
+tap('shopBtn', () => { renderShop(); shop.hidden = false; });
+tap('shopClose', () => { shop.hidden = true; });
 tap('againBtn', () => press('start'));
 tap('winAgain', () => press('start'));
+tap('overShopBtn', () => { g.state = 'title'; shop.hidden = true; });
+tap('winShopBtn', () => { g.state = 'title'; shop.hidden = true; });
 tap('pauseBtn', () => press('pause'));
 tap('resumeBtn', () => press('pause'));
 tap('quitBtn', () => { g.state = 'title'; });
@@ -337,8 +354,8 @@ function animateEnemy(m, e, t) {
     if (e.mode === 'wind') ud.body.rotation.z = 0.25 + Math.sin(t * 40) * 0.05;
     else if (e.mode === 'dash') ud.body.rotation.z = -0.2;
   }
-  if (e.type === 'judge' && ud.arm) {
-    const windup = (e.mode === 'slam' || e.mode === 'gavel') ? 1 - e.modeT / 50 : 0;
+  if ((e.type === 'judge' || e.type === 'finaljudge') && ud.arm) {
+    const windup = (e.mode === 'slam' || e.mode === 'gavel') ? 1 - e.modeT / (e.type === 'finaljudge' ? 70 : 50) : 0;
     ud.arm.rotation.z = windup ? -1.6 * windup : Math.sin(t * 2) * 0.15;
   }
   ud.cocoon.visible = e.web > 0;
@@ -346,7 +363,7 @@ function animateEnemy(m, e, t) {
   const born = Math.min(1, (t - m.userData.born) * 4);
   const pop = born < 1 ? 1 - Math.pow(1 - born, 3) * Math.cos(born * 6) : 1;
   const hit = e.flash > 0 ? 1 + e.flash * 0.03 : 1;
-  m.scale.set(pop * hit, pop / hit, pop * hit).multiplyScalar((e.type === 'bigmao' ? 2 : 1) * (e.elite ? 1.35 : 1));
+  m.scale.set(pop * hit, pop / hit, pop * hit).multiplyScalar((e.type === 'bigmao' ? 2 : e.type === 'finaljudge' ? 1.35 : 1) * (e.elite ? 1.35 : 1));
 }
 
 function syncWorld(t) {
@@ -437,6 +454,9 @@ function syncWorld(t) {
   });
   pool(dahongs, dahongTpl, reds.length);
   reds.forEach((o, i) => { const m = dahongs[i]; m.position.set(o.x, 0, -o.y); m.userData.box.rotation.set(t * 2, t * 3, 0); });
+  const turtles = orb.filter((o) => o.visual === 'turtle');
+  pool(orbitTurtles, turtleTpl, turtles.length);
+  turtles.forEach((o, i) => { const m = orbitTurtles[i]; m.position.set(o.x, 0, -o.y); m.rotation.y = t * 2; m.scale.setScalar(0.5); });
 
   // 白牛
   const b = g.bull;
@@ -564,13 +584,14 @@ function syncTitle(t) {
 let lastState = null;
 function onState(s) {
   ui.show(s);
+  if (s !== 'title') shop.hidden = true;
   stick.active = false; stickEl.hidden = true;
   if (s === 'title') {
     clearDynamic(); ui.clearLabels();
     world.setDay(0.35, true);
     world.setSnow(false);
     audio.setMusic({ on: true, calm: true });
-    bullM.visible = hubby.visible = horseM.visible = bikeM.visible = false; herd.forEach((b) => { b.visible = false; }); pool(tornados, tornadoTpl, 0); pool(dahongs, dahongTpl, 0);
+    bullM.visible = hubby.visible = horseM.visible = bikeM.visible = false; herd.forEach((b) => { b.visible = false; }); pool(tornados, tornadoTpl, 0); pool(dahongs, dahongTpl, 0); pool(orbitTurtles, turtleTpl, 0);
     for (const m of [bulletMesh, gemMesh, spawnMesh, ...Object.values(ebMesh)]) m.count = 0;
   } else {
     showcase.visible = false;
@@ -580,8 +601,8 @@ function onState(s) {
   if (s === 'play' && lastState === 'pick') audio.setMusic({ on: true, wave: g.wave, boss: g.bossWave });
   if (s === 'pause') audio.setMusic({ on: false });
   if (s === 'play' && lastState === 'pause') audio.setMusic({ on: true, wave: g.wave, boss: g.bossWave });
-  if (s === 'over') { ui.renderOver(g); audio.setMusic({ on: false }); }
-  if (s === 'win') { ui.renderWin(g); audio.setMusic({ on: true, calm: true }); fx.burst('gold', g.hero.x, g.hero.y, 80); }
+  if (s === 'over') { saveProgress(); ui.renderOver(g); audio.setMusic({ on: false }); }
+  if (s === 'win') { saveProgress(); ui.renderWin(g); audio.setMusic({ on: true, calm: true }); fx.burst('gold', g.hero.x, g.hero.y, 80); }
   lastState = s;
 }
 
@@ -605,9 +626,12 @@ function drainEvents() {
       case 'tideWarn': ui.banner('潮汐来了！', ev.dir > 0 ? '从左边冲过来 →' : '← 从右边冲过来', false); break;
       case 'stampede': ui.toast('白牛冲锋！', 'pickup', '#ffffff'); break;
       case 'waveEnd': world.flash(0.25); break;
+      case 'lootSweep': ui.toast(`自动拾取 ${ev.gems} 颗糖果${ev.supplies ? ` · ${ev.supplies} 个补给` : ''}`, 'pickup'); break;
       case 'cleanup': ui.banner('清场', '打完场上的敌人，再选海克斯'); break;
       case 'fire': muzzle = 1; break;
-      case 'ult': fx.superSpider(ev.x, ev.y); cam.zoom = 1.18; break;
+      case 'ult': fx.superSpider(ev.x, ev.y, ev.range); cam.zoom = 1.18; break;
+      case 'bossPhase': ui.banner('终审 · 第 ' + (ev.n + 1) + ' 阶段', '躲开预警，抓住空隙反击', true); break;
+      case 'bossTell': ui.toast({ slam: '重锤落地！离开红圈', papers: '判决书弹幕！找空隙', gavel: '法槌连击！持续移动' }[ev.move], 'boss'); break;
       case 'meteor': fx.meteor(ev.x, ev.y, ev.t); break;
       case 'horse': fx.burst('dust', g.hero.x, g.hero.y, 20); break;
       case 'wave':

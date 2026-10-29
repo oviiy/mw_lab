@@ -1,6 +1,6 @@
 // DOM side: HUD, world-anchored bubbles and numbers, the 海克斯 picker and the screens.
 import * as THREE from 'three';
-import { AUGMENTS, STAT_UPGRADES, TIER_NAME, SUBTITLE, ENEMY_NAMES, HERO, HUBBY, WAVES, PICKUPS } from './config.js';
+import { AUGMENTS, STAT_UPGRADES, TIER_NAME, SUBTITLE, ENEMY_NAMES, HERO, HUBBY, WAVES, PICKUPS, BUILD_PATHS } from './config.js';
 import { xpNeed } from './game.js';
 
 const $ = (id) => document.getElementById(id);
@@ -94,7 +94,7 @@ export function createUI(camera) {
     else if (g.waveT === 0) { wt.textContent = `清场 ${g.enemies.length + g.spawns.length}`; wt.classList.remove('low'); }
     else { const sec = Math.ceil(g.waveT / 60); wt.textContent = `${sec / 60 | 0}:${String(sec % 60).padStart(2, '0')}`; wt.classList.toggle('low', sec <= 5); }
     const bb = $('bossbar');
-    if (g.boss) { bb.hidden = false; $('bossName').textContent = g.boss.name; $('bossFill').style.width = Math.max(0, g.boss.hp / g.boss.max * 100) + '%'; } else bb.hidden = true;
+    if (g.boss) { bb.hidden = false; $('bossName').textContent = g.boss.name + (g.boss.invulnerable > 0 ? ' · 招式中' : ''); $('bossFill').style.width = Math.max(0, g.boss.hp / g.boss.max * 100) + '%'; } else bb.hidden = true;
     $('kills').textContent = '击败 ' + g.kills;
     $('score').firstChild.nodeValue = g.score.toLocaleString();
     const cb = $('combo');
@@ -138,11 +138,11 @@ export function createUI(camera) {
     const em = $('pickTier');
     $('pickTitle').textContent = isStat ? '基础升级' : '海克斯强化';
     em.textContent = isStat ? '1 / 2' : TIER_NAME[tier] + ' · 2 / 2'; em.className = tier;
-    $('pickSub').textContent = isStat ? `${HUBBY}：先练一项本事，再选海克斯` : `${HUBBY}：再选一个海克斯吧`;
+    $('pickSub').textContent = isStat ? `${HUBBY}：先练一项本事，再选海克斯` : `${HUBBY}：再选一个海克斯吧 · 本局倾向 ${BUILD_PATHS[g.meta.focus]}`;
     const lw = g.lastWave;
     const s = g.hero.s;
     const stats = isStat ? `<span>子弹 ${s.count} 发</span><span>伤害 ${s.dmg.toFixed(1)}</span><span>生命 ${Math.ceil(s.hp)}/${s.maxhp}</span><span>恢复 ${s.regen}/6 秒</span>` : '';
-    $('summary').innerHTML = (lw ? `<span class="rate ${lw.rating}">${lw.rating}</span><span>第 ${lw.n} 波完成</span><span>击败 ${lw.kills}</span><span>最高连杀 ${lw.best}</span>${lw.bonus ? `<span>评价奖励 +${lw.bonus}</span>` : ''}${lw.reroll ? '<span>无伤：海克斯重掷 +1</span>' : ''}` : '') + stats;
+    $('summary').innerHTML = (lw ? `<span class="rate ${lw.rating}">${lw.rating}</span><span>第 ${lw.n} 波完成</span><span>击败 ${lw.kills}</span><span>最高连杀 ${lw.best}</span><span>自动拾取 ${lw.gems} 糖果 · ${lw.supplies} 补给</span>${lw.bonus ? `<span>评价奖励 +${lw.bonus}</span>` : ''}${lw.reroll ? '<span>无伤：海克斯重掷 +1</span>' : ''}` : '') + stats;
     const own = (id) => (isStat ? g.hero.statUps : g.hero.augs).filter((a) => a === id).length;
     $('cards').innerHTML = g.offer.list.map((id, i) => {
       const a = isStat ? STAT[id] : AUG[id];
@@ -158,9 +158,11 @@ export function createUI(camera) {
 
   function stats(g) {
     const h = g.hero;
-    const best = Math.max(g.score, Number(localStorage.getItem('xo.best') || 0));
-    localStorage.setItem('xo.best', best);
-    const rows = [[g.score.toLocaleString(), '甜度' + (g.score >= best ? '（新纪录！）' : '')], [best.toLocaleString(), '最佳甜度'], [g.wave + ' / ' + WAVES, '波次'], [g.kills, '击败'], [g.bestCombo, '最高连杀'], [g.hitsTotal, '我箭中了（次）']];
+    let oldBest = 0;
+    try { oldBest = Number(localStorage.getItem('xo.best') || 0); } catch { /* Browsers may disable storage. */ }
+    const best = Math.max(g.score, oldBest);
+    try { localStorage.setItem('xo.best', best); } catch { /* The run still works without storage. */ }
+    const rows = [[g.score.toLocaleString(), '甜度' + (g.score > oldBest ? '（新纪录！）' : '')], [best.toLocaleString(), '最佳甜度'], ['+' + g.earned, '本局糖票'], [g.meta.points, '持有糖票'], [g.wave + ' / ' + WAVES, '波次'], [g.kills, '击败'], [g.bestCombo, '最高连杀'], [g.hitsTotal, '我箭中了（次）']];
     return rows.map(([b, s]) => `<div><b>${b}</b><small>${s}</small></div>`).join('');
   }
   function renderOver(g) { $('overTitle').textContent = g.overQuote; $('overStats').innerHTML = stats(g); }

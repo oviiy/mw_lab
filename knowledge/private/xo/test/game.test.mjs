@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createGame, step, startGame, applyAugment, applyStatUpgrade, rollOffer, rollStatOffer, xpNeed, hurtHero, DEF, AW, HZ } from '../src/game.js';
+import { createGame, step, startGame, applyAugment, applyStatUpgrade, rollOffer, rollStatOffer, xpNeed, hurtHero, purchaseMeta, setBuildFocus, DEF, AW, HZ } from '../src/game.js';
 import { AUGMENTS, STAT_UPGRADES, WAVES } from '../src/config.js';
+import { makeEnemy, makeTurtle, template, instantiate } from '../src/models.js';
 
 function seeded(seed = 7) {
   let a = seed >>> 0;
@@ -17,6 +18,104 @@ test('start puts the turtle in the middle of wave 1', () => {
   assert.equal(g.wave, 1);
   assert.equal(g.hero.x, 0);
   assert.equal(g.hero.s.hp, 15);
+});
+
+test('permanent shop upgrades persist through new runs and cannot be bought during play', () => {
+  const g = createGame({ rng: seeded(1), meta: { points: 50, levels: { health: 1 }, focus: 'bullet' } });
+  assert.equal(purchaseMeta(g, 'damage'), true);
+  assert.equal(g.meta.points, 25);
+  startGame(g);
+  assert.equal(g.hero.s.maxhp, 17);
+  assert.equal(g.hero.s.dmg, 5.25);
+  assert.equal(purchaseMeta(g, 'damage'), false);
+  g.hero.inv = 0;
+  hurtHero(g, 999, 0, 1);
+  assert.equal(g.state, 'over');
+  const points = g.meta.points;
+  assert.ok(g.earned > 0);
+  hurtHero(g, 999, 0, 1);
+  assert.equal(g.meta.points, points, 'a run pays only once');
+});
+
+test('selected build always has a related hex option in each tier', () => {
+  const g = started();
+  g.state = 'title';
+  for (const focus of ['spider', 'bullet', 'turtle', 'hubby']) {
+    assert.equal(setBuildFocus(g, focus), true);
+    g.state = 'play';
+    for (const tier of ['silver', 'gold', 'prism']) {
+      const offer = rollOffer(g, tier);
+      assert.ok(offer.list.some((id) => AUGMENTS.find((a) => a.id === id)?.path === focus), `${focus} ${tier}`);
+    }
+    g.state = 'title';
+  }
+});
+
+test('spider web kills do not recharge the spider without a capped echo augment', () => {
+  const g = started();
+  g.hero.ult = 100; g.hero.cd = 1e9; g.spawnT = 1e9; g.hero.inv = 1e9;
+  g.enemies = [{ id: 999, type: 'durian', x: 2, y: 0, r: .45, hp: 1, max: 6, sp: 0, dmg: 0, xp: 1, t: 0, flash: 0, stun: 0, web: 0, kx: 0, ky: 0, mode: 'walk', modeT: 0, carry: 0, cd: 1e9, hitBy: {} }];
+  step(g, { mx: 0, my: 0, pressed: { ult: true } });
+  run(g, 25);
+  assert.equal(g.hero.ult, 0);
+});
+
+test('wave clear collects every remaining gem and supply before the picker', () => {
+  const g = started();
+  g.waveT = 1; g.spawnT = 1e9; g.enemies = []; g.spawns = [];
+  g.hero.s.hp = 5;
+  g.gems = [{ id: 900, x: 10, y: 10, v: 12 }];
+  g.pickups = [
+    { id: 901, kind: 'chest', x: 10, y: 10, t: 100 },
+    { id: 902, kind: 'douzhi', x: -10, y: -10, t: 100 },
+    { id: 903, kind: 'meteor', x: 8, y: 8, t: 100 },
+  ];
+  step(g, idle);
+  assert.equal(g.state, 'pick');
+  assert.equal(g.gems.length, 0);
+  assert.equal(g.pickups.length, 0);
+  assert.deepEqual([g.lastWave.gems, g.lastWave.supplies], [1, 3]);
+  assert.ok(g.hero.s.hp > 5);
+  assert.deepEqual(g.pendingSupplies, ['chest', 'meteor'], 'temporary effects wait for the next fight');
+  assert.ok(g.events.some((e) => e.type === 'lootSweep'));
+  g.st = 30; step(g, { mx: 0, my: 0, pressed: { pick: 0 } });
+  g.st = 30; step(g, { mx: 0, my: 0, pressed: { pick: 0 } });
+  g.waveClock = 180; g.spawnT = 1e9; g.hero.inv = 1e9;
+  g.enemies = [{ id: 999, type: 'durian', x: 2, y: 0, r: .45, hp: 100, max: 100, sp: 0, dmg: 0, xp: 1, t: 0, flash: 0, stun: 0, web: 0, kx: 0, ky: 0, mode: 'walk', modeT: 0, carry: 0, cd: 1e9, hitBy: {} }];
+  step(g, idle);
+  assert.deepEqual(g.pendingSupplies, []);
+  assert.ok(g.score >= 500, 'banked chest pays out when the next fight begins');
+});
+
+test('later levels slow down and late waves keep finite timers', () => {
+  assert.ok(xpNeed(16) - xpNeed(15) > xpNeed(7) - xpNeed(6));
+  const g = started();
+  for (let wave = 2; wave <= WAVES; wave++) {
+    g.state = 'pick'; g.pickPhase = 'hex'; g.picks = 1; g.st = 30; rollOffer(g);
+    step(g, { mx: 0, my: 0, pressed: { pick: 0 } });
+    assert.equal(g.wave, wave);
+    assert.ok(Number.isFinite(g.waveT));
+    assert.ok(g.eliteAt.every(Number.isFinite));
+  }
+  assert.equal(g.bossWave, true);
+  assert.ok(DEF.finaljudge.hp > DEF.judge.hp);
+});
+
+test('title character gear follows the animated body after model baking', () => {
+  const originalDocument = globalThis.document;
+  globalThis.document = { createElement: () => ({ getContext: () => ({ fillRect() {}, strokeRect() {}, fillText() {} }) }) };
+  try {
+    const turtle = instantiate(template(makeTurtle()));
+    assert.equal(turtle.userData.gun.parent, turtle.userData.body);
+    for (const [type, gear] of [['caesar', 'spear'], ['chenwei', 'rifle'], ['jia', 'sign']]) {
+      const model = instantiate(template(makeEnemy(type)));
+      assert.equal(model.userData.body.parent, model, `${type} animates the whole character`);
+      assert.equal(model.userData[gear].parent, model.userData.body, `${type} carries ${gear}`);
+    }
+  } finally {
+    if (originalDocument === undefined) delete globalThis.document;
+    else globalThis.document = originalDocument;
+  }
 });
 
 test('the turtle moves and stays inside the courtyard', () => {
@@ -186,8 +285,13 @@ test('boss waves end only when the boss falls, and the last one wins the game', 
   run(g, 200);
   assert.ok(g.boss, 'the judge arrived');
   assert.equal(g.state, 'play');
-  g.boss.hp = 1; g.hero.s.dmg = 50; g.hero.s.crit = 0;
-  for (let i = 0; i < 600 && g.boss; i++) { step(g, idle); g.events.length = 0; if (g.boss) g.boss.web = 10; }
+  assert.equal(g.boss.type, 'finaljudge');
+  g.hero.s.dmg = 10000; g.hero.s.crit = 0;
+  for (let phase = 0; phase < 3; phase++) {
+    g.boss.x = 2; g.boss.y = 0; g.boss.hp = 1; g.boss.invulnerable = 0; g.boss.web = 0; g.boss.mode = 'walk'; g.boss.cd = 1e9; g.hero.cd = 0;
+    for (let i = 0; i < 40 && g.boss && g.boss.phase === phase; i++) run(g, 1);
+    if (g.boss) assert.equal(g.boss.phase, phase + 1);
+  }
   assert.equal(g.boss, null);
   assert.equal(g.state, 'play', 'the boss death does not skip surviving enemies');
   g.enemies = []; g.spawns = [];
@@ -195,12 +299,12 @@ test('boss waves end only when the boss falls, and the last one wins the game', 
   assert.equal(g.state, 'win');
 });
 
-test('wave 5 waits for 大毛 split enemies before opening rewards', () => {
+test('wave 4 waits for 大毛 split enemies before opening rewards', () => {
   const g = started();
   g.hero.inv = 1e9;
-  g.wave = 4; g.state = 'pick'; g.pickPhase = 'hex'; g.picks = 1; rollOffer(g); g.st = 30;
+  g.wave = 3; g.state = 'pick'; g.pickPhase = 'hex'; g.picks = 1; rollOffer(g); g.st = 30;
   step(g, { mx: 0, my: 0, pressed: { pick: 0 } });
-  assert.equal(g.wave, 5);
+  assert.equal(g.wave, 4);
   run(g, 200);
   assert.ok(g.boss);
   const boss = g.boss;
