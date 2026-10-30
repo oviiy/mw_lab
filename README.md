@@ -12,6 +12,7 @@ Browser games, research tools, and knowledge pages. The [file browser](https://o
 | Mathematical Finance Map | [Read](./knowledge/math-finance-map.html) |
 | AI Industry Encyclopedia | [Read](./knowledge/ai-industry-chain-encyclopedia.html) |
 | Theorem Library | [Read](./knowledge/theorem-library.html) |
+| Rulebook 3D · American Sports | [Open](./knowledge/sports-rules-3d.html) |
 | Same Loan, Different Price | [Read research](./knowledge/last-mark/web/) · [Source and data notes](./knowledge/last-mark/README.md) |
 | AI Credit Paper · AI Credit Monitor | [Read research](./knowledge/ai-credit-paper/) · [Browse source and data](./index.html?path=knowledge/ai-credit-paper) |
 | 浮垣记 | [Read](./knowledge/浮垣记/) · [Browse source](./index.html?path=knowledge/浮垣记) |
@@ -29,6 +30,7 @@ Browser games, research tools, and knowledge pages. The [file browser](https://o
 | World Cup Bracket Picker | [Open](./tools/worldcup.html) |
 | AI Debt Tracker | [Open site](./tools/ai-debt-tracker/web/dist/) · [Source and data notes](./tools/ai-debt-tracker/README.md) |
 | Money Trail | [Open site](./tools/money-trail/) · [Source and data notes](./tools/money-trail/README.md) |
+| 轻TV | [Open](./tools/tv/) · [Setup notes](./tools/tv/README.md) |
 
 [`Quick_Pull.bat`](./tools/Quick_Pull.bat) and [`portfolio_rotation.py`](./tools/portfolio_rotation.py) are local utilities, not browser pages.
 
@@ -41,6 +43,8 @@ Browser games, research tools, and knowledge pages. The [file browser](https://o
 | Catrun | [Play](./games/Catrun.html) |
 | Three Body | [Play](./games/ThreeBody.html) |
 | Tiny Gods | [Play](./games/tiny-gods.html) |
+| Salon des Jeux | [Play](./games/salon.html) |
+| HARDWOOD | [Play](./games/hoops.html) |
 | Dragon Turf | [Play](./games/dragon-turf/) · [Source](./games/dragon-turf/README.md) |
 | Skerry | [Play](./games/skerry/dist/) · [Source](./games/skerry/README.md) |
 | Hexloop | [Play](./games/hexloop/dist/) · [Source](./games/hexloop/) |

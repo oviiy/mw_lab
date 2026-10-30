@@ -1,0 +1,495 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0f1115">
+<meta name="referrer" content="no-referrer">
+<title>轻TV</title>
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1/dist/hls.min.js" defer></script>
+<style>
+:root{--bg:#0f1115;--card:#1a1d24;--line:#2a2f3a;--fg:#e8eaed;--mut:#8a9099;--acc:#4f8cff;--ok:#3ccf7a;--bad:#ff5c5c}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.45 -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif}
+input,textarea,button{font:inherit;color:inherit}
+input,textarea{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:9px 12px;width:100%;outline:none;font-size:16px}
+textarea{min-height:80px;resize:vertical}
+button{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 12px;cursor:pointer;white-space:nowrap}
+button.pri{background:var(--acc);border-color:var(--acc);color:#fff}
+header{position:sticky;top:0;z-index:5;background:var(--bg);display:flex;gap:8px;padding:10px 12px;padding-top:max(10px,env(safe-area-inset-top));border-bottom:1px solid var(--line)}
+header form{flex:1;display:flex;gap:8px}
+main{padding:12px;max-width:1100px;margin:0 auto;padding-bottom:calc(24px + env(safe-area-inset-bottom))}
+h3{margin:18px 0 10px;font-size:15px;display:flex;justify-content:space-between;align-items:center}
+h3 a{font-weight:normal;font-size:13px;color:var(--mut);cursor:pointer}
+.muted{color:var(--mut);font-size:13px}
+#status{min-height:20px;margin-bottom:8px}
+#status a{color:var(--acc);cursor:pointer}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(105px,1fr));gap:12px}
+.card{cursor:pointer;min-width:0}
+.card .pic{position:relative;aspect-ratio:2/3;border-radius:8px;background:var(--card);overflow:hidden;display:flex;align-items:center;justify-content:center;color:var(--mut);font-size:12px;text-align:center;padding:4px}
+.card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.card .t{margin-top:6px;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.card .s{font-size:12px;color:var(--mut);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.badge{position:absolute;top:6px;left:6px;z-index:1;font-size:11px;padding:1px 6px;border-radius:6px;background:#000b}
+.badge.ok{color:var(--ok)}.badge.bad{color:var(--bad)}
+.card.bad{opacity:.4}
+#player{position:fixed;inset:0;background:var(--bg);z-index:10;overflow:auto;display:none;padding-bottom:env(safe-area-inset-bottom)}
+#player .bar{display:flex;align-items:center;gap:10px;padding:10px 12px;padding-top:max(10px,env(safe-area-inset-top))}
+#player .bar b{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+video{width:100%;aspect-ratio:16/9;max-height:62vh;background:#000;display:block}
+.pbody{padding:12px;max-width:1100px;margin:0 auto}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font-size:13px;padding:6px 10px}
+.chip.on{background:var(--acc);border-color:var(--acc);color:#fff}
+.chip.bad{color:var(--bad);opacity:.6}
+.chip i{font-style:normal;margin-left:4px}
+.eps{display:grid;grid-template-columns:repeat(auto-fill,minmax(76px,1fr));gap:8px}
+.eps button{overflow:hidden;text-overflow:ellipsis;font-size:13px;padding:8px 4px}
+#sheet{position:fixed;inset:0;z-index:20;background:#000a;display:none;align-items:flex-end;justify-content:center}
+#sheet .box{background:var(--bg);width:100%;max-width:640px;max-height:92vh;overflow:auto;border-radius:16px 16px 0 0;padding:16px;padding-bottom:calc(16px + env(safe-area-inset-bottom))}
+#sheet label{display:block;margin:12px 0 6px;font-size:13px;color:var(--mut)}
+#sheet .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.src{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--line);font-size:13px}
+.src span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.src input{width:auto}
+#toast{position:fixed;left:50%;bottom:calc(30px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#333e;padding:10px 16px;border-radius:10px;z-index:30;font-size:14px;display:none;max-width:90vw;text-align:center}
+</style>
+</head>
+<body>
+<header>
+  <form id="sf"><input id="q" type="search" placeholder="搜索电影 / 剧集 / 综艺" enterkeyhint="search" autocomplete="off"><button class="pri">搜索</button></form>
+  <button id="setBtn" aria-label="设置">⚙︎</button>
+</header>
+<main>
+  <div id="status" class="muted"></div>
+  <div id="results" class="grid"></div>
+  <div id="home"></div>
+</main>
+
+<div id="player">
+  <div class="bar"><button id="back">‹ 返回</button><b id="pTitle"></b></div>
+  <video id="video" controls playsinline webkit-playsinline preload="auto"></video>
+  <div class="pbody">
+    <div id="pSub" class="muted"></div>
+    <h3>线路</h3><div id="lines" class="chips"></div>
+    <h3>选集</h3><div id="eps" class="eps"></div>
+  </div>
+</div>
+
+<div id="sheet"><div class="box">
+  <h3 style="margin-top:0">设置 <a id="closeSheet">关闭</a></h3>
+  <label>TVBox 配置地址（可多个，用空格或换行分隔）</label>
+  <textarea id="cfgUrl" placeholder="https://example.com/tvbox.json"></textarea>
+  <label>自定义苹果CMS接口（每行一个：名称,接口地址）</label>
+  <textarea id="custom" placeholder="某某资源,https://example.com/api.php/provide/vod/"></textarea>
+  <label>CORS 代理（Cloudflare Worker 等，形如 https://xxx.workers.dev/?url= ）</label>
+  <input id="proxy" placeholder="https://xxx.workers.dev/?url=">
+  <label style="display:flex;gap:8px;align-items:center;color:var(--fg)"><input id="hideBad" type="checkbox" style="width:auto"> 隐藏不可播放的结果</label>
+  <div class="row"><button class="pri" id="saveBtn">保存并加载</button><button id="checkBtn">重新检测源</button></div>
+  <h3>源列表 <span id="srcSum" class="muted"></span></h3>
+  <div id="srcList"></div>
+</div></div>
+<div id="toast"></div>
+
+<script>
+const $ = s => document.querySelector(s);
+const LS = {
+  get: (k, d) => { try { return JSON.parse(localStorage.getItem(k)) ?? d } catch { return d } },
+  set: (k, v) => localStorage.setItem(k, JSON.stringify(v)),
+};
+const S = Object.assign({ configUrl: '', custom: '', proxy: '', hideBad: true, sources: [], off: [] }, LS.get('tv.cfg', {}));
+const save = () => LS.set('tv.cfg', S);
+const health = LS.get('tv.health', {});          // api -> {ok, t}
+const HEALTH_TTL = 12 * 3600e3;
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+let toastT;
+function toast(msg) { const t = $('#toast'); t.textContent = msg; t.style.display = 'block'; clearTimeout(toastT); toastT = setTimeout(() => t.style.display = 'none', 3000) }
+const status = html => $('#status').innerHTML = html;
+
+// ---------- 网络 ----------
+const px = u => S.proxy ? S.proxy + encodeURIComponent(u) : u;
+async function fetchT(url, ms, opt = {}) {
+  const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), ms);
+  try { return await fetch(url, { ...opt, signal: ctl.signal }) } finally { clearTimeout(t) }
+}
+async function get(url, ms = 8000) {
+  const r = await fetchT(px(url), ms);
+  if (!r.ok) throw new Error('HTTP ' + r.status);
+  return r.text();
+}
+async function pool(items, n, fn) {
+  let i = 0;
+  await Promise.all(Array.from({ length: Math.min(n, items.length) }, async () => { while (i < items.length) { const k = i++; await fn(items[k], k) } }));
+}
+
+// ---------- 配置 / 源 ----------
+const b64 = s => new TextDecoder().decode(Uint8Array.from(atob(s.replace(/[^A-Za-z0-9+/=]/g, '')), c => c.charCodeAt(0)));
+function decodeConfig(txt) {
+  txt = txt.trim();
+  if (txt[0] !== '{') {
+    const i = txt.lastIndexOf('**');                // 图片里藏 base64 的配置
+    if (i >= 0) txt = b64(txt.slice(i + 2));
+    else if (/^2423/.test(txt)) throw new Error('暂不支持加密配置');
+    else txt = b64(txt);
+  }
+  return JSON.parse(txt.replace(/^\s*\/\/.*$/mg, ''));
+}
+async function collect(url, list, depth) {
+  const j = decodeConfig(await get(url, 15000));
+  if (Array.isArray(j.urls) && depth < 1)          // 多仓配置
+    for (const x of j.urls.slice(0, 8)) try { await collect(x.url, list, depth + 1) } catch {}
+  for (const s of j.sites || [])
+    if ((s.type === 0 || s.type === 1) && /^https?:\/\//.test(s.api) && s.searchable !== 0)
+      list.push({ name: s.name || s.key, api: s.api, type: s.type });
+}
+async function loadSources() {
+  const list = [];
+  for (const u of S.configUrl.split(/\s+/).filter(Boolean)) {
+    status('正在加载配置…');
+    try { await collect(u, list, 0) } catch (e) { toast('配置加载失败：' + e.message) }
+  }
+  for (const line of S.custom.split('\n')) {
+    const m = line.trim().match(/^(?:(.+?)\s*[,，|]\s*)?(https?:\/\/\S+)$/);
+    if (m) list.push({ name: m[1] || new URL(m[2]).host, api: m[2], type: -1 });
+  }
+  const seen = new Set();
+  S.sources = list.filter(s => !seen.has(s.api) && seen.add(s.api));
+  save();
+  status(`共 ${S.sources.length} 个可搜索的源`);
+}
+const apiUrl = (s, p) => s.api + (s.api.includes('?') ? '&' : '?') + new URLSearchParams(p);
+const healthy = s => { const h = health[s.api]; return !(h && !h.ok && Date.now() - h.t < HEALTH_TTL) };
+const usable = s => !S.off.includes(s.api) && healthy(s);
+function setHealth(s, ok) { health[s.api] = { ok, t: Date.now() }; LS.set('tv.health', health) }
+
+async function checkHealth(force) {
+  const todo = S.sources.filter(s => force || !health[s.api] || Date.now() - health[s.api].t > HEALTH_TTL);
+  if (!todo.length) return;
+  let done = 0;
+  await pool(todo, 8, async s => {
+    let ok = false;
+    try { ok = !!parseResp(await get(apiUrl(s, { ac: 'list' }), 7000)) } catch {}
+    setHealth(s, ok);
+    if (!searching) status(`检测源 ${++done}/${todo.length}`);
+    renderSources();
+  });
+  if (!searching) status(`可用源 ${S.sources.filter(usable).length}/${S.sources.length}`);
+}
+
+// ---------- 苹果CMS 解析 ----------
+function parseEps(s) {
+  return s.split('#').map(x => x.trim()).filter(Boolean).map((e, i) => {
+    const k = e.indexOf('$');
+    return k >= 0 ? { name: e.slice(0, k).trim() || `第${i + 1}集`, url: e.slice(k + 1).trim() } : { name: `第${i + 1}集`, url: e };
+  });
+}
+function groupsOf(from, url) {
+  const fs = from.split('$$$');
+  return url.split('$$$').map((u, i) => ({ from: fs[i] || `线路${i + 1}`, eps: parseEps(u) }));
+}
+function parseResp(t) {
+  t = t.trim();
+  if (t[0] === '{') {
+    const j = JSON.parse(t);
+    if (!Array.isArray(j.list)) return null;
+    return j.list.map(v => ({
+      id: v.vod_id, name: v.vod_name || '', pic: v.vod_pic || '', note: v.vod_remarks || '', year: v.vod_year || '',
+      groups: v.vod_play_url ? groupsOf(String(v.vod_play_from || ''), String(v.vod_play_url)) : null,
+    }));
+  }
+  if (t[0] === '<') {
+    const x = new DOMParser().parseFromString(t, 'text/xml');
+    if (x.querySelector('parsererror') || !x.querySelector('list')) return null;
+    return [...x.querySelectorAll('video')].map(e => {
+      const g = n => e.querySelector(n)?.textContent.trim() || '';
+      const dds = [...e.querySelectorAll('dl > dd')];
+      return { id: g('id'), name: g('name'), pic: g('pic'), note: g('note'), year: g('year'),
+        groups: dds.length ? dds.map((d, i) => ({ from: d.getAttribute('flag') || `线路${i + 1}`, eps: parseEps(d.textContent) })) : null };
+    });
+  }
+  return null;
+}
+// 只保留能直接播放的地址（m3u8 / mp4），网页解析类地址直接丢掉
+const PLAYABLE = u => /^https?:\/\//i.test(u) && /m3u8|\.mp4/i.test(u);
+const cleanGroups = gs => (gs || []).map(g => ({ ...g, eps: g.eps.filter(e => PLAYABLE(e.url)) })).filter(g => g.eps.length);
+const norm = s => String(s).toLowerCase().replace(/[\s·:：,，.。!！?？\-—_'"《》【】()（）]/g, '');
+
+// ---------- 可播放性检测 ----------
+const probeCache = new Map();
+function probe(url) {
+  if (!probeCache.has(url)) probeCache.set(url, (async () => {
+    try {
+      if (!/m3u8/i.test(url)) { const r = await fetchT(px(url), 7000, { headers: { Range: 'bytes=0-1' } }); r.body?.cancel(); return r.ok }
+      return (await get(url, 7000)).trimStart().startsWith('#EXTM3U');
+    } catch { return false }
+  })());
+  return probeCache.get(url);
+}
+const probeQ = []; let probing = 0;
+function enqueue(job) { probeQ.push(job); pump() }
+function pump() { while (probing < 6 && probeQ.length) { const j = probeQ.shift(); probing++; j().finally(() => { probing--; pump() }) } }
+function itemSt(it) {
+  const st = it.lines.map(l => l.st);
+  if (st.includes('ok')) return 'ok';
+  if (st.includes('wait')) return 'wait';
+  if (st.includes('unk')) return 'unk';
+  return 'bad';
+}
+
+// ---------- 搜索 ----------
+let results = new Map(), searchId = 0, searching = false, kwN = '';
+async function search(kw) {
+  kw = kw.trim(); if (!kw) return;
+  const srcs = S.sources.filter(usable);
+  if (!srcs.length) { toast('还没有可用的源，请先在设置里添加'); return openSheet() }
+  const id = ++searchId; searching = true; kwN = norm(kw);
+  probeQ.length = 0; results = new Map();
+  $('#results').innerHTML = ''; $('#home').innerHTML = '';
+  let done = 0;
+  const upd = () => {
+    const all = [...results.values()], ok = all.filter(i => itemSt(i) === 'ok').length;
+    status(`${searching ? `搜索中 ${done}/${srcs.length} 个源 · ` : ''}找到 ${all.length} 部${S.proxy ? `，已确认可播 ${ok} 部` : ''}`
+      + (hiddenN ? ` · 已隐藏 ${hiddenN} 部不可播放 <a onclick="S.hideBad=false;save();renderResults()">显示</a>` : ''));
+  };
+  window.updStatus = upd;
+  await pool(srcs, 8, async s => {
+    try {
+      let list = parseResp(await get(apiUrl(s, s.type === 0 ? { ac: 'videolist', wd: kw } : { ac: 'detail', wd: kw }), 9000));
+      if (!list) throw 0;
+      list = list.filter(v => norm(v.name).includes(kwN));
+      const need = list.filter(v => !v.groups);
+      if (need.length) try {
+        const d = parseResp(await get(apiUrl(s, { ac: 'detail', ids: need.slice(0, 20).map(v => v.id).join(',') }), 9000)) || [];
+        const m = new Map(d.map(v => [String(v.id), v]));
+        list = list.map(v => v.groups ? v : m.get(String(v.id)) || v);
+      } catch {}
+      setHealth(s, true);
+      if (id !== searchId) return;
+      for (const v of list) addResult(s, v);
+    } catch { setHealth(s, false) }
+    done++;
+    if (id === searchId) { rerender(); upd() }
+  });
+  if (id === searchId) { searching = false; rerender(); upd(); if (!results.size) status('没有找到可播放的结果，换个关键词试试') }
+}
+function addResult(src, v) {
+  const groups = cleanGroups(v.groups);
+  if (!groups.length) return;
+  const key = norm(v.name);
+  let it = results.get(key);
+  if (!it) results.set(key, it = { name: v.name, pic: v.pic, note: v.note, year: v.year, lines: [] });
+  for (const g of groups) {
+    const line = { src: src.name, from: g.from, eps: g.eps, st: S.proxy ? 'wait' : 'unk' };
+    it.lines.push(line);
+    if (S.proxy) enqueue(async () => { line.st = await probe(line.eps[0].url) ? 'ok' : 'bad'; rerender(); window.updStatus?.() });
+  }
+}
+
+// ---------- 渲染 ----------
+let rq = 0, hiddenN = 0;
+const rerender = () => { if (!rq) rq = requestAnimationFrame(() => { rq = 0; renderResults() }) };
+const RANK = { ok: 0, unk: 1, wait: 2, bad: 3 };
+function makeCard(it, onclick) {
+  const el = document.createElement('div');
+  el.className = 'card';
+  el.innerHTML = `<div class="pic">${esc(it.name)}<span class="badge"></span></div><div class="t">${esc(it.name)}</div><div class="s"></div>`;
+  if (it.pic) {
+    const img = new Image(); img.loading = 'lazy'; img.referrerPolicy = 'no-referrer';
+    img.onerror = () => img.remove(); img.src = it.pic;
+    el.querySelector('.pic').prepend(img);
+  }
+  el.onclick = onclick;
+  return el;
+}
+function renderResults() {
+  const box = $('#results');
+  const arr = [...results.values()];
+  arr.forEach(it => it.st = itemSt(it));
+  arr.sort((a, b) => (norm(b.name) === kwN) - (norm(a.name) === kwN) || RANK[a.st] - RANK[b.st]);
+  hiddenN = 0;
+  for (const it of arr) {
+    it.el ||= makeCard(it, () => openPlayer(it));
+    const ok = it.lines.filter(l => l.st === 'ok').length;
+    const b = it.el.querySelector('.badge');
+    b.className = 'badge ' + it.st;
+    b.textContent = it.st === 'ok' ? `✓ ${ok}线` : it.st === 'bad' ? '不可播' : it.st === 'wait' ? '检测中' : `${it.lines.length}线`;
+    it.el.querySelector('.s').textContent = [it.year, it.note].filter(Boolean).join(' · ');
+    it.el.classList.toggle('bad', it.st === 'bad');
+    it.el.hidden = S.hideBad && it.st === 'bad';
+    if (it.el.hidden) hiddenN++;
+    box.appendChild(it.el);
+  }
+  if (arr.length) window.updStatus?.();
+}
+
+// ---------- 观看历史 ----------
+let hist = LS.get('tv.hist', []);
+function saveHist() {
+  if (!cur) return;
+  const { it, li, ei } = cur, t = Math.floor($('#video').currentTime || cur.t || 0);
+  hist = hist.filter(h => h.name !== it.name);
+  hist.unshift({ name: it.name, pic: it.pic, li, ei, t, lines: it.lines.map(({ src, from, eps }) => ({ src, from, eps })) });
+  hist = hist.slice(0, 20);
+  LS.set('tv.hist', hist);
+}
+function renderHome() {
+  const box = $('#home'); box.innerHTML = '';
+  if (results.size) return;
+  if (!S.sources.length) {
+    box.innerHTML = `<p class="muted">还没有添加任何源。点右上角 ⚙︎ 填入 TVBox 配置地址或苹果CMS接口。</p>`;
+    return;
+  }
+  if (!hist.length) return;
+  box.innerHTML = `<h3>继续观看 <a id="clrHist">清空</a></h3><div class="grid"></div>`;
+  $('#clrHist').onclick = () => { hist = []; LS.set('tv.hist', hist); renderHome() };
+  for (const h of hist) {
+    const el = makeCard(h, () => openPlayer({ ...h, lines: h.lines.map(l => ({ ...l, st: 'unk' })) }, h.li, h.ei, h.t));
+    el.querySelector('.badge').remove();
+    el.querySelector('.s').textContent = h.lines[h.li]?.eps[h.ei]?.name || '';
+    box.lastChild.appendChild(el);
+  }
+}
+
+// ---------- 播放 ----------
+let cur = null, hls = null, playTok = 0;
+const video = $('#video');
+function openPlayer(it, li, ei = 0, t = 0) {
+  if (li == null) { li = it.lines.findIndex(l => l.st === 'ok'); if (li < 0) li = Math.max(0, it.lines.findIndex(l => l.st !== 'bad')) }
+  cur = { it, li, ei, t };
+  $('#pTitle').textContent = it.name;
+  $('#player').style.display = 'block'; document.body.style.overflow = 'hidden';
+  if (!history.state?.player) history.pushState({ player: 1 }, '');
+  playEp(ei, t);
+}
+function closePlayer() {
+  saveHist(); stopVideo(); cur = null;
+  $('#player').style.display = 'none'; document.body.style.overflow = '';
+  renderHome();
+}
+function renderLines() {
+  const box = $('#lines'); box.innerHTML = '';
+  cur.it.lines.forEach((l, i) => {
+    const b = document.createElement('button');
+    b.className = 'chip' + (i === cur.li ? ' on' : '') + (l.st === 'bad' ? ' bad' : '');
+    b.innerHTML = `${esc(l.src)}·${esc(l.from)}<i>${l.st === 'ok' ? '✓' : l.st === 'bad' ? '✗' : ''}</i>`;
+    b.onclick = () => { cur.li = i; playEp(cur.ei) };
+    box.appendChild(b);
+  });
+}
+function renderEps() {
+  const box = $('#eps'); box.innerHTML = '';
+  cur.it.lines[cur.li].eps.forEach((e, i) => {
+    const b = document.createElement('button');
+    b.textContent = e.name; b.title = e.name;
+    if (i === cur.ei) b.className = 'pri';
+    b.onclick = () => playEp(i);
+    box.appendChild(b);
+  });
+}
+function playEp(ei, t = 0) {
+  const l = cur.it.lines[cur.li];
+  cur.ei = Math.min(ei, l.eps.length - 1); cur.t = t;
+  const ep = l.eps[cur.ei];
+  $('#pSub').textContent = `${l.src} · ${l.from} · ${ep.name}`;
+  renderLines(); renderEps(); saveHist();
+  startVideo(ep.url, t);
+}
+function stopVideo() {
+  playTok++;
+  if (hls) { hls.destroy(); hls = null }
+  video.onerror = null; video.removeAttribute('src'); video.load();
+}
+function startVideo(url, t) {
+  stopVideo();
+  const tok = playTok, fail = () => { if (tok === playTok) onPlayFail() };
+  video.addEventListener('loadedmetadata', () => { if (t > 5) video.currentTime = t }, { once: true });
+  const mixed = location.protocol === 'https:' && url.startsWith('http:');
+  const hlsOk = window.Hls && Hls.isSupported();
+  if (/m3u8/i.test(url)) {
+    const native = video.canPlayType('application/vnd.apple.mpegurl');
+    if (native && !(mixed && hlsOk)) { video.onerror = fail; video.src = url }   // iPhone Safari 原生播放
+    else if (hlsOk) useHls(url, mixed && !!S.proxy, tok, fail);
+    else { video.onerror = fail; video.src = url }
+  } else { video.onerror = fail; video.src = mixed ? px(url) : url }
+  video.play().catch(() => {});
+}
+function useHls(url, viaProxy, tok, fail) {
+  const h = hls = new Hls({ maxBufferLength: 30, xhrSetup: viaProxy ? (x, u) => x.open('GET', px(u), true) : undefined });
+  h.on(Hls.Events.ERROR, (_, d) => {
+    if (!d.fatal || tok !== playTok) return;
+    if (!viaProxy && S.proxy && d.type === Hls.ErrorTypes.NETWORK_ERROR) { h.destroy(); useHls(url, true, tok, fail) }  // 跨域被拦 → 走代理
+    else if (d.type === Hls.ErrorTypes.MEDIA_ERROR && !h._rec) { h._rec = 1; h.recoverMediaError() }
+    else fail();
+  });
+  h.loadSource(url); h.attachMedia(video);
+  h.on(Hls.Events.MANIFEST_PARSED, () => video.play().catch(() => {}));
+}
+function onPlayFail() {
+  const lines = cur.it.lines;
+  lines[cur.li].st = 'bad';
+  for (let k = 1; k < lines.length; k++) {
+    const i = (cur.li + k) % lines.length;
+    if (lines[i].st !== 'bad' && lines[i].eps.length > cur.ei) {
+      toast(`当前线路无法播放，已自动切换到「${lines[i].src}·${lines[i].from}」`);
+      cur.li = i; return playEp(cur.ei, Math.floor(video.currentTime || cur.t));
+    }
+  }
+  renderLines(); toast('所有线路都无法播放，换一部试试');
+}
+video.onended = () => { if (cur && cur.ei + 1 < cur.it.lines[cur.li].eps.length) playEp(cur.ei + 1) };
+let lastSave = 0;
+video.ontimeupdate = () => { if (Date.now() - lastSave > 5000) { lastSave = Date.now(); saveHist() } };
+addEventListener('pagehide', saveHist);
+$('#back').onclick = () => history.back();
+addEventListener('popstate', () => { if (cur) closePlayer() });
+
+// ---------- 设置 ----------
+function renderSources() {
+  if ($('#sheet').style.display !== 'flex') return;
+  const box = $('#srcList'); box.innerHTML = '';
+  for (const s of S.sources) {
+    const h = health[s.api], icon = !h ? '…' : h.ok ? '✓' : '✗';
+    const row = document.createElement('div'); row.className = 'src';
+    row.innerHTML = `<b style="color:var(--${!h ? 'mut' : h.ok ? 'ok' : 'bad'})">${icon}</b><span>${esc(s.name)} <i class="muted">${esc(new URL(s.api).host)}</i></span><input type="checkbox" ${S.off.includes(s.api) ? '' : 'checked'}>`;
+    row.querySelector('input').onchange = e => { S.off = e.target.checked ? S.off.filter(a => a !== s.api) : [...S.off, s.api]; save(); sum() };
+    box.appendChild(row);
+  }
+  sum();
+  function sum() { $('#srcSum').textContent = `可用 ${S.sources.filter(usable).length} / ${S.sources.length}` }
+}
+function openSheet() {
+  $('#cfgUrl').value = S.configUrl; $('#custom').value = S.custom; $('#proxy').value = S.proxy; $('#hideBad').checked = S.hideBad;
+  $('#sheet').style.display = 'flex'; renderSources();
+}
+function readSheet() {
+  S.configUrl = $('#cfgUrl').value.trim(); S.custom = $('#custom').value.trim();
+  S.proxy = $('#proxy').value.trim(); S.hideBad = $('#hideBad').checked; save();
+}
+$('#setBtn').onclick = openSheet;
+$('#closeSheet').onclick = () => { readSheet(); $('#sheet').style.display = 'none'; renderResults(); renderHome() };
+$('#sheet').onclick = e => { if (e.target.id === 'sheet') $('#closeSheet').click() };
+$('#saveBtn').onclick = async () => {
+  readSheet();
+  if (!S.proxy) toast('提示：没有代理时大多数源会因跨域无法访问');
+  await loadSources(); renderSources(); renderHome();
+  await checkHealth(false);
+};
+$('#checkBtn').onclick = () => { readSheet(); checkHealth(true) };
+$('#hideBad').onchange = () => { S.hideBad = $('#hideBad').checked; save(); renderResults() };
+$('#sf').onsubmit = e => { e.preventDefault(); $('#q').blur(); search($('#q').value) };
+
+// ---------- 启动 ----------
+(async () => {
+  // 如果是用 serve.mjs 本地打开的，自动使用同源代理
+  if (!S.proxy && location.protocol.startsWith('http') && !localStorage.getItem('tv.cfg')) {
+    try { const r = await fetch('/proxy?url='); if (r.status === 400 && (await r.text()).includes('need ?url')) { S.proxy = location.origin + '/proxy?url='; save() } } catch {}
+  }
+  renderHome();
+  if (S.sources.length) checkHealth(false);
+  else if (!S.configUrl && !S.custom) openSheet();
+})();
+</script>
+</body>
+</html>
